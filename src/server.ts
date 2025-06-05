@@ -7,6 +7,95 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import express, { Express, Request, Response } from 'express';
+import * as os from 'os';
+
+/**
+ * Log levels enumeration
+ */
+export enum LogLevel {
+  FATAL = 0,
+  ERROR = 1,
+  WARN = 2,
+  INFO = 3,
+  DEBUG = 4,
+  TRACE = 5,
+}
+
+/**
+ * Structured log entry interface
+ */
+export interface LogEntry {
+  timestamp: string;
+  level: LogLevel;
+  levelName: string;
+  component: string;
+  message: string;
+  requestId?: string;
+  userId?: string;
+  correlationId?: string;
+  error?: {
+    name: string;
+    message: string;
+    stack?: string;
+    code?: string;
+  };
+  context?: Record<string, any>;
+  duration?: number;
+  metadata?: Record<string, any>;
+}
+
+/**
+ * Error category enumeration for classification
+ */
+export enum ErrorCategory {
+  VALIDATION = 'validation',
+  AUTHENTICATION = 'authentication',
+  AUTHORIZATION = 'authorization',
+  NETWORK = 'network',
+  TIMEOUT = 'timeout',
+  RATE_LIMIT = 'rate_limit',
+  INTERNAL = 'internal',
+  EXTERNAL = 'external',
+  CONFIGURATION = 'configuration',
+  RESOURCE = 'resource',
+}
+
+/**
+ * Structured error interface for consistent error handling
+ */
+export interface StructuredError extends Error {
+  category: ErrorCategory;
+  code: string;
+  statusCode: number;
+  isOperational: boolean;
+  context?: Record<string, any>;
+  requestId?: string;
+  correlationId?: string;
+}
+
+/**
+ * Logger configuration interface
+ */
+export interface LoggerConfig {
+  level: LogLevel;
+  component: string;
+  enableConsole: boolean;
+  enableStructured: boolean;
+  redactSensitive: boolean;
+  sensitiveFields: string[];
+}
+
+/**
+ * Default logger configuration
+ */
+export const DEFAULT_LOGGER_CONFIG: LoggerConfig = {
+  level: LogLevel.INFO,
+  component: 'MCPServer',
+  enableConsole: true,
+  enableStructured: true,
+  redactSensitive: true,
+  sensitiveFields: ['password', 'token', 'key', 'secret', 'authorization', 'cookie'],
+};
 
 /**
  * Configuration options for the MCP server
@@ -24,6 +113,8 @@ export interface MCPServerConfig {
   maxConnections: number;
   /** Enable debug logging */
   debug: boolean;
+  /** Logger configuration */
+  logger?: Partial<LoggerConfig>;
 }
 
 /**
@@ -36,6 +127,7 @@ export const DEFAULT_CONFIG: MCPServerConfig = {
   requestTimeout: 30000, // 30 seconds
   maxConnections: 100,
   debug: false,
+  logger: DEFAULT_LOGGER_CONFIG,
 };
 
 /**
@@ -48,6 +140,76 @@ export enum ServerState {
   STOPPING = 'stopping',
   ERROR = 'error',
 }
+
+/**
+ * Health metrics interface for comprehensive monitoring
+ */
+export interface HealthMetrics {
+  /** Server uptime in milliseconds */
+  uptime: number;
+  /** Current server state */
+  status: ServerState;
+  /** Number of active connections */
+  connections: number;
+  /** Memory usage statistics */
+  memory: {
+    used: number;
+    total: number;
+    percentage: number;
+    heapUsed: number;
+    heapTotal: number;
+    external: number;
+    rss: number;
+  };
+  /** CPU usage information */
+  cpu: {
+    loadAverage: number[];
+    usage: number;
+  };
+  /** System information */
+  system: {
+    platform: string;
+    arch: string;
+    nodeVersion: string;
+    freeMemory: number;
+    totalMemory: number;
+  };
+  /** Request statistics */
+  requests: {
+    total: number;
+    rate: number; // requests per minute
+    errors: number;
+    errorRate: number; // errors per minute
+  };
+  /** Health status assessment */
+  healthy: boolean;
+  /** Timestamp of the health check */
+  timestamp: string;
+}
+
+/**
+ * Health threshold configuration
+ */
+export interface HealthThresholds {
+  /** Maximum memory usage percentage before unhealthy */
+  maxMemoryPercent: number;
+  /** Maximum CPU load average before unhealthy */
+  maxLoadAverage: number;
+  /** Maximum error rate before unhealthy */
+  maxErrorRate: number;
+  /** Maximum number of connections before unhealthy */
+  maxConnections: number;
+}
+
+/**
+ * Default health thresholds
+ */
+export const DEFAULT_HEALTH_THRESHOLDS: HealthThresholds = {
+  maxMemoryPercent: 95, // More lenient for development environments
+  maxLoadAverage: 20,   // More lenient for development environments
+  maxErrorRate: 50,     // 50 errors per minute
+  maxConnections: 90,   // 90% of max connections
+};
 
 /**
  * Main MCP Server class that extends the MCP SDK Server
@@ -63,6 +225,26 @@ export class MCPServer extends Server {
   private activeConnections: Set<Response>;
   private connectionCount: number;
   private signalHandlers: { [key: string]: (...args: any[]) => void } = {};
+  
+  // Health monitoring properties
+  private startTime: [number, number]; // process.hrtime() format
+  private healthThresholds: HealthThresholds;
+  private requestStats: {
+    total: number;
+    errors: number;
+    recentRequests: number[];
+    recentErrors: number[];
+    lastMinuteIndex: number;
+  };
+  
+  // Logging infrastructure
+  private loggerConfig: LoggerConfig;
+  private correlationIds: Map<string, string> = new Map();
+  private errorMetrics: {
+    byCategory: Map<ErrorCategory, number>;
+    byCode: Map<string, number>;
+    total: number;
+  };
 
   /**
    * Create a new MCP Server instance
@@ -93,6 +275,28 @@ export class MCPServer extends Server {
     this.activeConnections = new Set();
     this.connectionCount = 0;
     
+    // Initialize health monitoring
+    this.startTime = process.hrtime();
+    this.healthThresholds = { ...DEFAULT_HEALTH_THRESHOLDS };
+    this.requestStats = {
+      total: 0,
+      errors: 0,
+      recentRequests: new Array(60).fill(0), // Track last 60 minutes
+      recentErrors: new Array(60).fill(0),   // Track last 60 minutes
+      lastMinuteIndex: 0,
+    };
+    
+    // Initialize logging infrastructure
+    this.loggerConfig = { 
+      ...DEFAULT_LOGGER_CONFIG, 
+      ...(this.config.logger || {})
+    };
+    this.errorMetrics = {
+      byCategory: new Map(),
+      byCode: new Map(),
+      total: 0,
+    };
+    
     // Bind methods to preserve context
     this.initialize = this.initialize.bind(this);
     this.shutdown = this.shutdown.bind(this);
@@ -118,7 +322,163 @@ export class MCPServer extends Server {
    * Get server configuration
    */
   public getConfig(): MCPServerConfig {
-    return { ...this.config };
+    return { 
+      ...this.config,
+      logger: { ...this.loggerConfig }
+    };
+  }
+
+  /**
+   * Get comprehensive health metrics
+   */
+  public getHealthMetrics(): HealthMetrics {
+    const uptime = this.getUptime();
+    const memoryUsage = process.memoryUsage();
+    const totalMemory = os.totalmem();
+    const freeMemory = os.freemem();
+    const usedMemory = totalMemory - freeMemory;
+    const memoryPercentage = (usedMemory / totalMemory) * 100;
+    const loadAverage = os.loadavg();
+    
+    // Update request statistics for current minute
+    this.updateRequestStats();
+    
+    const metrics: HealthMetrics = {
+      uptime,
+      status: this.state,
+      connections: this.connectionCount,
+      memory: {
+        used: usedMemory,
+        total: totalMemory,
+        percentage: memoryPercentage,
+        heapUsed: memoryUsage.heapUsed,
+        heapTotal: memoryUsage.heapTotal,
+        external: memoryUsage.external,
+        rss: memoryUsage.rss,
+      },
+      cpu: {
+        loadAverage,
+        usage: loadAverage?.[0] ?? 0, // 1-minute load average
+      },
+      system: {
+        platform: os.platform(),
+        arch: os.arch(),
+        nodeVersion: process.version,
+        freeMemory,
+        totalMemory,
+      },
+      requests: {
+        total: this.requestStats.total,
+        rate: this.getRequestRate(),
+        errors: this.requestStats.errors,
+        errorRate: this.getErrorRate(),
+      },
+      healthy: this.isHealthy(),
+      timestamp: new Date().toISOString(),
+    };
+
+    return metrics;
+  }
+
+  /**
+   * Check if server is healthy based on thresholds
+   */
+  public isHealthy(): boolean {
+    if (this.state !== ServerState.RUNNING) {
+      return false;
+    }
+
+    const totalMemory = os.totalmem();
+    const memoryPercentage = ((totalMemory - os.freemem()) / totalMemory) * 100;
+    
+    // Check memory threshold
+    if (memoryPercentage > this.healthThresholds.maxMemoryPercent) {
+      return false;
+    }
+
+    // Check CPU load average
+    const loadAverage = os.loadavg();
+    if (loadAverage?.[0] && loadAverage[0] > this.healthThresholds.maxLoadAverage) {
+      return false;
+    }
+
+    // Check error rate
+    if (this.getErrorRate() > this.healthThresholds.maxErrorRate) {
+      return false;
+    }
+
+    // Check connection count
+    const maxConnections = (this.config.maxConnections * this.healthThresholds.maxConnections) / 100;
+    if (this.connectionCount > maxConnections) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Get server uptime in milliseconds
+   */
+  private getUptime(): number {
+    const diff = process.hrtime(this.startTime);
+    return Math.round((diff[0] * 1000) + (diff[1] / 1e6));
+  }
+
+  /**
+   * Get current request rate (requests per minute)
+   */
+  private getRequestRate(): number {
+    const sum = this.requestStats.recentRequests.reduce((a, b) => a + b, 0);
+    return sum;
+  }
+
+  /**
+   * Get current error rate (errors per minute)
+   */
+  private getErrorRate(): number {
+    const sum = this.requestStats.recentErrors.reduce((a, b) => a + b, 0);
+    return sum;
+  }
+
+  /**
+   * Update request statistics for the current minute
+   */
+  private updateRequestStats(): void {
+    const currentMinute = Math.floor(Date.now() / 60000);
+    const arrayIndex = currentMinute % 60;
+    
+    if (arrayIndex !== this.requestStats.lastMinuteIndex) {
+      // Reset counters for new minute
+      this.requestStats.recentRequests[arrayIndex] = 0;
+      this.requestStats.recentErrors[arrayIndex] = 0;
+      this.requestStats.lastMinuteIndex = arrayIndex;
+    }
+  }
+
+  /**
+   * Increment request counter
+   */
+  private incrementRequestCount(): void {
+    this.requestStats.total++;
+    this.updateRequestStats();
+    const currentMinute = Math.floor(Date.now() / 60000);
+    const arrayIndex = currentMinute % 60;
+    if (this.requestStats.recentRequests[arrayIndex] !== undefined) {
+      this.requestStats.recentRequests[arrayIndex]++;
+    }
+  }
+
+  /**
+   * Increment error counter
+   */
+  private incrementErrorCount(): void {
+    this.requestStats.errors++;
+    this.updateRequestStats();
+    const currentMinute = Math.floor(Date.now() / 60000);
+    const arrayIndex = currentMinute % 60;
+    if (this.requestStats.recentErrors[arrayIndex] !== undefined) {
+      this.requestStats.recentErrors[arrayIndex]++;
+    }
   }
 
   /**
@@ -373,15 +733,216 @@ export class MCPServer extends Server {
   }
 
   /**
-   * Log message with timestamp and context
-   * Enhanced with request context support
+   * Enhanced structured logging method
    */
-  private log(level: 'info' | 'warn' | 'error' | 'debug', message: string, ...args: any[]): void {
-    if (level === 'debug' && !this.config.debug) return;
+  private log(
+    level: LogLevel | 'info' | 'warn' | 'error' | 'debug' | 'trace' | 'fatal',
+    message: string,
+    context?: Record<string, any>,
+    error?: Error | StructuredError,
+    requestId?: string
+  ): void {
+    // Convert string level to enum
+    let logLevel: LogLevel;
+    if (typeof level === 'string') {
+      logLevel = {
+        'fatal': LogLevel.FATAL,
+        'error': LogLevel.ERROR,
+        'warn': LogLevel.WARN,
+        'info': LogLevel.INFO,
+        'debug': LogLevel.DEBUG,
+        'trace': LogLevel.TRACE,
+      }[level] ?? LogLevel.INFO;
+    } else {
+      logLevel = level;
+    }
     
-    const timestamp = new Date().toISOString();
-    const prefix = `[${timestamp}] [${level.toUpperCase()}] [MCPServer]`;
-    console.log(`${prefix} ${message}`, ...args);
+    // Skip if log level is below configured threshold
+    if (logLevel > this.loggerConfig.level) return;
+    
+    // Skip debug logs unless debug mode is enabled (backward compatibility)
+    if (logLevel === LogLevel.DEBUG && !this.config.debug) return;
+    
+    const entry: LogEntry = {
+      timestamp: new Date().toISOString(),
+      level: logLevel,
+      levelName: LogLevel[logLevel],
+      component: this.loggerConfig.component,
+      message,
+    };
+    
+    if (requestId) {
+      entry.requestId = requestId;
+    }
+    
+    // Add correlation ID if available
+    if (requestId && this.correlationIds.has(requestId)) {
+      const correlationId = this.correlationIds.get(requestId);
+      if (correlationId) {
+        entry.correlationId = correlationId;
+      }
+    }
+    
+    // Add error information if provided
+    if (error) {
+      entry.error = {
+        name: error.name,
+        message: error.message,
+      };
+      if (error.stack) {
+        entry.error.stack = error.stack;
+      }
+      if ((error as any).code) {
+        entry.error.code = (error as any).code;
+      }
+    }
+    
+    // Add context if provided (with sensitive data redaction)
+    if (context) {
+      entry.context = this.loggerConfig.redactSensitive 
+        ? this.redactSensitiveData(context) 
+        : context;
+    }
+    
+    // Output structured log entry
+    if (this.loggerConfig.enableStructured) {
+      this.outputStructuredLog(entry);
+    }
+    
+    // Output console log for backward compatibility
+    if (this.loggerConfig.enableConsole) {
+      this.outputConsoleLog(entry);
+    }
+  }
+
+  /**
+   * Output structured JSON log entry
+   */
+  private outputStructuredLog(entry: LogEntry): void {
+    console.log(JSON.stringify(entry));
+  }
+
+  /**
+   * Output human-readable console log entry
+   */
+  private outputConsoleLog(entry: LogEntry): void {
+    const prefix = `[${entry.timestamp}] [${entry.levelName}] [${entry.component}]`;
+    const requestInfo = entry.requestId ? ` [${entry.requestId}]` : '';
+    const correlationInfo = entry.correlationId ? ` [corr:${entry.correlationId}]` : '';
+    
+    let logMessage = `${prefix}${requestInfo}${correlationInfo} ${entry.message}`;
+    
+    if (entry.context) {
+      logMessage += ` | Context: ${JSON.stringify(entry.context)}`;
+    }
+    
+    if (entry.error) {
+      logMessage += ` | Error: ${entry.error.name}: ${entry.error.message}`;
+      if (entry.error.stack && entry.level <= LogLevel.ERROR) {
+        console.log(logMessage);
+        console.log(`Stack trace:\n${entry.error.stack}`);
+        return;
+      }
+    }
+    
+    console.log(logMessage);
+  }
+
+  /**
+   * Redact sensitive data from log context
+   */
+  private redactSensitiveData(data: any): any {
+    if (typeof data !== 'object' || data === null) {
+      return data;
+    }
+    
+    const redacted = Array.isArray(data) ? [...data] : { ...data };
+    
+    for (const key in redacted) {
+      if (this.loggerConfig.sensitiveFields.some(field => 
+        key.toLowerCase().includes(field.toLowerCase())
+      )) {
+        redacted[key] = '[REDACTED]';
+      } else if (typeof redacted[key] === 'object') {
+        redacted[key] = this.redactSensitiveData(redacted[key]);
+      }
+    }
+    
+    return redacted;
+  }
+
+  /**
+   * Create structured error with proper categorization
+   */
+  private createStructuredError(
+    message: string,
+    category: ErrorCategory,
+    statusCode: number,
+    code: string,
+    isOperational: boolean = true,
+    context?: Record<string, any>
+  ): StructuredError {
+    const error = new Error(message) as StructuredError;
+    error.category = category;
+    error.code = code;
+    error.statusCode = statusCode;
+    error.isOperational = isOperational;
+    if (context) {
+      error.context = context;
+    }
+    
+    // Track error metrics
+    this.trackErrorMetrics(category, code);
+    
+    return error;
+  }
+
+  /**
+   * Track error metrics for monitoring
+   */
+  private trackErrorMetrics(category: ErrorCategory, code: string): void {
+    this.errorMetrics.total++;
+    
+    const categoryCount = this.errorMetrics.byCategory.get(category) || 0;
+    this.errorMetrics.byCategory.set(category, categoryCount + 1);
+    
+    const codeCount = this.errorMetrics.byCode.get(code) || 0;
+    this.errorMetrics.byCode.set(code, codeCount + 1);
+  }
+
+  /**
+   * Get error metrics for health monitoring integration
+   */
+  public getErrorMetrics() {
+    return {
+      total: this.errorMetrics.total,
+      byCategory: Object.fromEntries(this.errorMetrics.byCategory),
+      byCode: Object.fromEntries(this.errorMetrics.byCode),
+    };
+  }
+
+  /**
+   * Backward compatibility wrapper for old log signature
+   */
+  private logCompat(level: 'info' | 'warn' | 'error' | 'debug', message: string, ...args: any[]): void {
+    // Handle the old signature where errors might be passed as additional arguments
+    let error: Error | undefined;
+    let context: Record<string, any> | undefined;
+    
+    // Extract error from args if present
+    for (const arg of args) {
+      if (arg instanceof Error) {
+        error = arg;
+        break;
+      }
+    }
+    
+    // For backward compatibility, convert remaining args to context
+    if (args.length > 0 && !error) {
+      context = { additionalData: args };
+    }
+    
+    this.log(level, message, context, error);
   }
 
   /**
@@ -398,9 +959,20 @@ export class MCPServer extends Server {
    * Request logging middleware
    * Logs incoming requests with method, URL, and request ID
    */
-  private requestLoggingMiddleware(req: Request, _res: Response, next: Function): void {
+  private requestLoggingMiddleware(req: Request, res: Response, next: Function): void {
     const requestId = (req as any).requestId || 'unknown';
     this.log('debug', `Incoming request: ${req.method} ${req.url} [${requestId}]`);
+    
+    // Track request statistics
+    this.incrementRequestCount();
+    
+    // Track errors using res.on('finish')
+    res.on('finish', () => {
+      if (res.statusCode >= 400) {
+        this.incrementErrorCount();
+      }
+    });
+    
     next();
   }
 
@@ -494,7 +1066,7 @@ export class MCPServer extends Server {
   private setupRoutes(): void {
     this.log('debug', 'Setting up server routes...');
     
-    // Health check endpoint
+    // Basic info endpoint (backward compatibility)
     this.app.get('/', (_req, res) => {
       res.json({
         name: 'Tally MCP Server',
@@ -502,6 +1074,23 @@ export class MCPServer extends Server {
         status: this.state,
         connections: this.connectionCount,
       });
+    });
+
+    // Comprehensive health check endpoint
+    this.app.get('/health', (_req, res) => {
+      try {
+        const healthMetrics = this.getHealthMetrics();
+        const statusCode = healthMetrics.healthy ? 200 : 503;
+        res.status(statusCode).json(healthMetrics);
+      } catch (error) {
+        this.log('error', 'Error generating health metrics:', error);
+        res.status(500).json({
+          healthy: false,
+          status: 'error',
+          error: 'Failed to generate health metrics',
+          timestamp: new Date().toISOString(),
+        });
+      }
     });
 
     // SSE endpoint for MCP protocol communication
