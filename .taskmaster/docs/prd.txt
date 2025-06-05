@@ -1,5 +1,6 @@
 # Tally.so MCP Server - Product Requirements Document
 
+<context>
 # Overview  
 The Tally.so MCP Server is a cloud-hosted Model Context Protocol server that enables AI assistants to interact with Tally.so's form builder platform through natural language. This server bridges the gap between conversational AI and form management, allowing users to create, modify, and manage Tally forms using simple natural language commands within AI applications like Cursor, Claude Desktop, or other MCP-compatible clients.
 
@@ -65,6 +66,8 @@ The server solves the complexity of form creation by translating natural languag
 - **Context Awareness**: Server maintains context about previously created or modified forms within conversation sessions
 - **Error Handling**: Provides clear, actionable error messages when API limits are reached or invalid configurations are requested
 - **Progressive Enhancement**: Supports both simple and complex form creation scenarios with appropriate guidance
+</context>
+<PRD>
 
 # Technical Architecture  
 
@@ -265,3 +268,4 @@ interface QuestionConfig {
 - **User Experience**: Form creation time <2 minutes, natural language accuracy >90%
 - **Adoption**: Active users, forms created per user, API call volume growth
 - **Quality**: User satisfaction scores, support ticket volume, feature request patterns 
+</PRD>
