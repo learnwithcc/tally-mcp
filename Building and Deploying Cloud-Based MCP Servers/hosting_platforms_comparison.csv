@@ -1,0 +1,4 @@
+Platform,Hosting Type,Transport Support,Authentication,Scaling,Pricing,Best For,Key Features
+Glama,Free & Managed,"SSE, HTTP","OAuth, API Keys",Auto-scaling,Free tier available,Quick deployment,3000+ servers
+Cloudflare,Serverless Workers,"SSE, HTTP","OAuth 2.1, Custom",Edge computing,Pay-per-request,Enterprise/Edge,Edge deployment
+Smithery,Registry & Hosting,"HTTP, STDIO (deprecated)","OAuth, Token-based",Serverless,Free & paid tiers,Community registry,CLI installer
