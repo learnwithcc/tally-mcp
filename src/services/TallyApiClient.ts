@@ -1,16 +1,75 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import { z } from 'zod';
 import { TokenManager, OAuth2Config, TokenStorage } from './TokenManager';
 import {
   TallyApiError,
   AuthenticationError,
-  BadRequestError,
-  NotFoundError,
   RateLimitError,
-  ServerError,
   NetworkError,
   TimeoutError,
   createErrorFromResponse,
 } from '../models';
+import {
+  TallySubmissionsResponseSchema,
+  TallyFormsResponseSchema,
+  TallyWorkspacesResponseSchema,
+  TallyFormSchema,
+  TallySubmissionSchema,
+  TallyWorkspaceSchema,
+  validateTallyResponse,
+  safeParseTallyResponse,
+  type TallySubmissionsResponse,
+  type TallyFormsResponse,
+  type TallyWorkspacesResponse,
+  type TallyForm,
+  type TallySubmission,
+  type TallyWorkspace,
+} from '../models';
+
+/**
+ * Retry configuration for rate limiting and error handling
+ */
+export interface RetryConfig {
+  /**
+   * Maximum number of retry attempts (defaults to 3)
+   */
+  maxAttempts?: number;
+  
+  /**
+   * Base delay in milliseconds for exponential backoff (defaults to 1000ms)
+   */
+  baseDelayMs?: number;
+  
+  /**
+   * Maximum delay in milliseconds to prevent excessively long waits (defaults to 30000ms)
+   */
+  maxDelayMs?: number;
+  
+  /**
+   * Exponential backoff base multiplier (defaults to 2)
+   */
+  exponentialBase?: number;
+  
+  /**
+   * Jitter factor to add randomness and prevent thundering herd (defaults to 0.1)
+   */
+  jitterFactor?: number;
+  
+  /**
+   * Enable circuit breaker pattern to prevent excessive retries during outages (defaults to true)
+   */
+  enableCircuitBreaker?: boolean;
+  
+  /**
+   * Number of consecutive failures before opening circuit breaker (defaults to 5)
+   */
+  circuitBreakerThreshold?: number;
+  
+  /**
+   * Time in milliseconds to wait before attempting to close circuit breaker (defaults to 60000ms)
+   */
+  circuitBreakerTimeout?: number;
+}
 
 /**
  * Configuration options for the TallyApiClient
@@ -50,6 +109,11 @@ export interface TallyApiClientConfig {
    * Enable request/response logging for debugging
    */
   debug?: boolean;
+  
+  /**
+   * Retry configuration for rate limiting and error handling
+   */
+  retryConfig?: RetryConfig;
 }
 
 
@@ -75,6 +139,15 @@ export interface ApiResponse<T = any> {
  * This class provides a foundation for making HTTP requests to the Tally.so API
  * with proper configuration, OAuth 2.0 authentication, error handling, and type safety.
  */
+/**
+ * Circuit breaker states
+ */
+enum CircuitBreakerState {
+  CLOSED = 'CLOSED',     // Normal operation
+  OPEN = 'OPEN',         // Circuit is open, rejecting requests
+  HALF_OPEN = 'HALF_OPEN' // Testing if circuit can be closed
+}
+
 export class TallyApiClient {
   private axiosInstance: AxiosInstance;
   private config: Omit<Required<TallyApiClientConfig>, 'oauth2Config' | 'tokenStorage'> & {
@@ -82,6 +155,11 @@ export class TallyApiClient {
     tokenStorage?: TokenStorage;
   };
   private tokenManager?: TokenManager;
+  
+  // Circuit breaker state
+  private circuitBreakerState: CircuitBreakerState = CircuitBreakerState.CLOSED;
+  private consecutiveFailures: number = 0;
+  private lastFailureTime?: Date;
 
   /**
    * Create a new TallyApiClient instance
@@ -100,6 +178,16 @@ export class TallyApiClient {
       },
       accessToken: config.accessToken || '',
       debug: config.debug || false,
+      retryConfig: {
+        maxAttempts: config.retryConfig?.maxAttempts ?? 3,
+        baseDelayMs: config.retryConfig?.baseDelayMs ?? 1000,
+        maxDelayMs: config.retryConfig?.maxDelayMs ?? 30000,
+        exponentialBase: config.retryConfig?.exponentialBase ?? 2,
+        jitterFactor: config.retryConfig?.jitterFactor ?? 0.1,
+        enableCircuitBreaker: config.retryConfig?.enableCircuitBreaker ?? true,
+        circuitBreakerThreshold: config.retryConfig?.circuitBreakerThreshold ?? 5,
+        circuitBreakerTimeout: config.retryConfig?.circuitBreakerTimeout ?? 60000,
+      },
     };
 
     // Add optional properties only if they are provided
@@ -307,6 +395,150 @@ export class TallyApiClient {
     return this.request<T>('PATCH', url, data, config);
   }
 
+  // ===============================
+  // Type-Safe API Methods with Zod Validation
+  // ===============================
+
+  /**
+   * Get form submissions with type-safe validation
+   * 
+   * @param formId - The form ID to get submissions for
+   * @param options - Query parameters for filtering and pagination
+   * @returns Promise resolving to validated submissions response
+   */
+  public async getSubmissions(
+    formId: string,
+    options: {
+      page?: number;
+      limit?: number;
+      status?: 'all' | 'completed' | 'partial';
+    } = {}
+  ): Promise<TallySubmissionsResponse> {
+    const params = new URLSearchParams();
+    if (options.page) params.append('page', options.page.toString());
+    if (options.limit) params.append('limit', options.limit.toString());
+    if (options.status) params.append('status', options.status);
+
+    const query = params.toString();
+    const url = `/forms/${formId}/submissions${query ? `?${query}` : ''}`;
+    
+    const response = await this.get(url);
+    return validateTallyResponse(TallySubmissionsResponseSchema, response.data);
+  }
+
+  /**
+   * Get a specific submission with type-safe validation
+   * 
+   * @param formId - The form ID
+   * @param submissionId - The submission ID
+   * @returns Promise resolving to validated submission
+   */
+  public async getSubmission(formId: string, submissionId: string): Promise<TallySubmission> {
+    const url = `/forms/${formId}/submissions/${submissionId}`;
+    const response = await this.get(url);
+    return validateTallyResponse(TallySubmissionSchema, response.data);
+  }
+
+  /**
+   * Get all forms with type-safe validation
+   * 
+   * @param options - Query parameters for filtering and pagination
+   * @returns Promise resolving to validated forms response
+   */
+  public async getForms(options: {
+    page?: number;
+    limit?: number;
+    workspaceId?: string;
+  } = {}): Promise<TallyFormsResponse> {
+    const params = new URLSearchParams();
+    if (options.page) params.append('page', options.page.toString());
+    if (options.limit) params.append('limit', options.limit.toString());
+    if (options.workspaceId) params.append('workspaceId', options.workspaceId);
+
+    const query = params.toString();
+    const url = `/forms${query ? `?${query}` : ''}`;
+    
+    const response = await this.get(url);
+    return validateTallyResponse(TallyFormsResponseSchema, response.data);
+  }
+
+  /**
+   * Get a specific form with type-safe validation
+   * 
+   * @param formId - The form ID
+   * @returns Promise resolving to validated form
+   */
+  public async getForm(formId: string): Promise<TallyForm> {
+    const url = `/forms/${formId}`;
+    const response = await this.get(url);
+    return validateTallyResponse(TallyFormSchema, response.data);
+  }
+
+  /**
+   * Get workspaces with type-safe validation
+   * 
+   * @param options - Query parameters for filtering and pagination
+   * @returns Promise resolving to validated workspaces response
+   */
+  public async getWorkspaces(options: {
+    page?: number;
+    limit?: number;
+  } = {}): Promise<TallyWorkspacesResponse> {
+    const params = new URLSearchParams();
+    if (options.page) params.append('page', options.page.toString());
+    if (options.limit) params.append('limit', options.limit.toString());
+
+    const query = params.toString();
+    const url = `/workspaces${query ? `?${query}` : ''}`;
+    
+    const response = await this.get(url);
+    return validateTallyResponse(TallyWorkspacesResponseSchema, response.data);
+  }
+
+  /**
+   * Get a specific workspace with type-safe validation
+   * 
+   * @param workspaceId - The workspace ID
+   * @returns Promise resolving to validated workspace
+   */
+  public async getWorkspace(workspaceId: string): Promise<TallyWorkspace> {
+    const url = `/workspaces/${workspaceId}`;
+    const response = await this.get(url);
+    return validateTallyResponse(TallyWorkspaceSchema, response.data);
+  }
+
+  /**
+   * Safely parse and validate any Tally API response using a provided schema
+   * 
+   * @param schema - Zod schema to validate against
+   * @param data - Raw response data to validate
+   * @returns Safe parse result with success/error information
+   */
+  public validateResponse<T>(schema: z.ZodSchema<T>, data: unknown): z.SafeParseReturnType<unknown, T> {
+    return safeParseTallyResponse(schema, data);
+  }
+
+  /**
+   * Make a type-safe request that validates the response against a schema
+   * 
+   * @param method - HTTP method
+   * @param url - The endpoint URL
+   * @param schema - Zod schema to validate response against
+   * @param data - Request payload (for POST, PUT, PATCH)
+   * @param config - Optional Axios request configuration
+   * @returns Promise resolving to validated response data
+   */
+  public async requestWithValidation<T>(
+    method: HttpMethod,
+    url: string,
+    schema: z.ZodSchema<T>,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<T> {
+    const response = await this.request(method, url, data, config);
+    return validateTallyResponse(schema, response.data);
+  }
+
     /**
    * Make a generic HTTP request with interceptor-based authentication and error handling
    * 
@@ -391,6 +623,307 @@ export class TallyApiClient {
   }
 
   /**
+   * Calculate exponential backoff delay with jitter
+   * 
+   * @param attempt - Current attempt number (0-based)
+   * @param baseDelay - Base delay in milliseconds
+   * @param exponentialBase - Exponential base multiplier
+   * @param maxDelay - Maximum delay in milliseconds
+   * @param jitterFactor - Jitter factor for randomness
+   * @returns Delay in milliseconds
+   */
+  private calculateBackoffDelay(
+    attempt: number,
+    baseDelay: number,
+    exponentialBase: number,
+    maxDelay: number,
+    jitterFactor: number
+  ): number {
+    // Calculate exponential delay: baseDelay * (exponentialBase ^ attempt)
+    const exponentialDelay = baseDelay * Math.pow(exponentialBase, attempt);
+    
+    // Apply maximum delay cap
+    const cappedDelay = Math.min(exponentialDelay, maxDelay);
+    
+    // Add jitter to prevent thundering herd effect
+    // Jitter range: [cappedDelay * (1 - jitterFactor), cappedDelay * (1 + jitterFactor)]
+    const jitterRange = cappedDelay * jitterFactor;
+    const jitter = (Math.random() - 0.5) * 2 * jitterRange;
+    
+    return Math.max(0, Math.floor(cappedDelay + jitter));
+  }
+
+  /**
+   * Check if a request should be retried based on error type and circuit breaker state
+   * 
+   * @param error - The error that occurred
+   * @param attempt - Current attempt number (0-based)
+   * @returns True if the request should be retried
+   */
+  private shouldRetry(error: any, attempt: number): boolean {
+    const { retryConfig } = this.config;
+    
+    // Don't retry if we've reached the maximum attempts
+    if (attempt >= retryConfig.maxAttempts!) {
+      return false;
+    }
+    
+    // Check circuit breaker state
+    if (retryConfig.enableCircuitBreaker && this.circuitBreakerState === CircuitBreakerState.OPEN) {
+      // Check if we should transition to half-open
+      if (this.lastFailureTime && 
+          Date.now() - this.lastFailureTime.getTime() >= retryConfig.circuitBreakerTimeout!) {
+        this.circuitBreakerState = CircuitBreakerState.HALF_OPEN;
+        if (this.config.debug) {
+          console.log('[TallyApiClient] Circuit breaker transitioning to HALF_OPEN');
+        }
+      } else {
+        return false; // Circuit is still open
+      }
+    }
+    
+    // Only retry for retryable errors
+    if (error instanceof TallyApiError) {
+      return error.isRetryable;
+    }
+    
+    // Retry for network errors and timeouts
+    if (error instanceof NetworkError || error instanceof TimeoutError) {
+      return true;
+    }
+    
+    return false;
+  }
+
+  /**
+   * Update circuit breaker state based on request success/failure
+   * 
+   * @param success - Whether the request was successful
+   */
+  private updateCircuitBreakerState(success: boolean): void {
+    const { retryConfig } = this.config;
+    
+    if (!retryConfig.enableCircuitBreaker) {
+      return;
+    }
+    
+    if (success) {
+      // Reset failure count and close circuit on success
+      this.consecutiveFailures = 0;
+      if (this.circuitBreakerState !== CircuitBreakerState.CLOSED) {
+        this.circuitBreakerState = CircuitBreakerState.CLOSED;
+        if (this.config.debug) {
+          console.log('[TallyApiClient] Circuit breaker CLOSED after successful request');
+        }
+      }
+    } else {
+      // Increment failure count
+      this.consecutiveFailures++;
+      this.lastFailureTime = new Date();
+      
+      // Open circuit if threshold is reached
+      if (this.consecutiveFailures >= retryConfig.circuitBreakerThreshold! &&
+          this.circuitBreakerState === CircuitBreakerState.CLOSED) {
+        this.circuitBreakerState = CircuitBreakerState.OPEN;
+        if (this.config.debug) {
+          console.log(`[TallyApiClient] Circuit breaker OPENED after ${this.consecutiveFailures} consecutive failures`);
+        }
+      }
+    }
+  }
+
+  /**
+   * Sleep for the specified number of milliseconds
+   * 
+   * @param ms - Milliseconds to sleep
+   */
+  private sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Handle response errors with retry logic and circuit breaker
+   * 
+   * @param error - The axios error that occurred
+   * @param attempt - Current attempt number (0-based)
+   * @returns Promise that resolves with the response or rejects with the final error
+   */
+  private async handleResponseError(error: AxiosError, attempt: number): Promise<any> {
+    const { retryConfig } = this.config;
+    
+    if (this.config.debug) {
+      console.error(`[TallyApiClient] Response Error (attempt ${attempt + 1}):`, error.response?.status, error.response?.statusText);
+    }
+
+    // Update circuit breaker state on failure
+    this.updateCircuitBreakerState(false);
+
+    // Handle network errors
+    if (!error.response) {
+      const networkError = this.createNetworkError(error);
+      
+      // Check if we should retry network errors
+      if (this.shouldRetry(networkError, attempt)) {
+        return this.retryRequest(error, attempt);
+      }
+      
+      return Promise.reject(networkError);
+    }
+
+    const { status, statusText, headers, data } = error.response;
+
+    // Handle authentication errors with automatic token refresh
+    if (status === 401 || status === 403) {
+      // Try to refresh token if we have a token manager
+      if (this.tokenManager && attempt === 0) { // Only try refresh on first attempt
+        try {
+          await this.refreshToken();
+          // Retry the original request with the new token
+          const originalRequest = error.config;
+          if (originalRequest) {
+            return this.axiosInstance.request(originalRequest);
+          }
+        } catch (refreshError) {
+          // If refresh fails, clear authentication
+          await this.clearAuthentication();
+          return Promise.reject(
+            new AuthenticationError(
+              'Authentication failed and token refresh failed',
+              status,
+              statusText,
+              headers as Record<string, string>,
+              refreshError as Error
+            )
+          );
+        }
+      }
+      
+      // If no token manager or refresh failed, throw authentication error
+      const authError = createErrorFromResponse(
+        status,
+        statusText,
+        headers as Record<string, string>,
+        data,
+        error
+      );
+      
+      return Promise.reject(authError);
+    }
+
+    // Handle rate limiting (429) with exponential backoff
+    if (status === 429) {
+      const rateLimitError = createErrorFromResponse(
+        status,
+        statusText,
+        headers as Record<string, string>,
+        data,
+        error
+      ) as RateLimitError;
+      
+      if (this.shouldRetry(rateLimitError, attempt)) {
+        // Calculate backoff delay - use retry-after header if available
+        let delay: number;
+        if (rateLimitError.retryAfter) {
+          // API provided retry-after in seconds
+          delay = rateLimitError.retryAfter * 1000;
+        } else {
+          // Use exponential backoff
+          delay = this.calculateBackoffDelay(
+            attempt,
+            retryConfig.baseDelayMs!,
+            retryConfig.exponentialBase!,
+            retryConfig.maxDelayMs!,
+            retryConfig.jitterFactor!
+          );
+        }
+        
+        if (this.config.debug) {
+          console.log(`[TallyApiClient] Rate limited. Retrying in ${delay}ms (attempt ${attempt + 1}/${retryConfig.maxAttempts})`);
+        }
+        
+        // Wait for the calculated delay then retry
+        await this.sleep(delay);
+        return this.retryRequest(error, attempt);
+      }
+      
+      return Promise.reject(rateLimitError);
+    }
+
+    // Handle other retryable errors (5xx server errors)
+    const standardizedError = createErrorFromResponse(
+      status,
+      statusText,
+      headers as Record<string, string>,
+      data,
+      error
+    );
+
+    if (this.shouldRetry(standardizedError, attempt)) {
+      return this.retryRequest(error, attempt);
+    }
+
+    return Promise.reject(standardizedError);
+  }
+
+  /**
+   * Retry a failed request with exponential backoff
+   * 
+   * @param originalError - The original axios error
+   * @param attempt - Current attempt number (0-based)
+   * @returns Promise that resolves with the response or rejects with the final error
+   */
+  private async retryRequest(originalError: AxiosError, attempt: number): Promise<any> {
+    const { retryConfig } = this.config;
+    const nextAttempt = attempt + 1;
+    
+    // Calculate delay for non-rate-limit retries
+    const delay = this.calculateBackoffDelay(
+      attempt,
+      retryConfig.baseDelayMs!,
+      retryConfig.exponentialBase!,
+      retryConfig.maxDelayMs!,
+      retryConfig.jitterFactor!
+    );
+    
+    if (this.config.debug) {
+      console.log(`[TallyApiClient] Retrying request in ${delay}ms (attempt ${nextAttempt + 1}/${retryConfig.maxAttempts})`);
+    }
+    
+    // Wait for the calculated delay
+    await this.sleep(delay);
+    
+    // Retry the original request
+    const originalRequest = originalError.config;
+    if (originalRequest) {
+      try {
+        return await this.axiosInstance.request(originalRequest);
+      } catch (retryError) {
+        // Recursively handle the retry error
+        return this.handleResponseError(retryError as AxiosError, nextAttempt);
+      }
+    }
+    
+    // If we can't retry, reject with the original error
+    return Promise.reject(originalError);
+  }
+
+  /**
+   * Create appropriate network error based on error code
+   * 
+   * @param error - The axios error
+   * @returns Appropriate TallyApiError instance
+   */
+  private createNetworkError(error: AxiosError): TallyApiError {
+    if (error.code === 'ECONNABORTED' || error.code === 'ENOTFOUND') {
+      return new NetworkError('Network connection failed', error);
+    }
+    if (error.code === 'ECONNRESET' || error.message?.includes('timeout')) {
+      return new TimeoutError('Request timeout', error);
+    }
+    return new NetworkError('Network error occurred', error);
+  }
+
+  /**
    * Setup request/response interceptors for authentication and error handling
    */
   private setupInterceptors(): void {
@@ -427,9 +960,12 @@ export class TallyApiClient {
       }
     );
 
-    // Response interceptor for standardized error handling and logging
+    // Response interceptor for standardized error handling, retry logic, and logging
     this.axiosInstance.interceptors.response.use(
       (response) => {
+        // Update circuit breaker state on success
+        this.updateCircuitBreakerState(true);
+        
         // Debug logging if enabled
         if (this.config.debug) {
           console.log(`[TallyApiClient] Response: ${response.status} ${response.statusText}`);
@@ -437,71 +973,7 @@ export class TallyApiClient {
         return response;
       },
       async (error: AxiosError) => {
-        if (this.config.debug) {
-          console.error('[TallyApiClient] Response Error:', error.response?.status, error.response?.statusText);
-        }
-
-        // Handle network errors
-        if (!error.response) {
-          if (error.code === 'ECONNABORTED' || error.code === 'ENOTFOUND') {
-            return Promise.reject(new NetworkError('Network connection failed', error));
-          }
-          if (error.code === 'ECONNRESET' || error.message?.includes('timeout')) {
-            return Promise.reject(new TimeoutError('Request timeout', error));
-          }
-          return Promise.reject(new NetworkError('Network error occurred', error));
-        }
-
-        const { status, statusText, headers, data } = error.response;
-
-        // Handle authentication errors with automatic token refresh
-        if (status === 401 || status === 403) {
-          // Try to refresh token if we have a token manager
-          if (this.tokenManager) {
-            try {
-              await this.refreshToken();
-              // Retry the original request with the new token
-              const originalRequest = error.config;
-              if (originalRequest) {
-                return this.axiosInstance.request(originalRequest);
-              }
-            } catch (refreshError) {
-              // If refresh fails, clear authentication
-              await this.clearAuthentication();
-              return Promise.reject(
-                new AuthenticationError(
-                  'Authentication failed and token refresh failed',
-                  status,
-                  statusText,
-                  headers as Record<string, string>,
-                  refreshError as Error
-                )
-              );
-            }
-          }
-          
-          // If no token manager or refresh failed, throw authentication error
-          return Promise.reject(
-            createErrorFromResponse(
-              status,
-              statusText,
-              headers as Record<string, string>,
-              data,
-              error
-            )
-          );
-        }
-
-        // Create standardized error for all other cases
-        const standardizedError = createErrorFromResponse(
-          status,
-          statusText,
-          headers as Record<string, string>,
-          data,
-          error
-        );
-
-        return Promise.reject(standardizedError);
+        return this.handleResponseError(error, 0);
       }
     );
   }

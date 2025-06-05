@@ -21,5 +21,5 @@ export {
   createErrorFromResponse,
 } from './errors';
 
-// Model definitions will be added in subsequent tasks
-export {}; 
+// Export Tally API schemas and types
+export * from './tally-schemas'; 

@@ -1,5 +1,17 @@
 import { AxiosInstance, AxiosRequestConfig } from 'axios';
+import { z } from 'zod';
 import { TokenManager, OAuth2Config, TokenStorage } from './TokenManager';
+import { type TallySubmissionsResponse, type TallyFormsResponse, type TallyWorkspacesResponse, type TallyForm, type TallySubmission, type TallyWorkspace } from '../models';
+export interface RetryConfig {
+    maxAttempts?: number;
+    baseDelayMs?: number;
+    maxDelayMs?: number;
+    exponentialBase?: number;
+    jitterFactor?: number;
+    enableCircuitBreaker?: boolean;
+    circuitBreakerThreshold?: number;
+    circuitBreakerTimeout?: number;
+}
 export interface TallyApiClientConfig {
     baseURL?: string;
     timeout?: number;
@@ -8,6 +20,7 @@ export interface TallyApiClientConfig {
     oauth2Config?: OAuth2Config;
     tokenStorage?: TokenStorage;
     debug?: boolean;
+    retryConfig?: RetryConfig;
 }
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 export interface ApiResponse<T = any> {
@@ -20,6 +33,9 @@ export declare class TallyApiClient {
     private axiosInstance;
     private config;
     private tokenManager?;
+    private circuitBreakerState;
+    private consecutiveFailures;
+    private lastFailureTime?;
     constructor(config?: TallyApiClientConfig);
     getAuthorizationUrl(state?: string): string;
     exchangeCodeForToken(code: string): Promise<import("./TokenManager").Token>;
@@ -34,6 +50,25 @@ export declare class TallyApiClient {
     put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>>;
     delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>>;
     patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>>;
+    getSubmissions(formId: string, options?: {
+        page?: number;
+        limit?: number;
+        status?: 'all' | 'completed' | 'partial';
+    }): Promise<TallySubmissionsResponse>;
+    getSubmission(formId: string, submissionId: string): Promise<TallySubmission>;
+    getForms(options?: {
+        page?: number;
+        limit?: number;
+        workspaceId?: string;
+    }): Promise<TallyFormsResponse>;
+    getForm(formId: string): Promise<TallyForm>;
+    getWorkspaces(options?: {
+        page?: number;
+        limit?: number;
+    }): Promise<TallyWorkspacesResponse>;
+    getWorkspace(workspaceId: string): Promise<TallyWorkspace>;
+    validateResponse<T>(schema: z.ZodSchema<T>, data: unknown): z.SafeParseReturnType<unknown, T>;
+    requestWithValidation<T>(method: HttpMethod, url: string, schema: z.ZodSchema<T>, data?: any, config?: AxiosRequestConfig): Promise<T>;
     private request;
     private ensureAuthenticated;
     getAxiosInstance(): AxiosInstance;
@@ -42,6 +77,13 @@ export declare class TallyApiClient {
         tokenStorage?: TokenStorage;
     }>;
     getTokenManager(): TokenManager | undefined;
+    private calculateBackoffDelay;
+    private shouldRetry;
+    private updateCircuitBreakerState;
+    private sleep;
+    private handleResponseError;
+    private retryRequest;
+    private createNetworkError;
     private setupInterceptors;
 }
 //# sourceMappingURL=TallyApiClient.d.ts.map

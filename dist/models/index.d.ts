@@ -1,3 +1,3 @@
 export { TallyApiError, AuthenticationError, BadRequestError, NotFoundError, RateLimitError, ServerError, NetworkError, TimeoutError, createErrorFromResponse, } from './errors';
-export {};
+export * from './tally-schemas';
 //# sourceMappingURL=index.d.ts.map

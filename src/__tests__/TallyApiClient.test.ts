@@ -5,6 +5,16 @@
 
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { TallyApiClient, TallyApiClientConfig, ApiResponse } from '../services/TallyApiClient';
+import {
+  TallySubmissionsResponseSchema,
+  TallyFormSchema,
+  TallySubmissionSchema,
+  TallyWorkspaceSchema,
+  type TallySubmissionsResponse,
+  type TallyForm,
+  type TallySubmission,
+  type TallyWorkspace,
+} from '../models';
 
 // Mock axios
 jest.mock('axios');
@@ -276,6 +286,16 @@ describe('TallyApiClient', () => {
         },
         accessToken: '',
         debug: false,
+        retryConfig: {
+          maxAttempts: 3,
+          baseDelayMs: 1000,
+          maxDelayMs: 30000,
+          exponentialBase: 2,
+          jitterFactor: 0.1,
+          enableCircuitBreaker: true,
+          circuitBreakerThreshold: 5,
+          circuitBreakerTimeout: 60000,
+        },
       });
 
       // Verify it's readonly by attempting to modify (should not affect original)
@@ -333,6 +353,298 @@ describe('TallyApiClient', () => {
 
       expect(response.data.id).toBe(1);
       expect(response.data.name).toBe('Test');
+    });
+  });
+
+  describe('Rate Limiting and Retry Logic', () => {
+    beforeEach(() => {
+      client = new TallyApiClient({ 
+        accessToken: 'test-token',
+        debug: false, // Disable debug to reduce noise
+        retryConfig: {
+          maxAttempts: 3,
+          baseDelayMs: 10, // Very short delays for testing
+          maxDelayMs: 100,
+          exponentialBase: 2,
+          jitterFactor: 0,
+          enableCircuitBreaker: true,
+          circuitBreakerThreshold: 2,
+          circuitBreakerTimeout: 1000,
+        }
+      });
+    });
+
+    it('should have retry configuration set correctly', () => {
+      const config = client.getConfig();
+      expect(config.retryConfig).toEqual({
+        maxAttempts: 3,
+        baseDelayMs: 10,
+        maxDelayMs: 100,
+        exponentialBase: 2,
+        jitterFactor: 0,
+        enableCircuitBreaker: true,
+        circuitBreakerThreshold: 2,
+        circuitBreakerTimeout: 1000,
+      });
+    });
+
+    it('should setup interceptors for retry logic', () => {
+      // Verify that interceptors are set up
+      expect(mockAxiosInstance.interceptors.request.use).toHaveBeenCalled();
+      expect(mockAxiosInstance.interceptors.response.use).toHaveBeenCalled();
+    });
+
+    it('should handle custom retry configuration', () => {
+      const customClient = new TallyApiClient({
+        retryConfig: {
+          maxAttempts: 5,
+          baseDelayMs: 500,
+          maxDelayMs: 10000,
+          exponentialBase: 3,
+          jitterFactor: 0.2,
+          enableCircuitBreaker: false,
+          circuitBreakerThreshold: 10,
+          circuitBreakerTimeout: 30000,
+        }
+      });
+
+      const config = customClient.getConfig();
+      expect(config.retryConfig).toEqual({
+        maxAttempts: 5,
+        baseDelayMs: 500,
+        maxDelayMs: 10000,
+        exponentialBase: 3,
+        jitterFactor: 0.2,
+        enableCircuitBreaker: false,
+        circuitBreakerThreshold: 10,
+        circuitBreakerTimeout: 30000,
+      });
+    });
+  });
+
+  describe('Type-Safe API Methods with Zod Validation', () => {
+    beforeEach(() => {
+      client = new TallyApiClient({ accessToken: 'test-token' });
+    });
+
+    describe('getSubmissions', () => {
+      it('should validate and return submissions response', async () => {
+        const validSubmissionsData: TallySubmissionsResponse = {
+          page: 1,
+          limit: 50,
+          hasMore: false,
+          totalNumberOfSubmissionsPerFilter: {
+            all: 2,
+            completed: 2,
+            partial: 0,
+          },
+          questions: [
+            {
+              id: 'q1',
+              type: 'INPUT_TEXT',
+              title: 'What is your name?',
+              formId: 'form123',
+              createdAt: '2024-01-01T10:00:00Z',
+              updatedAt: '2024-01-01T10:00:00Z',
+              fields: [],
+            }
+          ],
+          submissions: [
+            {
+              id: 'sub1',
+              formId: 'form123',
+              isCompleted: true,
+              submittedAt: '2024-01-01T11:00:00Z',
+              responses: [
+                {
+                  questionId: 'q1',
+                  value: 'John Doe',
+                }
+              ],
+            }
+          ],
+        };
+
+        const mockResponse: AxiosResponse = {
+          data: validSubmissionsData,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: { headers: {} as any },
+        };
+
+        mockAxiosInstance.request.mockResolvedValue(mockResponse);
+
+        const result = await client.getSubmissions('form123', { page: 1, limit: 50 });
+
+        expect(result).toEqual(validSubmissionsData);
+        expect(mockAxiosInstance.request).toHaveBeenCalledWith({
+          method: 'GET',
+          url: '/forms/form123/submissions?page=1&limit=50',
+          data: undefined,
+        });
+      });
+
+      it('should throw validation error for invalid submissions response', async () => {
+        const invalidData = {
+          page: 'invalid', // Should be number
+          submissions: 'not an array', // Should be array
+        };
+
+        const mockResponse: AxiosResponse = {
+          data: invalidData,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: { headers: {} as any },
+        };
+
+        mockAxiosInstance.request.mockResolvedValue(mockResponse);
+
+        await expect(client.getSubmissions('form123')).rejects.toThrow();
+      });
+    });
+
+    describe('getForm', () => {
+      it('should validate and return form data', async () => {
+                 const validFormData: TallyForm = {
+           id: 'form123',
+           title: 'Test Form',
+           description: 'A test form',
+           isPublished: true,
+           createdAt: '2024-01-01T10:00:00Z',
+           updatedAt: '2024-01-01T10:00:00Z',
+         };
+
+        const mockResponse: AxiosResponse = {
+          data: validFormData,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: { headers: {} as any },
+        };
+
+        mockAxiosInstance.request.mockResolvedValue(mockResponse);
+
+        const result = await client.getForm('form123');
+
+        expect(result).toEqual(validFormData);
+        expect(mockAxiosInstance.request).toHaveBeenCalledWith({
+          method: 'GET',
+          url: '/forms/form123',
+          data: undefined,
+        });
+      });
+
+      it('should throw validation error for invalid form response', async () => {
+        const invalidData = {
+          id: 123, // Should be string
+          title: null, // Should be string
+        };
+
+        const mockResponse: AxiosResponse = {
+          data: invalidData,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: { headers: {} as any },
+        };
+
+        mockAxiosInstance.request.mockResolvedValue(mockResponse);
+
+        await expect(client.getForm('form123')).rejects.toThrow();
+      });
+    });
+
+    describe('validateResponse', () => {
+      it('should return success result for valid data', () => {
+        const validSubmission: TallySubmission = {
+          id: 'sub1',
+          formId: 'form123',
+          isCompleted: true,
+          submittedAt: '2024-01-01T11:00:00Z',
+          responses: [],
+        };
+
+        const result = client.validateResponse(TallySubmissionSchema, validSubmission);
+
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data).toEqual(validSubmission);
+        }
+      });
+
+      it('should return error result for invalid data', () => {
+        const invalidData = {
+          id: 123, // Should be string
+          formId: null, // Should be string
+        };
+
+        const result = client.validateResponse(TallySubmissionSchema, invalidData);
+
+                 expect(result.success).toBe(false);
+         if (!result.success) {
+           expect(result.error).toBeDefined();
+           expect(result.error.issues.length).toBeGreaterThan(0); // Should have validation errors
+         }
+      });
+    });
+
+    describe('requestWithValidation', () => {
+      it('should make request and validate response with schema', async () => {
+        const validWorkspace: TallyWorkspace = {
+          id: 'ws1',
+          name: 'Test Workspace',
+          slug: 'test-workspace',
+          createdAt: '2024-01-01T10:00:00Z',
+          updatedAt: '2024-01-01T10:00:00Z',
+          members: [],
+        };
+
+        const mockResponse: AxiosResponse = {
+          data: validWorkspace,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: { headers: {} as any },
+        };
+
+        mockAxiosInstance.request.mockResolvedValue(mockResponse);
+
+        const result = await client.requestWithValidation(
+          'GET',
+          '/workspaces/ws1',
+          TallyWorkspaceSchema
+        );
+
+        expect(result).toEqual(validWorkspace);
+        expect(mockAxiosInstance.request).toHaveBeenCalledWith({
+          method: 'GET',
+          url: '/workspaces/ws1',
+          data: undefined,
+        });
+      });
+
+      it('should throw validation error for invalid response data', async () => {
+        const invalidData = {
+          id: 123, // Should be string
+          name: null, // Should be string
+        };
+
+        const mockResponse: AxiosResponse = {
+          data: invalidData,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: { headers: {} as any },
+        };
+
+        mockAxiosInstance.request.mockResolvedValue(mockResponse);
+
+        await expect(
+          client.requestWithValidation('GET', '/workspaces/ws1', TallyWorkspaceSchema)
+        ).rejects.toThrow();
+      });
     });
   });
 }); 
