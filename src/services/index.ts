@@ -8,5 +8,7 @@
  * - Business logic for form operations
  */
 
+export { TallyApiClient, type TallyApiClientConfig, type ApiResponse, type HttpMethod } from './TallyApiClient';
+
 // Service implementations will be added in subsequent tasks
 export {}; 

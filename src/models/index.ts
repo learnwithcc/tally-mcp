@@ -8,5 +8,18 @@
  * - Tally.so data models
  */
 
+// Export error classes for API client
+export {
+  TallyApiError,
+  AuthenticationError,
+  BadRequestError,
+  NotFoundError,
+  RateLimitError,
+  ServerError,
+  NetworkError,
+  TimeoutError,
+  createErrorFromResponse,
+} from './errors';
+
 // Model definitions will be added in subsequent tasks
 export {}; 

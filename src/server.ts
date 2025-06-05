@@ -510,7 +510,7 @@ export class MCPServer extends Server {
       this.log('info', `Server successfully initialized and running on ${this.config.host}:${this.config.port}`);
     } catch (error) {
       this.state = ServerState.ERROR;
-      this.log('error', 'Failed to initialize server:', error);
+      this.log('error', 'Failed to initialize server:', undefined, error as Error);
       throw error;
     }
   }
@@ -542,7 +542,7 @@ export class MCPServer extends Server {
       this.log('info', 'Server shutdown completed successfully');
     } catch (error) {
       this.state = ServerState.ERROR;
-      this.log('error', 'Error during server shutdown:', error);
+      this.log('error', 'Error during server shutdown:', undefined, error as Error);
       throw error;
     }
   }
@@ -608,7 +608,7 @@ export class MCPServer extends Server {
     // Handle connection errors
     res.on('error', (error) => {
       clearTimeout(timeout);
-      this.log('error', `SSE connection error [${requestId}]:`, error);
+      this.log('error', `SSE connection error [${requestId}]:`, undefined, error as Error);
       this.removeConnection(res);
     });
 
@@ -637,7 +637,7 @@ export class MCPServer extends Server {
    * Processes incoming MCP protocol messages and sends responses via SSE
    */
   private handleMCPMessage(message: any, res: Response): void {
-    this.log('debug', 'Received MCP message:', message, 'Type:', typeof message);
+    this.log('debug', 'Received MCP message:', { message, messageType: typeof message });
 
     try {
       // Validate message structure - be strict about null/undefined/empty
@@ -676,7 +676,7 @@ export class MCPServer extends Server {
         messageId: response.id,
       });
     } catch (error) {
-      this.log('error', 'Error processing MCP message:', error);
+      this.log('error', 'Error processing MCP message:', undefined, error as Error);
       res.status(400).json({
         status: 'error',
         message: 'Invalid MCP message',
@@ -715,7 +715,7 @@ export class MCPServer extends Server {
       const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
       res.write(message);
     } catch (error) {
-      this.log('error', 'Error sending SSE message:', error);
+      this.log('error', 'Error sending SSE message:', undefined, error as Error);
       this.removeConnection(res);
     }
   }
@@ -871,44 +871,9 @@ export class MCPServer extends Server {
     return redacted;
   }
 
-  /**
-   * Create structured error with proper categorization
-   */
-  private createStructuredError(
-    message: string,
-    category: ErrorCategory,
-    statusCode: number,
-    code: string,
-    isOperational: boolean = true,
-    context?: Record<string, any>
-  ): StructuredError {
-    const error = new Error(message) as StructuredError;
-    error.category = category;
-    error.code = code;
-    error.statusCode = statusCode;
-    error.isOperational = isOperational;
-    if (context) {
-      error.context = context;
-    }
-    
-    // Track error metrics
-    this.trackErrorMetrics(category, code);
-    
-    return error;
-  }
 
-  /**
-   * Track error metrics for monitoring
-   */
-  private trackErrorMetrics(category: ErrorCategory, code: string): void {
-    this.errorMetrics.total++;
-    
-    const categoryCount = this.errorMetrics.byCategory.get(category) || 0;
-    this.errorMetrics.byCategory.set(category, categoryCount + 1);
-    
-    const codeCount = this.errorMetrics.byCode.get(code) || 0;
-    this.errorMetrics.byCode.set(code, codeCount + 1);
-  }
+
+
 
   /**
    * Get error metrics for health monitoring integration
@@ -921,29 +886,7 @@ export class MCPServer extends Server {
     };
   }
 
-  /**
-   * Backward compatibility wrapper for old log signature
-   */
-  private logCompat(level: 'info' | 'warn' | 'error' | 'debug', message: string, ...args: any[]): void {
-    // Handle the old signature where errors might be passed as additional arguments
-    let error: Error | undefined;
-    let context: Record<string, any> | undefined;
-    
-    // Extract error from args if present
-    for (const arg of args) {
-      if (arg instanceof Error) {
-        error = arg;
-        break;
-      }
-    }
-    
-    // For backward compatibility, convert remaining args to context
-    if (args.length > 0 && !error) {
-      context = { additionalData: args };
-    }
-    
-    this.log(level, message, context, error);
-  }
+
 
   /**
    * Request ID generation middleware
@@ -1083,7 +1026,7 @@ export class MCPServer extends Server {
         const statusCode = healthMetrics.healthy ? 200 : 503;
         res.status(statusCode).json(healthMetrics);
       } catch (error) {
-        this.log('error', 'Error generating health metrics:', error);
+        this.log('error', 'Error generating health metrics:', undefined, error as Error);
         res.status(500).json({
           healthy: false,
           status: 'error',
@@ -1135,7 +1078,7 @@ export class MCPServer extends Server {
         this.server = this.app.listen(this.config.port, this.config.host);
         
         this.server.on('error', (error: any) => {
-          this.log('error', 'HTTP server error:', error);
+          this.log('error', 'HTTP server error:', undefined, error as Error);
           
           // Handle specific error types
           if (error.code === 'EADDRINUSE') {
@@ -1195,7 +1138,7 @@ export class MCPServer extends Server {
       // Immediately stop accepting new connections
       this.server.close((error: any) => {
         if (error) {
-          this.log('error', 'Error stopping HTTP server:', error);
+          this.log('error', 'Error stopping HTTP server:', undefined, error as Error);
         } else {
           this.log('info', 'HTTP server stopped successfully');
         }
@@ -1242,7 +1185,7 @@ export class MCPServer extends Server {
     const handleShutdown = (signal: string) => {
       this.log('info', `Received ${signal}, initiating graceful shutdown...`);
       this.shutdown().catch((error) => {
-        this.log('error', 'Error during graceful shutdown:', error);
+        this.log('error', 'Error during graceful shutdown:', undefined, error as Error);
         process.exit(1);
       });
     };
@@ -1281,7 +1224,7 @@ export class MCPServer extends Server {
       try {
         connection.end();
       } catch (error) {
-        this.log('warn', 'Error closing connection:', error);
+        this.log('warn', 'Error closing connection:', undefined, error as Error);
       }
     }
     

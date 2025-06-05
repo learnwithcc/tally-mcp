@@ -30,7 +30,7 @@ export function globalErrorHandler(
   error: Error | StructuredError,
   req: Request,
   res: Response,
-  next: Function
+  _next: Function
 ): void {
   const requestId = (req as any).requestId || 'unknown';
   const timestamp = new Date().toISOString();
@@ -95,7 +95,7 @@ export function asyncErrorHandler(
  * Not Found (404) middleware
  * Handles requests to non-existent routes
  */
-export function notFoundHandler(req: Request, res: Response, next: Function): void {
+export function notFoundHandler(req: Request, _res: Response, next: Function): void {
   const error = createNotFoundError(req.path, (req as any).requestId);
   next(error);
 }
@@ -104,7 +104,7 @@ export function notFoundHandler(req: Request, res: Response, next: Function): vo
  * Unhandled rejection handler for process-level errors
  */
 export function setupProcessErrorHandlers(logger?: (level: string, message: string, error?: Error) => void): void {
-  process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+  process.on('unhandledRejection', (reason: any, _promise: Promise<any>) => {
     const message = `Unhandled Promise Rejection: ${reason}`;
     
     if (logger) {

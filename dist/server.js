@@ -119,7 +119,10 @@ class MCPServer extends index_js_1.Server {
             recentErrors: new Array(60).fill(0),
             lastMinuteIndex: 0,
         };
-        this.loggerConfig = { ...exports.DEFAULT_LOGGER_CONFIG, ...this.config.logger };
+        this.loggerConfig = {
+            ...exports.DEFAULT_LOGGER_CONFIG,
+            ...(this.config.logger || {})
+        };
         this.errorMetrics = {
             byCategory: new Map(),
             byCode: new Map(),
@@ -137,7 +140,10 @@ class MCPServer extends index_js_1.Server {
         return this.connectionCount;
     }
     getConfig() {
-        return { ...this.config };
+        return {
+            ...this.config,
+            logger: { ...this.loggerConfig }
+        };
     }
     getHealthMetrics() {
         const uptime = this.getUptime();
@@ -260,7 +266,7 @@ class MCPServer extends index_js_1.Server {
         }
         catch (error) {
             this.state = ServerState.ERROR;
-            this.log('error', 'Failed to initialize server:', error);
+            this.log('error', 'Failed to initialize server:', undefined, error);
             throw error;
         }
     }
@@ -280,7 +286,7 @@ class MCPServer extends index_js_1.Server {
         }
         catch (error) {
             this.state = ServerState.ERROR;
-            this.log('error', 'Error during server shutdown:', error);
+            this.log('error', 'Error during server shutdown:', undefined, error);
             throw error;
         }
     }
@@ -325,7 +331,7 @@ class MCPServer extends index_js_1.Server {
         });
         res.on('error', (error) => {
             clearTimeout(timeout);
-            this.log('error', `SSE connection error [${requestId}]:`, error);
+            this.log('error', `SSE connection error [${requestId}]:`, undefined, error);
             this.removeConnection(res);
         });
         res.on('finish', () => {
@@ -344,7 +350,7 @@ class MCPServer extends index_js_1.Server {
         res.on('close', () => clearInterval(heartbeat));
     }
     handleMCPMessage(message, res) {
-        this.log('debug', 'Received MCP message:', message, 'Type:', typeof message);
+        this.log('debug', 'Received MCP message:', { message, messageType: typeof message });
         try {
             if (message === null ||
                 message === undefined ||
@@ -375,7 +381,7 @@ class MCPServer extends index_js_1.Server {
             });
         }
         catch (error) {
-            this.log('error', 'Error processing MCP message:', error);
+            this.log('error', 'Error processing MCP message:', undefined, error);
             res.status(400).json({
                 status: 'error',
                 message: 'Invalid MCP message',
@@ -402,7 +408,7 @@ class MCPServer extends index_js_1.Server {
             res.write(message);
         }
         catch (error) {
-            this.log('error', 'Error sending SSE message:', error);
+            this.log('error', 'Error sending SSE message:', undefined, error);
             this.removeConnection(res);
         }
     }
@@ -507,23 +513,6 @@ class MCPServer extends index_js_1.Server {
         }
         return redacted;
     }
-    createStructuredError(message, category, statusCode, code, isOperational = true, context) {
-        const error = new Error(message);
-        error.category = category;
-        error.code = code;
-        error.statusCode = statusCode;
-        error.isOperational = isOperational;
-        error.context = context;
-        this.trackErrorMetrics(category, code);
-        return error;
-    }
-    trackErrorMetrics(category, code) {
-        this.errorMetrics.total++;
-        const categoryCount = this.errorMetrics.byCategory.get(category) || 0;
-        this.errorMetrics.byCategory.set(category, categoryCount + 1);
-        const codeCount = this.errorMetrics.byCode.get(code) || 0;
-        this.errorMetrics.byCode.set(code, codeCount + 1);
-    }
     getErrorMetrics() {
         return {
             total: this.errorMetrics.total,
@@ -611,7 +600,7 @@ class MCPServer extends index_js_1.Server {
                 res.status(statusCode).json(healthMetrics);
             }
             catch (error) {
-                this.log('error', 'Error generating health metrics:', error);
+                this.log('error', 'Error generating health metrics:', undefined, error);
                 res.status(500).json({
                     healthy: false,
                     status: 'error',
@@ -649,7 +638,7 @@ class MCPServer extends index_js_1.Server {
                 };
                 this.server = this.app.listen(this.config.port, this.config.host);
                 this.server.on('error', (error) => {
-                    this.log('error', 'HTTP server error:', error);
+                    this.log('error', 'HTTP server error:', undefined, error);
                     if (error.code === 'EADDRINUSE') {
                         const portError = new Error(`Port ${this.config.port} is already in use`);
                         handleReject(portError);
@@ -695,7 +684,7 @@ class MCPServer extends index_js_1.Server {
             };
             this.server.close((error) => {
                 if (error) {
-                    this.log('error', 'Error stopping HTTP server:', error);
+                    this.log('error', 'Error stopping HTTP server:', undefined, error);
                 }
                 else {
                     this.log('info', 'HTTP server stopped successfully');
@@ -730,7 +719,7 @@ class MCPServer extends index_js_1.Server {
         const handleShutdown = (signal) => {
             this.log('info', `Received ${signal}, initiating graceful shutdown...`);
             this.shutdown().catch((error) => {
-                this.log('error', 'Error during graceful shutdown:', error);
+                this.log('error', 'Error during graceful shutdown:', undefined, error);
                 process.exit(1);
             });
         };
@@ -755,7 +744,7 @@ class MCPServer extends index_js_1.Server {
                 connection.end();
             }
             catch (error) {
-                this.log('warn', 'Error closing connection:', error);
+                this.log('warn', 'Error closing connection:', undefined, error);
             }
         }
         this.activeConnections.clear();

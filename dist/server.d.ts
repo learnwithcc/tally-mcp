@@ -150,8 +150,6 @@ export declare class MCPServer extends Server {
     private outputStructuredLog;
     private outputConsoleLog;
     private redactSensitiveData;
-    private createStructuredError;
-    private trackErrorMetrics;
     getErrorMetrics(): {
         total: number;
         byCategory: {
