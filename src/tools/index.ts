@@ -7,6 +7,4 @@
 
 export * from './tool';
 export * from './form-creation-tool';
-
-// Tool implementations will be added in subsequent tasks
-export {}; 
+export * from './form-modification-tool'; 
