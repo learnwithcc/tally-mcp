@@ -155,6 +155,7 @@ export const TallyFormResponseSchema = z.object({
 export const TallySubmissionSchema = z.object({
   id: z.string(),
   formId: z.string(),
+  respondentId: z.string(),
   isCompleted: z.boolean(),
   submittedAt: z.string().datetime(),
   responses: z.array(TallyFormResponseSchema),
@@ -175,6 +176,15 @@ export const TallySubmissionsResponseSchema = z.object({
   questions: z.array(TallyQuestionSchema),
   submissions: z.array(TallySubmissionSchema),
 });
+
+export type SubmissionStatusFilter = 'all' | 'completed' | 'partial';
+
+export interface SubmissionFilters {
+  status?: SubmissionStatusFilter;
+  startDate?: string;
+  endDate?: string;
+  afterId?: string;
+}
 
 // ===============================
 // Webhook Payload Types
@@ -257,6 +267,9 @@ export const TallyFormsResponseSchema = z.object({
 // Workspace/Organization Types
 // ===============================
 
+export const UserRoleSchema = z.enum(['owner', 'admin', 'member']);
+export type UserRole = z.infer<typeof UserRoleSchema>;
+
 /**
  * Workspace member
  */
@@ -264,7 +277,7 @@ export const TallyWorkspaceMemberSchema = z.object({
   id: z.string(),
   email: z.string().email(),
   name: z.string().optional(),
-  role: z.enum(['owner', 'admin', 'member']),
+  role: UserRoleSchema,
   joinedAt: z.string().datetime(),
 });
 
@@ -290,6 +303,71 @@ export const TallyWorkspacesResponseSchema = z.object({
   page: z.number().optional(),
   limit: z.number().optional(),
   hasMore: z.boolean().optional(),
+});
+
+// ===============================
+// Form Permission Types
+// ===============================
+
+/**
+ * Form access levels
+ */
+export const FormAccessLevelSchema = z.enum(['view', 'edit', 'manage', 'admin']);
+export type FormAccessLevel = z.infer<typeof FormAccessLevelSchema>;
+
+/**
+ * Form permission entry for a specific user
+ */
+export const FormPermissionSchema = z.object({
+  userId: z.string(),
+  formId: z.string(),
+  accessLevel: FormAccessLevelSchema,
+  inheritFromWorkspace: z.boolean().default(true),
+  grantedAt: z.string().datetime(),
+  grantedBy: z.string(),
+});
+
+/**
+ * Bulk form permission operation
+ */
+export const BulkFormPermissionSchema = z.object({
+  formIds: z.array(z.string()),
+  userId: z.string(),
+  accessLevel: FormAccessLevelSchema,
+  inheritFromWorkspace: z.boolean().default(true),
+});
+
+/**
+ * Form permission settings
+ */
+export const FormPermissionSettingsSchema = z.object({
+  formId: z.string(),
+  workspaceId: z.string(),
+  defaultAccessLevel: FormAccessLevelSchema.default('view'),
+  allowWorkspaceInheritance: z.boolean().default(true),
+  permissions: z.array(FormPermissionSchema),
+});
+
+/**
+ * Form permissions response
+ */
+export const FormPermissionsResponseSchema = z.object({
+  formId: z.string(),
+  permissions: z.array(FormPermissionSchema),
+  settings: FormPermissionSettingsSchema,
+});
+
+/**
+ * Bulk permission operation response
+ */
+export const BulkPermissionResponseSchema = z.object({
+  success: z.boolean(),
+  updatedCount: z.number(),
+  failedCount: z.number(),
+  errors: z.array(z.object({
+    formId: z.string(),
+    error: z.string(),
+  })).optional(),
 });
 
 // ===============================
@@ -338,6 +416,11 @@ export type TallyFormsResponse = z.infer<typeof TallyFormsResponseSchema>;
 export type TallyWorkspaceMember = z.infer<typeof TallyWorkspaceMemberSchema>;
 export type TallyWorkspace = z.infer<typeof TallyWorkspaceSchema>;
 export type TallyWorkspacesResponse = z.infer<typeof TallyWorkspacesResponseSchema>;
+export type FormPermission = z.infer<typeof FormPermissionSchema>;
+export type BulkFormPermission = z.infer<typeof BulkFormPermissionSchema>;
+export type FormPermissionSettings = z.infer<typeof FormPermissionSettingsSchema>;
+export type FormPermissionsResponse = z.infer<typeof FormPermissionsResponseSchema>;
+export type BulkPermissionResponse = z.infer<typeof BulkPermissionResponseSchema>;
 export type TallySuccessResponse = z.infer<typeof TallySuccessResponseSchema>;
 export type TallyPagination = z.infer<typeof TallyPaginationSchema>;
 

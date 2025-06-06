@@ -503,8 +503,7 @@ export class TallyApiClient {
    */
   public async getWorkspace(workspaceId: string): Promise<TallyWorkspace> {
     const url = `/workspaces/${workspaceId}`;
-    const response = await this.get(url);
-    return validateTallyResponse(TallyWorkspaceSchema, response.data);
+    return this.requestWithValidation('GET', url, TallyWorkspaceSchema);
   }
 
   /**
@@ -515,7 +514,7 @@ export class TallyApiClient {
    * @returns Safe parse result with success/error information
    */
   public validateResponse<T>(schema: z.ZodSchema<T>, data: unknown): z.SafeParseReturnType<unknown, T> {
-    return safeParseTallyResponse(schema, data);
+    return schema.safeParse(data);
   }
 
   /**
@@ -976,5 +975,26 @@ export class TallyApiClient {
         return this.handleResponseError(error, 0);
       }
     );
+  }
+
+  public async inviteUserToWorkspace(workspaceId: string, email: string, role: string): Promise<any> {
+    console.warn('Tally API does not officially support inviting users via the API. This is a placeholder.');
+    // const url = `/workspaces/${workspaceId}/members`;
+    // return this.post(url, { email, role });
+    return Promise.resolve({ success: true, message: `User ${email} invited to workspace ${workspaceId} as ${role}. (Mocked)` });
+  }
+
+  public async removeUserFromWorkspace(workspaceId: string, userId: string): Promise<any> {
+    console.warn('Tally API does not officially support removing users via the API. This is a placeholder.');
+    // const url = `/workspaces/${workspaceId}/members/${userId}`;
+    // return this.delete(url);
+    return Promise.resolve({ success: true, message: `User ${userId} removed from workspace ${workspaceId}. (Mocked)` });
+  }
+
+  public async updateUserRole(workspaceId: string, userId: string, role: string): Promise<any> {
+    console.warn('Tally API does not officially support updating user roles via the API. This is a placeholder.');
+    // const url = `/workspaces/${workspaceId}/members/${userId}`;
+    // return this.patch(url, { role });
+    return Promise.resolve({ success: true, message: `User ${userId} role updated to ${role} in workspace ${workspaceId}. (Mocked)` });
   }
 } 

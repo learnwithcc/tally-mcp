@@ -26,4 +26,7 @@ Object.defineProperty(exports, "NetworkError", { enumerable: true, get: function
 Object.defineProperty(exports, "TimeoutError", { enumerable: true, get: function () { return errors_1.TimeoutError; } });
 Object.defineProperty(exports, "createErrorFromResponse", { enumerable: true, get: function () { return errors_1.createErrorFromResponse; } });
 __exportStar(require("./tally-schemas"), exports);
+__exportStar(require("./form-config"), exports);
+__exportStar(require("./form-config-schemas"), exports);
+__exportStar(require("./form-version"), exports);
 //# sourceMappingURL=index.js.map

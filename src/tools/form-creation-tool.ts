@@ -1,10 +1,12 @@
 import { FormConfig, SubmissionBehavior, FormTheme } from '../models/form-config';
 import { Tool } from './tool';
-import { NlpService, TallyApiService } from '../services';
+import { NlpService, TallyApiService, TemplateService } from '../services';
 import { TallyApiClientConfig } from '../services/TallyApiClient';
 
 export interface FormCreationArgs {
-  naturalLanguagePrompt: string;
+  naturalLanguagePrompt?: string;
+  templateId?: string;
+  formTitle?: string;
 }
 
 export interface FormCreationResult {
@@ -14,29 +16,42 @@ export interface FormCreationResult {
 
 export class FormCreationTool implements Tool<FormCreationArgs, FormCreationResult> {
   public readonly name = 'form_creation_tool';
-  public readonly description = 'Creates a Tally form from a natural language description.';
+  public readonly description = 'Creates a Tally form from a natural language description or a template.';
 
   private nlpService: NlpService;
   private tallyApiService: TallyApiService;
+  private templateService: TemplateService;
 
   constructor(apiClientConfig: TallyApiClientConfig) {
     this.nlpService = new NlpService();
     this.tallyApiService = new TallyApiService(apiClientConfig);
+    this.templateService = new TemplateService();
   }
 
   public async execute(args: FormCreationArgs): Promise<FormCreationResult> {
-    console.log(`Executing form creation tool with prompt: ${args.naturalLanguagePrompt}`);
+    console.log(`Executing form creation tool with args: ${JSON.stringify(args)}`);
 
-    // 1. Use NlpService to generate a FormConfig from the prompt
-    const formConfig = this.nlpService.generateFormConfig(args.naturalLanguagePrompt);
+    let formConfig: FormConfig | undefined;
 
-    // 2. Use TallyApiService to create the form
+    if (args.templateId) {
+      formConfig = this.templateService.instantiateTemplate(args.templateId, args.formTitle);
+      if (!formConfig) {
+        throw new Error(`Template with ID '${args.templateId}' not found.`);
+      }
+    } else if (args.naturalLanguagePrompt) {
+      formConfig = this.nlpService.generateFormConfig(args.naturalLanguagePrompt);
+      if (args.formTitle) {
+        formConfig.title = args.formTitle;
+      }
+    } else {
+      throw new Error('Either naturalLanguagePrompt or templateId must be provided.');
+    }
+
     const createdTallyForm = await this.tallyApiService.createForm(formConfig);
 
-    // 3. Return the URL of the created form and the final config
     return {
       formUrl: createdTallyForm.url,
-      formConfig: formConfig, // Or map from createdTallyForm if needed
+      formConfig,
     };
   }
 } 

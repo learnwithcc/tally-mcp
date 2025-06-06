@@ -1,5 +1,5 @@
 import { TallyApiClient, TallyApiClientConfig } from './TallyApiClient';
-import { FormConfig } from '../models';
+import { FormConfig, SubmissionBehavior } from '../models';
 import { TallyForm, TallyFormSchema, TallyFormsResponse } from '../models/tally-schemas';
 
 export class TallyApiService {
@@ -103,31 +103,51 @@ export class TallyApiService {
     const payload: any = {};
 
     if (formConfig.title) {
-      payload.name = formConfig.title;
+      payload.title = formConfig.title;
     }
 
-    if (formConfig.description) {
+    if (formConfig.description !== undefined) {
       payload.description = formConfig.description;
+    }
+    
+    if (formConfig.settings) {
+      payload.settings = {
+        redirectOnCompletion: formConfig.settings.submissionBehavior === SubmissionBehavior.REDIRECT,
+        redirectOnCompletionUrl: formConfig.settings.redirectUrl,
+      };
     }
 
     if (formConfig.questions) {
-      payload.fields = formConfig.questions.map(q => {
-        const field: any = {
+      payload.questions = formConfig.questions.map(q => {
+        const questionPayload: any = {
+          id: q.id,
           type: q.type,
           title: q.label,
-          required: q.required,
           description: q.description,
+          validations: [],
         };
 
-        // Add options only for question types that support them
-        if ('options' in q && q.options) {
-          field.options = q.options.map(opt => ({ 
-            label: opt.text, 
-            value: opt.value || opt.text 
-          }));
+        if (q.required) {
+          questionPayload.validations.push({ type: 'required' });
         }
 
-        return field;
+        const settings: any = {};
+        if (q.placeholder) settings.placeholder = q.placeholder;
+        // Add other question-specific settings from our model to Tally's expected format
+        if ((q as any).minLength) settings.minLength = (q as any).minLength;
+        if ((q as any).maxLength) settings.maxLength = (q as any).maxLength;
+        if ((q as any).format) settings.format = (q as any).format;
+
+        // Add options for choice-based questions
+        if ('options' in q && q.options) {
+          settings.options = q.options.map(opt => ({
+            id: opt.id,
+            text: opt.text,
+          }));
+        }
+        
+        questionPayload.settings = settings;
+        return questionPayload;
       });
     }
 

@@ -29,3 +29,9 @@ export * from './form-config';
 
 // Export form configuration schemas
 export * from './form-config-schemas'; 
+
+// Export form versioning models
+export * from './form-version'; 
+
+// Export form template models
+export * from './template';

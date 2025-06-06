@@ -31,6 +31,7 @@ export enum QuestionType {
   URL = 'url',
   SIGNATURE = 'signature',
   PAYMENT = 'payment',
+  MATRIX = 'matrix',
 }
 
 /**
@@ -133,6 +134,121 @@ export enum PaymentMethod {
   PAYPAL = 'paypal',
   APPLE_PAY = 'apple_pay',
   GOOGLE_PAY = 'google_pay',
+}
+
+/**
+ * Matrix question response types
+ */
+export enum MatrixResponseType {
+  SINGLE_SELECT = 'single_select',
+  MULTI_SELECT = 'multi_select', 
+  TEXT_INPUT = 'text_input',
+  RATING = 'rating',
+}
+
+/**
+ * Configuration for matrix cell validation
+ */
+export interface MatrixCellValidation {
+  /**
+   * Whether this cell is required
+   */
+  required?: boolean | undefined;
+  
+  /**
+   * For text input cells: minimum character count
+   */
+  minLength?: number | undefined;
+  
+  /**
+   * For text input cells: maximum character count
+   */
+  maxLength?: number | undefined;
+  
+  /**
+   * For rating cells: minimum rating value
+   */
+  minRating?: number | undefined;
+  
+  /**
+   * For rating cells: maximum rating value
+   */
+  maxRating?: number | undefined;
+  
+  /**
+   * Custom validation pattern
+   */
+  pattern?: string | undefined;
+  
+  /**
+   * Custom error message
+   */
+  errorMessage?: string | undefined;
+}
+
+/**
+ * Matrix question row definition
+ */
+export interface MatrixRow {
+  /**
+   * Unique identifier for the row
+   */
+  id?: string | undefined;
+  
+  /**
+   * Display text for the row
+   */
+  text: string;
+  
+  /**
+   * Optional value (defaults to text if not provided)
+   */
+  value?: string | undefined;
+  
+  /**
+   * Whether this row is required
+   */
+  required?: boolean | undefined;
+  
+  /**
+   * Cell-specific validation for this row
+   */
+  cellValidation?: MatrixCellValidation | undefined;
+}
+
+/**
+ * Matrix question column definition
+ */
+export interface MatrixColumn {
+  /**
+   * Unique identifier for the column
+   */
+  id?: string | undefined;
+  
+  /**
+   * Display text for the column
+   */
+  text: string;
+  
+  /**
+   * Optional value (defaults to text if not provided)
+   */
+  value?: string | undefined;
+  
+  /**
+   * Response type for this column
+   */
+  responseType?: MatrixResponseType | undefined;
+  
+  /**
+   * For choice columns: available options
+   */
+  options?: QuestionOption[] | undefined;
+  
+  /**
+   * Column width (for responsive layouts)
+   */
+  width?: string | undefined;
 }
 
 // ===============================
@@ -440,6 +556,31 @@ export interface DropdownQuestionConfig extends BaseQuestionConfig {
    * Placeholder text for the dropdown
    */
   dropdownPlaceholder?: string | undefined;
+  /**
+   * Whether to allow multiple selections
+   */
+  multiSelect?: boolean | undefined;
+  /**
+   * Maximum number of selections (for multi-select)
+   */
+  maxSelections?: number | undefined;
+  /**
+   * Minimum number of selections (for multi-select)
+   */
+  minSelections?: number | undefined;
+  /**
+   * Whether to enable image-based options
+   */
+  imageOptions?: boolean | undefined;
+  /**
+   * Advanced search configuration
+   */
+  searchConfig?: {
+    minSearchLength?: number | undefined;
+    searchPlaceholder?: string | undefined;
+    highlightMatches?: boolean | undefined;
+    fuzzySearch?: boolean | undefined;
+  } | undefined;
 }
 
 /**
@@ -471,6 +612,26 @@ export interface CheckboxesQuestionConfig extends BaseQuestionConfig {
    * Layout style for options
    */
   layout?: QuestionLayout | undefined;
+  /**
+   * Whether to enable image-based options
+   */
+  imageOptions?: boolean | undefined;
+  /**
+   * Advanced selection constraints
+   */
+  selectionConstraints?: {
+    forbiddenCombinations?: string[][] | undefined;
+    requiredCombinations?: string[][] | undefined;
+    mutuallyExclusive?: string[][] | undefined;
+  } | undefined;
+  /**
+   * Search and filtering options for large option sets
+   */
+  searchOptions?: {
+    enableSearch?: boolean | undefined;
+    searchPlaceholder?: string | undefined;
+    minSearchLength?: number | undefined;
+  } | undefined;
 }
 
 /**
@@ -564,6 +725,38 @@ export interface FileQuestionConfig extends BaseQuestionConfig {
    * Upload area text/instructions
    */
   uploadText?: string | undefined;
+  /**
+   * Whether to enable drag-and-drop functionality
+   */
+  enableDragDrop?: boolean | undefined;
+  /**
+   * Hint text for drag-and-drop area
+   */
+  dragDropHint?: string | undefined;
+  /**
+   * Whether to show upload progress indicator
+   */
+  showProgress?: boolean | undefined;
+  /**
+   * Whether to show file preview thumbnails
+   */
+  showPreview?: boolean | undefined;
+  /**
+   * File type restrictions for better validation
+   */
+  fileRestrictions?: {
+    allowedExtensions?: string[] | undefined;
+    blockedExtensions?: string[] | undefined;
+    allowedMimeTypes?: string[] | undefined;
+    blockedMimeTypes?: string[] | undefined;
+  } | undefined;
+  /**
+   * Upload size constraints
+   */
+  sizeConstraints?: {
+    minFileSize?: number | undefined; // in MB
+    maxTotalSize?: number | undefined; // in MB (for multiple files)
+  } | undefined;
 }
 
 /**
@@ -587,6 +780,72 @@ export interface SignatureQuestionConfig extends BaseQuestionConfig {
    * Background color for signature pad
    */
   backgroundColor?: string | undefined;
+}
+
+/**
+ * Matrix question configuration
+ */
+export interface MatrixQuestionConfig extends BaseQuestionConfig {
+  type: QuestionType.MATRIX;
+  /**
+   * Matrix rows (question statements)
+   */
+  rows: MatrixRow[];
+  
+  /**
+   * Matrix columns (answer options/types)
+   */
+  columns: MatrixColumn[];
+  
+  /**
+   * Default response type for all cells
+   */
+  defaultResponseType: MatrixResponseType;
+  
+  /**
+   * Whether to allow selecting multiple options per row (for multi-select type)
+   */
+  allowMultiplePerRow?: boolean | undefined;
+  
+  /**
+   * Whether to require at least one selection per row
+   */
+  requireAllRows?: boolean | undefined;
+  
+  /**
+   * Whether to randomize row order
+   */
+  randomizeRows?: boolean | undefined;
+  
+  /**
+   * Whether to randomize column order
+   */
+  randomizeColumns?: boolean | undefined;
+  
+  /**
+   * Mobile responsive behavior
+   */
+  mobileLayout?: 'stacked' | 'scrollable' | 'accordion' | undefined;
+  
+  /**
+   * Whether to show row/column headers on mobile
+   */
+  showHeadersOnMobile?: boolean | undefined;
+  
+  /**
+   * Default validation for all cells
+   */
+  defaultCellValidation?: MatrixCellValidation | undefined;
+  
+  /**
+   * Custom CSS classes for styling
+   */
+  customClasses?: {
+    table?: string | undefined;
+    row?: string | undefined;
+    column?: string | undefined;
+    cell?: string | undefined;
+  } | undefined;
 }
 
 /**
@@ -647,6 +906,7 @@ export type QuestionConfig =
   | LinearScaleQuestionConfig
   | FileQuestionConfig
   | SignatureQuestionConfig
+  | MatrixQuestionConfig
   | PaymentQuestionConfig;
 
 // ===============================
@@ -714,6 +974,13 @@ export function isFileQuestion(question: QuestionConfig): question is
 }
 
 /**
+ * Type guard to check if a question is a matrix question
+ */
+export function isMatrixQuestion(question: QuestionConfig): question is MatrixQuestionConfig {
+  return question.type === QuestionType.MATRIX;
+}
+
+/**
  * Helper type to extract question type from question config
  */
 export type QuestionTypeOf<T extends QuestionConfig> = T['type'];
@@ -737,6 +1004,7 @@ export type QuestionConfigByType<T extends QuestionType> =
   T extends QuestionType.LINEAR_SCALE ? LinearScaleQuestionConfig :
   T extends QuestionType.FILE ? FileQuestionConfig :
   T extends QuestionType.SIGNATURE ? SignatureQuestionConfig :
+  T extends QuestionType.MATRIX ? MatrixQuestionConfig :
   T extends QuestionType.PAYMENT ? PaymentQuestionConfig :
   never;
 
@@ -910,6 +1178,9 @@ export function getCompatibleValidationTypes(questionType: QuestionType): Valida
     case QuestionType.SIGNATURE:
       return [...baseTypes, 'file'];
     
+    case QuestionType.MATRIX:
+      return [...baseTypes, 'choice'];
+    
     case QuestionType.PAYMENT:
       return [...baseTypes, 'numeric'];
     
@@ -952,6 +1223,7 @@ export type ValidationRulesForQuestionType<T extends QuestionType> =
   T extends QuestionType.TIME ? (RequiredValidation | TimeValidation | CustomValidation) :
   T extends ChoiceQuestionType ? (RequiredValidation | ChoiceValidation | CustomValidation) :
   T extends QuestionType.FILE | QuestionType.SIGNATURE ? (RequiredValidation | FileValidation | CustomValidation) :
+  T extends QuestionType.MATRIX ? (RequiredValidation | ChoiceValidation | CustomValidation) :
   T extends QuestionType.PAYMENT ? (RequiredValidation | NumericValidation | CustomValidation) :
   RequiredValidation | CustomValidation;
 
