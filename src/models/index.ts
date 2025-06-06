@@ -35,3 +35,6 @@ export * from './form-version';
 
 // Export form template models
 export * from './template';
+
+// Export API key management models
+export * from './api-key';
