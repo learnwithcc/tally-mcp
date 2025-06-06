@@ -190,6 +190,7 @@ export declare const TallyFormResponseSchema: z.ZodObject<{
 export declare const TallySubmissionSchema: z.ZodObject<{
     id: z.ZodString;
     formId: z.ZodString;
+    respondentId: z.ZodString;
     isCompleted: z.ZodBoolean;
     submittedAt: z.ZodString;
     responses: z.ZodArray<z.ZodObject<{
@@ -235,6 +236,7 @@ export declare const TallySubmissionSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     id: string;
     formId: string;
+    respondentId: string;
     isCompleted: boolean;
     submittedAt: string;
     responses: {
@@ -250,6 +252,7 @@ export declare const TallySubmissionSchema: z.ZodObject<{
 }, {
     id: string;
     formId: string;
+    respondentId: string;
     isCompleted: boolean;
     submittedAt: string;
     responses: {
@@ -272,13 +275,13 @@ export declare const TallySubmissionsResponseSchema: z.ZodObject<{
         completed: z.ZodNumber;
         partial: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
+        partial: number;
         all: number;
         completed: number;
-        partial: number;
     }, {
+        partial: number;
         all: number;
         completed: number;
-        partial: number;
     }>;
     questions: z.ZodArray<z.ZodObject<{
         id: z.ZodString;
@@ -317,6 +320,7 @@ export declare const TallySubmissionsResponseSchema: z.ZodObject<{
     submissions: z.ZodArray<z.ZodObject<{
         id: z.ZodString;
         formId: z.ZodString;
+        respondentId: z.ZodString;
         isCompleted: z.ZodBoolean;
         submittedAt: z.ZodString;
         responses: z.ZodArray<z.ZodObject<{
@@ -362,6 +366,7 @@ export declare const TallySubmissionsResponseSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         id: string;
         formId: string;
+        respondentId: string;
         isCompleted: boolean;
         submittedAt: string;
         responses: {
@@ -377,6 +382,7 @@ export declare const TallySubmissionsResponseSchema: z.ZodObject<{
     }, {
         id: string;
         formId: string;
+        respondentId: string;
         isCompleted: boolean;
         submittedAt: string;
         responses: {
@@ -393,6 +399,7 @@ export declare const TallySubmissionsResponseSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     hasMore: boolean;
     limit: number;
+    page: number;
     questions: {
         type: "RATING" | "TEXTAREA" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "MULTIPLE_CHOICE" | "SIGNATURE" | "PAYMENT" | "MATRIX" | "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "MULTI_SELECT" | "RANKING" | "FORM_TITLE";
         title: string;
@@ -405,15 +412,15 @@ export declare const TallySubmissionsResponseSchema: z.ZodObject<{
         isDeleted?: boolean | undefined;
         numberOfResponses?: number | undefined;
     }[];
-    page: number;
     totalNumberOfSubmissionsPerFilter: {
+        partial: number;
         all: number;
         completed: number;
-        partial: number;
     };
     submissions: {
         id: string;
         formId: string;
+        respondentId: string;
         isCompleted: boolean;
         submittedAt: string;
         responses: {
@@ -430,6 +437,7 @@ export declare const TallySubmissionsResponseSchema: z.ZodObject<{
 }, {
     hasMore: boolean;
     limit: number;
+    page: number;
     questions: {
         type: "RATING" | "TEXTAREA" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "MULTIPLE_CHOICE" | "SIGNATURE" | "PAYMENT" | "MATRIX" | "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "MULTI_SELECT" | "RANKING" | "FORM_TITLE";
         title: string;
@@ -442,15 +450,15 @@ export declare const TallySubmissionsResponseSchema: z.ZodObject<{
         isDeleted?: boolean | undefined;
         numberOfResponses?: number | undefined;
     }[];
-    page: number;
     totalNumberOfSubmissionsPerFilter: {
+        partial: number;
         all: number;
         completed: number;
-        partial: number;
     };
     submissions: {
         id: string;
         formId: string;
+        respondentId: string;
         isCompleted: boolean;
         submittedAt: string;
         responses: {
@@ -465,6 +473,13 @@ export declare const TallySubmissionsResponseSchema: z.ZodObject<{
         }[];
     }[];
 }>;
+export type SubmissionStatusFilter = 'all' | 'completed' | 'partial';
+export interface SubmissionFilters {
+    status?: SubmissionStatusFilter;
+    startDate?: string;
+    endDate?: string;
+    afterId?: string;
+}
 export declare const TallyWebhookFieldSchema: z.ZodObject<{
     key: z.ZodString;
     label: z.ZodString;
@@ -675,6 +690,7 @@ export declare const TallyWebhookDataSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     createdAt: string;
     formId: string;
+    submissionId: string;
     fields: {
         key: string;
         value: string | number | boolean | string[] | {
@@ -699,13 +715,13 @@ export declare const TallyWebhookDataSchema: z.ZodObject<{
             id: string;
         }[] | undefined;
     }[];
-    responseId: string;
-    submissionId: string;
     respondentId: string;
+    responseId: string;
     formName: string;
 }, {
     createdAt: string;
     formId: string;
+    submissionId: string;
     fields: {
         key: string;
         value: string | number | boolean | string[] | {
@@ -730,9 +746,8 @@ export declare const TallyWebhookDataSchema: z.ZodObject<{
             id: string;
         }[] | undefined;
     }[];
-    responseId: string;
-    submissionId: string;
     respondentId: string;
+    responseId: string;
     formName: string;
 }>;
 export declare const TallyWebhookPayloadSchema: z.ZodObject<{
@@ -849,6 +864,7 @@ export declare const TallyWebhookPayloadSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         createdAt: string;
         formId: string;
+        submissionId: string;
         fields: {
             key: string;
             value: string | number | boolean | string[] | {
@@ -873,13 +889,13 @@ export declare const TallyWebhookPayloadSchema: z.ZodObject<{
                 id: string;
             }[] | undefined;
         }[];
-        responseId: string;
-        submissionId: string;
         respondentId: string;
+        responseId: string;
         formName: string;
     }, {
         createdAt: string;
         formId: string;
+        submissionId: string;
         fields: {
             key: string;
             value: string | number | boolean | string[] | {
@@ -904,15 +920,15 @@ export declare const TallyWebhookPayloadSchema: z.ZodObject<{
                 id: string;
             }[] | undefined;
         }[];
-        responseId: string;
-        submissionId: string;
         respondentId: string;
+        responseId: string;
         formName: string;
     }>;
 }, "strip", z.ZodTypeAny, {
     data: {
         createdAt: string;
         formId: string;
+        submissionId: string;
         fields: {
             key: string;
             value: string | number | boolean | string[] | {
@@ -937,9 +953,8 @@ export declare const TallyWebhookPayloadSchema: z.ZodObject<{
                 id: string;
             }[] | undefined;
         }[];
-        responseId: string;
-        submissionId: string;
         respondentId: string;
+        responseId: string;
         formName: string;
     };
     createdAt: string;
@@ -949,6 +964,7 @@ export declare const TallyWebhookPayloadSchema: z.ZodObject<{
     data: {
         createdAt: string;
         formId: string;
+        submissionId: string;
         fields: {
             key: string;
             value: string | number | boolean | string[] | {
@@ -973,9 +989,8 @@ export declare const TallyWebhookPayloadSchema: z.ZodObject<{
                 id: string;
             }[] | undefined;
         }[];
-        responseId: string;
-        submissionId: string;
         respondentId: string;
+        responseId: string;
         formName: string;
     };
     createdAt: string;
@@ -1087,6 +1102,8 @@ export declare const TallyFormsResponseSchema: z.ZodObject<{
     limit?: number | undefined;
     page?: number | undefined;
 }>;
+export declare const UserRoleSchema: z.ZodEnum<["owner", "admin", "member"]>;
+export type UserRole = z.infer<typeof UserRoleSchema>;
 export declare const TallyWorkspaceMemberSchema: z.ZodObject<{
     id: z.ZodString;
     email: z.ZodString;
@@ -1094,15 +1111,15 @@ export declare const TallyWorkspaceMemberSchema: z.ZodObject<{
     role: z.ZodEnum<["owner", "admin", "member"]>;
     joinedAt: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    role: "owner" | "admin" | "member";
-    email: string;
+    role: "admin" | "owner" | "member";
     id: string;
+    email: string;
     joinedAt: string;
     name?: string | undefined;
 }, {
-    role: "owner" | "admin" | "member";
-    email: string;
+    role: "admin" | "owner" | "member";
     id: string;
+    email: string;
     joinedAt: string;
     name?: string | undefined;
 }>;
@@ -1120,15 +1137,15 @@ export declare const TallyWorkspaceSchema: z.ZodObject<{
         role: z.ZodEnum<["owner", "admin", "member"]>;
         joinedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        role: "owner" | "admin" | "member";
-        email: string;
+        role: "admin" | "owner" | "member";
         id: string;
+        email: string;
         joinedAt: string;
         name?: string | undefined;
     }, {
-        role: "owner" | "admin" | "member";
-        email: string;
+        role: "admin" | "owner" | "member";
         id: string;
+        email: string;
         joinedAt: string;
         name?: string | undefined;
     }>, "many">>;
@@ -1139,14 +1156,14 @@ export declare const TallyWorkspaceSchema: z.ZodObject<{
     createdAt: string;
     updatedAt: string;
     description?: string | undefined;
-    slug?: string | undefined;
     members?: {
-        role: "owner" | "admin" | "member";
-        email: string;
+        role: "admin" | "owner" | "member";
         id: string;
+        email: string;
         joinedAt: string;
         name?: string | undefined;
     }[] | undefined;
+    slug?: string | undefined;
     formsCount?: number | undefined;
 }, {
     name: string;
@@ -1154,14 +1171,14 @@ export declare const TallyWorkspaceSchema: z.ZodObject<{
     createdAt: string;
     updatedAt: string;
     description?: string | undefined;
-    slug?: string | undefined;
     members?: {
-        role: "owner" | "admin" | "member";
-        email: string;
+        role: "admin" | "owner" | "member";
         id: string;
+        email: string;
         joinedAt: string;
         name?: string | undefined;
     }[] | undefined;
+    slug?: string | undefined;
     formsCount?: number | undefined;
 }>;
 export declare const TallyWorkspacesResponseSchema: z.ZodObject<{
@@ -1179,15 +1196,15 @@ export declare const TallyWorkspacesResponseSchema: z.ZodObject<{
             role: z.ZodEnum<["owner", "admin", "member"]>;
             joinedAt: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            role: "owner" | "admin" | "member";
-            email: string;
+            role: "admin" | "owner" | "member";
             id: string;
+            email: string;
             joinedAt: string;
             name?: string | undefined;
         }, {
-            role: "owner" | "admin" | "member";
-            email: string;
+            role: "admin" | "owner" | "member";
             id: string;
+            email: string;
             joinedAt: string;
             name?: string | undefined;
         }>, "many">>;
@@ -1198,14 +1215,14 @@ export declare const TallyWorkspacesResponseSchema: z.ZodObject<{
         createdAt: string;
         updatedAt: string;
         description?: string | undefined;
-        slug?: string | undefined;
         members?: {
-            role: "owner" | "admin" | "member";
-            email: string;
+            role: "admin" | "owner" | "member";
             id: string;
+            email: string;
             joinedAt: string;
             name?: string | undefined;
         }[] | undefined;
+        slug?: string | undefined;
         formsCount?: number | undefined;
     }, {
         name: string;
@@ -1213,14 +1230,14 @@ export declare const TallyWorkspacesResponseSchema: z.ZodObject<{
         createdAt: string;
         updatedAt: string;
         description?: string | undefined;
-        slug?: string | undefined;
         members?: {
-            role: "owner" | "admin" | "member";
-            email: string;
+            role: "admin" | "owner" | "member";
             id: string;
+            email: string;
             joinedAt: string;
             name?: string | undefined;
         }[] | undefined;
+        slug?: string | undefined;
         formsCount?: number | undefined;
     }>, "many">;
     page: z.ZodOptional<z.ZodNumber>;
@@ -1233,14 +1250,14 @@ export declare const TallyWorkspacesResponseSchema: z.ZodObject<{
         createdAt: string;
         updatedAt: string;
         description?: string | undefined;
-        slug?: string | undefined;
         members?: {
-            role: "owner" | "admin" | "member";
-            email: string;
+            role: "admin" | "owner" | "member";
             id: string;
+            email: string;
             joinedAt: string;
             name?: string | undefined;
         }[] | undefined;
+        slug?: string | undefined;
         formsCount?: number | undefined;
     }[];
     hasMore?: boolean | undefined;
@@ -1253,19 +1270,271 @@ export declare const TallyWorkspacesResponseSchema: z.ZodObject<{
         createdAt: string;
         updatedAt: string;
         description?: string | undefined;
-        slug?: string | undefined;
         members?: {
-            role: "owner" | "admin" | "member";
-            email: string;
+            role: "admin" | "owner" | "member";
             id: string;
+            email: string;
             joinedAt: string;
             name?: string | undefined;
         }[] | undefined;
+        slug?: string | undefined;
         formsCount?: number | undefined;
     }[];
     hasMore?: boolean | undefined;
     limit?: number | undefined;
     page?: number | undefined;
+}>;
+export declare const FormAccessLevelSchema: z.ZodEnum<["view", "edit", "manage", "admin"]>;
+export type FormAccessLevel = z.infer<typeof FormAccessLevelSchema>;
+export declare const FormPermissionSchema: z.ZodObject<{
+    userId: z.ZodString;
+    formId: z.ZodString;
+    accessLevel: z.ZodEnum<["view", "edit", "manage", "admin"]>;
+    inheritFromWorkspace: z.ZodDefault<z.ZodBoolean>;
+    grantedAt: z.ZodString;
+    grantedBy: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    formId: string;
+    userId: string;
+    accessLevel: "admin" | "view" | "edit" | "manage";
+    inheritFromWorkspace: boolean;
+    grantedAt: string;
+    grantedBy: string;
+}, {
+    formId: string;
+    userId: string;
+    accessLevel: "admin" | "view" | "edit" | "manage";
+    grantedAt: string;
+    grantedBy: string;
+    inheritFromWorkspace?: boolean | undefined;
+}>;
+export declare const BulkFormPermissionSchema: z.ZodObject<{
+    formIds: z.ZodArray<z.ZodString, "many">;
+    userId: z.ZodString;
+    accessLevel: z.ZodEnum<["view", "edit", "manage", "admin"]>;
+    inheritFromWorkspace: z.ZodDefault<z.ZodBoolean>;
+}, "strip", z.ZodTypeAny, {
+    userId: string;
+    accessLevel: "admin" | "view" | "edit" | "manage";
+    inheritFromWorkspace: boolean;
+    formIds: string[];
+}, {
+    userId: string;
+    accessLevel: "admin" | "view" | "edit" | "manage";
+    formIds: string[];
+    inheritFromWorkspace?: boolean | undefined;
+}>;
+export declare const FormPermissionSettingsSchema: z.ZodObject<{
+    formId: z.ZodString;
+    workspaceId: z.ZodString;
+    defaultAccessLevel: z.ZodDefault<z.ZodEnum<["view", "edit", "manage", "admin"]>>;
+    allowWorkspaceInheritance: z.ZodDefault<z.ZodBoolean>;
+    permissions: z.ZodArray<z.ZodObject<{
+        userId: z.ZodString;
+        formId: z.ZodString;
+        accessLevel: z.ZodEnum<["view", "edit", "manage", "admin"]>;
+        inheritFromWorkspace: z.ZodDefault<z.ZodBoolean>;
+        grantedAt: z.ZodString;
+        grantedBy: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        formId: string;
+        userId: string;
+        accessLevel: "admin" | "view" | "edit" | "manage";
+        inheritFromWorkspace: boolean;
+        grantedAt: string;
+        grantedBy: string;
+    }, {
+        formId: string;
+        userId: string;
+        accessLevel: "admin" | "view" | "edit" | "manage";
+        grantedAt: string;
+        grantedBy: string;
+        inheritFromWorkspace?: boolean | undefined;
+    }>, "many">;
+}, "strip", z.ZodTypeAny, {
+    formId: string;
+    workspaceId: string;
+    defaultAccessLevel: "admin" | "view" | "edit" | "manage";
+    allowWorkspaceInheritance: boolean;
+    permissions: {
+        formId: string;
+        userId: string;
+        accessLevel: "admin" | "view" | "edit" | "manage";
+        inheritFromWorkspace: boolean;
+        grantedAt: string;
+        grantedBy: string;
+    }[];
+}, {
+    formId: string;
+    workspaceId: string;
+    permissions: {
+        formId: string;
+        userId: string;
+        accessLevel: "admin" | "view" | "edit" | "manage";
+        grantedAt: string;
+        grantedBy: string;
+        inheritFromWorkspace?: boolean | undefined;
+    }[];
+    defaultAccessLevel?: "admin" | "view" | "edit" | "manage" | undefined;
+    allowWorkspaceInheritance?: boolean | undefined;
+}>;
+export declare const FormPermissionsResponseSchema: z.ZodObject<{
+    formId: z.ZodString;
+    permissions: z.ZodArray<z.ZodObject<{
+        userId: z.ZodString;
+        formId: z.ZodString;
+        accessLevel: z.ZodEnum<["view", "edit", "manage", "admin"]>;
+        inheritFromWorkspace: z.ZodDefault<z.ZodBoolean>;
+        grantedAt: z.ZodString;
+        grantedBy: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        formId: string;
+        userId: string;
+        accessLevel: "admin" | "view" | "edit" | "manage";
+        inheritFromWorkspace: boolean;
+        grantedAt: string;
+        grantedBy: string;
+    }, {
+        formId: string;
+        userId: string;
+        accessLevel: "admin" | "view" | "edit" | "manage";
+        grantedAt: string;
+        grantedBy: string;
+        inheritFromWorkspace?: boolean | undefined;
+    }>, "many">;
+    settings: z.ZodObject<{
+        formId: z.ZodString;
+        workspaceId: z.ZodString;
+        defaultAccessLevel: z.ZodDefault<z.ZodEnum<["view", "edit", "manage", "admin"]>>;
+        allowWorkspaceInheritance: z.ZodDefault<z.ZodBoolean>;
+        permissions: z.ZodArray<z.ZodObject<{
+            userId: z.ZodString;
+            formId: z.ZodString;
+            accessLevel: z.ZodEnum<["view", "edit", "manage", "admin"]>;
+            inheritFromWorkspace: z.ZodDefault<z.ZodBoolean>;
+            grantedAt: z.ZodString;
+            grantedBy: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            formId: string;
+            userId: string;
+            accessLevel: "admin" | "view" | "edit" | "manage";
+            inheritFromWorkspace: boolean;
+            grantedAt: string;
+            grantedBy: string;
+        }, {
+            formId: string;
+            userId: string;
+            accessLevel: "admin" | "view" | "edit" | "manage";
+            grantedAt: string;
+            grantedBy: string;
+            inheritFromWorkspace?: boolean | undefined;
+        }>, "many">;
+    }, "strip", z.ZodTypeAny, {
+        formId: string;
+        workspaceId: string;
+        defaultAccessLevel: "admin" | "view" | "edit" | "manage";
+        allowWorkspaceInheritance: boolean;
+        permissions: {
+            formId: string;
+            userId: string;
+            accessLevel: "admin" | "view" | "edit" | "manage";
+            inheritFromWorkspace: boolean;
+            grantedAt: string;
+            grantedBy: string;
+        }[];
+    }, {
+        formId: string;
+        workspaceId: string;
+        permissions: {
+            formId: string;
+            userId: string;
+            accessLevel: "admin" | "view" | "edit" | "manage";
+            grantedAt: string;
+            grantedBy: string;
+            inheritFromWorkspace?: boolean | undefined;
+        }[];
+        defaultAccessLevel?: "admin" | "view" | "edit" | "manage" | undefined;
+        allowWorkspaceInheritance?: boolean | undefined;
+    }>;
+}, "strip", z.ZodTypeAny, {
+    formId: string;
+    settings: {
+        formId: string;
+        workspaceId: string;
+        defaultAccessLevel: "admin" | "view" | "edit" | "manage";
+        allowWorkspaceInheritance: boolean;
+        permissions: {
+            formId: string;
+            userId: string;
+            accessLevel: "admin" | "view" | "edit" | "manage";
+            inheritFromWorkspace: boolean;
+            grantedAt: string;
+            grantedBy: string;
+        }[];
+    };
+    permissions: {
+        formId: string;
+        userId: string;
+        accessLevel: "admin" | "view" | "edit" | "manage";
+        inheritFromWorkspace: boolean;
+        grantedAt: string;
+        grantedBy: string;
+    }[];
+}, {
+    formId: string;
+    settings: {
+        formId: string;
+        workspaceId: string;
+        permissions: {
+            formId: string;
+            userId: string;
+            accessLevel: "admin" | "view" | "edit" | "manage";
+            grantedAt: string;
+            grantedBy: string;
+            inheritFromWorkspace?: boolean | undefined;
+        }[];
+        defaultAccessLevel?: "admin" | "view" | "edit" | "manage" | undefined;
+        allowWorkspaceInheritance?: boolean | undefined;
+    };
+    permissions: {
+        formId: string;
+        userId: string;
+        accessLevel: "admin" | "view" | "edit" | "manage";
+        grantedAt: string;
+        grantedBy: string;
+        inheritFromWorkspace?: boolean | undefined;
+    }[];
+}>;
+export declare const BulkPermissionResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    updatedCount: z.ZodNumber;
+    failedCount: z.ZodNumber;
+    errors: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        formId: z.ZodString;
+        error: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        error: string;
+        formId: string;
+    }, {
+        error: string;
+        formId: string;
+    }>, "many">>;
+}, "strip", z.ZodTypeAny, {
+    success: boolean;
+    updatedCount: number;
+    failedCount: number;
+    errors?: {
+        error: string;
+        formId: string;
+    }[] | undefined;
+}, {
+    success: boolean;
+    updatedCount: number;
+    failedCount: number;
+    errors?: {
+        error: string;
+        formId: string;
+    }[] | undefined;
 }>;
 export declare const TallySuccessResponseSchema: z.ZodObject<{
     success: z.ZodBoolean;
@@ -1315,6 +1584,11 @@ export type TallyFormsResponse = z.infer<typeof TallyFormsResponseSchema>;
 export type TallyWorkspaceMember = z.infer<typeof TallyWorkspaceMemberSchema>;
 export type TallyWorkspace = z.infer<typeof TallyWorkspaceSchema>;
 export type TallyWorkspacesResponse = z.infer<typeof TallyWorkspacesResponseSchema>;
+export type FormPermission = z.infer<typeof FormPermissionSchema>;
+export type BulkFormPermission = z.infer<typeof BulkFormPermissionSchema>;
+export type FormPermissionSettings = z.infer<typeof FormPermissionSettingsSchema>;
+export type FormPermissionsResponse = z.infer<typeof FormPermissionsResponseSchema>;
+export type BulkPermissionResponse = z.infer<typeof BulkPermissionResponseSchema>;
 export type TallySuccessResponse = z.infer<typeof TallySuccessResponseSchema>;
 export type TallyPagination = z.infer<typeof TallyPaginationSchema>;
 export declare function validateTallyResponse<T>(schema: z.ZodSchema<T>, data: unknown): T;

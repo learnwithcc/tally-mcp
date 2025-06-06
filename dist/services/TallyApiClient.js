@@ -189,11 +189,10 @@ class TallyApiClient {
     }
     async getWorkspace(workspaceId) {
         const url = `/workspaces/${workspaceId}`;
-        const response = await this.get(url);
-        return (0, models_2.validateTallyResponse)(models_2.TallyWorkspaceSchema, response.data);
+        return this.requestWithValidation('GET', url, models_2.TallyWorkspaceSchema);
     }
     validateResponse(schema, data) {
-        return (0, models_2.safeParseTallyResponse)(schema, data);
+        return schema.safeParse(data);
     }
     async requestWithValidation(method, url, schema, data, config) {
         const response = await this.request(method, url, data, config);
@@ -411,6 +410,18 @@ class TallyApiClient {
         }, async (error) => {
             return this.handleResponseError(error, 0);
         });
+    }
+    async inviteUserToWorkspace(workspaceId, email, role) {
+        console.warn('Tally API does not officially support inviting users via the API. This is a placeholder.');
+        return Promise.resolve({ success: true, message: `User ${email} invited to workspace ${workspaceId} as ${role}. (Mocked)` });
+    }
+    async removeUserFromWorkspace(workspaceId, userId) {
+        console.warn('Tally API does not officially support removing users via the API. This is a placeholder.');
+        return Promise.resolve({ success: true, message: `User ${userId} removed from workspace ${workspaceId}. (Mocked)` });
+    }
+    async updateUserRole(workspaceId, userId, role) {
+        console.warn('Tally API does not officially support updating user roles via the API. This is a placeholder.');
+        return Promise.resolve({ success: true, message: `User ${userId} role updated to ${role} in workspace ${workspaceId}. (Mocked)` });
     }
 }
 exports.TallyApiClient = TallyApiClient;

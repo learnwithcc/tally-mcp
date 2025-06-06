@@ -520,8 +520,27 @@ class FormModificationOperations {
         return nextId;
     }
     generateDefaultFieldLabel(fieldType) {
-        const typeStr = fieldType.toString().replace(/_/g, ' ');
-        return `${typeStr.charAt(0).toUpperCase() + typeStr.slice(1)} Field`;
+        const labelMap = {
+            [models_1.QuestionType.TEXT]: 'Text Field',
+            [models_1.QuestionType.EMAIL]: 'Email Address',
+            [models_1.QuestionType.NUMBER]: 'Number Field',
+            [models_1.QuestionType.CHOICE]: 'Choice Field',
+            [models_1.QuestionType.RATING]: 'Rating Field',
+            [models_1.QuestionType.FILE]: 'File Upload',
+            [models_1.QuestionType.DATE]: 'Date Field',
+            [models_1.QuestionType.TIME]: 'Time Field',
+            [models_1.QuestionType.TEXTAREA]: 'Text Area',
+            [models_1.QuestionType.DROPDOWN]: 'Dropdown Field',
+            [models_1.QuestionType.CHECKBOXES]: 'Checkboxes Field',
+            [models_1.QuestionType.LINEAR_SCALE]: 'Linear Scale',
+            [models_1.QuestionType.MULTIPLE_CHOICE]: 'Multiple Choice',
+            [models_1.QuestionType.PHONE]: 'Phone Number',
+            [models_1.QuestionType.URL]: 'URL Field',
+            [models_1.QuestionType.SIGNATURE]: 'Signature Field',
+            [models_1.QuestionType.PAYMENT]: 'Payment Field',
+            [models_1.QuestionType.MATRIX]: 'Matrix Field',
+        };
+        return labelMap[fieldType] || `${fieldType.toString().replace(/_/g, ' ')} Field`;
     }
     isChoiceField(fieldType) {
         return [
@@ -706,24 +725,12 @@ class FormModificationOperations {
                 { id: 'col_3', text: 'Column 3', value: 'col_3' }
             ],
             defaultResponseType: models_1.MatrixResponseType.SINGLE_SELECT,
-            allowMixedResponseTypes: false,
-            showRowNumbers: false,
-            showColumnHeaders: true,
-            mobileLayout: {
-                stackOnMobile: true,
-                showRowLabelsOnMobile: true,
-                compactMode: false
-            },
-            validation: {
-                requireAllRows: false,
-                requireAllColumns: false,
-                customRules: []
-            },
-            randomization: {
-                randomizeRows: false,
-                randomizeColumns: false,
-                seed: undefined
-            }
+            allowMultiplePerRow: false,
+            requireAllRows: false,
+            randomizeRows: false,
+            randomizeColumns: false,
+            mobileLayout: 'stacked',
+            showHeadersOnMobile: true
         };
     }
     convertTallyFormToFormConfig(tallyForm) {

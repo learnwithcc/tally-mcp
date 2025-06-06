@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TallyPaginationSchema = exports.TallySuccessResponseSchema = exports.TallyWorkspacesResponseSchema = exports.TallyWorkspaceSchema = exports.TallyWorkspaceMemberSchema = exports.TallyFormsResponseSchema = exports.TallyFormSchema = exports.TallyWebhookPayloadSchema = exports.TallyWebhookDataSchema = exports.TallyWebhookFieldSchema = exports.TallySubmissionsResponseSchema = exports.TallySubmissionSchema = exports.TallyFormResponseSchema = exports.TallyQuestionSchema = exports.TallyFormFieldSchema = exports.TallyMatrixSchema = exports.TallyOptionSchema = exports.TallyFileUploadSchema = exports.TallyFieldTypeSchema = exports.TallyApiErrorResponseSchema = exports.TallyApiResponseSchema = void 0;
+exports.TallyPaginationSchema = exports.TallySuccessResponseSchema = exports.BulkPermissionResponseSchema = exports.FormPermissionsResponseSchema = exports.FormPermissionSettingsSchema = exports.BulkFormPermissionSchema = exports.FormPermissionSchema = exports.FormAccessLevelSchema = exports.TallyWorkspacesResponseSchema = exports.TallyWorkspaceSchema = exports.TallyWorkspaceMemberSchema = exports.UserRoleSchema = exports.TallyFormsResponseSchema = exports.TallyFormSchema = exports.TallyWebhookPayloadSchema = exports.TallyWebhookDataSchema = exports.TallyWebhookFieldSchema = exports.TallySubmissionsResponseSchema = exports.TallySubmissionSchema = exports.TallyFormResponseSchema = exports.TallyQuestionSchema = exports.TallyFormFieldSchema = exports.TallyMatrixSchema = exports.TallyOptionSchema = exports.TallyFileUploadSchema = exports.TallyFieldTypeSchema = exports.TallyApiErrorResponseSchema = exports.TallyApiResponseSchema = void 0;
 exports.validateTallyResponse = validateTallyResponse;
 exports.safeParseTallyResponse = safeParseTallyResponse;
 exports.createTallyValidator = createTallyValidator;
@@ -99,6 +99,7 @@ exports.TallyFormResponseSchema = zod_1.z.object({
 exports.TallySubmissionSchema = zod_1.z.object({
     id: zod_1.z.string(),
     formId: zod_1.z.string(),
+    respondentId: zod_1.z.string(),
     isCompleted: zod_1.z.boolean(),
     submittedAt: zod_1.z.string().datetime(),
     responses: zod_1.z.array(exports.TallyFormResponseSchema),
@@ -164,11 +165,12 @@ exports.TallyFormsResponseSchema = zod_1.z.object({
     limit: zod_1.z.number().optional(),
     hasMore: zod_1.z.boolean().optional(),
 });
+exports.UserRoleSchema = zod_1.z.enum(['owner', 'admin', 'member']);
 exports.TallyWorkspaceMemberSchema = zod_1.z.object({
     id: zod_1.z.string(),
     email: zod_1.z.string().email(),
     name: zod_1.z.string().optional(),
-    role: zod_1.z.enum(['owner', 'admin', 'member']),
+    role: exports.UserRoleSchema,
     joinedAt: zod_1.z.string().datetime(),
 });
 exports.TallyWorkspaceSchema = zod_1.z.object({
@@ -186,6 +188,42 @@ exports.TallyWorkspacesResponseSchema = zod_1.z.object({
     page: zod_1.z.number().optional(),
     limit: zod_1.z.number().optional(),
     hasMore: zod_1.z.boolean().optional(),
+});
+exports.FormAccessLevelSchema = zod_1.z.enum(['view', 'edit', 'manage', 'admin']);
+exports.FormPermissionSchema = zod_1.z.object({
+    userId: zod_1.z.string(),
+    formId: zod_1.z.string(),
+    accessLevel: exports.FormAccessLevelSchema,
+    inheritFromWorkspace: zod_1.z.boolean().default(true),
+    grantedAt: zod_1.z.string().datetime(),
+    grantedBy: zod_1.z.string(),
+});
+exports.BulkFormPermissionSchema = zod_1.z.object({
+    formIds: zod_1.z.array(zod_1.z.string()),
+    userId: zod_1.z.string(),
+    accessLevel: exports.FormAccessLevelSchema,
+    inheritFromWorkspace: zod_1.z.boolean().default(true),
+});
+exports.FormPermissionSettingsSchema = zod_1.z.object({
+    formId: zod_1.z.string(),
+    workspaceId: zod_1.z.string(),
+    defaultAccessLevel: exports.FormAccessLevelSchema.default('view'),
+    allowWorkspaceInheritance: zod_1.z.boolean().default(true),
+    permissions: zod_1.z.array(exports.FormPermissionSchema),
+});
+exports.FormPermissionsResponseSchema = zod_1.z.object({
+    formId: zod_1.z.string(),
+    permissions: zod_1.z.array(exports.FormPermissionSchema),
+    settings: exports.FormPermissionSettingsSchema,
+});
+exports.BulkPermissionResponseSchema = zod_1.z.object({
+    success: zod_1.z.boolean(),
+    updatedCount: zod_1.z.number(),
+    failedCount: zod_1.z.number(),
+    errors: zod_1.z.array(zod_1.z.object({
+        formId: zod_1.z.string(),
+        error: zod_1.z.string(),
+    })).optional(),
 });
 exports.TallySuccessResponseSchema = zod_1.z.object({
     success: zod_1.z.boolean(),

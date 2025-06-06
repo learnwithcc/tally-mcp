@@ -14,11 +14,20 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TallyApiClient = void 0;
+exports.apiKeyService = exports.ApiKeyService = exports.WorkspaceService = exports.SubmissionService = exports.TemplateService = exports.TallyApiClient = void 0;
 var TallyApiClient_1 = require("./TallyApiClient");
 Object.defineProperty(exports, "TallyApiClient", { enumerable: true, get: function () { return TallyApiClient_1.TallyApiClient; } });
 __exportStar(require("./nlp-service"), exports);
 __exportStar(require("./tally-api-service"), exports);
 __exportStar(require("./form-modification-parser"), exports);
 __exportStar(require("./form-modification-operations"), exports);
+var template_service_1 = require("./template-service");
+Object.defineProperty(exports, "TemplateService", { enumerable: true, get: function () { return template_service_1.TemplateService; } });
+var submission_service_1 = require("./submission-service");
+Object.defineProperty(exports, "SubmissionService", { enumerable: true, get: function () { return submission_service_1.SubmissionService; } });
+var workspace_service_1 = require("./workspace-service");
+Object.defineProperty(exports, "WorkspaceService", { enumerable: true, get: function () { return workspace_service_1.WorkspaceService; } });
+var api_key_service_1 = require("./api-key-service");
+Object.defineProperty(exports, "ApiKeyService", { enumerable: true, get: function () { return api_key_service_1.ApiKeyService; } });
+Object.defineProperty(exports, "apiKeyService", { enumerable: true, get: function () { return api_key_service_1.apiKeyService; } });
 //# sourceMappingURL=index.js.map

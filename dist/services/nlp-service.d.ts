@@ -15,6 +15,11 @@ export interface ExtractedQuestion {
     validation?: ValidationRules;
     logic?: ConditionalLogic;
 }
+export interface ModificationCommand {
+    action: 'add' | 'remove' | 'update';
+    entity: 'question' | 'title' | 'description';
+    payload: any;
+}
 export declare class NlpService {
     private config;
     private questionTypeMap;
@@ -25,5 +30,8 @@ export declare class NlpService {
     private extractValidationRules;
     private extractConditionalLogic;
     generateFormConfig(prompt: string): FormConfig;
+    customizeFormConfig(prompt: string, baseConfig: FormConfig): FormConfig;
+    private parseModificationCommands;
+    private applyCommand;
 }
 //# sourceMappingURL=nlp-service.d.ts.map

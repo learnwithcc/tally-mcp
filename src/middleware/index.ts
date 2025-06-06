@@ -32,4 +32,7 @@ export {
 export * from './error-handler';
 
 // Export API key authentication middleware
-export * from './api-key-auth'; 
+export * from './api-key-auth';
+
+// Export security middleware (CORS and security headers)
+export * from './security'; 

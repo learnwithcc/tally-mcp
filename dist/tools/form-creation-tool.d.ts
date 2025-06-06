@@ -2,7 +2,9 @@ import { FormConfig } from '../models/form-config';
 import { Tool } from './tool';
 import { TallyApiClientConfig } from '../services/TallyApiClient';
 export interface FormCreationArgs {
-    naturalLanguagePrompt: string;
+    naturalLanguagePrompt?: string;
+    templateId?: string;
+    formTitle?: string;
 }
 export interface FormCreationResult {
     formUrl: string | undefined;
@@ -10,9 +12,10 @@ export interface FormCreationResult {
 }
 export declare class FormCreationTool implements Tool<FormCreationArgs, FormCreationResult> {
     readonly name = "form_creation_tool";
-    readonly description = "Creates a Tally form from a natural language description.";
+    readonly description = "Creates a Tally form from a natural language description or a template.";
     private nlpService;
     private tallyApiService;
+    private templateService;
     constructor(apiClientConfig: TallyApiClientConfig);
     execute(args: FormCreationArgs): Promise<FormCreationResult>;
 }

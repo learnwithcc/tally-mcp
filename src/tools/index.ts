@@ -13,4 +13,5 @@ export type { FormModificationArgs, FormModificationResult } from './form-modifi
 export { TemplateTool } from './template-tool';
 export { SubmissionAnalysisTool } from './submission-tool';
 export { WorkspaceManagementTool } from './workspace-tool';
-export { FormPermissionManager } from './form-permission-manager'; 
+export { FormPermissionManager } from './form-permission-manager';
+export { TeamManager } from './team-manager'; 

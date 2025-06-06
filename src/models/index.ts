@@ -38,3 +38,6 @@ export * from './template';
 
 // Export API key management models
 export * from './api-key';
+
+// Export team and organization models
+export * from './team-models';

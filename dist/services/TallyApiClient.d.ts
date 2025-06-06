@@ -85,5 +85,8 @@ export declare class TallyApiClient {
     private retryRequest;
     private createNetworkError;
     private setupInterceptors;
+    inviteUserToWorkspace(workspaceId: string, email: string, role: string): Promise<any>;
+    removeUserFromWorkspace(workspaceId: string, userId: string): Promise<any>;
+    updateUserRole(workspaceId: string, userId: string, role: string): Promise<any>;
 }
 //# sourceMappingURL=TallyApiClient.d.ts.map

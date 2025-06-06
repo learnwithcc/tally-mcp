@@ -29,4 +29,6 @@ __exportStar(require("./tally-schemas"), exports);
 __exportStar(require("./form-config"), exports);
 __exportStar(require("./form-config-schemas"), exports);
 __exportStar(require("./form-version"), exports);
+__exportStar(require("./template"), exports);
+__exportStar(require("./api-key"), exports);
 //# sourceMappingURL=index.js.map
