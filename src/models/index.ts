@@ -22,7 +22,10 @@ export {
 } from './errors';
 
 // Export Tally API schemas and types
-export * from './tally-schemas';
+export * from './tally-schemas'; 
 
 // Export form configuration interfaces and types
 export * from './form-config'; 
+
+// Export form configuration schemas
+export * from './form-config-schemas'; 

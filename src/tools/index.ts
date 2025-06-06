@@ -5,5 +5,8 @@
  * Tools will include form creation, modification, and data retrieval capabilities.
  */
 
+export * from './tool';
+export * from './form-creation-tool';
+
 // Tool implementations will be added in subsequent tasks
 export {}; 
