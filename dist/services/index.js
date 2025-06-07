@@ -14,7 +14,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.apiKeyService = exports.ApiKeyService = exports.WorkspaceService = exports.SubmissionService = exports.TemplateService = exports.TallyApiClient = void 0;
+exports.FormPublicationService = exports.TeamService = exports.apiKeyService = exports.ApiKeyService = exports.WorkspaceService = exports.SubmissionService = exports.TemplateService = exports.TallyApiClient = void 0;
 var TallyApiClient_1 = require("./TallyApiClient");
 Object.defineProperty(exports, "TallyApiClient", { enumerable: true, get: function () { return TallyApiClient_1.TallyApiClient; } });
 __exportStar(require("./nlp-service"), exports);
@@ -30,4 +30,8 @@ Object.defineProperty(exports, "WorkspaceService", { enumerable: true, get: func
 var api_key_service_1 = require("./api-key-service");
 Object.defineProperty(exports, "ApiKeyService", { enumerable: true, get: function () { return api_key_service_1.ApiKeyService; } });
 Object.defineProperty(exports, "apiKeyService", { enumerable: true, get: function () { return api_key_service_1.apiKeyService; } });
+var team_service_1 = require("./team-service");
+Object.defineProperty(exports, "TeamService", { enumerable: true, get: function () { return team_service_1.TeamService; } });
+var form_publication_service_1 = require("./form-publication-service");
+Object.defineProperty(exports, "FormPublicationService", { enumerable: true, get: function () { return form_publication_service_1.FormPublicationService; } });
 //# sourceMappingURL=index.js.map

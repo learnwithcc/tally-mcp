@@ -36,8 +36,8 @@ export declare class FormPermissionManager {
     }>;
     setBulkFormPermissions(userId: string, formIds: string[], accessLevel: FormAccessLevel, inheritFromWorkspace?: boolean): Promise<{
         success: boolean;
-        updatedCount: number;
         failedCount: number;
+        updatedCount: number;
         errors?: {
             error: string;
             formId: string;
@@ -85,8 +85,8 @@ export declare class FormPermissionManager {
     }>;
     copyFormPermissions(sourceFormId: string, targetFormId: string, includeSettings?: boolean): Promise<{
         success: boolean;
-        updatedCount: number;
         failedCount: number;
+        updatedCount: number;
         errors?: {
             error: string;
             formId: string;

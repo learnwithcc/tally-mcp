@@ -5,4 +5,6 @@ export * from './form-config-schemas';
 export * from './form-version';
 export * from './template';
 export * from './api-key';
+export * from './team-models';
+export * from './form-sharing-models';
 //# sourceMappingURL=index.d.ts.map

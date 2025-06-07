@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FormPermissionManager = exports.WorkspaceManagementTool = exports.SubmissionAnalysisTool = exports.TemplateTool = exports.FormModificationTool = exports.FormCreationTool = void 0;
+exports.FormSharingTool = exports.TeamManager = exports.FormPermissionManager = exports.WorkspaceManagementTool = exports.SubmissionAnalysisTool = exports.TemplateTool = exports.FormModificationTool = exports.FormCreationTool = void 0;
 var form_creation_tool_1 = require("./form-creation-tool");
 Object.defineProperty(exports, "FormCreationTool", { enumerable: true, get: function () { return form_creation_tool_1.FormCreationTool; } });
 var form_modification_tool_1 = require("./form-modification-tool");
@@ -13,4 +13,8 @@ var workspace_tool_1 = require("./workspace-tool");
 Object.defineProperty(exports, "WorkspaceManagementTool", { enumerable: true, get: function () { return workspace_tool_1.WorkspaceManagementTool; } });
 var form_permission_manager_1 = require("./form-permission-manager");
 Object.defineProperty(exports, "FormPermissionManager", { enumerable: true, get: function () { return form_permission_manager_1.FormPermissionManager; } });
+var team_manager_1 = require("./team-manager");
+Object.defineProperty(exports, "TeamManager", { enumerable: true, get: function () { return team_manager_1.TeamManager; } });
+var form_sharing_tool_1 = require("./form-sharing-tool");
+Object.defineProperty(exports, "FormSharingTool", { enumerable: true, get: function () { return form_sharing_tool_1.FormSharingTool; } });
 //# sourceMappingURL=index.js.map

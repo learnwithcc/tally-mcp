@@ -40,7 +40,7 @@ function getSecurityConfig() {
     };
     return securityConfigSchema.parse(config);
 }
-function securityLogger(req, res, next) {
+function securityLogger(req, _res, next) {
     const config = getSecurityConfig();
     if (!config.logSecurityEvents) {
         return next();

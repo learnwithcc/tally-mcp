@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
-export declare function securityLogger(req: Request, res: Response, next: NextFunction): void;
+export declare function securityLogger(req: Request, _res: Response, next: NextFunction): void;
 export declare function configureCORS(): (req: cors.CorsRequest, res: {
     statusCode?: number | undefined;
     setHeader(key: string, value: string): any;

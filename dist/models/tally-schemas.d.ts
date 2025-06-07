@@ -276,12 +276,12 @@ export declare const TallySubmissionsResponseSchema: z.ZodObject<{
         partial: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
         partial: number;
-        all: number;
         completed: number;
+        all: number;
     }, {
         partial: number;
-        all: number;
         completed: number;
+        all: number;
     }>;
     questions: z.ZodArray<z.ZodObject<{
         id: z.ZodString;
@@ -414,8 +414,8 @@ export declare const TallySubmissionsResponseSchema: z.ZodObject<{
     }[];
     totalNumberOfSubmissionsPerFilter: {
         partial: number;
-        all: number;
         completed: number;
+        all: number;
     };
     submissions: {
         id: string;
@@ -452,8 +452,8 @@ export declare const TallySubmissionsResponseSchema: z.ZodObject<{
     }[];
     totalNumberOfSubmissionsPerFilter: {
         partial: number;
-        all: number;
         completed: number;
+        all: number;
     };
     submissions: {
         id: string;
@@ -1315,13 +1315,13 @@ export declare const BulkFormPermissionSchema: z.ZodObject<{
     inheritFromWorkspace: z.ZodDefault<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
     userId: string;
+    formIds: string[];
     accessLevel: "admin" | "view" | "edit" | "manage";
     inheritFromWorkspace: boolean;
-    formIds: string[];
 }, {
     userId: string;
-    accessLevel: "admin" | "view" | "edit" | "manage";
     formIds: string[];
+    accessLevel: "admin" | "view" | "edit" | "manage";
     inheritFromWorkspace?: boolean | undefined;
 }>;
 export declare const FormPermissionSettingsSchema: z.ZodObject<{
@@ -1521,16 +1521,16 @@ export declare const BulkPermissionResponseSchema: z.ZodObject<{
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
     success: boolean;
-    updatedCount: number;
     failedCount: number;
+    updatedCount: number;
     errors?: {
         error: string;
         formId: string;
     }[] | undefined;
 }, {
     success: boolean;
-    updatedCount: number;
     failedCount: number;
+    updatedCount: number;
     errors?: {
         error: string;
         formId: string;
