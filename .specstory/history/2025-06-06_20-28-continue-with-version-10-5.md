@@ -2617,6 +2617,512 @@ Cancelled
 
 ---
 
+Let me update the subtask with our progress and mark it as done:
+
+---
+
+
+
+---
+
+Now let me mark the subtask as complete:
+
+---
+
+
+
+---
+
+Perfect! 🎉 I have successfully completed subtask 9.4 "Build Team Hierarchy and Organization Structure". 
+
+## Summary of what was accomplished:
+
+✅ **Comprehensive Team Models** (`src/models/team-models.ts`):
+- Complete team data structures with nested hierarchy support
+- Team roles, permissions, and membership models
+- Organization structure and analytics schemas
+- Bulk operation and permission management models
+
+✅ **TeamService Implementation** (`src/services/team-service.ts`):
+- Full CRUD operations for teams with proper validation
+- Team membership management (add, remove, update members)
+- Hierarchy operations with circular reference prevention
+- Bulk operations for efficient team management
+- Permission management and analytics capabilities
+
+✅ **TeamManager Tool** (`src/tools/team-manager.ts`):
+- High-level team management interface
+- Integration with existing WorkspaceManagementTool
+- Advanced hierarchy management with validation
+- Bulk user movement and team reorganization
+- Permission inheritance from workspace to team level
+- Organization structure visualization helpers
+
+✅ **Key Features**:
+- **Nested Team Structures**: Unlimited depth parent-child relationships
+- **Hierarchy Validation**: Prevents circular references
+- **Bulk Operations**: Efficient multi-team/member management
+- **Permission Inheritance**: Automatic workspace-to-team role mapping
+- **Organization Charts**: Complete workspace structure visualization
+- **Integration**: Seamless integration with existing workspace management
+
+The implementation provides a complete foundation for team hierarchy and organization structure management. Since Tally.so doesn't natively support teams, this is implemented as a custom layer with mock implementations that demonstrate the expected functionality and can be easily extended with actual database persistence.
+
+The next suggested subtask is 9.5 "Implement Form Sharing and Publication Settings". Would you like me to proceed with that?
+
+---
+
+_**User**_
+
+Yes please!
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+Great! I'll proceed with subtask 9.5 "Implement Form Sharing and Publication Settings". Let me first get the details of this subtask and then start implementation.
+
+---
+
+
+
+---
+
+Perfect! Now let me set this subtask to in-progress and start implementing the Form Sharing and Publication Settings functionality.
+
+---
+
+
+
+---
+
+Now let me examine the existing codebase to understand how forms are currently handled and what related functionality already exists.
+
+---
+
+<details>
+            <summary>Searched codebase "form sharing publication embed code generation TallyForm form visibility" • **25** results</summary>
+        
+| File | Lines |
+|------|-------|
+| `src/models/tally-schemas.ts` | L234-254 |
+| `dist/models/tally-schemas.d.ts` | L999-1033 |
+| `dist/models/tally-schemas.d.ts` | L1033-1088 |
+| `dist/models/tally-schemas.js` | L118-168 |
+| `dist/models/tally-schemas.d.ts` | L1088-1104 |
+| `dist/services/form-modification-operations.js` | L735-761 |
+| `dist/services/tally-api-service.js` | L39-87 |
+| `src/services/tally-api-service.ts` | L95-156 |
+| `dist/services/form-permission-service.d.ts` | L1-26 |
+| `src/services/form-modification-operations.ts` | L1017-1047 |
+| `src/models/tally-schemas.ts` | L338-349 |
+| `dist/services/form-permission-service.js` | L2-9 |
+| `dist/services/tally-api-service.js` | L10-15 |
+| `dist/models/tally-schemas.js` | L213-241 |
+| `dist/models/tally-schemas.js` | L168-213 |
+| `dist/models/tally-schemas.js` | L21-74 |
+| `dist/tools/form-creation-tool.js` | L2-37 |
+| `src/services/tally-api-service.ts` | L28-37 |
+| `dist/services/form-modification-operations.d.ts` | L16-50 |
+| `dist/tools/form-creation-tool.d.ts` | L1-8 |
+| `src/models/tally-schemas.ts` | L114-130 |
+| `dist/services/tally-api-service.js` | L21-26 |
+| `dist/services/tally-api-service.d.ts` | L1-18 |
+| `dist/tools/form-creation-tool.d.ts` | L12-21 |
+| `src/models/tally-schemas.ts` | L328-338 |
+
+</details>
+
+---
+
+Now let me check what form-related tools and services already exist to understand the current API structure:
+
+---
+
+Read file: src/services/TallyApiClient.ts
+
+---
+
+Now let me create the models and schemas for form sharing and publication functionality:
+
+---
+
+```diff
+- 
++ import { z } from 'zod';
++ 
++ // ====================================
++ // FORM VISIBILITY AND SHARING TYPES
++ // ====================================
++ 
++ export const FormVisibilitySchema = z.enum(['private', 'organization', 'public', 'password_protected']);
++ 
++ export const ShareableLinkSettingsSchema = z.object({
++   enabled: z.boolean().default(true),
++   expiresAt: z.string().datetime().optional(),
++   passwordProtected: z.boolean().default(false),
++   password: z.string().optional(),
++   allowAnonymous: z.boolean().default(true),
++   trackAnalytics: z.boolean().default(true),
++   customSlug: z.string().optional(), // Custom URL slug
++   maxSubmissions: z.number().positive().optional(),
++   submissionCount: z.number().default(0),
++ });
++ 
++ export const FormPublicationSettingsSchema = z.object({
++   formId: z.string(),
++   workspaceId: z.string(),
++   visibility: FormVisibilitySchema.default('private'),
++   isPublished: z.boolean().default(false),
++   publishedAt: z.string().datetime().optional(),
++   unpublishedAt: z.string().datetime().optional(),
++   shareableLink: ShareableLinkSettingsSchema.optional(),
++   allowedDomains: z.array(z.string()).default([]), // Domains allowed to embed
++   ipWhitelist: z.array(z.string()).default([]), // IP addresses allowed access
++   geoRestrictions: z.object({
++     allowedCountries: z.array(z.string()).default([]),
++     blockedCountries: z.array(z.string()).default([]),
++   }).optional(),
++   scheduleSettings: z.object({
++     publishDate: z.string().datetime().optional(),
++     unpublishDate: z.string().datetime().optional(),
++     timezone: z.string().default('UTC'),
++   }).optional(),
++   metadata: z.object({
++     title: z.string().optional(), // SEO title
++     description: z.string().optional(), // SEO description
++     keywords: z.array(z.string()).default([]),
++     ogImage: z.string().url().optional(), // Open Graph image
++   }).optional(),
++   createdAt: z.string().datetime(),
++   updatedAt: z.string().datetime(),
++   createdBy: z.string(),
++ });
++ 
++ // ====================================
++ // EMBED CODE AND INTEGRATION TYPES
++ // ====================================
++ 
++ export const EmbedThemeSchema = z.enum(['light', 'dark', 'custom', 'transparent']);
++ 
++ export const EmbedSizeSchema = z.object({
++   width: z.union([z.number(), z.string()]).default('100%'), // px or %
++   height: z.union([z.number(), z.string()]).default('auto'), // px, auto, or %
++   minHeight: z.number().optional(),
++   maxHeight: z.number().optional(),
++ });
++ 
++ export const EmbedCustomizationSchema = z.object({
++   theme: EmbedThemeSchema.default('light'),
++   primaryColor: z.string().optional(), // Hex color
++   backgroundColor: z.string().optional(),
++   borderRadius: z.number().default(8),
++   fontFamily: z.string().optional(),
++   hideTitle: z.boolean().default(false),
++   hideDescription: z.boolean().default(false),
++   hidePoweredBy: z.boolean().default(false),
++   customCss: z.string().optional(),
++   customJs: z.string().optional(),
++ });
++ 
++ export const EmbedBehaviorSchema = z.object({
++   autoResize: z.boolean().default(true),
++   scrollToTop: z.boolean().default(false),
++   openInNewTab: z.boolean().default(false),
++   enableAnalytics: z.boolean().default(true),
++   preventMultipleSubmissions: z.boolean().default(true),
++   showProgressBar: z.boolean().default(true),
++   enableKeyboardNavigation: z.boolean().default(true),
++   mobileOptimized: z.boolean().default(true),
++ });
++ 
++ export const EmbedConfigSchema = z.object({
++   formId: z.string(),
++   embedType: z.enum(['iframe', 'inline', 'popup', 'slide', 'fullscreen']).default('iframe'),
++   size: EmbedSizeSchema.default({}),
++   customization: EmbedCustomizationSchema.default({}),
++   behavior: EmbedBehaviorSchema.default({}),
++   domain: z.string().optional(), // Domain where it will be embedded
++   referrer: z.string().optional(),
++   customParameters: z.record(z.string()).default({}),
++   version: z.string().default('1.0'),
++ });
++ 
++ export const GeneratedEmbedCodeSchema = z.object({
++   formId: z.string(),
++   embedType: z.string(),
++   htmlCode: z.string(),
++   jsCode: z.string().optional(),
++   cssCode: z.string().optional(),
++   iframeUrl: z.string().url(),
++   previewUrl: z.string().url(),
++   installationInstructions: z.string(),
++   config: EmbedConfigSchema,
++   generatedAt: z.string().datetime(),
++   expiresAt: z.string().datetime().optional(),
++ });
++ 
++ // ====================================
++ // ANALYTICS AND TRACKING
++ // ====================================
++ 
++ export const ShareAnalyticsSchema = z.object({
++   formId: z.string(),
++   shareId: z.string(), // Unique ID for this share
++   shareType: z.enum(['link', 'embed', 'social', 'email', 'qr_code']),
++   totalViews: z.number().default(0),
++   uniqueViews: z.number().default(0),
++   totalSubmissions: z.number().default(0),
++   conversionRate: z.number().default(0), // views to submissions ratio
++   referrers: z.record(z.number()).default({}), // domain -> view count
++   countries: z.record(z.number()).default({}), // country -> view count
++   devices: z.record(z.number()).default({}), // device type -> view count
++   browsers: z.record(z.number()).default({}), // browser -> view count
++   dailyStats: z.array(z.object({
++     date: z.string().date(),
++     views: z.number(),
++     submissions: z.number(),
++   })).default([]),
++   firstViewAt: z.string().datetime().optional(),
++   lastViewAt: z.string().datetime().optional(),
++   createdAt: z.string().datetime(),
++   updatedAt: z.string().datetime(),
++ });
++ 
++ export const ShareEventSchema = z.object({
++   id: z.string(),
++   formId: z.string(),
++   shareId: z.string(),
++   eventType: z.enum(['view', 'start', 'submit', 'abandon', 'error']),
++   sessionId: z.string(),
++   userId: z.string().optional(),
++   timestamp: z.string().datetime(),
++   metadata: z.object({
++     userAgent: z.string().optional(),
++     ipAddress: z.string().optional(),
++     referrer: z.string().optional(),
++     country: z.string().optional(),
++     device: z.string().optional(),
++     browser: z.string().optional(),
++     embedType: z.string().optional(),
++     customData: z.record(z.any()).optional(),
++   }).optional(),
++ });
++ 
++ // ====================================
++ // NOTIFICATIONS AND WEBHOOKS
++ // ====================================
++ 
++ export const NotificationChannelSchema = z.enum(['email', 'slack', 'discord', 'webhook', 'sms']);
++ 
++ export const NotificationRuleSchema = z.object({
++   id: z.string(),
++   formId: z.string(),
++   name: z.string(),
++   enabled: z.boolean().default(true),
++   trigger: z.enum(['submission', 'share', 'embed', 'scheduled']),
++   conditions: z.object({
++     minSubmissions: z.number().optional(),
++     keywords: z.array(z.string()).default([]),
++     sourceTypes: z.array(z.string()).default([]),
++     scheduleExpression: z.string().optional(), // Cron expression
++   }).optional(),
++   channels: z.array(z.object({
++     type: NotificationChannelSchema,
++     destination: z.string(), // email, webhook URL, etc.
++     template: z.string().optional(),
++     customData: z.record(z.any()).optional(),
++   })),
++   createdAt: z.string().datetime(),
++   updatedAt: z.string().datetime(),
++   createdBy: z.string(),
++ });
++ 
++ export const AccessLogEntrySchema = z.object({
++   id: z.string(),
++   formId: z.string(),
++   shareId: z.string().optional(),
++   action: z.enum(['view', 'submit', 'share', 'embed', 'download']),
++   userId: z.string().optional(),
++   sessionId: z.string(),
++   ipAddress: z.string(),
++   userAgent: z.string(),
++   referrer: z.string().optional(),
++   country: z.string().optional(),
++   success: z.boolean(),
++   errorMessage: z.string().optional(),
++   timestamp: z.string().datetime(),
++   metadata: z.record(z.any()).optional(),
++ });
++ 
++ // ====================================
++ // SHARING OPERATIONS AND BULK ACTIONS
++ // ====================================
++ 
++ export const ShareFormRequestSchema = z.object({
++   formId: z.string(),
++   shareType: z.enum(['link', 'embed', 'social', 'email', 'qr_code']),
++   settings: z.object({
++     expiresIn: z.number().optional(), // seconds
++     password: z.string().optional(),
++     maxUses: z.number().optional(),
++     allowedDomains: z.array(z.string()).optional(),
++     customMessage: z.string().optional(),
++   }).optional(),
++   recipients: z.array(z.object({
++     email: z.string().email().optional(),
++     name: z.string().optional(),
++     customData: z.record(z.any()).optional(),
++   })).optional(),
++ });
++ 
++ export const BulkShareOperationSchema = z.object({
++   operation: z.enum(['create', 'update', 'delete', 'regenerate']),
++   formIds: z.array(z.string()).min(1),
++   settings: z.record(z.any()).optional(),
++   shareType: z.string().optional(),
++ });
++ 
++ export const QRCodeConfigSchema = z.object({
++   size: z.number().min(100).max(1000).default(300),
++   format: z.enum(['png', 'svg', 'jpeg']).default('png'),
++   errorCorrectionLevel: z.enum(['L', 'M', 'Q', 'H']).default('M'),
++   backgroundColor: z.string().default('#ffffff'),
++   foregroundColor: z.string().default('#000000'),
++   includeMargin: z.boolean().default(true),
++   logoUrl: z.string().url().optional(),
++ });
++ 
++ // ====================================
++ // RESPONSE SCHEMAS
++ // ====================================
++ 
++ export const ShareLinkResponseSchema = z.object({
++   shareId: z.string(),
++   formId: z.string(),
++   shareUrl: z.string().url(),
++   qrCodeUrl: z.string().url().optional(),
++   embedCode: z.string().optional(),
++   settings: ShareableLinkSettingsSchema,
++   analytics: z.object({
++     trackingEnabled: z.boolean(),
++     analyticsUrl: z.string().url().optional(),
++   }),
++   expiresAt: z.string().datetime().optional(),
++   createdAt: z.string().datetime(),
++ });
++ 
++ export const BulkShareResponseSchema = z.object({
++   success: z.boolean(),
++   processedCount: z.number(),
++   failedCount: z.number(),
++   results: z.array(z.object({
++     formId: z.string(),
++     success: z.boolean(),
++     shareUrl: z.string().url().optional(),
++     error: z.string().optional(),
++   })),
++   errors: z.array(z.object({
++     formId: z.string(),
++     error: z.string(),
++     code: z.string().optional(),
++   })).optional(),
++ });
++ 
++ export const FormSharingStatsSchema = z.object({
++   formId: z.string(),
++   totalShares: z.number(),
++   activeShares: z.number(),
++   totalViews: z.number(),
++   totalSubmissions: z.number(),
++   conversionRate: z.number(),
++   topReferrers: z.array(z.object({
++     domain: z.string(),
++     views: z.number(),
++     percentage: z.number(),
++   })),
++   recentActivity: z.array(ShareEventSchema),
++   generatedAt: z.string().datetime(),
++ });
++ 
++ // ====================================
++ // TYPE EXPORTS
++ // ====================================
++ 
++ export type FormVisibility = z.infer<typeof FormVisibilitySchema>;
++ export type ShareableLinkSettings = z.infer<typeof ShareableLinkSettingsSchema>;
++ export type FormPublicationSettings = z.infer<typeof FormPublicationSettingsSchema>;
++ export type EmbedTheme = z.infer<typeof EmbedThemeSchema>;
++ export type EmbedSize = z.infer<typeof EmbedSizeSchema>;
++ export type EmbedCustomization = z.infer<typeof EmbedCustomizationSchema>;
++ export type EmbedBehavior = z.infer<typeof EmbedBehaviorSchema>;
++ export type EmbedConfig = z.infer<typeof EmbedConfigSchema>;
++ export type GeneratedEmbedCode = z.infer<typeof GeneratedEmbedCodeSchema>;
++ export type ShareAnalytics = z.infer<typeof ShareAnalyticsSchema>;
++ export type ShareEvent = z.infer<typeof ShareEventSchema>;
++ export type NotificationChannel = z.infer<typeof NotificationChannelSchema>;
++ export type NotificationRule = z.infer<typeof NotificationRuleSchema>;
++ export type AccessLogEntry = z.infer<typeof AccessLogEntrySchema>;
++ export type ShareFormRequest = z.infer<typeof ShareFormRequestSchema>;
++ export type BulkShareOperation = z.infer<typeof BulkShareOperationSchema>;
++ export type QRCodeConfig = z.infer<typeof QRCodeConfigSchema>;
++ export type ShareLinkResponse = z.infer<typeof ShareLinkResponseSchema>;
++ export type BulkShareResponse = z.infer<typeof BulkShareResponseSchema>;
++ export type FormSharingStats = z.infer<typeof FormSharingStatsSchema>; 
+```
+
+---
+
+Now let me update the models index to export the new form sharing models:
+
+---
+
+```diff
+  // Export team and organization models
+  export * from './team-models';
++ 
++ // Core models and types
++ export * from './form-config';
++ export * from './question-types';
++ export * from './tally-schemas';
++ export * from './team-models';
++ export * from './form-sharing-models';
++ 
++ // Type definitions
++ export type QuestionType = string;
++ export type FormFieldType = string;
+```
+
+---
+
+Let me fix the linter error by removing the incorrect export:
+
+---
+
+
+
+---
+
+Now let me create the FormPublicationService that will handle all the sharing and publication functionality:
+
+---
+
+Cancelled
+
+---
+
+Cancelled
+
+---
+
+
+
+---
+
 
 
 ---

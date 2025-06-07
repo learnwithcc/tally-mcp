@@ -17,4 +17,5 @@ export { TemplateService } from './template-service';
 export { SubmissionService } from './submission-service';
 export { WorkspaceService } from './workspace-service';
 export { ApiKeyService, apiKeyService } from './api-key-service';
-export { TeamService } from './team-service'; 
+export { TeamService } from './team-service';
+export { FormPublicationService } from './form-publication-service'; 

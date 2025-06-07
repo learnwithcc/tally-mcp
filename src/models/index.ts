@@ -41,3 +41,6 @@ export * from './api-key';
 
 // Export team and organization models
 export * from './team-models';
+
+// Export form sharing and publication models
+export * from './form-sharing-models';
