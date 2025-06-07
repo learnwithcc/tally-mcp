@@ -18,4 +18,11 @@ module.exports = {
   maxWorkers: 1, // Run tests sequentially to avoid port conflicts
   forceExit: true, // Force Jest to exit after tests complete
   detectOpenHandles: true, // Help identify unclosed handles
+  reporters: [
+    'default',
+    [ 'jest-junit', {
+      outputDirectory: 'reports',
+      outputName: 'jest-junit.xml',
+    } ]
+  ],
 }; 

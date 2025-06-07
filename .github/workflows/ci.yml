@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run tests
+      run: npm test
+
+    - name: Publish Test Report
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Jest Tests
+        path: reports/jest-junit.xml
+        reporter: jest-junit
+
+  performance_test:
+    name: Performance Test
+    if: github.event_name == 'schedule' || github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    needs: build_and_test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20.x
+        cache: 'npm'
+    - name: Install dependencies
+      run: npm ci
+    - name: Build project
+      run: npm run build
+    - name: Start server
+      run: npm start &
+    - name: Wait for server
+      run: sleep 5
+    - name: Install autocannon
+      run: npm install -g autocannon
+    - name: Run performance test
+      run: autocannon -j http://localhost:3000 > performance-report.json
+    - name: Format performance report
+      id: format-report
+      run: |
+        report=$(node scripts/format-perf-report.js performance-report.json)
+        echo "report<<EOF" >> $GITHUB_OUTPUT
+        echo "$report" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    - name: Find Comment
+      uses: peter-evans/find-comment@v2
+      id: fc
+      if: github.event.pull_request
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        comment-author: 'github-actions[bot]'
+        body-includes: '### Performance Test Results'
+    - name: Create or update comment
+      uses: peter-evans/create-or-update-comment@v3
+      if: github.event.pull_request
+      with:
+        comment-id: ${{ steps.fc.outputs.comment-id }}
+        issue-number: ${{ github.event.pull_request.number }}
+        body: ${{ steps.format-report.outputs.report }}
+        edit-mode: replace 
