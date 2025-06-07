@@ -51,6 +51,17 @@ npm run build
 npm start
 ```
 
+## Using Docker
+
+You can also run the application using Docker for a consistent development environment.
+
+1.  **Build and start the container:**
+    ```bash
+    docker-compose up --build
+    ```
+
+2.  The application will be available at `http://localhost:3000`. Changes to your code will automatically restart the server.
+
 ## 5. Configuration
 
 The server can be configured through the `.env` file. Key options include:
