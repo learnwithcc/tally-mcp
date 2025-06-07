@@ -453,6 +453,7 @@ describe('TallyApiClient', () => {
             {
               id: 'sub1',
               formId: 'form123',
+              respondentId: 'resp1',
               isCompleted: true,
               submittedAt: '2024-01-01T11:00:00Z',
               responses: [
@@ -561,6 +562,7 @@ describe('TallyApiClient', () => {
         const validSubmission: TallySubmission = {
           id: 'sub1',
           formId: 'form123',
+          respondentId: 'resp1',
           isCompleted: true,
           submittedAt: '2024-01-01T11:00:00Z',
           responses: [],

@@ -196,148 +196,139 @@ export class ApiKeyService {
    * Validate an API key
    */
   async validateApiKey(input: ValidateApiKeyInput): Promise<ApiKeyValidationResult> {
-    try {
-      const validatedInput = ValidateApiKeySchema.parse(input);
-      
-      // Check key format first
-      if (!CryptoUtils.validateKeyFormat(validatedInput.key)) {
-        return {
-          isValid: false,
-          errorReason: 'Invalid API key format'
-        };
-      }
+    const { key, ipAddress, userAgent, endpoint } = input;
 
-      // Hash the key and look it up
-      const keyHash = CryptoUtils.hashApiKey(validatedInput.key);
-      const apiKey = await this.storage.getApiKeyByHash(keyHash);
-
-      if (!apiKey) {
-        await this.logUsage(validatedInput.key, {
-          success: false,
-          errorReason: 'API key not found',
-          ipAddress: validatedInput.ipAddress,
-          userAgent: validatedInput.userAgent,
-          endpoint: validatedInput.endpoint
-        });
-        
-        return {
-          isValid: false,
-          errorReason: 'API key not found'
-        };
-      }
-
-      // Check if key is active
-      if (apiKey.status !== ApiKeyStatus.ACTIVE) {
-        await this.logUsage(validatedInput.key, {
-          success: false,
-          errorReason: `API key is ${apiKey.status}`,
-          ipAddress: validatedInput.ipAddress,
-          userAgent: validatedInput.userAgent,
-          endpoint: validatedInput.endpoint
-        });
-        
-        return {
-          isValid: false,
-          errorReason: `API key is ${apiKey.status}`,
-          apiKey
-        };
-      }
-
-      // Check expiration
-      if (apiKey.expiresAt && apiKey.expiresAt <= new Date()) {
-        // Auto-expire the key
-        await this.storage.updateApiKey(apiKey.id, { status: ApiKeyStatus.EXPIRED });
-        
-        await this.logUsage(validatedInput.key, {
-          success: false,
-          errorReason: 'API key expired',
-          ipAddress: validatedInput.ipAddress,
-          userAgent: validatedInput.userAgent,
-          endpoint: validatedInput.endpoint
-        });
-        
-        return {
-          isValid: false,
-          errorReason: 'API key expired',
-          apiKey
-        };
-      }
-
-      // Check usage limits
-      if (apiKey.maxUsage && apiKey.usageCount >= apiKey.maxUsage) {
-        await this.logUsage(validatedInput.key, {
-          success: false,
-          errorReason: 'Usage limit exceeded',
-          ipAddress: validatedInput.ipAddress,
-          userAgent: validatedInput.userAgent,
-          endpoint: validatedInput.endpoint
-        });
-        
-        return {
-          isValid: false,
-          errorReason: 'Usage limit exceeded',
-          apiKey,
-          remainingUsage: 0
-        };
-      }
-
-      // Check IP whitelist
-      if (apiKey.ipWhitelist && validatedInput.ipAddress) {
-        const isIpAllowed = apiKey.ipWhitelist.includes(validatedInput.ipAddress);
-        if (!isIpAllowed) {
-          await this.logUsage(validatedInput.key, {
-            success: false,
-            errorReason: 'IP address not whitelisted',
-            ipAddress: validatedInput.ipAddress,
-            userAgent: validatedInput.userAgent,
-            endpoint: validatedInput.endpoint
-          });
-          
-          return {
-            isValid: false,
-            errorReason: 'IP address not whitelisted',
-            apiKey
-          };
-        }
-      }
-
-      // Update usage statistics
-      await this.storage.updateApiKey(apiKey.id, {
-        usageCount: apiKey.usageCount + 1,
-        lastUsedAt: new Date()
+    // Basic format validation
+    if (!CryptoUtils.validateKeyFormat(key)) {
+      await this.logUsage(key, {
+        success: false,
+        errorReason: 'Invalid API key format',
+        ipAddress,
+        userAgent,
+        endpoint
       });
-
-      // Log successful usage
-      await this.logUsage(validatedInput.key, {
-        success: true,
-        ipAddress: validatedInput.ipAddress,
-        userAgent: validatedInput.userAgent,
-        endpoint: validatedInput.endpoint
-      });
-
-      const remainingUsage = apiKey.maxUsage ? apiKey.maxUsage - apiKey.usageCount - 1 : undefined;
-      const expiresIn = apiKey.expiresAt ? Math.floor((apiKey.expiresAt.getTime() - Date.now()) / 1000) : undefined;
-
       return {
-        isValid: true,
-        apiKey: { ...apiKey, usageCount: apiKey.usageCount + 1, lastUsedAt: new Date() },
-        remainingUsage,
-        expiresIn
+        isValid: false,
+        errorReason: 'Invalid API key format'
       };
+    }
 
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return {
-          isValid: false,
-          errorReason: 'Invalid validation input: ' + error.errors.map(e => e.message).join(', ')
-        };
-      }
+    // Find the API key
+    const keyHash = CryptoUtils.hashApiKey(key);
+    const apiKey = await this.storage.getApiKeyByHash(keyHash);
+    
+    if (!apiKey) {
+      await this.logUsage(key, {
+        success: false,
+        errorReason: 'API key not found',
+        ipAddress,
+        userAgent,
+        endpoint
+      });
+      return {
+        isValid: false,
+        errorReason: 'API key not found'
+      };
+    }
+
+    // Check if key is active
+    if (apiKey.status !== ApiKeyStatus.ACTIVE) {
+      await this.logUsage(key, {
+        success: false,
+        errorReason: `API key is ${apiKey.status}`,
+        ipAddress,
+        userAgent,
+        endpoint
+      });
       
       return {
         isValid: false,
-        errorReason: 'Validation error: ' + (error as Error).message
+        errorReason: `API key is ${apiKey.status}`,
+        apiKey
       };
     }
+
+    // Check expiration
+    if (apiKey.expiresAt && apiKey.expiresAt <= new Date()) {
+      // Auto-expire the key
+      await this.storage.updateApiKey(apiKey.id, { status: ApiKeyStatus.EXPIRED });
+      
+      await this.logUsage(key, {
+        success: false,
+        errorReason: 'API key expired',
+        ipAddress,
+        userAgent,
+        endpoint
+      });
+      
+      return {
+        isValid: false,
+        errorReason: 'API key expired',
+        apiKey
+      };
+    }
+
+    // Check usage limits
+    if (apiKey.maxUsage && apiKey.usageCount >= apiKey.maxUsage) {
+      await this.logUsage(key, {
+        success: false,
+        errorReason: 'Usage limit exceeded',
+        ipAddress,
+        userAgent,
+        endpoint
+      });
+      
+      return {
+        isValid: false,
+        errorReason: 'Usage limit exceeded',
+        apiKey,
+        remainingUsage: 0
+      };
+    }
+
+    // Check IP whitelist
+    if (apiKey.ipWhitelist && ipAddress) {
+      const isIpAllowed = apiKey.ipWhitelist.includes(ipAddress);
+      if (!isIpAllowed) {
+        await this.logUsage(key, {
+          success: false,
+          errorReason: 'IP address not whitelisted',
+          ipAddress,
+          userAgent,
+          endpoint
+        });
+        
+        return {
+          isValid: false,
+          errorReason: 'IP address not whitelisted',
+          apiKey
+        };
+      }
+    }
+
+    // Update usage statistics
+    await this.storage.updateApiKey(apiKey.id, {
+      usageCount: apiKey.usageCount + 1,
+      lastUsedAt: new Date()
+    });
+
+    // Log successful usage
+    await this.logUsage(key, {
+      success: true,
+      ipAddress,
+      userAgent,
+      endpoint
+    });
+
+    const remainingUsage = apiKey.maxUsage ? apiKey.maxUsage - apiKey.usageCount - 1 : undefined;
+    const expiresIn = apiKey.expiresAt ? Math.floor((apiKey.expiresAt.getTime() - Date.now()) / 1000) : undefined;
+
+    return {
+      isValid: true,
+      apiKey: { ...apiKey, usageCount: apiKey.usageCount + 1, lastUsedAt: new Date() },
+      remainingUsage,
+      expiresIn
+    };
   }
 
   /**

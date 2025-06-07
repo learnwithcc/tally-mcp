@@ -95,27 +95,21 @@ export class MockDataFixtures {
    * Generate mock submission data
    */
   static createMockSubmission(overrides: Partial<TallySubmission> = {}): TallySubmission {
-    return {
+    const base = {
       id: 'sub_123456789',
       formId: 'form_123456789',
-      respondentId: 'resp_123456789',
       isCompleted: true,
       submittedAt: '2024-01-01T12:00:00Z',
       responses: [
-        {
-          questionId: 'q1',
-          value: 'John Doe',
-        },
-        {
-          questionId: 'q2',
-          value: 'john.doe@example.com',
-        },
-        {
-          questionId: 'q3',
-          value: 'I would like to learn more about your services.',
-        },
+        { questionId: 'q1', value: 'John Doe' },
+        { questionId: 'q2', value: 'john.doe@example.com' },
+        { questionId: 'q3', value: 'I would like to learn more about your services.' },
       ],
       ...overrides,
+    };
+    return {
+      ...base,
+      respondentId: overrides.respondentId ?? 'resp_123456789',
     };
   }
 
@@ -127,6 +121,7 @@ export class MockDataFixtures {
     for (let i = 1; i <= count; i++) {
       submissions.push(this.createMockSubmission({
         id: `sub_${i.toString().padStart(9, '0')}`,
+        respondentId: `resp_${i.toString().padStart(9, '0')}`,
         submittedAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
         responses: [
           { questionId: 'q1', value: `User ${i}` },

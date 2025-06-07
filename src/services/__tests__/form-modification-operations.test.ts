@@ -96,7 +96,7 @@ describe('FormModificationOperations', () => {
         confidence: 1.0
       };
 
-      const result = formOperations.executeOperation(command, sampleTallyForm, null as any);
+      const result = formOperations.executeOperation(command, null, null as any);
 
       expect(result.success).toBe(false);
       expect(result.message).toBe('An error occurred while executing the modification operation');

@@ -5,8 +5,8 @@ import { CryptoUtils } from '../../utils/crypto';
 // Mock environment variables
 const originalEnv = process.env;
 
-beforeEach(() => {
-  jest.resetModules();
+beforeAll(() => {
+  // Set up test environment once
   process.env = {
     ...originalEnv,
     API_KEY_ENCRYPTION_KEY: 'test-encryption-key-32-bytes-long',
@@ -14,7 +14,20 @@ beforeEach(() => {
   };
 });
 
-afterEach(() => {
+beforeEach(() => {
+  // Clear module cache to ensure fresh imports
+  jest.resetModules();
+  jest.clearAllMocks();
+  
+  // Ensure environment variables are set correctly for each test
+  process.env.API_KEY_ENCRYPTION_KEY = 'test-encryption-key-32-bytes-long';
+  process.env.JWT_SECRET = 'test-jwt-secret';
+  
+  // Remove any bootstrap key that might interfere
+  delete process.env.BOOTSTRAP_API_KEY;
+});
+
+afterAll(() => {
   process.env = originalEnv;
 });
 
@@ -353,34 +366,39 @@ describe('ApiKeyService', () => {
   });
 
   describe('getApiKeyStats', () => {
+    let statsApiKeyService: ApiKeyService;
+    
     beforeEach(async () => {
+      // Create a fresh service instance for clean stats
+      statsApiKeyService = new ApiKeyService();
+      
       // Create various keys with different statuses
-      const key1 = await apiKeyService.createApiKey({
+      const key1 = await statsApiKeyService.createApiKey({
         name: 'Active Key 1',
         scopes: [ApiKeyScope.READ]
       });
       
-      const key2 = await apiKeyService.createApiKey({
+      const key2 = await statsApiKeyService.createApiKey({
         name: 'Active Key 2',
         scopes: [ApiKeyScope.WRITE]
       });
       
-      const key3 = await apiKeyService.createApiKey({
+      const key3 = await statsApiKeyService.createApiKey({
         name: 'Key to Revoke',
         scopes: [ApiKeyScope.READ]
       });
 
       // Revoke one key
-      await apiKeyService.revokeApiKey(key3.id);
+      await statsApiKeyService.revokeApiKey(key3.id);
 
       // Use some keys to generate usage
-      await apiKeyService.validateApiKey({ key: key1.key });
-      await apiKeyService.validateApiKey({ key: key2.key });
-      await apiKeyService.validateApiKey({ key: key2.key });
+      await statsApiKeyService.validateApiKey({ key: key1.key });
+      await statsApiKeyService.validateApiKey({ key: key2.key });
+      await statsApiKeyService.validateApiKey({ key: key2.key });
     });
 
     it('should return correct statistics', async () => {
-      const stats = await apiKeyService.getApiKeyStats();
+      const stats = await statsApiKeyService.getApiKeyStats();
 
       expect(stats.total).toBe(3);
       expect(stats.active).toBe(2);

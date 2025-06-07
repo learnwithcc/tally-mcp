@@ -223,15 +223,39 @@ function generateRequestId(): string {
 export function securityValidation(req: Request, res: Response, next: NextFunction): void {
   // Check for suspicious patterns in URL
   const suspiciousPatterns = [
-    /\.\.\//,           // Directory traversal
+    /\.\./,             // Directory traversal (any .. sequence)
     /<script/i,         // XSS attempts
     /javascript:/i,     // JavaScript protocol
     /vbscript:/i,       // VBScript protocol
     /data:text\/html/i, // Data URLs with HTML
-    /\0/,               // Null bytes
   ];
 
   const url = decodeURIComponent(req.url);
+  const originalUrl = req.originalUrl;
+
+  // Check for directory traversal patterns in both decoded and original URLs
+  if (/\.\./.test(url) || /\.\./.test(originalUrl)) {
+    console.warn(`Security Warning: Directory traversal attempt detected: ${url}`);
+    res.status(400).json({
+      error: 'Invalid request',
+      code: 'SECURITY_VIOLATION',
+      message: 'Request contains potentially harmful content',
+    });
+    return;
+  }
+
+  // Check for null bytes in URL (check both raw and decoded)
+  if (url.includes('\0') || originalUrl.includes('\0') || /\x00/.test(url) || /\x00/.test(originalUrl)) {
+    console.warn(`Security Warning: Null byte attack detected: ${url}`);
+    res.status(400).json({
+      error: 'Invalid request',
+      code: 'SECURITY_VIOLATION',
+      message: 'Request contains potentially harmful content',
+    });
+    return;
+  }
+
+  // Check other suspicious patterns
   for (const pattern of suspiciousPatterns) {
     if (pattern.test(url)) {
       console.warn(`Security Warning: Suspicious URL pattern detected: ${url}`);

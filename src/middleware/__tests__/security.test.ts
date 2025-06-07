@@ -248,6 +248,7 @@ describe('Security Middleware', () => {
       app.post('/upload', (req, res) => {
         res.json({ message: 'uploaded' });
       });
+      // Remove problematic catch-all routes that cause path-to-regexp errors
     });
 
     it('should allow normal requests', async () => {

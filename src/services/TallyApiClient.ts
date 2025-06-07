@@ -25,6 +25,7 @@ import {
   type TallySubmission,
   type TallyWorkspace,
 } from '../models';
+import { tallyApiMock } from './__mocks__/tally-api-mock';
 
 /**
  * Retry configuration for rate limiting and error handling
@@ -414,6 +415,10 @@ export class TallyApiClient {
       status?: 'all' | 'completed' | 'partial';
     } = {}
   ): Promise<TallySubmissionsResponse> {
+    if (this.isMockEnabled()) {
+      const mockRes = await tallyApiMock.getSubmissions(formId, options);
+      return mockRes.data;
+    }
     const params = new URLSearchParams();
     if (options.page) params.append('page', options.page.toString());
     if (options.limit) params.append('limit', options.limit.toString());
@@ -434,6 +439,10 @@ export class TallyApiClient {
    * @returns Promise resolving to validated submission
    */
   public async getSubmission(formId: string, submissionId: string): Promise<TallySubmission> {
+    if (this.isMockEnabled()) {
+      const mockRes = await tallyApiMock.getSubmission(formId, submissionId);
+      return mockRes.data;
+    }
     const url = `/forms/${formId}/submissions/${submissionId}`;
     const response = await this.get(url);
     return validateTallyResponse(TallySubmissionSchema, response.data);
@@ -450,6 +459,10 @@ export class TallyApiClient {
     limit?: number;
     workspaceId?: string;
   } = {}): Promise<TallyFormsResponse> {
+    if (this.isMockEnabled()) {
+      const mockRes = await tallyApiMock.getForms(options);
+      return mockRes.data;
+    }
     const params = new URLSearchParams();
     if (options.page) params.append('page', options.page.toString());
     if (options.limit) params.append('limit', options.limit.toString());
@@ -469,6 +482,10 @@ export class TallyApiClient {
    * @returns Promise resolving to validated form
    */
   public async getForm(formId: string): Promise<TallyForm> {
+    if (this.isMockEnabled()) {
+      const mockRes = await tallyApiMock.getForm(formId);
+      return mockRes.data;
+    }
     const url = `/forms/${formId}`;
     const response = await this.get(url);
     return validateTallyResponse(TallyFormSchema, response.data);
@@ -484,6 +501,10 @@ export class TallyApiClient {
     page?: number;
     limit?: number;
   } = {}): Promise<TallyWorkspacesResponse> {
+    if (this.isMockEnabled()) {
+      const mockRes = await tallyApiMock.getWorkspaces(options);
+      return mockRes.data;
+    }
     const params = new URLSearchParams();
     if (options.page) params.append('page', options.page.toString());
     if (options.limit) params.append('limit', options.limit.toString());
@@ -502,6 +523,10 @@ export class TallyApiClient {
    * @returns Promise resolving to validated workspace
    */
   public async getWorkspace(workspaceId: string): Promise<TallyWorkspace> {
+    if (this.isMockEnabled()) {
+      const mockRes = await tallyApiMock.getWorkspace(workspaceId);
+      return mockRes.data;
+    }
     const url = `/workspaces/${workspaceId}`;
     return this.requestWithValidation('GET', url, TallyWorkspaceSchema);
   }
@@ -996,5 +1021,12 @@ export class TallyApiClient {
     // const url = `/workspaces/${workspaceId}/members/${userId}`;
     // return this.patch(url, { role });
     return Promise.resolve({ success: true, message: `User ${userId} role updated to ${role} in workspace ${workspaceId}. (Mocked)` });
+  }
+
+  /**
+   * Helper to check if mock API is enabled
+   */
+  private isMockEnabled(): boolean {
+    return process.env.USE_MOCK_API === 'true';
   }
 } 
