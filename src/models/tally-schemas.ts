@@ -248,9 +248,9 @@ export const TallyFormSchema = z.object({
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   submissionsCount: z.number().optional(),
-  status: z.enum(['published', 'draft', 'archived']).optional(),
   url: z.string().url().optional(),
   embedUrl: z.string().url().optional(),
+  status: z.string().optional(),
 });
 
 /**
