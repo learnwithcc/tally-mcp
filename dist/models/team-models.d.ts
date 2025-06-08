@@ -9,19 +9,19 @@ export declare const TeamMemberSchema: z.ZodObject<{
     joinedAt: z.ZodString;
     permissions: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
 }, "strip", z.ZodTypeAny, {
-    role: "member" | "team_lead" | "contributor";
-    id: string;
-    userId: string;
     email: string;
+    id: string;
+    role: "member" | "team_lead" | "contributor";
     joinedAt: string;
+    userId: string;
     permissions: string[];
     name?: string | undefined;
 }, {
-    role: "member" | "team_lead" | "contributor";
-    id: string;
-    userId: string;
     email: string;
+    id: string;
+    role: "member" | "team_lead" | "contributor";
     joinedAt: string;
+    userId: string;
     name?: string | undefined;
     permissions?: string[] | undefined;
 }>;
@@ -40,19 +40,19 @@ export declare const TeamSchema: z.ZodObject<{
         joinedAt: z.ZodString;
         permissions: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
     }, "strip", z.ZodTypeAny, {
-        role: "member" | "team_lead" | "contributor";
-        id: string;
-        userId: string;
         email: string;
+        id: string;
+        role: "member" | "team_lead" | "contributor";
         joinedAt: string;
+        userId: string;
         permissions: string[];
         name?: string | undefined;
     }, {
-        role: "member" | "team_lead" | "contributor";
-        id: string;
-        userId: string;
         email: string;
+        id: string;
+        role: "member" | "team_lead" | "contributor";
         joinedAt: string;
+        userId: string;
         name?: string | undefined;
         permissions?: string[] | undefined;
     }>, "many">>;
@@ -90,54 +90,49 @@ export declare const TeamSchema: z.ZodObject<{
     updatedAt: z.ZodString;
     createdBy: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    name: string;
-    metadata: {
-        tags: string[];
-        color?: string | undefined;
-        icon?: string | undefined;
-    };
     id: string;
+    name: string;
     createdAt: string;
     updatedAt: string;
-    createdBy: string;
-    workspaceId: string;
     members: {
-        role: "member" | "team_lead" | "contributor";
-        id: string;
-        userId: string;
         email: string;
+        id: string;
+        role: "member" | "team_lead" | "contributor";
         joinedAt: string;
+        userId: string;
         permissions: string[];
         name?: string | undefined;
     }[];
+    workspaceId: string;
     settings: {
         isPrivate: boolean;
         allowSelfJoin: boolean;
         inheritPermissions: boolean;
         maxMembers?: number | undefined;
     };
+    createdBy: string;
+    metadata: {
+        tags: string[];
+        color?: string | undefined;
+        icon?: string | undefined;
+    };
     childTeams: string[];
     description?: string | undefined;
     parentTeamId?: string | undefined;
 }, {
-    name: string;
     id: string;
+    name: string;
     createdAt: string;
     updatedAt: string;
-    createdBy: string;
     workspaceId: string;
+    createdBy: string;
     description?: string | undefined;
-    metadata?: {
-        tags?: string[] | undefined;
-        color?: string | undefined;
-        icon?: string | undefined;
-    } | undefined;
     members?: {
-        role: "member" | "team_lead" | "contributor";
-        id: string;
-        userId: string;
         email: string;
+        id: string;
+        role: "member" | "team_lead" | "contributor";
         joinedAt: string;
+        userId: string;
         name?: string | undefined;
         permissions?: string[] | undefined;
     }[] | undefined;
@@ -146,6 +141,11 @@ export declare const TeamSchema: z.ZodObject<{
         allowSelfJoin?: boolean | undefined;
         maxMembers?: number | undefined;
         inheritPermissions?: boolean | undefined;
+    } | undefined;
+    metadata?: {
+        tags?: string[] | undefined;
+        color?: string | undefined;
+        icon?: string | undefined;
     } | undefined;
     parentTeamId?: string | undefined;
     childTeams?: string[] | undefined;
@@ -166,19 +166,19 @@ export declare const TeamHierarchyNodeSchema: z.ZodObject<{
             joinedAt: z.ZodString;
             permissions: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
         }, "strip", z.ZodTypeAny, {
-            role: "member" | "team_lead" | "contributor";
-            id: string;
-            userId: string;
             email: string;
+            id: string;
+            role: "member" | "team_lead" | "contributor";
             joinedAt: string;
+            userId: string;
             permissions: string[];
             name?: string | undefined;
         }, {
-            role: "member" | "team_lead" | "contributor";
-            id: string;
-            userId: string;
             email: string;
+            id: string;
+            role: "member" | "team_lead" | "contributor";
             joinedAt: string;
+            userId: string;
             name?: string | undefined;
             permissions?: string[] | undefined;
         }>, "many">>;
@@ -216,54 +216,49 @@ export declare const TeamHierarchyNodeSchema: z.ZodObject<{
         updatedAt: z.ZodString;
         createdBy: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        name: string;
-        metadata: {
-            tags: string[];
-            color?: string | undefined;
-            icon?: string | undefined;
-        };
         id: string;
+        name: string;
         createdAt: string;
         updatedAt: string;
-        createdBy: string;
-        workspaceId: string;
         members: {
-            role: "member" | "team_lead" | "contributor";
-            id: string;
-            userId: string;
             email: string;
+            id: string;
+            role: "member" | "team_lead" | "contributor";
             joinedAt: string;
+            userId: string;
             permissions: string[];
             name?: string | undefined;
         }[];
+        workspaceId: string;
         settings: {
             isPrivate: boolean;
             allowSelfJoin: boolean;
             inheritPermissions: boolean;
             maxMembers?: number | undefined;
         };
+        createdBy: string;
+        metadata: {
+            tags: string[];
+            color?: string | undefined;
+            icon?: string | undefined;
+        };
         childTeams: string[];
         description?: string | undefined;
         parentTeamId?: string | undefined;
     }, {
-        name: string;
         id: string;
+        name: string;
         createdAt: string;
         updatedAt: string;
-        createdBy: string;
         workspaceId: string;
+        createdBy: string;
         description?: string | undefined;
-        metadata?: {
-            tags?: string[] | undefined;
-            color?: string | undefined;
-            icon?: string | undefined;
-        } | undefined;
         members?: {
-            role: "member" | "team_lead" | "contributor";
-            id: string;
-            userId: string;
             email: string;
+            id: string;
+            role: "member" | "team_lead" | "contributor";
             joinedAt: string;
+            userId: string;
             name?: string | undefined;
             permissions?: string[] | undefined;
         }[] | undefined;
@@ -272,6 +267,11 @@ export declare const TeamHierarchyNodeSchema: z.ZodObject<{
             allowSelfJoin?: boolean | undefined;
             maxMembers?: number | undefined;
             inheritPermissions?: boolean | undefined;
+        } | undefined;
+        metadata?: {
+            tags?: string[] | undefined;
+            color?: string | undefined;
+            icon?: string | undefined;
         } | undefined;
         parentTeamId?: string | undefined;
         childTeams?: string[] | undefined;
@@ -281,63 +281,57 @@ export declare const TeamHierarchyNodeSchema: z.ZodObject<{
     hasChildren: z.ZodDefault<z.ZodBoolean>;
     childTeamIds: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
 }, "strip", z.ZodTypeAny, {
-    level: number;
     path: string[];
     team: {
-        name: string;
-        metadata: {
-            tags: string[];
-            color?: string | undefined;
-            icon?: string | undefined;
-        };
         id: string;
+        name: string;
         createdAt: string;
         updatedAt: string;
-        createdBy: string;
-        workspaceId: string;
         members: {
-            role: "member" | "team_lead" | "contributor";
-            id: string;
-            userId: string;
             email: string;
+            id: string;
+            role: "member" | "team_lead" | "contributor";
             joinedAt: string;
+            userId: string;
             permissions: string[];
             name?: string | undefined;
         }[];
+        workspaceId: string;
         settings: {
             isPrivate: boolean;
             allowSelfJoin: boolean;
             inheritPermissions: boolean;
             maxMembers?: number | undefined;
         };
+        createdBy: string;
+        metadata: {
+            tags: string[];
+            color?: string | undefined;
+            icon?: string | undefined;
+        };
         childTeams: string[];
         description?: string | undefined;
         parentTeamId?: string | undefined;
     };
+    level: number;
     hasChildren: boolean;
     childTeamIds: string[];
 }, {
-    level: number;
     path: string[];
     team: {
-        name: string;
         id: string;
+        name: string;
         createdAt: string;
         updatedAt: string;
-        createdBy: string;
         workspaceId: string;
+        createdBy: string;
         description?: string | undefined;
-        metadata?: {
-            tags?: string[] | undefined;
-            color?: string | undefined;
-            icon?: string | undefined;
-        } | undefined;
         members?: {
-            role: "member" | "team_lead" | "contributor";
-            id: string;
-            userId: string;
             email: string;
+            id: string;
+            role: "member" | "team_lead" | "contributor";
             joinedAt: string;
+            userId: string;
             name?: string | undefined;
             permissions?: string[] | undefined;
         }[] | undefined;
@@ -347,9 +341,15 @@ export declare const TeamHierarchyNodeSchema: z.ZodObject<{
             maxMembers?: number | undefined;
             inheritPermissions?: boolean | undefined;
         } | undefined;
+        metadata?: {
+            tags?: string[] | undefined;
+            color?: string | undefined;
+            icon?: string | undefined;
+        } | undefined;
         parentTeamId?: string | undefined;
         childTeams?: string[] | undefined;
     };
+    level: number;
     hasChildren?: boolean | undefined;
     childTeamIds?: string[] | undefined;
 }>;
@@ -371,19 +371,19 @@ export declare const OrganizationStructureSchema: z.ZodObject<{
                 joinedAt: z.ZodString;
                 permissions: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
             }, "strip", z.ZodTypeAny, {
-                role: "member" | "team_lead" | "contributor";
-                id: string;
-                userId: string;
                 email: string;
+                id: string;
+                role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
+                userId: string;
                 permissions: string[];
                 name?: string | undefined;
             }, {
-                role: "member" | "team_lead" | "contributor";
-                id: string;
-                userId: string;
                 email: string;
+                id: string;
+                role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
+                userId: string;
                 name?: string | undefined;
                 permissions?: string[] | undefined;
             }>, "many">>;
@@ -421,54 +421,49 @@ export declare const OrganizationStructureSchema: z.ZodObject<{
             updatedAt: z.ZodString;
             createdBy: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            name: string;
-            metadata: {
-                tags: string[];
-                color?: string | undefined;
-                icon?: string | undefined;
-            };
             id: string;
+            name: string;
             createdAt: string;
             updatedAt: string;
-            createdBy: string;
-            workspaceId: string;
             members: {
-                role: "member" | "team_lead" | "contributor";
-                id: string;
-                userId: string;
                 email: string;
+                id: string;
+                role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
+                userId: string;
                 permissions: string[];
                 name?: string | undefined;
             }[];
+            workspaceId: string;
             settings: {
                 isPrivate: boolean;
                 allowSelfJoin: boolean;
                 inheritPermissions: boolean;
                 maxMembers?: number | undefined;
             };
+            createdBy: string;
+            metadata: {
+                tags: string[];
+                color?: string | undefined;
+                icon?: string | undefined;
+            };
             childTeams: string[];
             description?: string | undefined;
             parentTeamId?: string | undefined;
         }, {
-            name: string;
             id: string;
+            name: string;
             createdAt: string;
             updatedAt: string;
-            createdBy: string;
             workspaceId: string;
+            createdBy: string;
             description?: string | undefined;
-            metadata?: {
-                tags?: string[] | undefined;
-                color?: string | undefined;
-                icon?: string | undefined;
-            } | undefined;
             members?: {
-                role: "member" | "team_lead" | "contributor";
-                id: string;
-                userId: string;
                 email: string;
+                id: string;
+                role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
+                userId: string;
                 name?: string | undefined;
                 permissions?: string[] | undefined;
             }[] | undefined;
@@ -477,6 +472,11 @@ export declare const OrganizationStructureSchema: z.ZodObject<{
                 allowSelfJoin?: boolean | undefined;
                 maxMembers?: number | undefined;
                 inheritPermissions?: boolean | undefined;
+            } | undefined;
+            metadata?: {
+                tags?: string[] | undefined;
+                color?: string | undefined;
+                icon?: string | undefined;
             } | undefined;
             parentTeamId?: string | undefined;
             childTeams?: string[] | undefined;
@@ -486,63 +486,57 @@ export declare const OrganizationStructureSchema: z.ZodObject<{
         hasChildren: z.ZodDefault<z.ZodBoolean>;
         childTeamIds: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
     }, "strip", z.ZodTypeAny, {
-        level: number;
         path: string[];
         team: {
-            name: string;
-            metadata: {
-                tags: string[];
-                color?: string | undefined;
-                icon?: string | undefined;
-            };
             id: string;
+            name: string;
             createdAt: string;
             updatedAt: string;
-            createdBy: string;
-            workspaceId: string;
             members: {
-                role: "member" | "team_lead" | "contributor";
-                id: string;
-                userId: string;
                 email: string;
+                id: string;
+                role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
+                userId: string;
                 permissions: string[];
                 name?: string | undefined;
             }[];
+            workspaceId: string;
             settings: {
                 isPrivate: boolean;
                 allowSelfJoin: boolean;
                 inheritPermissions: boolean;
                 maxMembers?: number | undefined;
             };
+            createdBy: string;
+            metadata: {
+                tags: string[];
+                color?: string | undefined;
+                icon?: string | undefined;
+            };
             childTeams: string[];
             description?: string | undefined;
             parentTeamId?: string | undefined;
         };
+        level: number;
         hasChildren: boolean;
         childTeamIds: string[];
     }, {
-        level: number;
         path: string[];
         team: {
-            name: string;
             id: string;
+            name: string;
             createdAt: string;
             updatedAt: string;
-            createdBy: string;
             workspaceId: string;
+            createdBy: string;
             description?: string | undefined;
-            metadata?: {
-                tags?: string[] | undefined;
-                color?: string | undefined;
-                icon?: string | undefined;
-            } | undefined;
             members?: {
-                role: "member" | "team_lead" | "contributor";
-                id: string;
-                userId: string;
                 email: string;
+                id: string;
+                role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
+                userId: string;
                 name?: string | undefined;
                 permissions?: string[] | undefined;
             }[] | undefined;
@@ -552,9 +546,15 @@ export declare const OrganizationStructureSchema: z.ZodObject<{
                 maxMembers?: number | undefined;
                 inheritPermissions?: boolean | undefined;
             } | undefined;
+            metadata?: {
+                tags?: string[] | undefined;
+                color?: string | undefined;
+                icon?: string | undefined;
+            } | undefined;
             parentTeamId?: string | undefined;
             childTeams?: string[] | undefined;
         };
+        level: number;
         hasChildren?: boolean | undefined;
         childTeamIds?: string[] | undefined;
     }>, "many">;
@@ -565,39 +565,39 @@ export declare const OrganizationStructureSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     workspaceId: string;
     teams: {
-        level: number;
         path: string[];
         team: {
-            name: string;
-            metadata: {
-                tags: string[];
-                color?: string | undefined;
-                icon?: string | undefined;
-            };
             id: string;
+            name: string;
             createdAt: string;
             updatedAt: string;
-            createdBy: string;
-            workspaceId: string;
             members: {
-                role: "member" | "team_lead" | "contributor";
-                id: string;
-                userId: string;
                 email: string;
+                id: string;
+                role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
+                userId: string;
                 permissions: string[];
                 name?: string | undefined;
             }[];
+            workspaceId: string;
             settings: {
                 isPrivate: boolean;
                 allowSelfJoin: boolean;
                 inheritPermissions: boolean;
                 maxMembers?: number | undefined;
             };
+            createdBy: string;
+            metadata: {
+                tags: string[];
+                color?: string | undefined;
+                icon?: string | undefined;
+            };
             childTeams: string[];
             description?: string | undefined;
             parentTeamId?: string | undefined;
         };
+        level: number;
         hasChildren: boolean;
         childTeamIds: string[];
     }[];
@@ -608,27 +608,21 @@ export declare const OrganizationStructureSchema: z.ZodObject<{
 }, {
     workspaceId: string;
     teams: {
-        level: number;
         path: string[];
         team: {
-            name: string;
             id: string;
+            name: string;
             createdAt: string;
             updatedAt: string;
-            createdBy: string;
             workspaceId: string;
+            createdBy: string;
             description?: string | undefined;
-            metadata?: {
-                tags?: string[] | undefined;
-                color?: string | undefined;
-                icon?: string | undefined;
-            } | undefined;
             members?: {
-                role: "member" | "team_lead" | "contributor";
-                id: string;
-                userId: string;
                 email: string;
+                id: string;
+                role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
+                userId: string;
                 name?: string | undefined;
                 permissions?: string[] | undefined;
             }[] | undefined;
@@ -638,9 +632,15 @@ export declare const OrganizationStructureSchema: z.ZodObject<{
                 maxMembers?: number | undefined;
                 inheritPermissions?: boolean | undefined;
             } | undefined;
+            metadata?: {
+                tags?: string[] | undefined;
+                color?: string | undefined;
+                icon?: string | undefined;
+            } | undefined;
             parentTeamId?: string | undefined;
             childTeams?: string[] | undefined;
         };
+        level: number;
         hasChildren?: boolean | undefined;
         childTeamIds?: string[] | undefined;
     }[];
@@ -700,16 +700,16 @@ export declare const CreateTeamRequestSchema: z.ZodObject<{
     name: string;
     workspaceId: string;
     description?: string | undefined;
-    metadata?: {
-        tags: string[];
-        color?: string | undefined;
-        icon?: string | undefined;
-    } | undefined;
     settings?: {
         isPrivate: boolean;
         allowSelfJoin: boolean;
         inheritPermissions: boolean;
         maxMembers?: number | undefined;
+    } | undefined;
+    metadata?: {
+        tags: string[];
+        color?: string | undefined;
+        icon?: string | undefined;
     } | undefined;
     parentTeamId?: string | undefined;
     initialMembers?: {
@@ -721,16 +721,16 @@ export declare const CreateTeamRequestSchema: z.ZodObject<{
     name: string;
     workspaceId: string;
     description?: string | undefined;
-    metadata?: {
-        tags?: string[] | undefined;
-        color?: string | undefined;
-        icon?: string | undefined;
-    } | undefined;
     settings?: {
         isPrivate?: boolean | undefined;
         allowSelfJoin?: boolean | undefined;
         maxMembers?: number | undefined;
         inheritPermissions?: boolean | undefined;
+    } | undefined;
+    metadata?: {
+        tags?: string[] | undefined;
+        color?: string | undefined;
+        icon?: string | undefined;
     } | undefined;
     parentTeamId?: string | undefined;
     initialMembers?: {
@@ -773,33 +773,33 @@ export declare const UpdateTeamRequestSchema: z.ZodObject<{
         icon?: string | undefined;
     }>>;
 }, "strip", z.ZodTypeAny, {
-    name?: string | undefined;
     description?: string | undefined;
-    metadata?: {
-        tags?: string[] | undefined;
-        color?: string | undefined;
-        icon?: string | undefined;
-    } | undefined;
+    name?: string | undefined;
     settings?: {
         isPrivate?: boolean | undefined;
         allowSelfJoin?: boolean | undefined;
         maxMembers?: number | undefined;
         inheritPermissions?: boolean | undefined;
+    } | undefined;
+    metadata?: {
+        tags?: string[] | undefined;
+        color?: string | undefined;
+        icon?: string | undefined;
     } | undefined;
     parentTeamId?: string | undefined;
 }, {
-    name?: string | undefined;
     description?: string | undefined;
-    metadata?: {
-        tags?: string[] | undefined;
-        color?: string | undefined;
-        icon?: string | undefined;
-    } | undefined;
+    name?: string | undefined;
     settings?: {
         isPrivate?: boolean | undefined;
         allowSelfJoin?: boolean | undefined;
         maxMembers?: number | undefined;
         inheritPermissions?: boolean | undefined;
+    } | undefined;
+    metadata?: {
+        tags?: string[] | undefined;
+        color?: string | undefined;
+        icon?: string | undefined;
     } | undefined;
     parentTeamId?: string | undefined;
 }>;
@@ -1058,19 +1058,19 @@ export declare const TeamResponseSchema: z.ZodObject<{
             joinedAt: z.ZodString;
             permissions: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
         }, "strip", z.ZodTypeAny, {
-            role: "member" | "team_lead" | "contributor";
-            id: string;
-            userId: string;
             email: string;
+            id: string;
+            role: "member" | "team_lead" | "contributor";
             joinedAt: string;
+            userId: string;
             permissions: string[];
             name?: string | undefined;
         }, {
-            role: "member" | "team_lead" | "contributor";
-            id: string;
-            userId: string;
             email: string;
+            id: string;
+            role: "member" | "team_lead" | "contributor";
             joinedAt: string;
+            userId: string;
             name?: string | undefined;
             permissions?: string[] | undefined;
         }>, "many">>;
@@ -1108,54 +1108,49 @@ export declare const TeamResponseSchema: z.ZodObject<{
         updatedAt: z.ZodString;
         createdBy: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        name: string;
-        metadata: {
-            tags: string[];
-            color?: string | undefined;
-            icon?: string | undefined;
-        };
         id: string;
+        name: string;
         createdAt: string;
         updatedAt: string;
-        createdBy: string;
-        workspaceId: string;
         members: {
-            role: "member" | "team_lead" | "contributor";
-            id: string;
-            userId: string;
             email: string;
+            id: string;
+            role: "member" | "team_lead" | "contributor";
             joinedAt: string;
+            userId: string;
             permissions: string[];
             name?: string | undefined;
         }[];
+        workspaceId: string;
         settings: {
             isPrivate: boolean;
             allowSelfJoin: boolean;
             inheritPermissions: boolean;
             maxMembers?: number | undefined;
         };
+        createdBy: string;
+        metadata: {
+            tags: string[];
+            color?: string | undefined;
+            icon?: string | undefined;
+        };
         childTeams: string[];
         description?: string | undefined;
         parentTeamId?: string | undefined;
     }, {
-        name: string;
         id: string;
+        name: string;
         createdAt: string;
         updatedAt: string;
-        createdBy: string;
         workspaceId: string;
+        createdBy: string;
         description?: string | undefined;
-        metadata?: {
-            tags?: string[] | undefined;
-            color?: string | undefined;
-            icon?: string | undefined;
-        } | undefined;
         members?: {
-            role: "member" | "team_lead" | "contributor";
-            id: string;
-            userId: string;
             email: string;
+            id: string;
+            role: "member" | "team_lead" | "contributor";
             joinedAt: string;
+            userId: string;
             name?: string | undefined;
             permissions?: string[] | undefined;
         }[] | undefined;
@@ -1165,6 +1160,11 @@ export declare const TeamResponseSchema: z.ZodObject<{
             maxMembers?: number | undefined;
             inheritPermissions?: boolean | undefined;
         } | undefined;
+        metadata?: {
+            tags?: string[] | undefined;
+            color?: string | undefined;
+            icon?: string | undefined;
+        } | undefined;
         parentTeamId?: string | undefined;
         childTeams?: string[] | undefined;
     }>;
@@ -1172,31 +1172,31 @@ export declare const TeamResponseSchema: z.ZodObject<{
     childTeamCount: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
     team: {
-        name: string;
-        metadata: {
-            tags: string[];
-            color?: string | undefined;
-            icon?: string | undefined;
-        };
         id: string;
+        name: string;
         createdAt: string;
         updatedAt: string;
-        createdBy: string;
-        workspaceId: string;
         members: {
-            role: "member" | "team_lead" | "contributor";
-            id: string;
-            userId: string;
             email: string;
+            id: string;
+            role: "member" | "team_lead" | "contributor";
             joinedAt: string;
+            userId: string;
             permissions: string[];
             name?: string | undefined;
         }[];
+        workspaceId: string;
         settings: {
             isPrivate: boolean;
             allowSelfJoin: boolean;
             inheritPermissions: boolean;
             maxMembers?: number | undefined;
+        };
+        createdBy: string;
+        metadata: {
+            tags: string[];
+            color?: string | undefined;
+            icon?: string | undefined;
         };
         childTeams: string[];
         description?: string | undefined;
@@ -1206,24 +1206,19 @@ export declare const TeamResponseSchema: z.ZodObject<{
     childTeamCount: number;
 }, {
     team: {
-        name: string;
         id: string;
+        name: string;
         createdAt: string;
         updatedAt: string;
-        createdBy: string;
         workspaceId: string;
+        createdBy: string;
         description?: string | undefined;
-        metadata?: {
-            tags?: string[] | undefined;
-            color?: string | undefined;
-            icon?: string | undefined;
-        } | undefined;
         members?: {
-            role: "member" | "team_lead" | "contributor";
-            id: string;
-            userId: string;
             email: string;
+            id: string;
+            role: "member" | "team_lead" | "contributor";
             joinedAt: string;
+            userId: string;
             name?: string | undefined;
             permissions?: string[] | undefined;
         }[] | undefined;
@@ -1232,6 +1227,11 @@ export declare const TeamResponseSchema: z.ZodObject<{
             allowSelfJoin?: boolean | undefined;
             maxMembers?: number | undefined;
             inheritPermissions?: boolean | undefined;
+        } | undefined;
+        metadata?: {
+            tags?: string[] | undefined;
+            color?: string | undefined;
+            icon?: string | undefined;
         } | undefined;
         parentTeamId?: string | undefined;
         childTeams?: string[] | undefined;
@@ -1256,19 +1256,19 @@ export declare const TeamListResponseSchema: z.ZodObject<{
                 joinedAt: z.ZodString;
                 permissions: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
             }, "strip", z.ZodTypeAny, {
-                role: "member" | "team_lead" | "contributor";
-                id: string;
-                userId: string;
                 email: string;
+                id: string;
+                role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
+                userId: string;
                 permissions: string[];
                 name?: string | undefined;
             }, {
-                role: "member" | "team_lead" | "contributor";
-                id: string;
-                userId: string;
                 email: string;
+                id: string;
+                role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
+                userId: string;
                 name?: string | undefined;
                 permissions?: string[] | undefined;
             }>, "many">>;
@@ -1306,54 +1306,49 @@ export declare const TeamListResponseSchema: z.ZodObject<{
             updatedAt: z.ZodString;
             createdBy: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            name: string;
-            metadata: {
-                tags: string[];
-                color?: string | undefined;
-                icon?: string | undefined;
-            };
             id: string;
+            name: string;
             createdAt: string;
             updatedAt: string;
-            createdBy: string;
-            workspaceId: string;
             members: {
-                role: "member" | "team_lead" | "contributor";
-                id: string;
-                userId: string;
                 email: string;
+                id: string;
+                role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
+                userId: string;
                 permissions: string[];
                 name?: string | undefined;
             }[];
+            workspaceId: string;
             settings: {
                 isPrivate: boolean;
                 allowSelfJoin: boolean;
                 inheritPermissions: boolean;
                 maxMembers?: number | undefined;
             };
+            createdBy: string;
+            metadata: {
+                tags: string[];
+                color?: string | undefined;
+                icon?: string | undefined;
+            };
             childTeams: string[];
             description?: string | undefined;
             parentTeamId?: string | undefined;
         }, {
-            name: string;
             id: string;
+            name: string;
             createdAt: string;
             updatedAt: string;
-            createdBy: string;
             workspaceId: string;
+            createdBy: string;
             description?: string | undefined;
-            metadata?: {
-                tags?: string[] | undefined;
-                color?: string | undefined;
-                icon?: string | undefined;
-            } | undefined;
             members?: {
-                role: "member" | "team_lead" | "contributor";
-                id: string;
-                userId: string;
                 email: string;
+                id: string;
+                role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
+                userId: string;
                 name?: string | undefined;
                 permissions?: string[] | undefined;
             }[] | undefined;
@@ -1363,6 +1358,11 @@ export declare const TeamListResponseSchema: z.ZodObject<{
                 maxMembers?: number | undefined;
                 inheritPermissions?: boolean | undefined;
             } | undefined;
+            metadata?: {
+                tags?: string[] | undefined;
+                color?: string | undefined;
+                icon?: string | undefined;
+            } | undefined;
             parentTeamId?: string | undefined;
             childTeams?: string[] | undefined;
         }>;
@@ -1370,31 +1370,31 @@ export declare const TeamListResponseSchema: z.ZodObject<{
         childTeamCount: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
         team: {
-            name: string;
-            metadata: {
-                tags: string[];
-                color?: string | undefined;
-                icon?: string | undefined;
-            };
             id: string;
+            name: string;
             createdAt: string;
             updatedAt: string;
-            createdBy: string;
-            workspaceId: string;
             members: {
-                role: "member" | "team_lead" | "contributor";
-                id: string;
-                userId: string;
                 email: string;
+                id: string;
+                role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
+                userId: string;
                 permissions: string[];
                 name?: string | undefined;
             }[];
+            workspaceId: string;
             settings: {
                 isPrivate: boolean;
                 allowSelfJoin: boolean;
                 inheritPermissions: boolean;
                 maxMembers?: number | undefined;
+            };
+            createdBy: string;
+            metadata: {
+                tags: string[];
+                color?: string | undefined;
+                icon?: string | undefined;
             };
             childTeams: string[];
             description?: string | undefined;
@@ -1404,24 +1404,19 @@ export declare const TeamListResponseSchema: z.ZodObject<{
         childTeamCount: number;
     }, {
         team: {
-            name: string;
             id: string;
+            name: string;
             createdAt: string;
             updatedAt: string;
-            createdBy: string;
             workspaceId: string;
+            createdBy: string;
             description?: string | undefined;
-            metadata?: {
-                tags?: string[] | undefined;
-                color?: string | undefined;
-                icon?: string | undefined;
-            } | undefined;
             members?: {
-                role: "member" | "team_lead" | "contributor";
-                id: string;
-                userId: string;
                 email: string;
+                id: string;
+                role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
+                userId: string;
                 name?: string | undefined;
                 permissions?: string[] | undefined;
             }[] | undefined;
@@ -1430,6 +1425,11 @@ export declare const TeamListResponseSchema: z.ZodObject<{
                 allowSelfJoin?: boolean | undefined;
                 maxMembers?: number | undefined;
                 inheritPermissions?: boolean | undefined;
+            } | undefined;
+            metadata?: {
+                tags?: string[] | undefined;
+                color?: string | undefined;
+                icon?: string | undefined;
             } | undefined;
             parentTeamId?: string | undefined;
             childTeams?: string[] | undefined;
@@ -1444,31 +1444,31 @@ export declare const TeamListResponseSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     teams: {
         team: {
-            name: string;
-            metadata: {
-                tags: string[];
-                color?: string | undefined;
-                icon?: string | undefined;
-            };
             id: string;
+            name: string;
             createdAt: string;
             updatedAt: string;
-            createdBy: string;
-            workspaceId: string;
             members: {
-                role: "member" | "team_lead" | "contributor";
-                id: string;
-                userId: string;
                 email: string;
+                id: string;
+                role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
+                userId: string;
                 permissions: string[];
                 name?: string | undefined;
             }[];
+            workspaceId: string;
             settings: {
                 isPrivate: boolean;
                 allowSelfJoin: boolean;
                 inheritPermissions: boolean;
                 maxMembers?: number | undefined;
+            };
+            createdBy: string;
+            metadata: {
+                tags: string[];
+                color?: string | undefined;
+                icon?: string | undefined;
             };
             childTeams: string[];
             description?: string | undefined;
@@ -1477,31 +1477,26 @@ export declare const TeamListResponseSchema: z.ZodObject<{
         memberCount: number;
         childTeamCount: number;
     }[];
-    hasMore?: boolean | undefined;
-    limit?: number | undefined;
     page?: number | undefined;
+    limit?: number | undefined;
+    hasMore?: boolean | undefined;
     totalCount?: number | undefined;
 }, {
     teams: {
         team: {
-            name: string;
             id: string;
+            name: string;
             createdAt: string;
             updatedAt: string;
-            createdBy: string;
             workspaceId: string;
+            createdBy: string;
             description?: string | undefined;
-            metadata?: {
-                tags?: string[] | undefined;
-                color?: string | undefined;
-                icon?: string | undefined;
-            } | undefined;
             members?: {
-                role: "member" | "team_lead" | "contributor";
-                id: string;
-                userId: string;
                 email: string;
+                id: string;
+                role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
+                userId: string;
                 name?: string | undefined;
                 permissions?: string[] | undefined;
             }[] | undefined;
@@ -1511,15 +1506,20 @@ export declare const TeamListResponseSchema: z.ZodObject<{
                 maxMembers?: number | undefined;
                 inheritPermissions?: boolean | undefined;
             } | undefined;
+            metadata?: {
+                tags?: string[] | undefined;
+                color?: string | undefined;
+                icon?: string | undefined;
+            } | undefined;
             parentTeamId?: string | undefined;
             childTeams?: string[] | undefined;
         };
         memberCount: number;
         childTeamCount: number;
     }[];
-    hasMore?: boolean | undefined;
-    limit?: number | undefined;
     page?: number | undefined;
+    limit?: number | undefined;
+    hasMore?: boolean | undefined;
     totalCount?: number | undefined;
 }>;
 export declare const BulkOperationResponseSchema: z.ZodObject<{

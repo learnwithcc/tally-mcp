@@ -23,12 +23,12 @@ export declare const CommonSchemas: {
         limit: z.ZodDefault<z.ZodNumber>;
         offset: z.ZodOptional<z.ZodNumber>;
     }, "strip", z.ZodTypeAny, {
-        limit: number;
         page: number;
+        limit: number;
         offset?: number | undefined;
     }, {
-        limit?: number | undefined;
         page?: number | undefined;
+        limit?: number | undefined;
         offset?: number | undefined;
     }>;
     formId: z.ZodObject<{
@@ -85,13 +85,13 @@ export declare const CommonSchemas: {
         mimetype: z.ZodEffects<z.ZodString, string, string>;
         size: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
+        size: number;
         filename: string;
         mimetype: string;
-        size: number;
     }, {
+        size: number;
         filename: string;
         mimetype: string;
-        size: number;
     }>;
     apiKey: z.ZodObject<{
         apiKey: z.ZodEffects<z.ZodString, string, string>;

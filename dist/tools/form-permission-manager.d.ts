@@ -11,6 +11,14 @@ export declare class FormPermissionManager {
     }>;
     getFormPermissions(formId: string): Promise<{
         formId: string;
+        permissions: {
+            formId: string;
+            userId: string;
+            accessLevel: "admin" | "view" | "edit" | "manage";
+            inheritFromWorkspace: boolean;
+            grantedAt: string;
+            grantedBy: string;
+        }[];
         settings: {
             formId: string;
             workspaceId: string;
@@ -25,19 +33,11 @@ export declare class FormPermissionManager {
                 grantedBy: string;
             }[];
         };
-        permissions: {
-            formId: string;
-            userId: string;
-            accessLevel: "admin" | "view" | "edit" | "manage";
-            inheritFromWorkspace: boolean;
-            grantedAt: string;
-            grantedBy: string;
-        }[];
     }>;
     setBulkFormPermissions(userId: string, formIds: string[], accessLevel: FormAccessLevel, inheritFromWorkspace?: boolean): Promise<{
         success: boolean;
-        failedCount: number;
         updatedCount: number;
+        failedCount: number;
         errors?: {
             error: string;
             formId: string;
@@ -85,8 +85,8 @@ export declare class FormPermissionManager {
     }>;
     copyFormPermissions(sourceFormId: string, targetFormId: string, includeSettings?: boolean): Promise<{
         success: boolean;
-        failedCount: number;
         updatedCount: number;
+        failedCount: number;
         errors?: {
             error: string;
             formId: string;

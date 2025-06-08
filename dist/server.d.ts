@@ -127,6 +127,7 @@ export declare class MCPServer extends Server {
     private loggerConfig;
     private correlationIds;
     private errorMetrics;
+    private tools?;
     constructor(config?: Partial<MCPServerConfig>);
     getState(): ServerState;
     getConnectionCount(): number;
@@ -171,5 +172,7 @@ export declare class MCPServer extends Server {
     private setupSignalHandlers;
     private removeSignalHandlers;
     private closeAllConnections;
+    private initializeTools;
+    private setupMCPHandlers;
 }
 //# sourceMappingURL=server.d.ts.map

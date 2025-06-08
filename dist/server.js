@@ -38,8 +38,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MCPServer = exports.DEFAULT_HEALTH_THRESHOLDS = exports.ServerState = exports.DEFAULT_CONFIG = exports.DEFAULT_LOGGER_CONFIG = exports.ErrorCategory = exports.LogLevel = void 0;
 const index_js_1 = require("@modelcontextprotocol/sdk/server/index.js");
+const types_js_1 = require("@modelcontextprotocol/sdk/types.js");
 const express_1 = __importDefault(require("express"));
 const os = __importStar(require("os"));
+const tools_1 = require("./tools");
 var LogLevel;
 (function (LogLevel) {
     LogLevel[LogLevel["FATAL"] = 0] = "FATAL";
@@ -128,6 +130,8 @@ class MCPServer extends index_js_1.Server {
             byCode: new Map(),
             total: 0,
         };
+        this.initializeTools();
+        this.setupMCPHandlers();
         this.initialize = this.initialize.bind(this);
         this.shutdown = this.shutdown.bind(this);
         this.getState = this.getState.bind(this);
@@ -750,6 +754,273 @@ class MCPServer extends index_js_1.Server {
         this.activeConnections.clear();
         this.connectionCount = 0;
         this.log('info', 'All connections closed');
+    }
+    initializeTools() {
+        const apiConfig = {
+            accessToken: process.env.TALLY_API_KEY || '',
+            baseURL: 'https://api.tally.so',
+        };
+        this.tools = {
+            workspaceManagement: new tools_1.WorkspaceManagementTool(apiConfig),
+            template: new tools_1.TemplateTool(),
+        };
+    }
+    setupMCPHandlers() {
+        this.setRequestHandler(types_js_1.ListToolsRequestSchema, async () => {
+            return {
+                tools: [
+                    {
+                        name: 'create_form',
+                        description: 'Create a new Tally form with specified fields and configuration',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                title: { type: 'string', description: 'Form title' },
+                                description: { type: 'string', description: 'Form description' },
+                                fields: {
+                                    type: 'array',
+                                    items: {
+                                        type: 'object',
+                                        properties: {
+                                            type: { type: 'string', enum: ['text', 'email', 'number', 'textarea', 'select', 'checkbox', 'radio'] },
+                                            label: { type: 'string' },
+                                            required: { type: 'boolean' },
+                                            options: { type: 'array', items: { type: 'string' } }
+                                        },
+                                        required: ['type', 'label']
+                                    }
+                                },
+                                settings: {
+                                    type: 'object',
+                                    properties: {
+                                        isPublic: { type: 'boolean' },
+                                        allowMultipleSubmissions: { type: 'boolean' },
+                                        showProgressBar: { type: 'boolean' }
+                                    }
+                                }
+                            },
+                            required: ['title', 'fields']
+                        }
+                    },
+                    {
+                        name: 'modify_form',
+                        description: 'Modify an existing Tally form',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                formId: { type: 'string', description: 'ID of the form to modify' },
+                                title: { type: 'string', description: 'New form title' },
+                                description: { type: 'string', description: 'New form description' },
+                                fields: {
+                                    type: 'array',
+                                    items: {
+                                        type: 'object',
+                                        properties: {
+                                            id: { type: 'string' },
+                                            type: { type: 'string' },
+                                            label: { type: 'string' },
+                                            required: { type: 'boolean' },
+                                            options: { type: 'array', items: { type: 'string' } }
+                                        }
+                                    }
+                                }
+                            },
+                            required: ['formId']
+                        }
+                    },
+                    {
+                        name: 'get_form',
+                        description: 'Retrieve details of a specific Tally form',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                formId: { type: 'string', description: 'ID of the form to retrieve' }
+                            },
+                            required: ['formId']
+                        }
+                    },
+                    {
+                        name: 'list_forms',
+                        description: 'List all forms in the workspace',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                random_string: { type: 'string', description: 'Dummy parameter for no-parameter tools' }
+                            },
+                            required: ['random_string']
+                        }
+                    },
+                    {
+                        name: 'delete_form',
+                        description: 'Delete a Tally form',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                formId: { type: 'string', description: 'ID of the form to delete' }
+                            },
+                            required: ['formId']
+                        }
+                    },
+                    {
+                        name: 'get_submissions',
+                        description: 'Retrieve submissions for a specific form',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                formId: { type: 'string', description: 'ID of the form' },
+                                limit: { type: 'number', description: 'Maximum number of submissions to return' },
+                                offset: { type: 'number', description: 'Number of submissions to skip' },
+                                since: { type: 'string', description: 'ISO date string to filter submissions since' }
+                            },
+                            required: ['formId']
+                        }
+                    },
+                    {
+                        name: 'analyze_submissions',
+                        description: 'Analyze form submissions and provide insights',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                formId: { type: 'string', description: 'ID of the form to analyze' },
+                                analysisType: {
+                                    type: 'string',
+                                    enum: ['summary', 'trends', 'responses', 'completion_rate'],
+                                    description: 'Type of analysis to perform'
+                                }
+                            },
+                            required: ['formId', 'analysisType']
+                        }
+                    },
+                    {
+                        name: 'share_form',
+                        description: 'Generate sharing links and embed codes for a form',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                formId: { type: 'string', description: 'ID of the form to share' },
+                                shareType: {
+                                    type: 'string',
+                                    enum: ['link', 'embed', 'popup'],
+                                    description: 'Type of sharing method'
+                                },
+                                customization: {
+                                    type: 'object',
+                                    properties: {
+                                        width: { type: 'string' },
+                                        height: { type: 'string' },
+                                        hideTitle: { type: 'boolean' }
+                                    }
+                                }
+                            },
+                            required: ['formId', 'shareType']
+                        }
+                    },
+                    {
+                        name: 'manage_workspace',
+                        description: 'Manage workspace settings and information',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                action: {
+                                    type: 'string',
+                                    enum: ['get_info', 'update_settings', 'get_usage'],
+                                    description: 'Action to perform on workspace'
+                                },
+                                settings: {
+                                    type: 'object',
+                                    properties: {
+                                        name: { type: 'string' },
+                                        description: { type: 'string' }
+                                    }
+                                }
+                            },
+                            required: ['action']
+                        }
+                    },
+                    {
+                        name: 'manage_team',
+                        description: 'Manage team members and permissions',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                action: {
+                                    type: 'string',
+                                    enum: ['list_members', 'invite_member', 'remove_member', 'update_permissions'],
+                                    description: 'Team management action'
+                                },
+                                email: { type: 'string', description: 'Email for invite/remove actions' },
+                                role: {
+                                    type: 'string',
+                                    enum: ['admin', 'editor', 'viewer'],
+                                    description: 'Role for the team member'
+                                }
+                            },
+                            required: ['action']
+                        }
+                    }
+                ]
+            };
+        });
+        this.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
+            const { name, arguments: args } = request.params;
+            try {
+                if (!this.tools) {
+                    throw new Error('Tools not initialized');
+                }
+                switch (name) {
+                    case 'list_forms':
+                        const forms = await this.tools.workspaceManagement.listWorkspaces();
+                        return {
+                            content: [
+                                {
+                                    type: 'text',
+                                    text: JSON.stringify(forms, null, 2)
+                                }
+                            ]
+                        };
+                    case 'manage_workspace':
+                        if (args && args.action === 'get_info') {
+                            const workspaceInfo = await this.tools.workspaceManagement.listWorkspaces();
+                            return {
+                                content: [
+                                    {
+                                        type: 'text',
+                                        text: JSON.stringify(workspaceInfo, null, 2)
+                                    }
+                                ]
+                            };
+                        }
+                        return {
+                            content: [
+                                {
+                                    type: 'text',
+                                    text: 'Workspace management functionality is being implemented'
+                                }
+                            ]
+                        };
+                    default:
+                        return {
+                            content: [
+                                {
+                                    type: 'text',
+                                    text: `Tool ${name} is not yet implemented`
+                                }
+                            ]
+                        };
+                }
+            }
+            catch (error) {
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: `Error executing tool ${name}: ${error instanceof Error ? error.message : String(error)}`
+                        }
+                    ],
+                    isError: true
+                };
+            }
+        });
     }
 }
 exports.MCPServer = MCPServer;

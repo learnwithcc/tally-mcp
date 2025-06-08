@@ -25,21 +25,21 @@ export declare const CreateApiKeySchema: z.ZodObject<{
     ipWhitelist: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodString>>;
 }, "strip", z.ZodTypeAny, {
-    name: string;
     scopes: ApiKeyScope[];
+    name: string;
     description?: string | undefined;
+    metadata?: Record<string, string> | undefined;
     expiresAt?: Date | undefined;
     maxUsage?: number | undefined;
     ipWhitelist?: string[] | undefined;
-    metadata?: Record<string, string> | undefined;
 }, {
-    name: string;
     scopes: ApiKeyScope[];
+    name: string;
     description?: string | undefined;
+    metadata?: Record<string, string> | undefined;
     expiresAt?: Date | undefined;
     maxUsage?: number | undefined;
     ipWhitelist?: string[] | undefined;
-    metadata?: Record<string, string> | undefined;
 }>;
 export declare const UpdateApiKeySchema: z.ZodObject<{
     name: z.ZodOptional<z.ZodString>;
@@ -51,23 +51,23 @@ export declare const UpdateApiKeySchema: z.ZodObject<{
     ipWhitelist: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodString>>;
 }, "strip", z.ZodTypeAny, {
-    status?: ApiKeyStatus | undefined;
-    name?: string | undefined;
     description?: string | undefined;
     scopes?: ApiKeyScope[] | undefined;
+    name?: string | undefined;
+    status?: ApiKeyStatus | undefined;
+    metadata?: Record<string, string> | undefined;
     expiresAt?: Date | undefined;
     maxUsage?: number | undefined;
     ipWhitelist?: string[] | undefined;
-    metadata?: Record<string, string> | undefined;
 }, {
-    status?: ApiKeyStatus | undefined;
-    name?: string | undefined;
     description?: string | undefined;
     scopes?: ApiKeyScope[] | undefined;
+    name?: string | undefined;
+    status?: ApiKeyStatus | undefined;
+    metadata?: Record<string, string> | undefined;
     expiresAt?: Date | undefined;
     maxUsage?: number | undefined;
     ipWhitelist?: string[] | undefined;
-    metadata?: Record<string, string> | undefined;
 }>;
 export declare const ValidateApiKeySchema: z.ZodObject<{
     key: z.ZodString;
