@@ -97,19 +97,21 @@ function createValidationMiddleware(options) {
                 errors.push(...securityErrors);
             }
             if (errors.length > 0) {
-                return res.status(400).json({
+                res.status(400).json({
                     error: 'Validation failed',
                     message: options.errorMessage || 'Request data is invalid',
                     details: errors,
                 });
+                return;
             }
             next();
         }
         catch (error) {
-            return res.status(500).json({
+            res.status(500).json({
                 error: 'Validation error',
                 message: 'An error occurred during request validation',
             });
+            return;
         }
     };
 }

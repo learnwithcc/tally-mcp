@@ -128,17 +128,17 @@ export declare const CommonSchemas: {
         fields?: string[] | undefined;
     }>;
 };
-export declare function createValidationMiddleware(options: ValidationOptions): (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined;
+export declare function createValidationMiddleware(options: ValidationOptions): (req: Request, res: Response, next: NextFunction) => void;
 export declare const ValidationMiddleware: {
-    pagination: (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined;
-    formParams: (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined;
-    workspaceParams: (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined;
-    userParams: (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined;
-    submissionParams: (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined;
-    search: (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined;
-    fileUpload: (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined;
-    apiKey: (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined;
-    mcpRequest: (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined;
+    pagination: (req: Request, res: Response, next: NextFunction) => void;
+    formParams: (req: Request, res: Response, next: NextFunction) => void;
+    workspaceParams: (req: Request, res: Response, next: NextFunction) => void;
+    userParams: (req: Request, res: Response, next: NextFunction) => void;
+    submissionParams: (req: Request, res: Response, next: NextFunction) => void;
+    search: (req: Request, res: Response, next: NextFunction) => void;
+    fileUpload: (req: Request, res: Response, next: NextFunction) => void;
+    apiKey: (req: Request, res: Response, next: NextFunction) => void;
+    mcpRequest: (req: Request, res: Response, next: NextFunction) => void;
 };
 export declare function validateWithSchema<T>(data: unknown, schema: ZodSchema<T>, options?: {
     stripUnknown?: boolean;

@@ -227,7 +227,7 @@ class FormModificationParser {
     normalizeCommand(command) {
         let normalized = command.trim();
         const quotedStrings = [];
-        normalized = normalized.replace(/"([^"]+)"/g, (match, content) => {
+        normalized = normalized.replace(/"([^"]+)"/g, (_match, content) => {
             quotedStrings.push(content);
             return `"__QUOTED_${quotedStrings.length - 1}__"`;
         });

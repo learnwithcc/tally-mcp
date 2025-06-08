@@ -151,14 +151,32 @@ function generateRequestId() {
 }
 function securityValidation(req, res, next) {
     const suspiciousPatterns = [
-        /\.\.\//,
+        /\.\./,
         /<script/i,
         /javascript:/i,
         /vbscript:/i,
         /data:text\/html/i,
-        /\0/,
     ];
     const url = decodeURIComponent(req.url);
+    const originalUrl = req.originalUrl;
+    if (/\.\./.test(url) || /\.\./.test(originalUrl)) {
+        console.warn(`Security Warning: Directory traversal attempt detected: ${url}`);
+        res.status(400).json({
+            error: 'Invalid request',
+            code: 'SECURITY_VIOLATION',
+            message: 'Request contains potentially harmful content',
+        });
+        return;
+    }
+    if (url.includes('\0') || originalUrl.includes('\0') || /\x00/.test(url) || /\x00/.test(originalUrl)) {
+        console.warn(`Security Warning: Null byte attack detected: ${url}`);
+        res.status(400).json({
+            error: 'Invalid request',
+            code: 'SECURITY_VIOLATION',
+            message: 'Request contains potentially harmful content',
+        });
+        return;
+    }
     for (const pattern of suspiciousPatterns) {
         if (pattern.test(url)) {
             console.warn(`Security Warning: Suspicious URL pattern detected: ${url}`);

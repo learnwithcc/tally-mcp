@@ -1,5 +1,5 @@
 import { TallyApiClientConfig } from './TallyApiClient';
-import { FormAccessLevel, FormPermission, BulkFormPermission, FormPermissionSettings, FormPermissionsResponse, BulkPermissionResponse, UserRole, TallySuccessResponse } from '../models';
+import { FormAccessLevel, FormPermission, BulkFormPermission, FormPermissionSettings, FormPermissionSettingsResponse, FormPermissionsResponse, BulkPermissionResponse, UserRole, TallySuccessResponse } from '../models';
 export declare class FormPermissionService {
     private apiClient;
     constructor(config?: TallyApiClientConfig);
@@ -8,7 +8,7 @@ export declare class FormPermissionService {
     updateFormPermission(formId: string, userId: string, accessLevel: FormAccessLevel, inheritFromWorkspace?: boolean): Promise<FormPermission>;
     removeFormPermission(formId: string, userId: string): Promise<TallySuccessResponse>;
     setBulkFormPermissions(bulkPermission: BulkFormPermission): Promise<BulkPermissionResponse>;
-    getFormPermissionSettings(formId: string): Promise<FormPermissionSettings>;
+    getFormPermissionSettings(formId: string): Promise<FormPermissionSettingsResponse>;
     updateFormPermissionSettings(formId: string, settings: Partial<FormPermissionSettings>): Promise<FormPermissionSettings>;
     getEffectivePermission(formId: string, userId: string, workspaceRole?: UserRole): Promise<{
         accessLevel: FormAccessLevel;

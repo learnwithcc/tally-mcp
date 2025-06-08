@@ -143,7 +143,7 @@ class TallyApiRateLimiter {
 export const tallyApiLimiter = new TallyApiRateLimiter(100, 1); // 100 tokens, 1 per second
 
 // Middleware to check Tally API rate limit before making requests
-export const tallyApiRateLimit = (req: Request, res: Response, next: NextFunction): void => {
+export const tallyApiRateLimit = (_req: Request, res: Response, next: NextFunction): void => {
   if (!tallyApiLimiter.canMakeRequest()) {
     const waitTime = tallyApiLimiter.getTimeUntilNextToken();
     res.status(429).json({

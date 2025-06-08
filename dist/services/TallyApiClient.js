@@ -8,6 +8,7 @@ const axios_1 = __importDefault(require("axios"));
 const TokenManager_1 = require("./TokenManager");
 const models_1 = require("../models");
 const models_2 = require("../models");
+const tally_api_mock_1 = require("./__mocks__/tally-api-mock");
 var CircuitBreakerState;
 (function (CircuitBreakerState) {
     CircuitBreakerState["CLOSED"] = "CLOSED";
@@ -141,6 +142,10 @@ class TallyApiClient {
         return this.request('PATCH', url, data, config);
     }
     async getSubmissions(formId, options = {}) {
+        if (this.isMockEnabled()) {
+            const mockRes = await tally_api_mock_1.tallyApiMock.getSubmissions(formId, options);
+            return mockRes.data;
+        }
         const params = new URLSearchParams();
         if (options.page)
             params.append('page', options.page.toString());
@@ -154,11 +159,19 @@ class TallyApiClient {
         return (0, models_2.validateTallyResponse)(models_2.TallySubmissionsResponseSchema, response.data);
     }
     async getSubmission(formId, submissionId) {
+        if (this.isMockEnabled()) {
+            const mockRes = await tally_api_mock_1.tallyApiMock.getSubmission(formId, submissionId);
+            return mockRes.data;
+        }
         const url = `/forms/${formId}/submissions/${submissionId}`;
         const response = await this.get(url);
         return (0, models_2.validateTallyResponse)(models_2.TallySubmissionSchema, response.data);
     }
     async getForms(options = {}) {
+        if (this.isMockEnabled()) {
+            const mockRes = await tally_api_mock_1.tallyApiMock.getForms(options);
+            return mockRes.data;
+        }
         const params = new URLSearchParams();
         if (options.page)
             params.append('page', options.page.toString());
@@ -172,11 +185,19 @@ class TallyApiClient {
         return (0, models_2.validateTallyResponse)(models_2.TallyFormsResponseSchema, response.data);
     }
     async getForm(formId) {
+        if (this.isMockEnabled()) {
+            const mockRes = await tally_api_mock_1.tallyApiMock.getForm(formId);
+            return mockRes.data;
+        }
         const url = `/forms/${formId}`;
         const response = await this.get(url);
         return (0, models_2.validateTallyResponse)(models_2.TallyFormSchema, response.data);
     }
     async getWorkspaces(options = {}) {
+        if (this.isMockEnabled()) {
+            const mockRes = await tally_api_mock_1.tallyApiMock.getWorkspaces(options);
+            return mockRes.data;
+        }
         const params = new URLSearchParams();
         if (options.page)
             params.append('page', options.page.toString());
@@ -188,6 +209,10 @@ class TallyApiClient {
         return (0, models_2.validateTallyResponse)(models_2.TallyWorkspacesResponseSchema, response.data);
     }
     async getWorkspace(workspaceId) {
+        if (this.isMockEnabled()) {
+            const mockRes = await tally_api_mock_1.tallyApiMock.getWorkspace(workspaceId);
+            return mockRes.data;
+        }
         const url = `/workspaces/${workspaceId}`;
         return this.requestWithValidation('GET', url, models_2.TallyWorkspaceSchema);
     }
@@ -422,6 +447,9 @@ class TallyApiClient {
     async updateUserRole(workspaceId, userId, role) {
         console.warn('Tally API does not officially support updating user roles via the API. This is a placeholder.');
         return Promise.resolve({ success: true, message: `User ${userId} role updated to ${role} in workspace ${workspaceId}. (Mocked)` });
+    }
+    isMockEnabled() {
+        return process.env.USE_MOCK_API === 'true';
     }
 }
 exports.TallyApiClient = TallyApiClient;

@@ -155,7 +155,7 @@ export const CommonSchemas = {
  * Creates a validation middleware with the specified schemas
  */
 export function createValidationMiddleware(options: ValidationOptions) {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     const errors: ValidationError[] = [];
 
     try {
@@ -205,19 +205,21 @@ export function createValidationMiddleware(options: ValidationOptions) {
 
       // If there are validation errors, respond with error
       if (errors.length > 0) {
-        return res.status(400).json({
+        res.status(400).json({
           error: 'Validation failed',
           message: options.errorMessage || 'Request data is invalid',
           details: errors,
         });
+        return;
       }
 
       next();
     } catch (error) {
-      return res.status(500).json({
+      res.status(500).json({
         error: 'Validation error',
         message: 'An error occurred during request validation',
       });
+      return;
     }
   };
 }

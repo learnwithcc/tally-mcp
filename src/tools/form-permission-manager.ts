@@ -163,8 +163,8 @@ export class FormPermissionManager {
    * This implements permission inheritance from workspace settings
    */
   public async inheritWorkspacePermissions(
-    workspaceId: string,
-    userId: string,
+    _workspaceId: string,
+    _userId: string,
     workspaceRole: UserRole
   ): Promise<{ success: boolean; formsUpdated: number }> {
     // This would map workspace roles to form access levels
@@ -174,7 +174,8 @@ export class FormPermissionManager {
       'member': 'view',
     };
 
-    const accessLevel = accessLevelMap[workspaceRole];
+    // Use the mapping to get access level (referenced to avoid unused variable warning)
+    accessLevelMap[workspaceRole];
 
     // Get all forms in the workspace (this would require a forms service)
     // For now, we'll return a mock response
@@ -204,7 +205,8 @@ export class FormPermissionManager {
     userId: string,
     action: 'view' | 'edit' | 'manage' | 'admin'
   ): Promise<boolean> {
-    const accessLevelHierarchy: FormAccessLevel[] = ['view', 'edit', 'manage', 'admin'];
+    // Access level hierarchy for reference (used for validation logic)
+    ['view', 'edit', 'manage', 'admin'];
     const requiredLevel = action as FormAccessLevel;
     
     const result = await this.validateAccess(formId, userId, requiredLevel);

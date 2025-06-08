@@ -4,8 +4,7 @@ exports.NlpService = void 0;
 const models_1 = require("../models");
 const uuid_1 = require("uuid");
 class NlpService {
-    constructor(config = {}) {
-        this.config = config;
+    constructor(_config = {}) {
         this.questionTypeMap = new Map([
             ['text', models_1.QuestionType.TEXT],
             ['long text', models_1.QuestionType.TEXTAREA],
@@ -43,7 +42,7 @@ class NlpService {
     }
     isQuestion(line) {
         const trimmed = line.trim();
-        return trimmed.includes('?') || /^\d+[:.]/.test(trimmed) || this.questionTypeMap.has(trimmed.split(' ')[0].toLowerCase());
+        return trimmed.includes('?') || /^\d+[:.]/.test(trimmed) || this.questionTypeMap.has(trimmed.split(' ')[0]?.toLowerCase() || '');
     }
     extractQuestionDetails(line) {
         const title = line.replace(/\s*\(([^)]+)\)\s*$/, '').trim();
@@ -84,7 +83,7 @@ class NlpService {
     }
     generateFormConfig(prompt) {
         const parsed = this.parse(prompt);
-        const questions = parsed.questions.map((q, index) => ({
+        const questions = parsed.questions.map((q) => ({
             id: (0, uuid_1.v4)(),
             type: q.type || models_1.QuestionType.TEXT,
             label: q.title || 'Untitled Question',

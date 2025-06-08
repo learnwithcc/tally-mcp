@@ -92,7 +92,7 @@ export declare class FormPermissionManager {
             formId: string;
         }[] | undefined;
     }>;
-    inheritWorkspacePermissions(workspaceId: string, userId: string, workspaceRole: UserRole): Promise<{
+    inheritWorkspacePermissions(_workspaceId: string, _userId: string, workspaceRole: UserRole): Promise<{
         success: boolean;
         formsUpdated: number;
     }>;

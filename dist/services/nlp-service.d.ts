@@ -21,9 +21,8 @@ export interface ModificationCommand {
     payload: any;
 }
 export declare class NlpService {
-    private config;
     private questionTypeMap;
-    constructor(config?: NlpServiceConfig);
+    constructor(_config?: NlpServiceConfig);
     parse(prompt: string): ParsedForm;
     private isQuestion;
     private extractQuestionDetails;

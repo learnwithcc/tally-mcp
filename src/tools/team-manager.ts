@@ -2,7 +2,6 @@ import { WorkspaceManagementTool } from './workspace-tool';
 import { TeamService } from '../services/team-service';
 import { TallyApiClientConfig } from '../services/TallyApiClient';
 import { 
-  Team,
   TeamMember,
   TeamRole,
   CreateTeamRequest,
@@ -17,8 +16,6 @@ import {
   TeamListResponse,
   BulkOperationResponse,
   OrganizationStructure,
-  TeamHierarchyNode,
-  TallyWorkspace,
   UserRole,
   TallySuccessResponse,
 } from '../models';

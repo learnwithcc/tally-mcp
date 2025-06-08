@@ -43,7 +43,7 @@ function getClientIp(req) {
     const xRealIp = req.headers['x-real-ip'];
     const cfConnectingIp = req.headers['cf-connecting-ip'];
     if (xForwardedFor) {
-        return xForwardedFor.split(',')[0].trim();
+        return xForwardedFor.split(',')[0]?.trim() || '';
     }
     if (xRealIp) {
         return xRealIp;
@@ -66,11 +66,12 @@ function apiKeyAuth(options = {}) {
                 if (config.logAttempts) {
                     console.log(`API key authentication failed - Missing key for ${req.method} ${req.path} from ${getClientIp(req)}`);
                 }
-                return res.status(401).json({
+                res.status(401).json({
                     error: 'Authentication failed',
                     message: config.errorMessages.missing,
                     code: 'MISSING_API_KEY'
                 });
+                return;
             }
             const validationResult = await api_key_service_1.apiKeyService.validateApiKey({
                 key: apiKey,
@@ -106,13 +107,14 @@ function apiKeyAuth(options = {}) {
                     errorCode = 'IP_NOT_WHITELISTED';
                     message = config.errorMessages.ipNotWhitelisted;
                 }
-                return res.status(statusCode).json({
+                res.status(statusCode).json({
                     error: 'Authentication failed',
                     message,
                     code: errorCode,
                     ...(validationResult.remainingUsage !== undefined && { remainingUsage: validationResult.remainingUsage }),
                     ...(validationResult.expiresIn !== undefined && { expiresIn: validationResult.expiresIn })
                 });
+                return;
             }
             if (config.requiredScopes.length > 0 && validationResult.apiKey) {
                 const hasRequiredScopes = api_key_service_1.apiKeyService.hasRequiredScopes(validationResult.apiKey, config.requiredScopes);
@@ -120,24 +122,30 @@ function apiKeyAuth(options = {}) {
                     if (config.logAttempts) {
                         console.log(`API key authorization failed - Insufficient scopes for ${req.method} ${req.path}. Required: ${config.requiredScopes.join(', ')}, Has: ${validationResult.apiKey.scopes.join(', ')}`);
                     }
-                    return res.status(403).json({
+                    res.status(403).json({
                         error: 'Authorization failed',
                         message: config.errorMessages.insufficientScopes,
                         code: 'INSUFFICIENT_SCOPES',
                         requiredScopes: config.requiredScopes,
                         availableScopes: validationResult.apiKey.scopes
                     });
+                    return;
                 }
             }
             if (validationResult.apiKey) {
-                req.apiKey = {
+                const apiKeyInfo = {
                     id: validationResult.apiKey.id,
                     name: validationResult.apiKey.name,
                     scopes: validationResult.apiKey.scopes,
-                    usageCount: validationResult.apiKey.usageCount,
-                    remainingUsage: validationResult.remainingUsage,
-                    expiresIn: validationResult.expiresIn
+                    usageCount: validationResult.apiKey.usageCount
                 };
+                if (validationResult.remainingUsage !== undefined) {
+                    apiKeyInfo.remainingUsage = validationResult.remainingUsage;
+                }
+                if (validationResult.expiresIn !== undefined) {
+                    apiKeyInfo.expiresIn = validationResult.expiresIn;
+                }
+                req.apiKey = apiKeyInfo;
             }
             res.setHeader('X-API-Key-ID', crypto_1.CryptoUtils.maskSensitiveData(validationResult.apiKey?.id || 'unknown'));
             res.setHeader('X-Rate-Limit-Remaining', validationResult.remainingUsage?.toString() || 'unlimited');
@@ -149,11 +157,12 @@ function apiKeyAuth(options = {}) {
         }
         catch (error) {
             console.error('API key authentication error:', error);
-            return res.status(500).json({
+            res.status(500).json({
                 error: 'Authentication error',
                 message: 'Internal server error during authentication',
                 code: 'INTERNAL_ERROR'
             });
+            return;
         }
     };
 }

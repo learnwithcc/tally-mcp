@@ -109,7 +109,7 @@ function getClientIp(req: Request): string {
   
   // Try various headers
   if (xForwardedFor) {
-    return xForwardedFor.split(',')[0].trim();
+    return xForwardedFor.split(',')[0]?.trim() || '';
   }
   
   if (xRealIp) {
@@ -146,11 +146,12 @@ export function apiKeyAuth(options: ApiKeyAuthOptions = {}): (req: Request, res:
           console.log(`API key authentication failed - Missing key for ${req.method} ${req.path} from ${getClientIp(req)}`);
         }
         
-        return res.status(401).json({
+        res.status(401).json({
           error: 'Authentication failed',
           message: config.errorMessages.missing,
           code: 'MISSING_API_KEY'
         });
+        return;
       }
       
       // Validate API key
@@ -192,13 +193,14 @@ export function apiKeyAuth(options: ApiKeyAuthOptions = {}): (req: Request, res:
           message = config.errorMessages.ipNotWhitelisted;
         }
         
-        return res.status(statusCode).json({
+        res.status(statusCode).json({
           error: 'Authentication failed',
           message,
           code: errorCode,
           ...(validationResult.remainingUsage !== undefined && { remainingUsage: validationResult.remainingUsage }),
           ...(validationResult.expiresIn !== undefined && { expiresIn: validationResult.expiresIn })
         });
+        return;
       }
       
       // Check required scopes
@@ -210,26 +212,35 @@ export function apiKeyAuth(options: ApiKeyAuthOptions = {}): (req: Request, res:
             console.log(`API key authorization failed - Insufficient scopes for ${req.method} ${req.path}. Required: ${config.requiredScopes.join(', ')}, Has: ${validationResult.apiKey.scopes.join(', ')}`);
           }
           
-          return res.status(403).json({
+          res.status(403).json({
             error: 'Authorization failed',
             message: config.errorMessages.insufficientScopes,
             code: 'INSUFFICIENT_SCOPES',
             requiredScopes: config.requiredScopes,
             availableScopes: validationResult.apiKey.scopes
           });
+          return;
         }
       }
       
       // Attach API key info to request
       if (validationResult.apiKey) {
-        (req as AuthenticatedRequest).apiKey = {
+        const apiKeyInfo: AuthenticatedRequest['apiKey'] = {
           id: validationResult.apiKey.id,
           name: validationResult.apiKey.name,
           scopes: validationResult.apiKey.scopes,
-          usageCount: validationResult.apiKey.usageCount,
-          remainingUsage: validationResult.remainingUsage,
-          expiresIn: validationResult.expiresIn
+          usageCount: validationResult.apiKey.usageCount
         };
+        
+        if (validationResult.remainingUsage !== undefined) {
+          apiKeyInfo.remainingUsage = validationResult.remainingUsage;
+        }
+        
+        if (validationResult.expiresIn !== undefined) {
+          apiKeyInfo.expiresIn = validationResult.expiresIn;
+        }
+        
+        (req as AuthenticatedRequest).apiKey = apiKeyInfo;
       }
       
       // Add security headers
@@ -246,11 +257,12 @@ export function apiKeyAuth(options: ApiKeyAuthOptions = {}): (req: Request, res:
     } catch (error) {
       console.error('API key authentication error:', error);
       
-      return res.status(500).json({
+      res.status(500).json({
         error: 'Authentication error',
         message: 'Internal server error during authentication',
         code: 'INTERNAL_ERROR'
       });
+      return;
     }
   };
 }

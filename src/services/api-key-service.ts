@@ -13,13 +13,10 @@ import {
   ApiKeyRotationConfigInput,
   CreateApiKeySchema,
   UpdateApiKeySchema,
-  ValidateApiKeySchema,
-  ApiKeyUsageLogSchema,
   ApiKeyRotationConfigSchema,
   API_KEY_CONSTANTS
 } from '../models/api-key';
 import { CryptoUtils } from '../utils/crypto';
-import { z } from 'zod';
 
 /**
  * In-memory storage for API keys (in production, this would be a database)

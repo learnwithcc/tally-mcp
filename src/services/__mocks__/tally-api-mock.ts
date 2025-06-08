@@ -5,15 +5,14 @@
  * to enable testing without making actual API calls.
  */
 
-import { AxiosResponse, AxiosRequestConfig } from 'axios';
+import { AxiosResponse } from 'axios';
 import {
   TallyForm,
   TallyFormsResponse,
   TallySubmission,
   TallySubmissionsResponse,
   TallyWorkspace,
-  TallyWorkspacesResponse,
-  TallyFieldType
+  TallyWorkspacesResponse
 } from '../../models';
 
 /**
@@ -263,7 +262,7 @@ export class TallyApiMock {
       { status: 503, message: 'Service Unavailable' },
     ];
     const idx = Math.floor(Math.random() * errors.length);
-    const randomError = errors[idx] ?? errors[0];
+    const randomError = errors[idx] || errors[0]!;
     const error = new Error(randomError.message);
     (error as any).response = {
       status: randomError.status,
@@ -337,7 +336,7 @@ export class TallyApiMock {
    * Mock GET /forms/:id/submissions endpoint
    */
   public async getSubmissions(
-    formId: string,
+    _formId: string,
     options: {
       page?: number;
       limit?: number;
@@ -432,8 +431,7 @@ export class TallyApiMock {
 
     const newForm = MockDataFixtures.createMockForm({
       id: `form_${Date.now()}`,
-      name: formData.name || 'New Form',
-      title: formData.title || 'New Form',
+      title: formData.title || formData.name || 'New Form',
       description: formData.description || '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -465,7 +463,7 @@ export class TallyApiMock {
   /**
    * Mock DELETE /forms/:id endpoint
    */
-  public async deleteForm(formId: string): Promise<AxiosResponse<{ success: boolean }>> {
+  public async deleteForm(_formId: string): Promise<AxiosResponse<{ success: boolean }>> {
     await this.simulateDelay();
     this.checkRateLimit();
     

@@ -1,11 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TeamService = void 0;
-const TallyApiClient_1 = require("./TallyApiClient");
 const models_1 = require("../models");
 class TeamService {
-    constructor(config = {}) {
-        this.apiClient = new TallyApiClient_1.TallyApiClient(config);
+    constructor(_config = {}) {
     }
     async createTeam(request) {
         const validatedRequest = models_1.CreateTeamRequestSchema.parse(request);
@@ -18,7 +16,7 @@ class TeamService {
             description: validatedRequest.description,
             workspaceId: validatedRequest.workspaceId,
             parentTeamId: validatedRequest.parentTeamId,
-            members: validatedRequest.initialMembers.map((member, index) => ({
+            members: (validatedRequest.initialMembers || []).map((member, index) => ({
                 id: `member_${teamId}_${index}`,
                 userId: member.userId,
                 email: `user_${member.userId}@example.com`,
@@ -112,7 +110,7 @@ class TeamService {
             message: `Team ${teamId} deleted successfully`,
         };
     }
-    async getTeams(workspaceId, options = {}) {
+    async getTeams(_workspaceId, options = {}) {
         console.warn('Team listing is a custom implementation - not supported by Tally API directly');
         const mockTeams = [];
         return models_1.TeamListResponseSchema.parse({
@@ -213,7 +211,7 @@ class TeamService {
         };
         return analytics;
     }
-    async getTeamMemberPermissions(teamId, userId) {
+    async getTeamMemberPermissions(teamId, _userId) {
         console.warn('Team permission retrieval is a custom implementation');
         const summary = {
             teamId,
@@ -242,11 +240,11 @@ class TeamService {
             results,
         });
     }
-    async getUserTeams(workspaceId, userId) {
+    async getUserTeams(_workspaceId, _userId) {
         console.warn('User team retrieval is a custom implementation');
         return [];
     }
-    async canUserPerformAction(teamId, userId, action) {
+    async canUserPerformAction(_teamId, _userId, _action) {
         console.warn('Team permission checking is a custom implementation');
         return {
             canPerform: true,

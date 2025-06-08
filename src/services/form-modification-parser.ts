@@ -331,7 +331,7 @@ export class FormModificationParser {
     const quotedStrings: string[] = [];
     
     // Extract quoted strings
-    normalized = normalized.replace(/"([^"]+)"/g, (match, content) => {
+    normalized = normalized.replace(/"([^"]+)"/g, (_match, content) => {
       quotedStrings.push(content);
       return `"__QUOTED_${quotedStrings.length - 1}__"`;
     });

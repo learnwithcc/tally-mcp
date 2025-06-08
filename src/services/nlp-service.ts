@@ -28,11 +28,9 @@ export interface ModificationCommand {
 }
 
 export class NlpService {
-  private config: NlpServiceConfig;
   private questionTypeMap: Map<string, QuestionType>;
 
-  constructor(config: NlpServiceConfig = {}) {
-    this.config = config;
+  constructor(_config: NlpServiceConfig = {}) {
     this.questionTypeMap = new Map([
         ['text', QuestionType.TEXT],
         ['long text', QuestionType.TEXTAREA],
@@ -76,7 +74,7 @@ export class NlpService {
 
   private isQuestion(line: string): boolean {
     const trimmed = line.trim();
-    return trimmed.includes('?') || /^\d+[:.]/.test(trimmed) || this.questionTypeMap.has(trimmed.split(' ')[0].toLowerCase());
+    return trimmed.includes('?') || /^\d+[:.]/.test(trimmed) || this.questionTypeMap.has(trimmed.split(' ')[0]?.toLowerCase() || '');
   }
 
   private extractQuestionDetails(line: string): ExtractedQuestion {
@@ -124,7 +122,7 @@ export class NlpService {
 
   public generateFormConfig(prompt: string): FormConfig {
     const parsed = this.parse(prompt);
-    const questions: QuestionConfig[] = parsed.questions.map((q, index) => ({
+    const questions: QuestionConfig[] = parsed.questions.map((q) => ({
       id: uuidv4(),
       type: q.type || QuestionType.TEXT,
       label: q.title || 'Untitled Question',

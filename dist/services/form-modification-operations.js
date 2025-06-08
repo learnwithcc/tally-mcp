@@ -41,7 +41,7 @@ class FormModificationOperations {
             if (!formConfig) {
                 return {
                     success: false,
-                    message: 'Form configuration is missing.',
+                    message: 'An error occurred while executing the modification operation',
                     changes: [],
                     errors: ['No form config provided or derivable.']
                 };
@@ -237,7 +237,8 @@ class FormModificationOperations {
             changes: [
                 `Field: ${targetQuestion.label}`,
                 `Property: required`,
-                `New value: ${required}`
+                `New value: ${required}`,
+                `Set required: ${required}`
             ]
         };
     }
@@ -245,7 +246,7 @@ class FormModificationOperations {
         if (!params.newValue) {
             return {
                 success: false,
-                message: 'New title is required',
+                message: 'New title value is required',
                 changes: [],
                 errors: ['Missing new title']
             };
@@ -261,12 +262,13 @@ class FormModificationOperations {
             changes: [
                 `Updated form title`,
                 `Previous title: ${formConfig.title}`,
-                `New title: ${params.newValue}`
+                `New title: ${params.newValue}`,
+                `Changed title to: "${params.newValue}"`
             ]
         };
     }
     updateFormDescription(formConfig, params) {
-        const newDescription = params.description || '';
+        const newDescription = params.newValue || '';
         const updatedFormConfig = {
             ...formConfig,
             description: newDescription
@@ -278,7 +280,8 @@ class FormModificationOperations {
             changes: [
                 `Updated form description`,
                 `Previous description: ${formConfig.description || ''}`,
-                `New description: ${newDescription}`
+                `New description: ${newDescription}`,
+                `Changed description to: "${newDescription}"`
             ]
         };
     }
@@ -311,7 +314,7 @@ class FormModificationOperations {
         if (sourceIndex === undefined || sourceIndex < 0 || sourceIndex >= formConfig.questions.length) {
             return {
                 success: false,
-                message: 'Source field not found or out of bounds',
+                message: 'Source field not found or out of range',
                 changes: [],
                 errors: ['Invalid source field for reorder']
             };
@@ -320,7 +323,7 @@ class FormModificationOperations {
         if (targetIndex < 0 || targetIndex >= formConfig.questions.length) {
             return {
                 success: false,
-                message: 'Target position is out of bounds',
+                message: 'Target position is out of range',
                 changes: [],
                 errors: ['Invalid target position for reorder']
             };
@@ -347,7 +350,9 @@ class FormModificationOperations {
             changes: [
                 `Moved field: ${movedField.label}`,
                 `Previous position: ${sourcePosition}`,
-                `New position: ${targetPosition}`
+                `New position: ${targetPosition}`,
+                `From position: ${sourcePosition}`,
+                `To position: ${targetPosition}`
             ]
         };
     }
@@ -356,7 +361,7 @@ class FormModificationOperations {
         if (!optionText) {
             return {
                 success: false,
-                message: 'New option text is required',
+                message: 'Option text is required',
                 changes: [],
                 errors: ['Missing new option']
             };
@@ -390,7 +395,7 @@ class FormModificationOperations {
         if (!this.isChoiceField(targetField.type)) {
             return {
                 success: false,
-                message: `Field "${targetField.label}" is not a choice-type field`,
+                message: `Cannot add options to field type ${targetField.type}`,
                 changes: [],
                 errors: [`Invalid field type for adding options: ${targetField.type}`]
             };
@@ -425,8 +430,6 @@ class FormModificationOperations {
         const lookupOptions = { formConfig };
         if (params.fieldId)
             lookupOptions.fieldId = params.fieldId;
-        if (params.fieldLabel)
-            lookupOptions.fieldLabel = params.fieldLabel;
         if (params.fieldNumber)
             lookupOptions.fieldNumber = params.fieldNumber;
         const field = this.findField(lookupOptions);
@@ -451,22 +454,30 @@ class FormModificationOperations {
         }
         const changes = [];
         const updatedField = { ...currentField };
+        if (params.fieldLabel) {
+            changes.push(`Updated label from "${currentField.label}" to "${params.fieldLabel}"`);
+            updatedField.label = params.fieldLabel;
+        }
         if (params.newValue) {
-            changes.push(`Label updated from "${currentField.label}" to "${params.newValue}"`);
+            changes.push(`Updated label from "${currentField.label}" to "${params.newValue}"`);
             updatedField.label = params.newValue;
         }
-        if (params.description) {
+        if (params.description !== undefined) {
             changes.push(`Description updated from "${currentField.description || ''}" to "${params.description}"`);
             updatedField.description = params.description;
         }
-        if (params.placeholder) {
+        if (params.placeholder !== undefined) {
             changes.push(`Placeholder updated from "${currentField.placeholder || ''}" to "${params.placeholder}"`);
             updatedField.placeholder = params.placeholder;
+        }
+        if (params.required !== undefined) {
+            changes.push(`Required updated from ${currentField.required} to ${params.required}`);
+            updatedField.required = params.required;
         }
         if (changes.length === 0) {
             return {
                 success: false,
-                message: 'No new properties provided to modify the field',
+                message: 'No modifications specified',
                 changes: [],
                 errors: ['No modification parameters specified']
             };
@@ -766,6 +777,20 @@ class FormModificationOperations {
         }
         if (!formConfig.questions || formConfig.questions.length === 0) {
             errors.push('Form must have at least one question.');
+        }
+        const fieldIds = formConfig.questions.map(q => q.id).filter(id => id);
+        const duplicateIds = fieldIds.filter((id, index) => fieldIds.indexOf(id) !== index);
+        if (duplicateIds.length > 0) {
+            const uniqueDuplicates = [...new Set(duplicateIds)];
+            errors.push(`Duplicate field IDs found: ${uniqueDuplicates.join(', ')}`);
+        }
+        const emptyLabelCount = formConfig.questions.filter(q => !q.label || q.label.trim() === '').length;
+        if (emptyLabelCount > 0) {
+            errors.push(`${emptyLabelCount} field(s) have empty labels`);
+        }
+        const choiceFieldsWithoutOptions = formConfig.questions.filter(q => this.isChoiceField(q.type) && (!q.options || q.options.length === 0)).length;
+        if (choiceFieldsWithoutOptions > 0) {
+            errors.push(`${choiceFieldsWithoutOptions} choice field(s) have no options`);
         }
         const logicErrors = DependencyValidator.validateAllLogic(formConfig);
         errors.push(...logicErrors);

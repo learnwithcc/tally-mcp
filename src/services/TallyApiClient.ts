@@ -17,7 +17,6 @@ import {
   TallySubmissionSchema,
   TallyWorkspaceSchema,
   validateTallyResponse,
-  safeParseTallyResponse,
   type TallySubmissionsResponse,
   type TallyFormsResponse,
   type TallyWorkspacesResponse,

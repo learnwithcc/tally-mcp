@@ -316,9 +316,33 @@ export const FormAccessLevelSchema = z.enum(['view', 'edit', 'manage', 'admin'])
 export type FormAccessLevel = z.infer<typeof FormAccessLevelSchema>;
 
 /**
- * Form permission entry for a specific user
+ * Form permission entry for a specific user (strict for requests)
  */
 export const FormPermissionSchema = z.object({
+  userId: z.string(),
+  formId: z.string(),
+  accessLevel: FormAccessLevelSchema,
+  inheritFromWorkspace: z.boolean(),
+  grantedAt: z.string().datetime(),
+  grantedBy: z.string(),
+});
+
+/**
+ * Form permission entry for API responses (lenient)
+ */
+export const FormPermissionResponseSchema = z.object({
+  userId: z.string(),
+  formId: z.string(),
+  accessLevel: FormAccessLevelSchema,
+  inheritFromWorkspace: z.boolean().optional().default(true),
+  grantedAt: z.string().datetime(),
+  grantedBy: z.string(),
+});
+
+/**
+ * Form permission input schema (with defaults for creation)
+ */
+export const FormPermissionInputSchema = z.object({
   userId: z.string(),
   formId: z.string(),
   accessLevel: FormAccessLevelSchema,
@@ -338,14 +362,36 @@ export const BulkFormPermissionSchema = z.object({
 });
 
 /**
- * Form permission settings
+ * Form permission settings (strict for requests)
  */
 export const FormPermissionSettingsSchema = z.object({
   formId: z.string(),
   workspaceId: z.string(),
+  defaultAccessLevel: FormAccessLevelSchema,
+  allowWorkspaceInheritance: z.boolean(),
+  permissions: z.array(FormPermissionSchema),
+});
+
+/**
+ * Form permission settings for API responses (lenient)
+ */
+export const FormPermissionSettingsResponseSchema = z.object({
+  formId: z.string(),
+  workspaceId: z.string(),
+  defaultAccessLevel: FormAccessLevelSchema.optional().default('view'),
+  allowWorkspaceInheritance: z.boolean().optional().default(true),
+  permissions: z.array(FormPermissionResponseSchema),
+});
+
+/**
+ * Form permission settings input schema (with defaults)
+ */
+export const FormPermissionSettingsInputSchema = z.object({
+  formId: z.string(),
+  workspaceId: z.string(),
   defaultAccessLevel: FormAccessLevelSchema.default('view'),
   allowWorkspaceInheritance: z.boolean().default(true),
-  permissions: z.array(FormPermissionSchema),
+  permissions: z.array(FormPermissionInputSchema),
 });
 
 /**
@@ -353,8 +399,8 @@ export const FormPermissionSettingsSchema = z.object({
  */
 export const FormPermissionsResponseSchema = z.object({
   formId: z.string(),
-  permissions: z.array(FormPermissionSchema),
-  settings: FormPermissionSettingsSchema,
+  permissions: z.array(FormPermissionResponseSchema),
+  settings: FormPermissionSettingsResponseSchema,
 });
 
 /**
@@ -417,8 +463,12 @@ export type TallyWorkspaceMember = z.infer<typeof TallyWorkspaceMemberSchema>;
 export type TallyWorkspace = z.infer<typeof TallyWorkspaceSchema>;
 export type TallyWorkspacesResponse = z.infer<typeof TallyWorkspacesResponseSchema>;
 export type FormPermission = z.infer<typeof FormPermissionSchema>;
+export type FormPermissionResponse = z.infer<typeof FormPermissionResponseSchema>;
+export type FormPermissionInput = z.infer<typeof FormPermissionInputSchema>;
 export type BulkFormPermission = z.infer<typeof BulkFormPermissionSchema>;
 export type FormPermissionSettings = z.infer<typeof FormPermissionSettingsSchema>;
+export type FormPermissionSettingsResponse = z.infer<typeof FormPermissionSettingsResponseSchema>;
+export type FormPermissionSettingsInput = z.infer<typeof FormPermissionSettingsInputSchema>;
 export type FormPermissionsResponse = z.infer<typeof FormPermissionsResponseSchema>;
 export type BulkPermissionResponse = z.infer<typeof BulkPermissionResponseSchema>;
 export type TallySuccessResponse = z.infer<typeof TallySuccessResponseSchema>;

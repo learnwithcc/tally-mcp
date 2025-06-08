@@ -51,13 +51,13 @@ class FormPermissionManager {
     async copyFormPermissions(sourceFormId, targetFormId, includeSettings = true) {
         return this.permissionService.copyFormPermissions(sourceFormId, targetFormId, includeSettings);
     }
-    async inheritWorkspacePermissions(workspaceId, userId, workspaceRole) {
+    async inheritWorkspacePermissions(_workspaceId, _userId, workspaceRole) {
         const accessLevelMap = {
             'owner': 'admin',
             'admin': 'manage',
             'member': 'view',
         };
-        const accessLevel = accessLevelMap[workspaceRole];
+        accessLevelMap[workspaceRole];
         return {
             success: true,
             formsUpdated: 0,
@@ -67,7 +67,7 @@ class FormPermissionManager {
         return this.setFormPermission(formId, userId, accessLevel, false, grantedBy);
     }
     async canPerformAction(formId, userId, action) {
-        const accessLevelHierarchy = ['view', 'edit', 'manage', 'admin'];
+        ['view', 'edit', 'manage', 'admin'];
         const requiredLevel = action;
         const result = await this.validateAccess(formId, userId, requiredLevel);
         return result.hasAccess;

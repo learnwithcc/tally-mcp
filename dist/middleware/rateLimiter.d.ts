@@ -49,8 +49,8 @@ declare class TallyApiRateLimiter {
     getTimeUntilNextToken(): number;
 }
 export declare const tallyApiLimiter: TallyApiRateLimiter;
-export declare const tallyApiRateLimit: (req: Request, res: Response, next: NextFunction) => void;
-export declare const createCompositeRateLimiter: (config?: typeof rateLimitConfigs.standard) => ((req: Request, res: Response, next: NextFunction) => void)[];
+export declare const tallyApiRateLimit: (_req: Request, res: Response, next: NextFunction) => void;
+export declare const createCompositeRateLimiter: (config?: typeof rateLimitConfigs.standard) => ((_req: Request, res: Response, next: NextFunction) => void)[];
 export declare const rateLimitErrorHandler: (err: any, req: Request, res: Response, next: NextFunction) => void;
 export declare const getRateLimitStatus: (req: Request) => object;
 export {};

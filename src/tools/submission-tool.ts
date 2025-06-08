@@ -1,5 +1,5 @@
 import { SubmissionService } from '../services';
-import { SubmissionFilters, TallySubmission, SubmissionStatusFilter, TallyQuestion } from '../models';
+import { SubmissionFilters, TallySubmission, SubmissionStatusFilter } from '../models';
 import { TallyApiClientConfig } from '../services/TallyApiClient';
 import Papa from 'papaparse';
 import fs from 'fs';

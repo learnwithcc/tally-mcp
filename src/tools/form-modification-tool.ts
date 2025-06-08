@@ -1,13 +1,10 @@
 import { Tool } from './tool';
 import { 
-  TallyApiService, 
-  FormModificationParser, 
-  ParsedModificationCommand,
-  FormModificationOperations
+  TallyApiService
 } from '../services';
 import { TallyApiClientConfig } from '../services/TallyApiClient';
 import { TallyForm, TallyFormsResponse } from '../models/tally-schemas';
-import { FormConfig, FormVersionManager } from '../models';
+import { FormConfig } from '../models';
 
 export interface FormModificationArgs {
   /**
@@ -61,14 +58,9 @@ export class FormModificationTool implements Tool<FormModificationArgs, FormModi
   public readonly description = 'Modifies existing Tally forms through natural language commands';
 
   private tallyApiService: TallyApiService;
-  private commandParser: FormModificationParser;
-  private formOperations: FormModificationOperations;
-  private versionManagers: Map<string, FormVersionManager> = new Map();
 
   constructor(apiClientConfig: TallyApiClientConfig) {
     this.tallyApiService = new TallyApiService(apiClientConfig);
-    this.commandParser = new FormModificationParser();
-    this.formOperations = new FormModificationOperations();
   }
 
   /**

@@ -1,5 +1,5 @@
 import { TallyApiClient, TallyApiClientConfig } from './TallyApiClient';
-import { TallyWorkspace, TallyWorkspacesResponse, TallyWorkspacesResponseSchema, TallyWorkspaceSchema, UserRole } from '../models';
+import { TallyWorkspace, TallyWorkspacesResponse, UserRole } from '../models';
 
 export class WorkspaceService {
   private apiClient: TallyApiClient;

@@ -1005,15 +1005,15 @@ export declare const TallyFormSchema: z.ZodObject<{
     createdAt: z.ZodString;
     updatedAt: z.ZodString;
     submissionsCount: z.ZodOptional<z.ZodNumber>;
-    status: z.ZodOptional<z.ZodEnum<["published", "draft", "archived"]>>;
     url: z.ZodOptional<z.ZodString>;
     embedUrl: z.ZodOptional<z.ZodString>;
+    status: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     title: string;
     id: string;
     createdAt: string;
     updatedAt: string;
-    status?: "published" | "draft" | "archived" | undefined;
+    status?: string | undefined;
     description?: string | undefined;
     url?: string | undefined;
     isPublished?: boolean | undefined;
@@ -1024,7 +1024,7 @@ export declare const TallyFormSchema: z.ZodObject<{
     id: string;
     createdAt: string;
     updatedAt: string;
-    status?: "published" | "draft" | "archived" | undefined;
+    status?: string | undefined;
     description?: string | undefined;
     url?: string | undefined;
     isPublished?: boolean | undefined;
@@ -1040,15 +1040,15 @@ export declare const TallyFormsResponseSchema: z.ZodObject<{
         createdAt: z.ZodString;
         updatedAt: z.ZodString;
         submissionsCount: z.ZodOptional<z.ZodNumber>;
-        status: z.ZodOptional<z.ZodEnum<["published", "draft", "archived"]>>;
         url: z.ZodOptional<z.ZodString>;
         embedUrl: z.ZodOptional<z.ZodString>;
+        status: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
         title: string;
         id: string;
         createdAt: string;
         updatedAt: string;
-        status?: "published" | "draft" | "archived" | undefined;
+        status?: string | undefined;
         description?: string | undefined;
         url?: string | undefined;
         isPublished?: boolean | undefined;
@@ -1059,7 +1059,7 @@ export declare const TallyFormsResponseSchema: z.ZodObject<{
         id: string;
         createdAt: string;
         updatedAt: string;
-        status?: "published" | "draft" | "archived" | undefined;
+        status?: string | undefined;
         description?: string | undefined;
         url?: string | undefined;
         isPublished?: boolean | undefined;
@@ -1075,7 +1075,7 @@ export declare const TallyFormsResponseSchema: z.ZodObject<{
         id: string;
         createdAt: string;
         updatedAt: string;
-        status?: "published" | "draft" | "archived" | undefined;
+        status?: string | undefined;
         description?: string | undefined;
         url?: string | undefined;
         isPublished?: boolean | undefined;
@@ -1091,7 +1091,7 @@ export declare const TallyFormsResponseSchema: z.ZodObject<{
         id: string;
         createdAt: string;
         updatedAt: string;
-        status?: "published" | "draft" | "archived" | undefined;
+        status?: string | undefined;
         description?: string | undefined;
         url?: string | undefined;
         isPublished?: boolean | undefined;
@@ -1290,6 +1290,50 @@ export declare const FormPermissionSchema: z.ZodObject<{
     userId: z.ZodString;
     formId: z.ZodString;
     accessLevel: z.ZodEnum<["view", "edit", "manage", "admin"]>;
+    inheritFromWorkspace: z.ZodBoolean;
+    grantedAt: z.ZodString;
+    grantedBy: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    formId: string;
+    userId: string;
+    accessLevel: "admin" | "view" | "edit" | "manage";
+    inheritFromWorkspace: boolean;
+    grantedAt: string;
+    grantedBy: string;
+}, {
+    formId: string;
+    userId: string;
+    accessLevel: "admin" | "view" | "edit" | "manage";
+    inheritFromWorkspace: boolean;
+    grantedAt: string;
+    grantedBy: string;
+}>;
+export declare const FormPermissionResponseSchema: z.ZodObject<{
+    userId: z.ZodString;
+    formId: z.ZodString;
+    accessLevel: z.ZodEnum<["view", "edit", "manage", "admin"]>;
+    inheritFromWorkspace: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
+    grantedAt: z.ZodString;
+    grantedBy: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    formId: string;
+    userId: string;
+    accessLevel: "admin" | "view" | "edit" | "manage";
+    inheritFromWorkspace: boolean;
+    grantedAt: string;
+    grantedBy: string;
+}, {
+    formId: string;
+    userId: string;
+    accessLevel: "admin" | "view" | "edit" | "manage";
+    grantedAt: string;
+    grantedBy: string;
+    inheritFromWorkspace?: boolean | undefined;
+}>;
+export declare const FormPermissionInputSchema: z.ZodObject<{
+    userId: z.ZodString;
+    formId: z.ZodString;
+    accessLevel: z.ZodEnum<["view", "edit", "manage", "admin"]>;
     inheritFromWorkspace: z.ZodDefault<z.ZodBoolean>;
     grantedAt: z.ZodString;
     grantedBy: z.ZodString;
@@ -1325,6 +1369,114 @@ export declare const BulkFormPermissionSchema: z.ZodObject<{
     inheritFromWorkspace?: boolean | undefined;
 }>;
 export declare const FormPermissionSettingsSchema: z.ZodObject<{
+    formId: z.ZodString;
+    workspaceId: z.ZodString;
+    defaultAccessLevel: z.ZodEnum<["view", "edit", "manage", "admin"]>;
+    allowWorkspaceInheritance: z.ZodBoolean;
+    permissions: z.ZodArray<z.ZodObject<{
+        userId: z.ZodString;
+        formId: z.ZodString;
+        accessLevel: z.ZodEnum<["view", "edit", "manage", "admin"]>;
+        inheritFromWorkspace: z.ZodBoolean;
+        grantedAt: z.ZodString;
+        grantedBy: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        formId: string;
+        userId: string;
+        accessLevel: "admin" | "view" | "edit" | "manage";
+        inheritFromWorkspace: boolean;
+        grantedAt: string;
+        grantedBy: string;
+    }, {
+        formId: string;
+        userId: string;
+        accessLevel: "admin" | "view" | "edit" | "manage";
+        inheritFromWorkspace: boolean;
+        grantedAt: string;
+        grantedBy: string;
+    }>, "many">;
+}, "strip", z.ZodTypeAny, {
+    formId: string;
+    workspaceId: string;
+    defaultAccessLevel: "admin" | "view" | "edit" | "manage";
+    allowWorkspaceInheritance: boolean;
+    permissions: {
+        formId: string;
+        userId: string;
+        accessLevel: "admin" | "view" | "edit" | "manage";
+        inheritFromWorkspace: boolean;
+        grantedAt: string;
+        grantedBy: string;
+    }[];
+}, {
+    formId: string;
+    workspaceId: string;
+    defaultAccessLevel: "admin" | "view" | "edit" | "manage";
+    allowWorkspaceInheritance: boolean;
+    permissions: {
+        formId: string;
+        userId: string;
+        accessLevel: "admin" | "view" | "edit" | "manage";
+        inheritFromWorkspace: boolean;
+        grantedAt: string;
+        grantedBy: string;
+    }[];
+}>;
+export declare const FormPermissionSettingsResponseSchema: z.ZodObject<{
+    formId: z.ZodString;
+    workspaceId: z.ZodString;
+    defaultAccessLevel: z.ZodDefault<z.ZodOptional<z.ZodEnum<["view", "edit", "manage", "admin"]>>>;
+    allowWorkspaceInheritance: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
+    permissions: z.ZodArray<z.ZodObject<{
+        userId: z.ZodString;
+        formId: z.ZodString;
+        accessLevel: z.ZodEnum<["view", "edit", "manage", "admin"]>;
+        inheritFromWorkspace: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
+        grantedAt: z.ZodString;
+        grantedBy: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        formId: string;
+        userId: string;
+        accessLevel: "admin" | "view" | "edit" | "manage";
+        inheritFromWorkspace: boolean;
+        grantedAt: string;
+        grantedBy: string;
+    }, {
+        formId: string;
+        userId: string;
+        accessLevel: "admin" | "view" | "edit" | "manage";
+        grantedAt: string;
+        grantedBy: string;
+        inheritFromWorkspace?: boolean | undefined;
+    }>, "many">;
+}, "strip", z.ZodTypeAny, {
+    formId: string;
+    workspaceId: string;
+    defaultAccessLevel: "admin" | "view" | "edit" | "manage";
+    allowWorkspaceInheritance: boolean;
+    permissions: {
+        formId: string;
+        userId: string;
+        accessLevel: "admin" | "view" | "edit" | "manage";
+        inheritFromWorkspace: boolean;
+        grantedAt: string;
+        grantedBy: string;
+    }[];
+}, {
+    formId: string;
+    workspaceId: string;
+    permissions: {
+        formId: string;
+        userId: string;
+        accessLevel: "admin" | "view" | "edit" | "manage";
+        grantedAt: string;
+        grantedBy: string;
+        inheritFromWorkspace?: boolean | undefined;
+    }[];
+    defaultAccessLevel?: "admin" | "view" | "edit" | "manage" | undefined;
+    allowWorkspaceInheritance?: boolean | undefined;
+}>;
+export declare const FormPermissionSettingsInputSchema: z.ZodObject<{
     formId: z.ZodString;
     workspaceId: z.ZodString;
     defaultAccessLevel: z.ZodDefault<z.ZodEnum<["view", "edit", "manage", "admin"]>>;
@@ -1384,7 +1536,7 @@ export declare const FormPermissionsResponseSchema: z.ZodObject<{
         userId: z.ZodString;
         formId: z.ZodString;
         accessLevel: z.ZodEnum<["view", "edit", "manage", "admin"]>;
-        inheritFromWorkspace: z.ZodDefault<z.ZodBoolean>;
+        inheritFromWorkspace: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
         grantedAt: z.ZodString;
         grantedBy: z.ZodString;
     }, "strip", z.ZodTypeAny, {
@@ -1405,13 +1557,13 @@ export declare const FormPermissionsResponseSchema: z.ZodObject<{
     settings: z.ZodObject<{
         formId: z.ZodString;
         workspaceId: z.ZodString;
-        defaultAccessLevel: z.ZodDefault<z.ZodEnum<["view", "edit", "manage", "admin"]>>;
-        allowWorkspaceInheritance: z.ZodDefault<z.ZodBoolean>;
+        defaultAccessLevel: z.ZodDefault<z.ZodOptional<z.ZodEnum<["view", "edit", "manage", "admin"]>>>;
+        allowWorkspaceInheritance: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
         permissions: z.ZodArray<z.ZodObject<{
             userId: z.ZodString;
             formId: z.ZodString;
             accessLevel: z.ZodEnum<["view", "edit", "manage", "admin"]>;
-            inheritFromWorkspace: z.ZodDefault<z.ZodBoolean>;
+            inheritFromWorkspace: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
             grantedAt: z.ZodString;
             grantedBy: z.ZodString;
         }, "strip", z.ZodTypeAny, {
@@ -1585,8 +1737,12 @@ export type TallyWorkspaceMember = z.infer<typeof TallyWorkspaceMemberSchema>;
 export type TallyWorkspace = z.infer<typeof TallyWorkspaceSchema>;
 export type TallyWorkspacesResponse = z.infer<typeof TallyWorkspacesResponseSchema>;
 export type FormPermission = z.infer<typeof FormPermissionSchema>;
+export type FormPermissionResponse = z.infer<typeof FormPermissionResponseSchema>;
+export type FormPermissionInput = z.infer<typeof FormPermissionInputSchema>;
 export type BulkFormPermission = z.infer<typeof BulkFormPermissionSchema>;
 export type FormPermissionSettings = z.infer<typeof FormPermissionSettingsSchema>;
+export type FormPermissionSettingsResponse = z.infer<typeof FormPermissionSettingsResponseSchema>;
+export type FormPermissionSettingsInput = z.infer<typeof FormPermissionSettingsInputSchema>;
 export type FormPermissionsResponse = z.infer<typeof FormPermissionsResponseSchema>;
 export type BulkPermissionResponse = z.infer<typeof BulkPermissionResponseSchema>;
 export type TallySuccessResponse = z.infer<typeof TallySuccessResponseSchema>;

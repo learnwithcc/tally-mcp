@@ -1,4 +1,4 @@
-import { TallyApiClient, TallyApiClientConfig } from './TallyApiClient';
+import { TallyApiClientConfig } from './TallyApiClient';
 import { 
   Team,
   TeamMember,
@@ -6,7 +6,6 @@ import {
   CreateTeamRequest,
   UpdateTeamRequest,
   BulkTeamOperation,
-  TeamMembershipUpdate,
   BulkMembershipUpdate,
   TeamPermission,
   TeamAccessSummary,
@@ -15,8 +14,6 @@ import {
   TeamListResponse,
   BulkOperationResponse,
   OrganizationStructure,
-  TeamHierarchyNode,
-  TeamSchema,
   TeamResponseSchema,
   TeamListResponseSchema,
   BulkOperationResponseSchema,
@@ -27,10 +24,8 @@ import {
 } from '../models';
 
 export class TeamService {
-  private apiClient: TallyApiClient;
-
-  constructor(config: TallyApiClientConfig = {}) {
-    this.apiClient = new TallyApiClient(config);
+  constructor(_config: TallyApiClientConfig = {}) {
+    // API client would be used for actual Tally API integration
   }
 
   /**
@@ -52,7 +47,7 @@ export class TeamService {
       description: validatedRequest.description,
       workspaceId: validatedRequest.workspaceId,
       parentTeamId: validatedRequest.parentTeamId,
-      members: validatedRequest.initialMembers.map((member, index) => ({
+      members: (validatedRequest.initialMembers || []).map((member, index) => ({
         id: `member_${teamId}_${index}`,
         userId: member.userId,
         email: `user_${member.userId}@example.com`, // Would be fetched from user service
@@ -173,7 +168,7 @@ export class TeamService {
    * List teams in a workspace
    */
   public async getTeams(
-    workspaceId: string,
+    _workspaceId: string,
     options: { page?: number; limit?: number; parentTeamId?: string } = {}
   ): Promise<TeamListResponse> {
     console.warn('Team listing is a custom implementation - not supported by Tally API directly');
@@ -335,7 +330,7 @@ export class TeamService {
   /**
    * Get effective permissions for a team member
    */
-  public async getTeamMemberPermissions(teamId: string, userId: string): Promise<TeamAccessSummary> {
+  public async getTeamMemberPermissions(teamId: string, _userId: string): Promise<TeamAccessSummary> {
     console.warn('Team permission retrieval is a custom implementation');
     
     const summary: TeamAccessSummary = {
@@ -381,7 +376,7 @@ export class TeamService {
   /**
    * Get teams a user belongs to
    */
-  public async getUserTeams(workspaceId: string, userId: string): Promise<TeamResponse[]> {
+  public async getUserTeams(_workspaceId: string, _userId: string): Promise<TeamResponse[]> {
     console.warn('User team retrieval is a custom implementation');
     
     // Mock implementation - would query database for user's teams
@@ -392,9 +387,9 @@ export class TeamService {
    * Check if a user can perform an action on a team
    */
   public async canUserPerformAction(
-    teamId: string,
-    userId: string,
-    action: 'view' | 'edit' | 'manage' | 'delete'
+    _teamId: string,
+    _userId: string,
+    _action: 'view' | 'edit' | 'manage' | 'delete'
   ): Promise<{ canPerform: boolean; reason?: string }> {
     console.warn('Team permission checking is a custom implementation');
     

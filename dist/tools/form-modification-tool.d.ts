@@ -1,5 +1,6 @@
 import { Tool } from './tool';
 import { TallyApiClientConfig } from '../services/TallyApiClient';
+import { TallyForm, TallyFormsResponse } from '../models/tally-schemas';
 import { FormConfig } from '../models';
 export interface FormModificationArgs {
     command: string;
@@ -20,13 +21,12 @@ export declare class FormModificationTool implements Tool<FormModificationArgs, 
     readonly name = "form_modification_tool";
     readonly description = "Modifies existing Tally forms through natural language commands";
     private tallyApiService;
-    private commandParser;
-    private formOperations;
-    private versionManagers;
     constructor(apiClientConfig: TallyApiClientConfig);
     execute(args: FormModificationArgs): Promise<FormModificationResult>;
-    getFormHistory(formId: string): import("../models").FormVersion[] | undefined;
-    rollbackForm(formId: string, version: number): Promise<FormConfig | undefined>;
-    private createErrorResult;
+    getForm(formId: string): Promise<TallyForm | null>;
+    getForms(options?: any): Promise<TallyFormsResponse | null>;
+    updateForm(formId: string, config: any): Promise<TallyForm | null>;
+    patchForm(formId: string, updates: any): Promise<TallyForm | null>;
+    validateConnection(): Promise<boolean>;
 }
 //# sourceMappingURL=form-modification-tool.d.ts.map

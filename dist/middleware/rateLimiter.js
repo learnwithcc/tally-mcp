@@ -109,7 +109,7 @@ class TallyApiRateLimiter {
     }
 }
 exports.tallyApiLimiter = new TallyApiRateLimiter(100, 1);
-const tallyApiRateLimit = (req, res, next) => {
+const tallyApiRateLimit = (_req, res, next) => {
     if (!exports.tallyApiLimiter.canMakeRequest()) {
         const waitTime = exports.tallyApiLimiter.getTimeUntilNextToken();
         res.status(429).json({

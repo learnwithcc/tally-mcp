@@ -11,7 +11,7 @@ class FormPermissionService {
         return this.apiClient.requestWithValidation('GET', `/forms/${formId}/permissions`, models_1.FormPermissionsResponseSchema);
     }
     async setFormPermission(formId, userId, accessLevel, inheritFromWorkspace = true, grantedBy) {
-        const permission = {
+        const permissionInput = {
             userId,
             formId,
             accessLevel,
@@ -19,10 +19,10 @@ class FormPermissionService {
             grantedBy,
             grantedAt: new Date().toISOString(),
         };
-        return this.apiClient.requestWithValidation('POST', `/forms/${formId}/permissions`, models_1.FormPermissionSchema, permission);
+        return this.apiClient.requestWithValidation('POST', `/forms/${formId}/permissions`, models_1.FormPermissionSchema, permissionInput);
     }
     async updateFormPermission(formId, userId, accessLevel, inheritFromWorkspace = true) {
-        const updates = {
+        const updateInput = {
             userId,
             formId,
             accessLevel,
@@ -30,7 +30,7 @@ class FormPermissionService {
             grantedAt: new Date().toISOString(),
             grantedBy: 'system',
         };
-        return this.apiClient.requestWithValidation('PATCH', `/forms/${formId}/permissions/${userId}`, models_1.FormPermissionSchema, updates);
+        return this.apiClient.requestWithValidation('PATCH', `/forms/${formId}/permissions/${userId}`, models_1.FormPermissionSchema, updateInput);
     }
     async removeFormPermission(formId, userId) {
         return this.apiClient.requestWithValidation('DELETE', `/forms/${formId}/permissions/${userId}`, models_1.TallySuccessResponseSchema);
@@ -39,10 +39,24 @@ class FormPermissionService {
         return this.apiClient.requestWithValidation('POST', '/forms/permissions/bulk', models_1.BulkPermissionResponseSchema, bulkPermission);
     }
     async getFormPermissionSettings(formId) {
-        return this.apiClient.requestWithValidation('GET', `/forms/${formId}/settings/permissions`, models_1.FormPermissionSettingsSchema);
+        return this.apiClient.requestWithValidation('GET', `/forms/${formId}/settings/permissions`, models_1.FormPermissionSettingsResponseSchema);
     }
     async updateFormPermissionSettings(formId, settings) {
-        return this.apiClient.requestWithValidation('PATCH', `/forms/${formId}/settings/permissions`, models_1.FormPermissionSettingsSchema, settings);
+        const settingsForApi = {
+            formId,
+            workspaceId: settings.workspaceId || '',
+            defaultAccessLevel: settings.defaultAccessLevel || 'view',
+            allowWorkspaceInheritance: settings.allowWorkspaceInheritance ?? true,
+            permissions: (settings.permissions || []).map(p => ({
+                userId: p.userId,
+                formId: p.formId,
+                accessLevel: p.accessLevel,
+                inheritFromWorkspace: p.inheritFromWorkspace ?? true,
+                grantedAt: p.grantedAt,
+                grantedBy: p.grantedBy
+            }))
+        };
+        return this.apiClient.requestWithValidation('PATCH', `/forms/${formId}/settings/permissions`, models_1.FormPermissionSettingsSchema, settingsForApi);
     }
     async getEffectivePermission(formId, userId, workspaceRole) {
         const queryParams = workspaceRole ? `?workspaceRole=${workspaceRole}` : '';
