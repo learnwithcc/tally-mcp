@@ -1,6 +1,27 @@
 name = "tally-mcp"
-main = "dist/index.js"
-compatibility_date = "2024-03-20"
+main = "dist/worker.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
 
 [build]
-command = "npm run build" 
+command = "npm run build:worker"
+
+# Environment variables for production
+[env.production.vars]
+NODE_ENV = "production"
+TALLY_BASE_URL = "https://api.tally.so"
+PORT = "8787"
+HOST = "0.0.0.0"
+DEBUG = "false"
+REQUEST_TIMEOUT = "30000"
+MAX_CONNECTIONS = "100"
+CORS_ENABLED = "true"
+ALLOWED_ORIGINS = "*"
+LOG_LEVEL = "info"
+LOG_COMPONENT = "MCPServer"
+LOG_ENABLE_CONSOLE = "true"
+LOG_ENABLE_STRUCTURED = "true"
+LOG_REDACT_SENSITIVE = "true"
+RATE_LIMIT_WINDOW_MS = "900000"
+RATE_LIMIT_MAX_REQUESTS = "100"
+SECURITY_HELMET_ENABLED = "true" 
