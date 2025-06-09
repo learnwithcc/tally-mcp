@@ -529,6 +529,164 @@ function cleanupStaleSessions() {
   }
 }
 
+async function handleSseRequest(request: Request): Promise<Response> {
+  const url = new URL(request.url);
+  console.log(`SSE connection requested at ${url.pathname} - checking token...`);
+  
+  let token: string | null = null;
+
+  // 1. Check for Authorization header (Bearer token)
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
+    console.log('SSE endpoint: found token in Authorization header.');
+  }
+
+  // 2. Fallback to query parameter if header not found
+  if (!token) {
+    token = url.searchParams.get('token');
+    if (token) {
+        console.log('SSE endpoint: found token in query parameter.');
+    }
+  }
+  
+  if (!token) {
+    console.log('SSE endpoint: missing token in both header and query.');
+    return new Response(JSON.stringify({
+      error: 'Authentication required',
+      message: 'Please provide an API token via the Authorization header (Bearer <token>) or a ?token=<token> query parameter.'
+    }), {
+      status: 401,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      }
+    });
+  }
+  
+  console.log('SSE endpoint: token provided, creating session...');
+  
+  // Generate unique session ID
+  const sessionId = crypto.randomUUID();
+  console.log(`SSE endpoint: generated session ID: ${sessionId}`);
+
+  // For Cloudflare Workers, we need to create a streaming response
+  const stream = new ReadableStream({
+    start(controller) {
+      console.log(`SSE stream started for session: ${sessionId}`);
+      
+      // Create session
+      const session: SSESession = {
+        id: sessionId,
+        controller,
+        lastActivity: Date.now(),
+        pendingRequests: new Map(),
+        apiKey: token
+      };
+      activeSessions.set(sessionId, session);
+      
+      console.log(`Session created and stored. Active sessions: ${activeSessions.size}`);
+      
+      // Send initial connection message with session ID  
+      const connectionMessage = `data: ${JSON.stringify({
+        jsonrpc: '2.0',
+        method: 'notifications/initialized',
+        params: {
+          protocolVersion: '2024-11-05',
+          capabilities: {
+            tools: { listChanged: true },
+            resources: { subscribe: false, listChanged: false },
+            prompts: { listChanged: false },
+            logging: {}
+          },
+          serverInfo: {
+            name: 'tally-mcp-server',
+            version: '1.0.0',
+            description: 'MCP server for Tally.so form management and automation'
+          },
+          sessionId: sessionId
+        }
+      })}\n\n`;
+
+      // Send tools list immediately after initialization
+      const toolsMessage = `data: ${JSON.stringify({
+        jsonrpc: '2.0',
+        method: 'notifications/tools/list_changed',
+        params: {
+          tools: TOOLS
+        }
+      })}\n\n`;
+      
+      try {
+        controller.enqueue(new TextEncoder().encode(connectionMessage));
+        console.log(`Sent initialization message for session: ${sessionId}`);
+        
+        // Send tools list notification
+        controller.enqueue(new TextEncoder().encode(toolsMessage));
+        console.log(`Sent tools list for session: ${sessionId}`);
+      } catch (error) {
+        console.error(`Error sending initial messages for session ${sessionId}:`, error);
+      }
+      
+      // Keep connection alive with periodic heartbeat
+      const heartbeatInterval = setInterval(() => {
+        try {
+          if (activeSessions.has(sessionId)) {
+            const heartbeat = `data: ${JSON.stringify({
+              jsonrpc: '2.0',
+              method: 'notifications/heartbeat',
+              params: { 
+                timestamp: Date.now(),
+                sessionId: sessionId
+              }
+            })}\n\n`;
+            controller.enqueue(new TextEncoder().encode(heartbeat));
+            session.lastActivity = Date.now();
+          } else {
+            clearInterval(heartbeatInterval);
+          }
+        } catch (error) {
+          console.error(`Heartbeat error for session ${sessionId}:`, error);
+          clearInterval(heartbeatInterval);
+          activeSessions.delete(sessionId);
+          try {
+            controller.close();
+          } catch (closeError) {
+            console.error(`Error closing controller for session ${sessionId}:`, closeError);
+          }
+        }
+      }, 30000); // 30 second heartbeat
+      
+      // Enhanced logging for connection lifecycle
+      console.log(`SSE connection established for session: ${sessionId}`);
+      
+      // Store heartbeat interval for cleanup
+      session.heartbeatInterval = heartbeatInterval;
+    },
+    
+    cancel() {
+      // Enhanced cleanup when connection is closed
+      console.log(`SSE connection cancelled for session: ${sessionId}`);
+      const session = activeSessions.get(sessionId);
+      if (session?.heartbeatInterval) {
+        clearInterval(session.heartbeatInterval);
+      }
+      activeSessions.delete(sessionId);
+    }
+  });
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Cache-Control, Connection, X-Session-ID, Authorization',
+      'X-Session-ID': sessionId,
+    }
+  });
+}
+
 /**
  * Cloudflare Workers fetch handler
  */
@@ -544,95 +702,36 @@ async function fetch(request: Request, env: Env, _ctx: any): Promise<Response> {
     // Enhanced logging for all incoming requests
     console.log(`[${new Date().toISOString()}] ${method} ${pathname} - User-Agent: ${request.headers.get('user-agent') || 'unknown'}`);
     
+    const acceptHeader = request.headers.get('Accept') || '';
+    
     // Root endpoint - handle both health check (GET) and MCP protocol (POST)
     if (url.pathname === '/') {
+      console.log(`[${new Date().toISOString()}] Root endpoint accessed - User-Agent: ${request.headers.get('user-agent') || 'unknown'}`);
       if (request.method === 'GET') {
+        // If client explicitly asks for SSE, initiate an SSE connection
+        if (acceptHeader.includes('text/event-stream')) {
+          console.log(`[${new Date().toISOString()}] SSE connection requested at root`);
+          return handleSseRequest(request);
+        }
+
+        // Otherwise, return the standard health check
         return new Response(JSON.stringify({
           status: 'ok',
-          message: 'Tally MCP Server is running on Cloudflare Workers',
           version: '1.0.0',
-          environment: 'cloudflare-workers',
-          endpoints: {
-            health: '/',
-            mcpSSE: '/mcp/sse?token=your_tally_token (SSE)',
-            mcp: '/mcp (POST)',
-            mcpMessage: '/mcp/message (POST)',
-            sessions: '/sessions',
-            env: '/env'
-          },
-          features: [
-            'Full MCP Protocol Support',
-            'Bidirectional SSE Communication',
-            'Session Management',
-            'Tally.so API Integration',
-            'Form Management Tools',
-            'Submission Analysis',
-            'Team Management',
-            'CORS Support'
-          ],
-          tools: TOOLS.map(tool => ({
-            name: tool.name,
-            description: tool.description
-          }))
+          description: 'Tally MCP Server is running.',
+          availableEndpoints: [
+            { path: '/', methods: ['GET', 'POST'], description: 'Root for health check (GET) and MCP requests (POST).' },
+            { path: '/mcp/sse', methods: ['GET'], description: 'Server-Sent Events endpoint for MCP.', note: 'Requires token in Authorization header or query param.' },
+            { path: '/authorize', methods: ['GET'], description: 'OAuth 2.0 Authorization Endpoint Stub.' },
+            { path: '/.well-known/oauth-authorization-server', methods: ['GET'], description: 'OAuth 2.0 Discovery Endpoint.' }
+          ]
         }), {
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-          }
+          status: 200,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
         });
       } else if (request.method === 'POST') {
-        // Handle MCP protocol requests at root URL (for streamableHttp transport)
-        const body = await request.text();
-        
-        let mcpRequest: MCPRequest;
-        try {
-          mcpRequest = JSON.parse(body);
-        } catch (error) {
-          return new Response(JSON.stringify({
-            jsonrpc: '2.0',
-            error: {
-              code: -32700,
-              message: 'Parse error',
-              data: 'Invalid JSON'
-            }
-          }), {
-            status: 400,
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*'
-            }
-          });
-        }
-
-        // Validate MCP request structure
-        if (!mcpRequest.jsonrpc || mcpRequest.jsonrpc !== '2.0' || !mcpRequest.method) {
-          return new Response(JSON.stringify({
-            jsonrpc: '2.0',
-            id: mcpRequest.id,
-            error: {
-              code: -32600,
-              message: 'Invalid Request',
-              data: 'Missing required fields: jsonrpc, method'
-            }
-          }), {
-            status: 400,
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*'
-            }
-          });
-        }
-
-        const response = await handleMCPMessage(mcpRequest);
-        
-        return new Response(JSON.stringify(response), {
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-          }
-        });
+        console.log(`[${new Date().toISOString()}] Handling POST request at root`);
+        return handleMcpRequest(request, env);
       }
     }
 
@@ -644,6 +743,25 @@ async function fetch(request: Request, env: Env, _ctx: any): Promise<Response> {
           'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization'
         }
+      });
+    }
+
+    // MCP protocol endpoint (HTTP POST at root)
+    if (url.pathname === '/' && request.method === 'POST') {
+      console.log(`[${new Date().toISOString()}] Root POST request received - User-Agent: ${request.headers.get('user-agent') || 'unknown'}`);
+      const body = await request.text();
+      let mcpRequest: MCPRequest;
+      try {
+        mcpRequest = JSON.parse(body);
+      } catch (error) {
+        return new Response(JSON.stringify({
+          jsonrpc: '2.0',
+          error: { code: -32700, message: 'Parse error', data: 'Invalid JSON' }
+        }), { status: 400, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }});
+      }
+      const response = await handleMCPMessage(mcpRequest);
+      return new Response(JSON.stringify(response), {
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
       });
     }
 
@@ -701,155 +819,23 @@ async function fetch(request: Request, env: Env, _ctx: any): Promise<Response> {
     }
 
     // MCP protocol endpoint (SSE for Cursor compatibility)
-    if (url.pathname === '/mcp/sse' && request.method === 'GET') {
-      console.log('SSE endpoint accessed - checking token...');
-      
-      // Extract API token from query parameters
-      const token = url.searchParams.get('token');
-      
-      if (!token) {
-        console.log('SSE endpoint: missing token');
-        return new Response(JSON.stringify({
-          error: 'Authentication required',
-          message: 'Please provide a Tally API token via ?token=your_token parameter'
-        }), {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-          }
+    if (url.pathname === '/mcp/sse') {
+      if (request.method === 'GET') {
+        return handleSseRequest(request);
+      } else if (request.method === 'POST') {
+        console.log(`[${new Date().toISOString()}] Denying POST to /mcp/sse - User-Agent: ${request.headers.get('user-agent') || 'unknown'}`);
+        return new Response(JSON.stringify({ 
+          error: 'Method Not Allowed', 
+          message: 'This endpoint is for SSE (GET) connections. Use the root path (/) or /mcp for POST requests.' 
+        }), { 
+          status: 405, 
+          headers: { 
+            'Content-Type': 'application/json', 
+            'Access-Control-Allow-Origin': '*',
+            'Allow': 'GET' 
+          } 
         });
       }
-      
-      console.log('SSE endpoint: token provided, creating session...');
-      
-      // Generate unique session ID
-      const sessionId = crypto.randomUUID();
-      
-      console.log(`SSE endpoint: generated session ID: ${sessionId}`);
-      
-      // For Cloudflare Workers, we need to create a streaming response
-      const stream = new ReadableStream({
-        start(controller) {
-          console.log(`SSE stream started for session: ${sessionId}`);
-          
-          // Create session
-          const session: SSESession = {
-            id: sessionId,
-            controller,
-            lastActivity: Date.now(),
-            pendingRequests: new Map(),
-            apiKey: token
-          };
-          activeSessions.set(sessionId, session);
-          
-          console.log(`Session created and stored. Active sessions: ${activeSessions.size}`);
-          
-          // Send initial connection message with session ID  
-          const connectionMessage = `data: ${JSON.stringify({
-            jsonrpc: '2.0',
-            method: 'notifications/initialized',
-            params: {
-              protocolVersion: '2024-11-05',
-              capabilities: {
-                tools: {
-                  listChanged: true
-                },
-                resources: {
-                  subscribe: false,
-                  listChanged: false
-                },
-                prompts: {
-                  listChanged: false
-                },
-                logging: {}
-              },
-              serverInfo: {
-                name: 'tally-mcp-server',
-                version: '1.0.0',
-                description: 'MCP server for Tally.so form management and automation'
-              },
-              sessionId: sessionId
-            }
-          })}\n\n`;
-
-          // Send tools list immediately after initialization
-          const toolsMessage = `data: ${JSON.stringify({
-            jsonrpc: '2.0',
-            method: 'notifications/tools/list_changed',
-            params: {
-              tools: TOOLS
-            }
-          })}\n\n`;
-          
-          try {
-            controller.enqueue(new TextEncoder().encode(connectionMessage));
-            console.log(`Sent initialization message for session: ${sessionId}`);
-            
-            // Send tools list notification
-            controller.enqueue(new TextEncoder().encode(toolsMessage));
-            console.log(`Sent tools list for session: ${sessionId}`);
-          } catch (error) {
-            console.error(`Error sending initial messages for session ${sessionId}:`, error);
-          }
-          
-          // Keep connection alive with periodic heartbeat
-          const heartbeatInterval = setInterval(() => {
-            try {
-              if (activeSessions.has(sessionId)) {
-                const heartbeat = `data: ${JSON.stringify({
-                  jsonrpc: '2.0',
-                  method: 'notifications/heartbeat',
-                  params: { 
-                    timestamp: Date.now(),
-                    sessionId: sessionId
-                  }
-                })}\n\n`;
-                controller.enqueue(new TextEncoder().encode(heartbeat));
-                session.lastActivity = Date.now();
-              } else {
-                clearInterval(heartbeatInterval);
-              }
-            } catch (error) {
-              console.error(`Heartbeat error for session ${sessionId}:`, error);
-              clearInterval(heartbeatInterval);
-              activeSessions.delete(sessionId);
-              try {
-                controller.close();
-              } catch (closeError) {
-                console.error(`Error closing controller for session ${sessionId}:`, closeError);
-              }
-            }
-          }, 30000); // 30 second heartbeat
-          
-          // Enhanced logging for connection lifecycle
-          console.log(`SSE connection established for session: ${sessionId}`);
-          
-          // Store heartbeat interval for cleanup
-          session.heartbeatInterval = heartbeatInterval;
-        },
-        
-        cancel() {
-          // Enhanced cleanup when connection is closed
-          console.log(`SSE connection cancelled for session: ${sessionId}`);
-          const session = activeSessions.get(sessionId);
-          if (session?.heartbeatInterval) {
-            clearInterval(session.heartbeatInterval);
-          }
-          activeSessions.delete(sessionId);
-        }
-      });
-
-      return new Response(stream, {
-        headers: {
-          'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'Cache-Control, Connection, X-Session-ID',
-          'X-Session-ID': sessionId,
-        }
-      });
     }
 
     // MCP protocol message endpoint for SSE sessions
@@ -938,7 +924,7 @@ async function fetch(request: Request, env: Env, _ctx: any): Promise<Response> {
         mcpProtocol: '2024-11-05',
         toolsAvailable: TOOLS.length,
         activeSessions: activeSessions.size,
-        endpoints: ['/mcp/sse?token=your_token', '/mcp', '/env', '/sessions'],
+        endpoints: ['/mcp/sse', '/mcp', '/env', '/sessions'],
         features: ['Bidirectional SSE Communication', 'Session Management', 'Token-based Authentication']
       }), {
         headers: {
@@ -967,11 +953,56 @@ async function fetch(request: Request, env: Env, _ctx: any): Promise<Response> {
       });
     }
 
+    // OAuth 2.0 Discovery endpoint (restore this!)
+    if (url.pathname === '/.well-known/oauth-authorization-server' && request.method === 'GET') {
+      return new Response(JSON.stringify({
+        issuer: 'https://tally-mcp.focuslab.workers.dev',
+        authorization_endpoint: 'https://tally-mcp.focuslab.workers.dev/authorize',
+        token_endpoint: 'https://tally-mcp.focuslab.workers.dev/oauth/token',
+        registration_endpoint: 'https://tally-mcp.focuslab.workers.dev/register',
+        response_types_supported: ['code', 'token'],
+        grant_types_supported: ['authorization_code', 'client_credentials'],
+        scopes_supported: ['openid', 'profile', 'email'],
+        token_endpoint_auth_methods_supported: ['none'],
+        jwks_uri: 'https://tally-mcp.focuslab.workers.dev/.well-known/jwks.json'
+      }), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
+    }
+
+    // /authorize endpoint (stub for compatibility)
+    if (url.pathname === '/authorize' && request.method === 'GET') {
+      const redirectUri = url.searchParams.get('redirect_uri');
+      const state = url.searchParams.get('state');
+
+      if (!redirectUri) {
+        return new Response(
+          '<html><body><h1>Bad Request</h1><p>Missing redirect_uri parameter.</p></body></html>',
+          { status: 400, headers: { 'Content-Type': 'text/html' } }
+        );
+      }
+
+      const destination = new URL(redirectUri);
+      destination.searchParams.set('error', 'access_denied');
+      destination.searchParams.set('error_description', 'OAuth is not supported by this server. Please use direct token authentication.');
+      if (state) {
+        destination.searchParams.set('state', state);
+      }
+
+      // Perform a 302 redirect
+      return Response.redirect(destination.toString(), 302);
+    }
+
     // Default 404 response
+    console.log(`[${new Date().toISOString()}] 404 Not Found: ${method} ${pathname} - User-Agent: ${request.headers.get('user-agent') || 'unknown'}`);
     return new Response(JSON.stringify({
       error: 'Not Found',
       message: 'The requested endpoint was not found',
-      availableEndpoints: ['/', '/mcp', '/mcp/sse?token=your_token', '/mcp/message', '/env', '/sessions']
+      availableEndpoints: ['/', '/mcp', '/mcp/sse', '/mcp/message', '/env', '/sessions'],
+      note: 'For /mcp/sse, you must provide a ?token=YOUR_TALLY_API_TOKEN query parameter.'
     }), {
       status: 404,
       headers: {
@@ -994,6 +1025,60 @@ async function fetch(request: Request, env: Env, _ctx: any): Promise<Response> {
       }
     });
   }
+}
+
+async function handleMcpRequest(request: Request, env: Env): Promise<Response> {
+  const authHeader = request.headers.get('Authorization');
+  let apiKey: string | undefined;
+
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    apiKey = authHeader.substring(7);
+  }
+
+  if (!apiKey) {
+    return new Response(JSON.stringify({
+      jsonrpc: '2.0',
+      id: null,
+      error: {
+        code: -32000,
+        message: 'Authorization header missing or invalid',
+        data: 'Please provide a Bearer token in the Authorization header.'
+      }
+    }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+    });
+  }
+
+  const body = await request.json();
+  const mcpRequest = body as MCPRequest;
+  
+  // Reuse the existing, robust message handler
+  const mcpResponse = await handleMCPMessage(mcpRequest, apiKey);
+  
+  let status = 200;
+  if ('error' in mcpResponse && mcpResponse.error) {
+    // Map JSON-RPC error codes to HTTP status codes for transport-level correctness
+    switch (mcpResponse.error.code) {
+      case -32700: // Parse error
+      case -32600: // Invalid Request
+      case -32602: // Invalid Params
+        status = 400;
+        break;
+      case -32601: // Method not found
+        status = 404;
+        break;
+      default: // Server error (-32000 to -32099)
+        status = 500;
+        break;
+    }
+  }
+  
+  // Return the response from the message handler with the correct HTTP status
+  return new Response(JSON.stringify(mcpResponse), {
+    status: status,
+    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+  });
 }
 
 // Export the Workers-compatible handler

@@ -135,7 +135,7 @@ curl https://tally-mcp.focuslab.workers.dev/env
    - Restart Cursor
 
 4. **Check Cursor Logs:**
-   ```bash
+    ```bash
    # macOS
    tail -f ~/Library/Logs/Cursor/main.log
    
@@ -150,7 +150,7 @@ curl https://tally-mcp.focuslab.workers.dev/env
 **Status:** ✅ **FIXED** - The timeout issue has been resolved in the latest deployment.
 
 **Verification:**
-```bash
+    ```bash
 # This should now work without premature cancellation
 curl -H "Accept: text/event-stream" "https://tally-mcp.focuslab.workers.dev/mcp/sse?token=test" --max-time 30
 ```
@@ -165,7 +165,7 @@ curl -H "Accept: text/event-stream" "https://tally-mcp.focuslab.workers.dev/mcp/
    - Format: Usually starts with `tally_` or similar prefix
 
 2. **Test Token Directly:**
-   ```bash
+    ```bash
    curl -H "Authorization: Bearer your_token" https://api.tally.so/forms
    ```
 
