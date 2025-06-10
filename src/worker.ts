@@ -1027,7 +1027,7 @@ async function fetch(request: Request, env: Env, _ctx: any): Promise<Response> {
   }
 }
 
-async function handleMcpRequest(request: Request, env: Env): Promise<Response> {
+async function handleMcpRequest(request: Request, _env: Env): Promise<Response> {
   const authHeader = request.headers.get('Authorization');
   let apiKey: string | undefined;
 

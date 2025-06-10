@@ -173,6 +173,8 @@ export declare class MCPServer extends Server {
     private removeSignalHandlers;
     private closeAllConnections;
     private initializeTools;
+    private _handleToolsList;
+    private _handleToolsCall;
     private setupMCPHandlers;
 }
 //# sourceMappingURL=server.d.ts.map

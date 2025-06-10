@@ -353,7 +353,7 @@ class MCPServer extends index_js_1.Server {
         }, 30000);
         res.on('close', () => clearInterval(heartbeat));
     }
-    handleMCPMessage(message, res) {
+    async handleMCPMessage(message, res) {
         this.log('debug', 'Received MCP message:', { message, messageType: typeof message });
         try {
             if (message === null ||
@@ -362,34 +362,121 @@ class MCPServer extends index_js_1.Server {
                 Array.isArray(message) ||
                 Object.keys(message).length === 0) {
                 res.status(400).json({
-                    status: 'error',
-                    message: 'Invalid MCP message',
-                    error: 'Message must be a valid non-empty object'
+                    jsonrpc: '2.0',
+                    id: message?.id || null,
+                    error: {
+                        code: -32600,
+                        message: 'Invalid Request',
+                        data: 'Message must be a valid non-empty object'
+                    }
                 });
                 return;
             }
-            const response = {
-                id: message.id || Date.now(),
-                type: 'response',
-                response: {
-                    status: 'received',
-                    originalMessage: message,
-                    serverTime: new Date().toISOString(),
-                },
-            };
-            this.broadcastToConnections('message', response);
-            res.json({
-                status: 'success',
-                message: 'MCP message processed',
-                messageId: response.id,
-            });
+            if (message.jsonrpc !== '2.0' || !message.method || typeof message.method !== 'string') {
+                res.status(400).json({
+                    jsonrpc: '2.0',
+                    id: message?.id || null,
+                    error: {
+                        code: -32600,
+                        message: 'Invalid Request',
+                        data: 'Request must be valid JSON-RPC 2.0 with method field'
+                    }
+                });
+                return;
+            }
+            let mcpResponse;
+            try {
+                switch (message.method) {
+                    case 'initialize':
+                        mcpResponse = {
+                            jsonrpc: '2.0',
+                            id: message.id,
+                            result: {
+                                protocolVersion: '2024-11-05',
+                                capabilities: {
+                                    tools: {},
+                                    resources: {},
+                                    prompts: {}
+                                },
+                                serverInfo: {
+                                    name: 'tally-mcp-server',
+                                    version: '1.0.0',
+                                    description: 'MCP server for Tally.so form management and automation'
+                                }
+                            }
+                        };
+                        break;
+                    case 'tools/list':
+                        const toolsResult = await this._handleToolsList();
+                        mcpResponse = {
+                            jsonrpc: '2.0',
+                            id: message.id,
+                            result: toolsResult
+                        };
+                        break;
+                    case 'tools/call':
+                        const callResult = await this._handleToolsCall(message);
+                        mcpResponse = {
+                            jsonrpc: '2.0',
+                            id: message.id,
+                            result: callResult
+                        };
+                        break;
+                    case 'resources/list':
+                        mcpResponse = {
+                            jsonrpc: '2.0',
+                            id: message.id,
+                            result: {
+                                resources: []
+                            }
+                        };
+                        break;
+                    case 'prompts/list':
+                        mcpResponse = {
+                            jsonrpc: '2.0',
+                            id: message.id,
+                            result: {
+                                prompts: []
+                            }
+                        };
+                        break;
+                    default:
+                        mcpResponse = {
+                            jsonrpc: '2.0',
+                            id: message.id,
+                            error: {
+                                code: -32601,
+                                message: 'Method not found',
+                                data: `Unknown method: ${message.method}`
+                            }
+                        };
+                }
+            }
+            catch (error) {
+                this.log('error', 'Error processing MCP request:', undefined, error);
+                mcpResponse = {
+                    jsonrpc: '2.0',
+                    id: message.id,
+                    error: {
+                        code: -32603,
+                        message: 'Internal error',
+                        data: error instanceof Error ? error.message : 'Unknown error'
+                    }
+                };
+            }
+            this.broadcastToConnections('message', mcpResponse);
+            res.json(mcpResponse);
         }
         catch (error) {
             this.log('error', 'Error processing MCP message:', undefined, error);
-            res.status(400).json({
-                status: 'error',
-                message: 'Invalid MCP message',
-                error: error instanceof Error ? error.message : 'Unknown error',
+            res.status(500).json({
+                jsonrpc: '2.0',
+                id: message?.id || null,
+                error: {
+                    code: -32603,
+                    message: 'Internal error',
+                    data: error instanceof Error ? error.message : 'Unknown error'
+                }
             });
         }
     }
@@ -616,8 +703,8 @@ class MCPServer extends index_js_1.Server {
         this.app.get('/sse', (req, res) => {
             this.handleSSEConnection(req, res);
         });
-        this.app.post('/message', (req, res) => {
-            this.handleMCPMessage(req.body, res);
+        this.app.post('/message', async (req, res) => {
+            await this.handleMCPMessage(req.body, res);
         });
         this.log('debug', 'Server routes setup completed');
     }
@@ -764,6 +851,276 @@ class MCPServer extends index_js_1.Server {
             workspaceManagement: new tools_1.WorkspaceManagementTool(apiConfig),
             template: new tools_1.TemplateTool(),
         };
+    }
+    async _handleToolsList() {
+        return {
+            tools: [
+                {
+                    name: 'create_form',
+                    description: 'Create a new Tally form with specified fields and configuration',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            title: { type: 'string', description: 'Form title' },
+                            description: { type: 'string', description: 'Form description' },
+                            fields: {
+                                type: 'array',
+                                items: {
+                                    type: 'object',
+                                    properties: {
+                                        type: { type: 'string', enum: ['text', 'email', 'number', 'textarea', 'select', 'checkbox', 'radio'] },
+                                        label: { type: 'string' },
+                                        required: { type: 'boolean' },
+                                        options: { type: 'array', items: { type: 'string' } }
+                                    },
+                                    required: ['type', 'label']
+                                }
+                            },
+                            settings: {
+                                type: 'object',
+                                properties: {
+                                    isPublic: { type: 'boolean' },
+                                    allowMultipleSubmissions: { type: 'boolean' },
+                                    showProgressBar: { type: 'boolean' }
+                                }
+                            }
+                        },
+                        required: ['title', 'fields']
+                    }
+                },
+                {
+                    name: 'modify_form',
+                    description: 'Modify an existing Tally form',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            formId: { type: 'string', description: 'ID of the form to modify' },
+                            title: { type: 'string', description: 'New form title' },
+                            description: { type: 'string', description: 'New form description' },
+                            fields: {
+                                type: 'array',
+                                items: {
+                                    type: 'object',
+                                    properties: {
+                                        type: { type: 'string', enum: ['text', 'email', 'number', 'textarea', 'select', 'checkbox', 'radio'] },
+                                        label: { type: 'string' },
+                                        required: { type: 'boolean' },
+                                        options: { type: 'array', items: { type: 'string' } }
+                                    },
+                                    required: ['type', 'label']
+                                }
+                            }
+                        },
+                        required: ['formId']
+                    }
+                },
+                {
+                    name: 'get_form',
+                    description: 'Retrieve information about a specific Tally form',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            formId: { type: 'string', description: 'ID of the form to retrieve' }
+                        },
+                        required: ['formId']
+                    }
+                },
+                {
+                    name: 'list_forms',
+                    description: 'List all forms in the authenticated user\'s Tally account',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            limit: { type: 'number', description: 'Maximum number of forms to return', minimum: 1, maximum: 100 },
+                            offset: { type: 'number', description: 'Number of forms to skip for pagination', minimum: 0 }
+                        }
+                    }
+                },
+                {
+                    name: 'delete_form',
+                    description: 'Delete a Tally form permanently',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            formId: { type: 'string', description: 'ID of the form to delete' }
+                        },
+                        required: ['formId']
+                    }
+                },
+                {
+                    name: 'get_submissions',
+                    description: 'Retrieve submissions for a specific Tally form',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            formId: { type: 'string', description: 'ID of the form to get submissions for' },
+                            limit: { type: 'number', description: 'Maximum number of submissions to return', minimum: 1, maximum: 100 },
+                            offset: { type: 'number', description: 'Number of submissions to skip for pagination', minimum: 0 },
+                            since: { type: 'string', description: 'Only return submissions created after this ISO 8601 timestamp' }
+                        },
+                        required: ['formId']
+                    }
+                },
+                {
+                    name: 'analyze_submissions',
+                    description: 'Analyze submission data for a Tally form to provide insights and statistics',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            formId: { type: 'string', description: 'ID of the form to analyze submissions for' },
+                            analysisType: {
+                                type: 'string',
+                                enum: ['basic_stats', 'response_patterns', 'completion_rates', 'field_analysis'],
+                                description: 'Type of analysis to perform'
+                            },
+                            dateRange: {
+                                type: 'object',
+                                properties: {
+                                    start: { type: 'string', description: 'Start date for analysis (ISO 8601)' },
+                                    end: { type: 'string', description: 'End date for analysis (ISO 8601)' }
+                                }
+                            }
+                        },
+                        required: ['formId', 'analysisType']
+                    }
+                },
+                {
+                    name: 'export_submissions',
+                    description: 'Export form submissions in various formats',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            formId: { type: 'string', description: 'ID of the form to export submissions for' },
+                            format: {
+                                type: 'string',
+                                enum: ['csv', 'json', 'xlsx'],
+                                description: 'Export format',
+                                default: 'csv'
+                            },
+                            dateRange: {
+                                type: 'object',
+                                properties: {
+                                    start: { type: 'string', description: 'Start date for export (ISO 8601)' },
+                                    end: { type: 'string', description: 'End date for export (ISO 8601)' }
+                                }
+                            },
+                            includeFields: {
+                                type: 'array',
+                                items: { type: 'string' },
+                                description: 'Specific field IDs to include in export (all fields if not specified)'
+                            }
+                        },
+                        required: ['formId']
+                    }
+                },
+                {
+                    name: 'manage_workspace',
+                    description: 'Manage workspace settings and information',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            action: {
+                                type: 'string',
+                                enum: ['get_info', 'update_settings', 'list_members'],
+                                description: 'Action to perform on the workspace'
+                            },
+                            settings: {
+                                type: 'object',
+                                properties: {
+                                    name: { type: 'string', description: 'Workspace name' },
+                                    description: { type: 'string', description: 'Workspace description' }
+                                }
+                            }
+                        },
+                        required: ['action']
+                    }
+                },
+                {
+                    name: 'generate_template',
+                    description: 'Generate a form template based on requirements or use case',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            templateType: {
+                                type: 'string',
+                                enum: ['contact', 'survey', 'registration', 'feedback', 'order', 'application', 'custom'],
+                                description: 'Type of template to generate'
+                            },
+                            requirements: {
+                                type: 'string',
+                                description: 'Specific requirements or use case description for custom templates'
+                            },
+                            fields: {
+                                type: 'array',
+                                items: { type: 'string' },
+                                description: 'Specific fields to include in the template'
+                            }
+                        },
+                        required: ['templateType']
+                    }
+                }
+            ]
+        };
+    }
+    async _handleToolsCall(message) {
+        const { name, arguments: args } = message.params;
+        try {
+            if (!this.tools) {
+                throw new Error('Tools not initialized');
+            }
+            switch (name) {
+                case 'list_forms':
+                    const forms = await this.tools.workspaceManagement.listWorkspaces();
+                    return {
+                        content: [
+                            {
+                                type: 'text',
+                                text: JSON.stringify(forms, null, 2)
+                            }
+                        ]
+                    };
+                case 'manage_workspace':
+                    if (args && args.action === 'get_info') {
+                        const workspaceInfo = await this.tools.workspaceManagement.listWorkspaces();
+                        return {
+                            content: [
+                                {
+                                    type: 'text',
+                                    text: JSON.stringify(workspaceInfo, null, 2)
+                                }
+                            ]
+                        };
+                    }
+                    return {
+                        content: [
+                            {
+                                type: 'text',
+                                text: 'Workspace management functionality is being implemented'
+                            }
+                        ]
+                    };
+                default:
+                    return {
+                        content: [
+                            {
+                                type: 'text',
+                                text: `Tool ${name} is not yet implemented`
+                            }
+                        ]
+                    };
+            }
+        }
+        catch (error) {
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: `Error executing tool ${name}: ${error instanceof Error ? error.message : String(error)}`
+                    }
+                ],
+                isError: true
+            };
+        }
     }
     setupMCPHandlers() {
         this.setRequestHandler(types_js_1.ListToolsRequestSchema, async () => {
