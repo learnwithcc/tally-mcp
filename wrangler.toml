@@ -2,6 +2,7 @@ name = "tally-mcp"
 main = "dist/worker.js"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
+account_id = "f1f5e285b7f9bcfc4efb9eb8904cc7e8"
 
 [build]
 command = "npm run build:worker"
