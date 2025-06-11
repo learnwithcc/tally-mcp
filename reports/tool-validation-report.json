@@ -1,0 +1,184 @@
+{
+  "timestamp": "2025-06-11T02:41:51.385Z",
+  "validatorVersion": "1.0.0",
+  "mcpVersion": "2024-11-05",
+  "toolCount": 10,
+  "overall": {
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "info": [],
+    "summary": {
+      "errorCount": 0,
+      "warningCount": 0,
+      "infoCount": 0
+    }
+  },
+  "toolResults": [
+    {
+      "toolName": "create_form",
+      "toolIndex": 0,
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "info": [],
+        "summary": {
+          "errorCount": 0,
+          "warningCount": 0,
+          "infoCount": 0
+        }
+      }
+    },
+    {
+      "toolName": "modify_form",
+      "toolIndex": 1,
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "info": [],
+        "summary": {
+          "errorCount": 0,
+          "warningCount": 0,
+          "infoCount": 0
+        }
+      }
+    },
+    {
+      "toolName": "get_form",
+      "toolIndex": 2,
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "info": [],
+        "summary": {
+          "errorCount": 0,
+          "warningCount": 0,
+          "infoCount": 0
+        }
+      }
+    },
+    {
+      "toolName": "list_forms",
+      "toolIndex": 3,
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "info": [],
+        "summary": {
+          "errorCount": 0,
+          "warningCount": 0,
+          "infoCount": 0
+        }
+      }
+    },
+    {
+      "toolName": "delete_form",
+      "toolIndex": 4,
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "info": [],
+        "summary": {
+          "errorCount": 0,
+          "warningCount": 0,
+          "infoCount": 0
+        }
+      }
+    },
+    {
+      "toolName": "get_submissions",
+      "toolIndex": 5,
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "info": [],
+        "summary": {
+          "errorCount": 0,
+          "warningCount": 0,
+          "infoCount": 0
+        }
+      }
+    },
+    {
+      "toolName": "analyze_submissions",
+      "toolIndex": 6,
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "info": [],
+        "summary": {
+          "errorCount": 0,
+          "warningCount": 0,
+          "infoCount": 0
+        }
+      }
+    },
+    {
+      "toolName": "export_submissions",
+      "toolIndex": 7,
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "info": [],
+        "summary": {
+          "errorCount": 0,
+          "warningCount": 0,
+          "infoCount": 0
+        }
+      }
+    },
+    {
+      "toolName": "manage_workspace",
+      "toolIndex": 8,
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "info": [],
+        "summary": {
+          "errorCount": 0,
+          "warningCount": 0,
+          "infoCount": 0
+        }
+      }
+    },
+    {
+      "toolName": "generate_template",
+      "toolIndex": 9,
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "info": [],
+        "summary": {
+          "errorCount": 0,
+          "warningCount": 0,
+          "infoCount": 0
+        }
+      }
+    }
+  ],
+  "metrics": {
+    "validationDurationMs": 1,
+    "rulesExecuted": 7,
+    "averageTimePerTool": 0.1
+  },
+  "config": {
+    "strict": true,
+    "mcpVersion": "2024-11-05",
+    "checkDeprecated": true,
+    "validateJsonSchemaDraft": true,
+    "maxSchemaDepth": 10,
+    "includeMetrics": true,
+    "checkUniqueNames": true,
+    "deepValidation": true
+  }
+}

@@ -1,0 +1,64 @@
+============================================================
+MCP Tool Schema Validation Report
+============================================================
+Generated: 2025-06-11T02:41:51.385Z
+Validator Version: 1.0.0
+MCP Version: 2024-11-05
+Tools Validated: 10
+
+SUMMARY
+--------------------
+Status: ✅ VALID
+Total Errors: 0
+Total Warnings: 0
+Total Info: 0
+
+OVERALL VALIDATION RESULT
+------------------------------
+
+TOOL-SPECIFIC RESULTS
+-------------------------
+
+✅ Tool: create_form (Index: 0)
+  No issues found.
+
+✅ Tool: modify_form (Index: 1)
+  No issues found.
+
+✅ Tool: get_form (Index: 2)
+  No issues found.
+
+✅ Tool: list_forms (Index: 3)
+  No issues found.
+
+✅ Tool: delete_form (Index: 4)
+  No issues found.
+
+✅ Tool: get_submissions (Index: 5)
+  No issues found.
+
+✅ Tool: analyze_submissions (Index: 6)
+  No issues found.
+
+✅ Tool: export_submissions (Index: 7)
+  No issues found.
+
+✅ Tool: manage_workspace (Index: 8)
+  No issues found.
+
+✅ Tool: generate_template (Index: 9)
+  No issues found.
+
+PERFORMANCE METRICS
+--------------------
+Validation Duration: 1ms
+Rules Executed: 7
+Average Time per Tool: 0.10ms
+
+VALIDATION CONFIGURATION
+-------------------------
+Strict Mode: true
+Check Deprecated: true
+Validate JSON Schema Draft: true
+Max Schema Depth: 10
+Custom Rules: 0
