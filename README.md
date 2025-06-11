@@ -1,243 +1,203 @@
 # Tally MCP Server
 
-A Model Context Protocol (MCP) server that provides tools for managing Tally.so forms through natural language commands. This server enables AI assistants to create, modify, analyze, and manage Tally forms seamlessly.
+A Model Context Protocol (MCP) server that provides AI assistants with secure access to Tally form management capabilities.
 
 ## 🚀 Quick Start
 
-### For Claude Desktop
+### Option 1: Claude.ai Integration (Recommended) ⭐
 
-Add this to your Claude Desktop MCP configuration (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+Use the battle-tested [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) package for seamless Claude.ai integration:
+
+**Claude Desktop Configuration** (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
 ```json
 {
   "mcpServers": {
-    "tally-mcp": {
+    "tally-remote": {
       "command": "npx",
-      "args": ["-y", "tally-mcp-server"],
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://YOUR-DEPLOYMENT.workers.dev/mcp",
+        "--header",
+        "Authorization: Bearer YOUR_AUTH_TOKEN"
+      ],
       "env": {
-        "TALLY_API_TOKEN": "your_tally_api_token_here"
+        "AUTH_TOKEN": "YOUR_AUTH_TOKEN_HERE"
       }
     }
   }
 }
 ```
 
-### For Cursor
+**Configuration Variables:**
+- `YOUR-DEPLOYMENT`: Replace with your Cloudflare Workers subdomain (e.g., `my-tally-mcp`)
+- `YOUR_AUTH_TOKEN`: Replace with your personal server authentication token
 
-Add this to your Cursor MCP configuration (`~/.cursor/mcp.json`):
+### Option 2: Direct Integration (Cursor, etc.)
+
+For clients that support custom headers:
 
 ```json
 {
   "mcpServers": {
-    "tally-mcp": {
-      "command": "npx",
-      "args": ["-y", "tally-mcp-server"],
-      "env": {
-        "TALLY_API_TOKEN": "your_tally_api_token_here"
+    "tally": {
+      "url": "https://YOUR-DEPLOYMENT.workers.dev/mcp",
+      "transport": "http-stream",
+      "headers": {
+        "Authorization": "Bearer YOUR_AUTH_TOKEN"
       }
     }
   }
 }
 ```
 
-### Using the Deployed Cloudflare Workers Version
+## 🏗️ Self-Deployment
 
-For both Claude Desktop and Cursor, you can also use the deployed version:
+### 1. **Deploy Your Own Server**
 
-**Claude Desktop Configuration:**
-```json
-{
-  "mcpServers": {
-    "tally-mcp": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-everything"],
-      "env": {
-        "MCP_SERVER_URL": "https://tally-mcp.focuslab.workers.dev/mcp/sse?token=your_tally_api_token"
-      }
-    }
-  }
-}
-```
+**Prerequisites:**
+- [Cloudflare account](https://dash.cloudflare.com/sign-up)
+- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/)
+- [Tally API key](https://developers.tally.so/)
 
-**Cursor Configuration:**
-```json
-{
-  "mcpServers": {
-    "tally-mcp": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-everything"],
-      "env": {
-        "MCP_SERVER_URL": "https://tally-mcp.focuslab.workers.dev/mcp/sse?token=your_tally_api_token"
-      }
-    }
-  }
-}
-```
+**Setup Steps:**
 
-## 🔧 Debugging Connection Issues
-
-### Cloudflare Workers Deployment
-
-The server is deployed at: `https://tally-mcp.focuslab.workers.dev`
-
-**Test the deployment:**
-```bash
-# Health check
-curl https://tally-mcp.focuslab.workers.dev/
-
-# Test SSE endpoint
-curl -H "Accept: text/event-stream" "https://tally-mcp.focuslab.workers.dev/mcp/sse?token=your_token" --max-time 30
-
-# Check active sessions
-curl https://tally-mcp.focuslab.workers.dev/sessions
-
-# Environment info
-curl https://tally-mcp.focuslab.workers.dev/env
-```
-
-### Common Issues and Solutions
-
-#### 1. Cursor Not Connecting (No Server Logs)
-
-**Symptoms:** Cursor shows connection errors but no logs appear in Cloudflare Workers.
-
-**Solutions:**
-1. **Check Cursor MCP Configuration Location:**
+1. **Clone and configure:**
    ```bash
-   # macOS
-   ls -la ~/.cursor/mcp.json
+   git clone https://github.com/YOUR-USERNAME/tally-mcp.git
+   cd tally-mcp
+   npm install
+   ```
+
+2. **Configure deployment:**
+   ```bash
+   # Update wrangler.toml with your preferred subdomain
+   # name = "your-tally-mcp"  # This becomes your-tally-mcp.workers.dev
+   ```
+
+3. **Set your secrets:**
+   ```bash
+   # Set your Tally API key
+   echo "YOUR_TALLY_API_KEY" | npx wrangler secret put TALLY_API_KEY
    
-   # Windows
-   dir %USERPROFILE%\.cursor\mcp.json
-   
-   # Linux
-   ls -la ~/.cursor/mcp.json
+   # Generate and set server auth token
+   echo "your_unique_auth_token_$(date +%s)" | npx wrangler secret put AUTH_TOKEN
    ```
 
-2. **Verify Configuration Format:**
-   ```json
-   {
-     "mcpServers": {
-       "tally-mcp": {
-         "command": "npx",
-         "args": ["-y", "tally-mcp-server"],
-         "env": {
-           "TALLY_API_TOKEN": "your_actual_token_here"
-         }
-       }
-     }
-   }
+4. **Deploy:**
+   ```bash
+   npm run build:worker
+   npx wrangler deploy
    ```
 
-3. **Restart Cursor Completely:**
-   - Close all Cursor windows
-   - Kill any remaining Cursor processes
-   - Restart Cursor
+### 2. **Configure MCP Clients**
 
-4. **Check Cursor Logs:**
-    ```bash
-   # macOS
-   tail -f ~/Library/Logs/Cursor/main.log
-   
-   # Windows
-   type %USERPROFILE%\AppData\Roaming\Cursor\logs\main.log
-   ```
+Use your deployed server URL in the configurations above, replacing:
+- `YOUR-DEPLOYMENT` with your actual worker name
+- `YOUR_AUTH_TOKEN` with the token you set in step 3
 
-#### 2. Claude Desktop Connection Timeout
+## 🔧 Configuration
 
-**Symptoms:** Connection established but then canceled after ~10 seconds.
+The server requires these environment variables:
 
-**Status:** ✅ **FIXED** - The timeout issue has been resolved in the latest deployment.
+**In Cloudflare Workers (using wrangler secrets):**
+- `TALLY_API_KEY`: Your [Tally API key](https://developers.tally.so/) 
+- `AUTH_TOKEN`: Server authentication token (generate a unique value)
 
-**Verification:**
-    ```bash
-# This should now work without premature cancellation
-curl -H "Accept: text/event-stream" "https://tally-mcp.focuslab.workers.dev/mcp/sse?token=test" --max-time 30
-```
+**Security Notes:**
+- ✅ Never commit API keys to version control
+- ✅ Use Cloudflare Workers secrets for sensitive data
+- ✅ Generate unique AUTH_TOKEN for each deployment
+- ✅ Rotate tokens periodically for enhanced security
 
-#### 3. Authentication Issues
+## 🛡️ Security Architecture
 
-**Symptoms:** 401 errors or "Authentication required" messages.
+Following [MCP security principles](https://spec.modelcontextprotocol.io/specification/2024-11-05/revisions/2024-11-05/):
 
-**Solutions:**
-1. **Verify Token Format:**
-   - Tally API tokens should be obtained from your Tally account settings
-   - Format: Usually starts with `tally_` or similar prefix
+- **🔐 Server-level authentication**: Only authorized users can access your data
+- **🌉 Secure bridge**: mcp-remote handles authentication transparently  
+- **🔒 Encrypted transport**: All communications use HTTPS
+- **🎟️ Token-based auth**: Industry standard Bearer token approach
+- **🛠️ Data anonymization**: No personal data exposed in public examples
 
-2. **Test Token Directly:**
-    ```bash
-   curl -H "Authorization: Bearer your_token" https://api.tally.so/forms
-   ```
+## 🛠️ Available Tools
 
-### Enhanced Logging
+| Tool | Description |
+|------|-------------|
+| **create_form** | Create new Tally forms with custom fields |
+| **modify_form** | Update existing form configurations |
+| **get_form** | Retrieve detailed form information |
+| **list_forms** | Browse all your forms |
+| **delete_form** | Remove forms you no longer need |
+| **get_submissions** | Access form submission data |
+| **analyze_submissions** | Get insights from form responses |
+| **share_form** | Generate sharing links and embed codes |
+| **manage_workspace** | Handle workspace settings |
+| **manage_team** | Team member and permission management |
 
-The server now includes comprehensive logging for debugging:
+## 📱 Multi-Client Support
 
-- ✅ Request logging with timestamps and user agents
-- ✅ SSE connection lifecycle tracking
-- ✅ Session creation and cleanup monitoring
-- ✅ Heartbeat and error tracking
-- ✅ Detailed error messages with context
+**Tested MCP Clients:**
+- ✅ **Claude.ai** (via mcp-remote - recommended)
+- ✅ **Cursor** (direct authenticated or via mcp-remote)
+- ✅ **Windsurf** (via mcp-remote)
+- ✅ **Any MCP client** supporting HTTP Stream transport
 
-**View logs in Cloudflare Workers:**
-1. Go to Cloudflare Dashboard
-2. Navigate to Workers & Pages
-3. Select `tally-mcp`
-4. Click on "Logs" tab
-5. Enable "Real-time logs"
-
-## 📋 Available Tools
-
-The server provides the following tools for managing Tally forms:
-
-- `create_form` - Create a new Tally form with specified fields and configuration
-- `modify_form` - Modify an existing Tally form
-- `get_form` - Retrieve details of a specific Tally form
-- `list_forms` - List all forms in the workspace
-- `delete_form` - Delete a Tally form
-- `get_submissions` - Retrieve submissions for a specific form
-- `analyze_submissions` - Analyze form submissions and provide insights
-- `share_form` - Generate sharing links and embed codes for a form
-- `manage_workspace` - Manage workspace settings and information
-- `manage_team` - Manage team members and permissions
-
-## 🔗 API Endpoints
-
-- `GET /` - Health check and server information
-- `GET /mcp/sse?token=<your_token>` - SSE endpoint for MCP protocol
-- `POST /mcp` - HTTP POST endpoint for MCP protocol
-- `POST /mcp/message` - Message endpoint for SSE sessions
-- `GET /sessions` - Debug endpoint showing active sessions
-- `GET /env` - Environment and configuration information
-
-## 🛠️ Development
+## 🔄 Development
 
 ### Local Development
-
 ```bash
-# Install dependencies
 npm install
-
-# Start development server
 npm run dev
-
-# Run tests
-npm test
-
-# Build for production
-npm run build
 ```
 
-### Deployment
-
+### Testing
 ```bash
-# Deploy to Cloudflare Workers
-npm run deploy
+npm test
+npm run test:coverage
+```
 
-# Or using wrangler directly
+### Building & Deployment
+```bash
+npm run build:worker
 npx wrangler deploy
 ```
 
-## 📝 License
+## 🤔 Why mcp-remote?
 
-MIT License - see LICENSE file for details. 
+According to the [Anthropic documentation](https://support.anthropic.com/en/articles/11503834-building-custom-integrations-via-remote-mcp-servers), Claude.ai requires either "authless" servers or OAuth with Dynamic Client Registration. Since this server uses Bearer token authentication for security, [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) acts as a perfect bridge:
+
+**Benefits:**
+- 🔄 **Transparent authentication**: Handles your tokens securely
+- 📦 **Battle-tested**: 68,160+ weekly downloads
+- 🎯 **Claude.ai compatible**: Works seamlessly with Claude's requirements
+- 🚀 **Zero configuration**: Just add your URL and token
+
+## 📚 Documentation
+
+- **MCP Protocol**: [Model Context Protocol](https://spec.modelcontextprotocol.io/)
+- **Tally API**: [Tally Developer Documentation](https://developers.tally.so/)
+- **Cloudflare Workers**: [Workers Documentation](https://developers.cloudflare.com/workers/)
+- **mcp-remote**: [NPM Package](https://www.npmjs.com/package/mcp-remote)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
+
+## 🔒 Privacy & Security
+
+This server follows data protection best practices:
+- No personal data in public examples
+- Secure token-based authentication
+- HTTPS-only communication
+- User data isolation per deployment
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details. 

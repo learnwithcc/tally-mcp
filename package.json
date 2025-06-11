@@ -10,12 +10,12 @@
   "scripts": {
     "build": "tsc",
     "build:worker": "tsc src/worker.ts --outDir dist --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop true --allowSyntheticDefaultImports true --strict true --skipLibCheck true",
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "start": "ts-node src/index.ts",
-    "watch": "nodemon --exec ts-node src/index.ts",
-    "test": "jest --config jest.config.js",
+    "dev": "tsx watch src/index.ts",
+    "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "start": "node dist/index.js",
+
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\" \"__tests__/**/*.ts\"",

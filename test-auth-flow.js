@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 
 /**
- * Test script to verify the Tally MCP server authentication flow
- * Usage: node test-auth-flow.js <your_tally_token>
+ * Test authentication flow for Tally MCP server
+ * This script verifies OAuth and authentication endpoints work correctly
  */
+
+const https = require('https');
+const { URL } = require('url');
 
 const token = process.argv[2];
 
@@ -12,7 +15,8 @@ if (!token) {
   process.exit(1);
 }
 
-const SERVER_URL = 'https://tally-mcp.focuslab.workers.dev';
+// Configuration - replace with your deployment URL
+const SERVER_URL = 'https://YOUR-DEPLOYMENT.workers.dev';
 
 async function testAuthFlow() {
   console.log('🔐 Testing Tally MCP Server Authentication Flow\n');
