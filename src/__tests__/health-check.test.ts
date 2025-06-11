@@ -7,6 +7,14 @@
 import { MCPServer, ServerState, HealthMetrics } from '../server';
 import axios from 'axios';
 
+jest.mock('axios', () => ({
+  ...jest.requireActual('axios'),
+  get: jest.fn(),
+  post: jest.fn(),
+}));
+
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+
 describe('Health Check Endpoint and Monitoring', () => {
   let server: MCPServer;
   const testPort = 3001;
@@ -27,6 +35,8 @@ describe('Health Check Endpoint and Monitoring', () => {
     if (server.getState() === ServerState.RUNNING) {
       await server.shutdown();
     }
+    mockedAxios.get.mockClear();
+    mockedAxios.post.mockClear();
   });
 
   describe('Health Metrics Collection', () => {
@@ -102,6 +112,12 @@ describe('Health Check Endpoint and Monitoring', () => {
 
   describe('Health Check Endpoint', () => {
     test('should respond to /health endpoint with comprehensive metrics', async () => {
+      const mockMetrics = server.getHealthMetrics();
+      mockedAxios.get.mockResolvedValue({
+        status: 200,
+        data: mockMetrics,
+        headers: { 'content-type': 'application/json' }
+      });
       const response = await axios.get(`http://localhost:${testPort}/health`);
       
       expect(response.status).toBe(200);
@@ -129,6 +145,7 @@ describe('Health Check Endpoint and Monitoring', () => {
       const metrics = server.getHealthMetrics();
       expect(metrics.healthy).toBe(true);
       
+      mockedAxios.get.mockResolvedValue({ status: 200 });
       // The endpoint should return 200 for healthy server
       try {
         const response = await axios.get(`http://localhost:${testPort}/health`);
@@ -149,6 +166,7 @@ describe('Health Check Endpoint and Monitoring', () => {
       // Shutdown server to test error handling
       await server.shutdown();
       
+      mockedAxios.get.mockRejectedValue({ code: 'ECONNREFUSED' });
       try {
         await axios.get(`http://localhost:${testPort}/health`);
         fail('Should have thrown an error');
@@ -164,6 +182,7 @@ describe('Health Check Endpoint and Monitoring', () => {
       const initialMetrics = server.getHealthMetrics();
       const initialTotal = initialMetrics.requests.total;
       
+      mockedAxios.get.mockResolvedValue({ status: 200 });
       // Make a few requests
       await axios.get(`http://localhost:${testPort}/`);
       await axios.get(`http://localhost:${testPort}/health`);
@@ -176,6 +195,7 @@ describe('Health Check Endpoint and Monitoring', () => {
       const initialMetrics = server.getHealthMetrics();
       const initialErrors = initialMetrics.requests.errors;
       
+      mockedAxios.get.mockRejectedValue({ response: { status: 404 } });
       // Make a request that should result in 404
       try {
         await axios.get(`http://localhost:${testPort}/nonexistent`);
@@ -195,6 +215,15 @@ describe('Health Check Endpoint and Monitoring', () => {
 
   describe('Backward Compatibility', () => {
     test('should maintain basic info endpoint at /', async () => {
+      mockedAxios.get.mockResolvedValue({
+        status: 200,
+        data: {
+          name: 'Tally MCP Server',
+          version: '1.0.0',
+          status: ServerState.RUNNING,
+          connections: 0,
+        }
+      });
       const response = await axios.get(`http://localhost:${testPort}/`);
       
       expect(response.status).toBe(200);

@@ -18,6 +18,7 @@ module.exports = {
   maxWorkers: 1, // Run tests sequentially to avoid port conflicts
   forceExit: true, // Force Jest to exit after tests complete
   detectOpenHandles: true, // Help identify unclosed handles
+  coverageReporters: ['json', 'lcov', 'text', 'clover'],
   reporters: [
     'default',
     [ 'jest-junit', {
@@ -25,4 +26,5 @@ module.exports = {
       outputName: 'jest-junit.xml',
     } ]
   ],
+  globalSetup: '<rootDir>/jest.global-setup.js',
 }; 

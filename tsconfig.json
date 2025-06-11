@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     /* Language and Environment */
-    "target": "ES2020",
-    "module": "CommonJS",
-    "lib": ["ES2020"],
+    "target": "es2020",
+    "module": "esnext",
+    "lib": ["es2020", "dom"],
     
     /* Modules */
     "moduleResolution": "node",
@@ -13,7 +13,7 @@
     
     /* Emit */
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "removeComments": true,
     "sourceMap": true,
     "declaration": true,
@@ -39,14 +39,11 @@
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.test.ts",
-    "**/*.spec.ts",
-    "**/*.example.ts"
-  ]
+  "include": ["src", "scripts", "src/types"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.example.ts"],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  }
 } 

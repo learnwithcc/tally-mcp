@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/108</span>
+                <span class='fraction'>0/117</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/49</span>
+                <span class='fraction'>0/53</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/90</span>
+                <span class='fraction'>0/99</span>
             </div>
         
             
@@ -391,7 +391,19 @@
 <a name='L326'></a><a href='#L326'>326</a>
 <a name='L327'></a><a href='#L327'>327</a>
 <a name='L328'></a><a href='#L328'>328</a>
-<a name='L329'></a><a href='#L329'>329</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L329'></a><a href='#L329'>329</a>
+<a name='L330'></a><a href='#L330'>330</a>
+<a name='L331'></a><a href='#L331'>331</a>
+<a name='L332'></a><a href='#L332'>332</a>
+<a name='L333'></a><a href='#L333'>333</a>
+<a name='L334'></a><a href='#L334'>334</a>
+<a name='L335'></a><a href='#L335'>335</a>
+<a name='L336'></a><a href='#L336'>336</a>
+<a name='L337'></a><a href='#L337'>337</a>
+<a name='L338'></a><a href='#L338'>338</a>
+<a name='L339'></a><a href='#L339'>339</a>
+<a name='L340'></a><a href='#L340'>340</a>
+<a name='L341'></a><a href='#L341'>341</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -544,6 +556,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -592,6 +605,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -610,19 +624,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -644,6 +667,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -830,7 +854,7 @@ function <span class="fstat-no" title="function not covered" >getClientIp(</span
   
   // Try various headers
 <span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (xForwardedFor) {</span>
-<span class="cstat-no" title="statement not covered" >    return xForwardedFor.split(',')[0].trim();</span>
+<span class="cstat-no" title="statement not covered" >    return xForwardedFor.split(',')[0]?.trim() || '';</span>
   }
   
 <span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (xRealIp) {</span>
@@ -867,11 +891,12 @@ function <span class="fstat-no" title="function not covered" >getClientIp(</span
 <span class="cstat-no" title="statement not covered" >          console.log(`API key authentication failed - Missing key for ${req.method} ${req.path} from ${getClientIp(req)}`);</span>
         }
         
-<span class="cstat-no" title="statement not covered" >        return res.status(401).json({</span>
+<span class="cstat-no" title="statement not covered" >        res.status(401).json({</span>
           error: 'Authentication failed',
           message: config.errorMessages.missing,
           code: 'MISSING_API_KEY'
         });
+<span class="cstat-no" title="statement not covered" >        return;</span>
       }
       
       // Validate API key
@@ -913,13 +938,14 @@ function <span class="fstat-no" title="function not covered" >getClientIp(</span
 <span class="cstat-no" title="statement not covered" >          message = config.errorMessages.ipNotWhitelisted;</span>
         }
         
-<span class="cstat-no" title="statement not covered" >        return res.status(statusCode).json({</span>
+<span class="cstat-no" title="statement not covered" >        res.status(statusCode).json({</span>
           error: 'Authentication failed',
           message,
           code: errorCode,
           ...(validationResult.remainingUsage !== undefined &amp;&amp; { remainingUsage: validationResult.remainingUsage }),
           ...(validationResult.expiresIn !== undefined &amp;&amp; { expiresIn: validationResult.expiresIn })
         });
+<span class="cstat-no" title="statement not covered" >        return;</span>
       }
       
       // Check required scopes
@@ -931,26 +957,35 @@ function <span class="fstat-no" title="function not covered" >getClientIp(</span
 <span class="cstat-no" title="statement not covered" >            console.log(`API key authorization failed - Insufficient scopes for ${req.method} ${req.path}. Required: ${config.requiredScopes.join(', ')}, Has: ${validationResult.apiKey.scopes.join(', ')}`);</span>
           }
           
-<span class="cstat-no" title="statement not covered" >          return res.status(403).json({</span>
+<span class="cstat-no" title="statement not covered" >          res.status(403).json({</span>
             error: 'Authorization failed',
             message: config.errorMessages.insufficientScopes,
             code: 'INSUFFICIENT_SCOPES',
             requiredScopes: config.requiredScopes,
             availableScopes: validationResult.apiKey.scopes
           });
+<span class="cstat-no" title="statement not covered" >          return;</span>
         }
       }
       
       // Attach API key info to request
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (validationResult.apiKey) {</span>
-        (<span class="cstat-no" title="statement not covered" >req as AuthenticatedRequest).apiKey = {</span>
+        const apiKeyInfo: AuthenticatedRequest['apiKey'] = <span class="cstat-no" title="statement not covered" >{</span>
           id: validationResult.apiKey.id,
           name: validationResult.apiKey.name,
           scopes: validationResult.apiKey.scopes,
-          usageCount: validationResult.apiKey.usageCount,
-          remainingUsage: validationResult.remainingUsage,
-          expiresIn: validationResult.expiresIn
+          usageCount: validationResult.apiKey.usageCount
         };
+        
+<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (validationResult.remainingUsage !== undefined) {</span>
+<span class="cstat-no" title="statement not covered" >          apiKeyInfo.remainingUsage = validationResult.remainingUsage;</span>
+        }
+        
+<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (validationResult.expiresIn !== undefined) {</span>
+<span class="cstat-no" title="statement not covered" >          apiKeyInfo.expiresIn = validationResult.expiresIn;</span>
+        }
+        
+        (<span class="cstat-no" title="statement not covered" >req as AuthenticatedRequest).apiKey = apiKeyInfo;</span>
       }
       
       // Add security headers
@@ -967,11 +1002,12 @@ function <span class="fstat-no" title="function not covered" >getClientIp(</span
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('API key authentication error:', error);</span>
       
-<span class="cstat-no" title="statement not covered" >      return res.status(500).json({</span>
+<span class="cstat-no" title="statement not covered" >      res.status(500).json({</span>
         error: 'Authentication error',
         message: 'Internal server error during authentication',
         code: 'INTERNAL_ERROR'
       });
+<span class="cstat-no" title="statement not covered" >      return;</span>
     }
   };
 }
@@ -1054,7 +1090,7 @@ export const <span class="cstat-no" title="statement not covered" >optionalApiKe
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-07T04:11:55.025Z
+                at 2025-06-11T00:46:41.012Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

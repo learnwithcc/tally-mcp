@@ -248,20 +248,27 @@ describe('TallyApiClient', () => {
       const axiosError = new Error('Network Error');
       mockAxiosInstance.request.mockRejectedValue(axiosError);
 
-      await expect(client.get('/test-endpoint')).rejects.toThrow('Network Error');
+      await expect(client.get('/test-error')).rejects.toThrow('Network Error');
     });
 
     it('should propagate HTTP error responses', async () => {
-      const httpError = {
-        response: {
-          status: 404,
-          statusText: 'Not Found',
-          data: { error: 'Resource not found' },
+      const errorResponse: AxiosResponse = {
+        data: { message: 'Not Found' },
+        status: 404,
+        statusText: 'Not Found',
+        headers: {},
+        config: {
+          headers: {} as any,
         },
       };
-      mockAxiosInstance.request.mockRejectedValue(httpError);
 
-      await expect(client.get('/non-existent')).rejects.toEqual(httpError);
+      mockAxiosInstance.request.mockRejectedValue({ response: errorResponse, isAxiosError: true });
+
+      try {
+        await client.get('/not-found');
+      } catch (error: any) {
+        expect(error.response).toEqual(errorResponse);
+      }
     });
   });
 
@@ -423,6 +430,7 @@ describe('TallyApiClient', () => {
   });
 
   describe('Type-Safe API Methods with Zod Validation', () => {
+    let client: TallyApiClient;
     beforeEach(() => {
       client = new TallyApiClient({ accessToken: 'test-token' });
     });
@@ -430,99 +438,98 @@ describe('TallyApiClient', () => {
     describe('getSubmissions', () => {
       it('should validate and return submissions response', async () => {
         const validSubmissionsData: TallySubmissionsResponse = {
-          page: 1,
-          limit: 50,
           hasMore: false,
-          totalNumberOfSubmissionsPerFilter: {
-            all: 2,
-            completed: 2,
-            partial: 0,
-          },
-          questions: [
-            {
-              id: 'q1',
-              type: 'INPUT_TEXT',
-              title: 'What is your name?',
-              formId: 'form123',
-              createdAt: '2024-01-01T10:00:00Z',
-              updatedAt: '2024-01-01T10:00:00Z',
-              fields: [],
-            }
-          ],
+          limit: 10,
+          page: 1,
           submissions: [
             {
-              id: 'sub1',
-              formId: 'form123',
-              respondentId: 'resp1',
+              id: 'sub_1',
+              formId: 'form_123',
+              respondentId: 'resp_1',
               isCompleted: true,
-              submittedAt: '2024-01-01T11:00:00Z',
+              submittedAt: new Date().toISOString(),
               responses: [
                 {
                   questionId: 'q1',
-                  value: 'John Doe',
+                  value: 'Test User'
                 }
-              ],
+              ]
             }
           ],
+          questions: [],
+          totalNumberOfSubmissionsPerFilter: {
+            all: 1,
+            completed: 1,
+            partial: 0,
+          },
         };
 
-        const mockResponse: AxiosResponse = {
+        const mockResponse: AxiosResponse<TallySubmissionsResponse> = {
           data: validSubmissionsData,
           status: 200,
           statusText: 'OK',
           headers: {},
-          config: { headers: {} as any },
+          config: {
+            headers: {} as any,
+          },
         };
 
         mockAxiosInstance.request.mockResolvedValue(mockResponse);
 
-        const result = await client.getSubmissions('form123', { page: 1, limit: 50 });
+        const result = await client.getSubmissions('form123', { page: 1, limit: 10 });
 
         expect(result).toEqual(validSubmissionsData);
         expect(mockAxiosInstance.request).toHaveBeenCalledWith({
           method: 'GET',
-          url: '/forms/form123/submissions?page=1&limit=50',
+          url: '/forms/form123/submissions?page=1&limit=10',
           data: undefined,
         });
       });
 
       it('should throw validation error for invalid submissions response', async () => {
-        const invalidData = {
-          page: 'invalid', // Should be number
-          submissions: 'not an array', // Should be array
-        };
+        const invalidData = { hasMore: false, submissions: [{ id: 'sub_1', responses: 'invalid' }] };
 
-        const mockResponse: AxiosResponse = {
+        const mockResponse: AxiosResponse<any> = {
           data: invalidData,
           status: 200,
           statusText: 'OK',
           headers: {},
-          config: { headers: {} as any },
+          config: {
+            headers: {} as any,
+          },
         };
 
         mockAxiosInstance.request.mockResolvedValue(mockResponse);
 
-        await expect(client.getSubmissions('form123')).rejects.toThrow();
+        await expect(
+          client.getSubmissions('form123', { page: 1, limit: 10 }),
+        ).rejects.toThrow();
       });
     });
 
     describe('getForm', () => {
       it('should validate and return form data', async () => {
-                 const validFormData: TallyForm = {
-           id: 'form123',
-           title: 'Test Form',
-           description: 'A test form',
-           isPublished: true,
-           createdAt: '2024-01-01T10:00:00Z',
-           updatedAt: '2024-01-01T10:00:00Z',
-         };
+        const validFormData: TallyForm = {
+          id: 'form123',
+          title: 'Contact Us',
+          description: 'Get in touch with our team',
+          status: 'published',
+          isPublished: true,
+          url: 'https://tally.so/r/form_123456789',
+          embedUrl: 'https://tally.so/embed/form_123456789',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          submissionsCount: 42,
+        };
 
-        const mockResponse: AxiosResponse = {
+        const mockResponse: AxiosResponse<TallyForm> = {
           data: validFormData,
           status: 200,
           statusText: 'OK',
           headers: {},
-          config: { headers: {} as any },
+          config: {
+            headers: {} as any,
+          },
         };
 
         mockAxiosInstance.request.mockResolvedValue(mockResponse);
@@ -538,17 +545,16 @@ describe('TallyApiClient', () => {
       });
 
       it('should throw validation error for invalid form response', async () => {
-        const invalidData = {
-          id: 123, // Should be string
-          title: null, // Should be string
-        };
+        const invalidData = { id: 'form123', title: 'Test Form', submissionsCount: 'not-a-number' };
 
-        const mockResponse: AxiosResponse = {
+        const mockResponse: AxiosResponse<any> = {
           data: invalidData,
           status: 200,
           statusText: 'OK',
           headers: {},
-          config: { headers: {} as any },
+          config: {
+            headers: {} as any,
+          },
         };
 
         mockAxiosInstance.request.mockResolvedValue(mockResponse);

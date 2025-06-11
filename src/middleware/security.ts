@@ -221,81 +221,73 @@ function generateRequestId(): string {
  * Security validation middleware for request integrity
  */
 export function securityValidation(req: Request, res: Response, next: NextFunction): void {
-  // Check for suspicious patterns in URL
-  const suspiciousPatterns = [
-    /\.\./,             // Directory traversal (any .. sequence)
-    /<script/i,         // XSS attempts
-    /javascript:/i,     // JavaScript protocol
-    /vbscript:/i,       // VBScript protocol
-    /data:text\/html/i, // Data URLs with HTML
-  ];
-
-  const url = decodeURIComponent(req.url);
+  const decodedUrl = decodeURIComponent(req.url);
   const originalUrl = req.originalUrl;
 
-  // Check for directory traversal patterns in both decoded and original URLs
-  if (/\.\./.test(url) || /\.\./.test(originalUrl)) {
-    console.warn(`Security Warning: Directory traversal attempt detected: ${url}`);
+  // 1. Directory Traversal
+  if (decodedUrl.includes('../') || decodedUrl.includes('..\\\\') || originalUrl.includes('../') || originalUrl.includes('..\\\\')) {
+    console.warn(`Security Warning: Directory traversal attempt detected: ${req.url}`);
     res.status(400).json({
-      error: 'Invalid request',
+      error: 'Invalid request path',
       code: 'SECURITY_VIOLATION',
-      message: 'Request contains potentially harmful content',
+      message: 'Directory traversal is not permitted.',
     });
     return;
   }
 
-  // Check for null bytes in URL (check both raw and decoded)
-  if (url.includes('\0') || originalUrl.includes('\0') || /\x00/.test(url) || /\x00/.test(originalUrl)) {
-    console.warn(`Security Warning: Null byte attack detected: ${url}`);
+  // 2. Null Byte Injection
+  if (decodedUrl.includes('\\0') || originalUrl.includes('\\0') || decodedUrl.includes('%00') || originalUrl.includes('%00')) {
+    console.warn(`Security Warning: Null byte detected in URL: ${req.url}`);
     res.status(400).json({
-      error: 'Invalid request',
+      error: 'Invalid request path',
       code: 'SECURITY_VIOLATION',
-      message: 'Request contains potentially harmful content',
+      message: 'Null bytes are not permitted in the URL.',
     });
     return;
   }
 
-  // Check other suspicious patterns
-  for (const pattern of suspiciousPatterns) {
-    if (pattern.test(url)) {
-      console.warn(`Security Warning: Suspicious URL pattern detected: ${url}`);
-      res.status(400).json({
-        error: 'Invalid request',
-        code: 'SECURITY_VIOLATION',
-        message: 'Request contains potentially harmful content',
-      });
-      return;
-    }
+  // 3. XSS and JavaScript Protocol
+  const xssPatterns = /<script|javascript:|onerror|onload|onmouseover/i;
+  if (xssPatterns.test(decodedUrl)) {
+    console.warn(`Security Warning: XSS or JavaScript protocol attempt detected: ${req.url}`);
+    res.status(400).json({
+      error: 'Invalid request path',
+      code: 'SECURITY_VIOLATION',
+      message: 'XSS and JavaScript protocol are not permitted.',
+    });
+    return;
   }
 
-  // Validate Content-Length header if present
-  const contentLength = req.get('Content-Length');
+  // 4. User-Agent Validation
+  const userAgent = req.headers['user-agent'];
+  if (!userAgent) {
+    console.warn('Security Warning: Missing or empty User-Agent header.');
+  } else if (userAgent.length > 256) {
+    console.warn(`Security Warning: Oversized User-Agent header: ${userAgent.length} chars`);
+  }
+
+  // 5. Content-Length Validation
+  const contentLength = req.headers['content-length'];
   if (contentLength) {
     const length = parseInt(contentLength, 10);
     if (isNaN(length) || length < 0) {
+      console.warn(`Security Warning: Invalid Content-Length header: ${contentLength}`);
       res.status(400).json({
-        error: 'Invalid Content-Length header',
+        error: 'Invalid Content-Length',
         code: 'INVALID_CONTENT_LENGTH',
+        message: 'Content-Length header is not a valid non-negative integer.',
       });
       return;
     }
-
-    // Check for reasonable content length (10MB limit)
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    if (length > maxSize) {
+    if (length > 1024 * 1024) { // 1MB limit
+      console.warn(`Security Warning: Oversized payload attempt: ${length} bytes`);
       res.status(413).json({
-        error: 'Payload too large',
+        error: 'Payload Too Large',
         code: 'PAYLOAD_TOO_LARGE',
-        maxSize,
+        message: `Payload size exceeds the limit of 1MB.`,
       });
       return;
     }
-  }
-
-  // Validate User-Agent header (basic check)
-  const userAgent = req.get('User-Agent');
-  if (!userAgent || userAgent.length > 1000) {
-    console.warn(`Security Warning: Invalid User-Agent: ${userAgent?.substring(0, 100)}...`);
   }
 
   next();

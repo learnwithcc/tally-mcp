@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">4.91% </span>
+                <span class="strong">3.38% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>3/61</span>
+                <span class='fraction'>2/59</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/44</span>
+                <span class='fraction'>0/46</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">5.08% </span>
+                <span class="strong">3.5% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/59</span>
+                <span class='fraction'>2/57</span>
             </div>
         
             
@@ -464,13 +464,8 @@
 <a name='L399'></a><a href='#L399'>399</a>
 <a name='L400'></a><a href='#L400'>400</a>
 <a name='L401'></a><a href='#L401'>401</a>
-<a name='L402'></a><a href='#L402'>402</a>
-<a name='L403'></a><a href='#L403'>403</a>
-<a name='L404'></a><a href='#L404'>404</a>
-<a name='L405'></a><a href='#L405'>405</a>
-<a name='L406'></a><a href='#L406'>406</a>
-<a name='L407'></a><a href='#L407'>407</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
+<a name='L402'></a><a href='#L402'>402</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -494,14 +489,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -875,7 +865,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { TallyApiClient, TallyApiClientConfig } from './TallyApiClient';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { TallyApiClientConfig } from './TallyApiClient';
 import { 
   Team,
   TeamMember,
@@ -883,7 +873,6 @@ import {
   CreateTeamRequest,
   UpdateTeamRequest,
   BulkTeamOperation,
-  TeamMembershipUpdate,
   BulkMembershipUpdate,
   TeamPermission,
   TeamAccessSummary,
@@ -892,8 +881,6 @@ import {
   TeamListResponse,
   BulkOperationResponse,
   OrganizationStructure,
-  TeamHierarchyNode,
-  TeamSchema,
   TeamResponseSchema,
   TeamListResponseSchema,
   BulkOperationResponseSchema,
@@ -904,10 +891,8 @@ import {
 } from '../models';
 &nbsp;
 export class TeamService {
-  private apiClient: TallyApiClient;
-&nbsp;
-<span class="fstat-no" title="function not covered" >  constructor(c</span>onfig: TallyApiClientConfig = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> {
-<span class="cstat-no" title="statement not covered" >    this.apiClient = new TallyApiClient(config);</span>
+<span class="fstat-no" title="function not covered" >  constructor(_</span>config: TallyApiClientConfig = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> {
+    // API client would be used for actual Tally API integration
   }
 &nbsp;
   /**
@@ -929,7 +914,7 @@ export class TeamService {
       description: validatedRequest.description,
       workspaceId: validatedRequest.workspaceId,
       parentTeamId: validatedRequest.parentTeamId,
-      members: validatedRequest.initialMembers.map(<span class="fstat-no" title="function not covered" >(m</span>ember, index) =&gt; (<span class="cstat-no" title="statement not covered" >{</span>
+      members: (validatedRequest.initialMembers || []).map(<span class="fstat-no" title="function not covered" >(m</span>ember, index) =&gt; (<span class="cstat-no" title="statement not covered" >{</span>
         id: `member_${teamId}_${index}`,
         userId: member.userId,
         email: `user_${member.userId}@example.com`, // Would be fetched from user service
@@ -1050,7 +1035,7 @@ export class TeamService {
    * List teams in a workspace
    */
   public <span class="fstat-no" title="function not covered" >async </span>getTeams(
-    workspaceId: string,
+    _workspaceId: string,
     options: { page?: number; limit?: number; parentTeamId?: string } = <span class="branch-0 cbranch-no" title="branch not covered" >{}</span>
   ): Promise&lt;TeamListResponse&gt; {
 <span class="cstat-no" title="statement not covered" >    console.warn('Team listing is a custom implementation - not supported by Tally API directly');</span>
@@ -1212,7 +1197,7 @@ export class TeamService {
   /**
    * Get effective permissions for a team member
    */
-  public <span class="fstat-no" title="function not covered" >async </span>getTeamMemberPermissions(teamId: string, userId: string): Promise&lt;TeamAccessSummary&gt; {
+  public <span class="fstat-no" title="function not covered" >async </span>getTeamMemberPermissions(teamId: string, _userId: string): Promise&lt;TeamAccessSummary&gt; {
 <span class="cstat-no" title="statement not covered" >    console.warn('Team permission retrieval is a custom implementation');</span>
     
     const summary: TeamAccessSummary = <span class="cstat-no" title="statement not covered" >{</span>
@@ -1258,7 +1243,7 @@ export class TeamService {
   /**
    * Get teams a user belongs to
    */
-  public <span class="fstat-no" title="function not covered" >async </span>getUserTeams(workspaceId: string, userId: string): Promise&lt;TeamResponse[]&gt; {
+  public <span class="fstat-no" title="function not covered" >async </span>getUserTeams(_workspaceId: string, _userId: string): Promise&lt;TeamResponse[]&gt; {
 <span class="cstat-no" title="statement not covered" >    console.warn('User team retrieval is a custom implementation');</span>
     
     // Mock implementation - would query database for user's teams
@@ -1269,9 +1254,9 @@ export class TeamService {
    * Check if a user can perform an action on a team
    */
   public <span class="fstat-no" title="function not covered" >async </span>canUserPerformAction(
-    teamId: string,
-    userId: string,
-    action: 'view' | 'edit' | 'manage' | 'delete'
+    _teamId: string,
+    _userId: string,
+    _action: 'view' | 'edit' | 'manage' | 'delete'
   ): Promise&lt;{ canPerform: boolean; reason?: string }&gt; {
 <span class="cstat-no" title="statement not covered" >    console.warn('Team permission checking is a custom implementation');</span>
     
@@ -1288,7 +1273,7 @@ export class TeamService {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-07T04:11:55.025Z
+                at 2025-06-11T00:46:41.012Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
