@@ -1,6 +1,11 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Cloudflare Workers Entry Point for Tally MCP Server
+ *
+ * This file provides a complete MCP protocol implementation for Cloudflare Workers.
+ */
+// Global session storage (in a real implementation, you'd use Durable Objects or external storage)
 const activeSessions = new Map();
+// Tool definitions for Tally MCP Server
 const TOOLS = [
     {
         name: 'create_form',
@@ -189,12 +194,16 @@ const TOOLS = [
         }
     }
 ];
+// Server capabilities
 const SERVER_CAPABILITIES = {
     tools: {},
     resources: {},
     prompts: {},
     logging: {}
 };
+/**
+ * Handle MCP protocol messages
+ */
 async function handleMCPMessage(request, sessionId) {
     const { method, params, id } = request;
     try {
@@ -263,8 +272,12 @@ async function handleMCPMessage(request, sessionId) {
         };
     }
 }
+/**
+ * Handle tool calls
+ */
 async function handleToolCall(params, sessionId) {
     const { name, arguments: args } = params;
+    // Get API key from session if available
     let apiKey;
     if (sessionId && activeSessions.has(sessionId)) {
         apiKey = activeSessions.get(sessionId).apiKey;
@@ -304,6 +317,9 @@ async function handleToolCall(params, sessionId) {
         };
     }
 }
+/**
+ * Call Tally API based on tool name and arguments
+ */
 async function callTallyAPI(toolName, args, apiKey) {
     const baseURL = 'https://api.tally.so';
     const headers = {
@@ -363,12 +379,14 @@ async function callTallyAPI(toolName, args, apiKey) {
             });
             return await submissionsResponse.json();
         case 'analyze_submissions':
+            // This would typically involve fetching submissions and performing analysis
             const analysisResponse = await globalThis.fetch(`${baseURL}/forms/${args.formId}/submissions`, {
                 method: 'GET',
                 headers
             });
             const submissionsData = await analysisResponse.json();
             const submissions = Array.isArray(submissionsData) ? submissionsData : [];
+            // Perform basic analysis based on type
             switch (args.analysisType) {
                 case 'summary':
                     return {
@@ -378,7 +396,7 @@ async function callTallyAPI(toolName, args, apiKey) {
                     };
                 case 'completion_rate':
                     return {
-                        completionRate: '95%',
+                        completionRate: '95%', // This would be calculated from actual data
                         analysisType: 'completion_rate',
                         formId: args.formId
                     };
@@ -412,16 +430,21 @@ async function callTallyAPI(toolName, args, apiKey) {
             throw new Error(`Unknown tool: ${toolName}`);
     }
 }
+/**
+ * Clean up stale sessions (older than 15 minutes)
+ */
 function cleanupStaleSessions() {
     const now = Date.now();
-    const staleThreshold = 15 * 60 * 1000;
+    const staleThreshold = 15 * 60 * 1000; // 15 minutes
     let cleanedCount = 0;
     for (const [sessionId, session] of activeSessions.entries()) {
         if (now - session.lastActivity > staleThreshold) {
             console.log(`Cleaning up stale session: ${sessionId} (inactive for ${Math.round((now - session.lastActivity) / 1000)}s)`);
+            // Clean up heartbeat interval
             if (session.heartbeatInterval) {
                 clearInterval(session.heartbeatInterval);
             }
+            // Close the controller if possible
             try {
                 session.controller.close();
             }
@@ -440,11 +463,13 @@ async function handleSseRequest(request) {
     const url = new URL(request.url);
     console.log(`SSE connection requested at ${url.pathname} - checking token...`);
     let token = null;
+    // 1. Check for Authorization header (Bearer token)
     const authHeader = request.headers.get('Authorization');
     if (authHeader && authHeader.startsWith('Bearer ')) {
         token = authHeader.substring(7);
         console.log('SSE endpoint: found token in Authorization header.');
     }
+    // 2. Fallback to query parameter if header not found
     if (!token) {
         token = url.searchParams.get('token');
         if (token) {
@@ -465,11 +490,14 @@ async function handleSseRequest(request) {
         });
     }
     console.log('SSE endpoint: token provided, creating session...');
+    // Generate unique session ID
     const sessionId = crypto.randomUUID();
     console.log(`SSE endpoint: generated session ID: ${sessionId}`);
+    // For Cloudflare Workers, we need to create a streaming response
     const stream = new ReadableStream({
         start(controller) {
             console.log(`SSE stream started for session: ${sessionId}`);
+            // Create session
             const session = {
                 id: sessionId,
                 controller,
@@ -479,6 +507,7 @@ async function handleSseRequest(request) {
             };
             activeSessions.set(sessionId, session);
             console.log(`Session created and stored. Active sessions: ${activeSessions.size}`);
+            // Send initial connection message with session ID  
             const connectionMessage = `data: ${JSON.stringify({
                 jsonrpc: '2.0',
                 method: 'notifications/initialized',
@@ -498,6 +527,7 @@ async function handleSseRequest(request) {
                     sessionId: sessionId
                 }
             })}\n\n`;
+            // Send tools list immediately after initialization
             const toolsMessage = `data: ${JSON.stringify({
                 jsonrpc: '2.0',
                 method: 'notifications/tools/list_changed',
@@ -508,12 +538,14 @@ async function handleSseRequest(request) {
             try {
                 controller.enqueue(new TextEncoder().encode(connectionMessage));
                 console.log(`Sent initialization message for session: ${sessionId}`);
+                // Send tools list notification
                 controller.enqueue(new TextEncoder().encode(toolsMessage));
                 console.log(`Sent tools list for session: ${sessionId}`);
             }
             catch (error) {
                 console.error(`Error sending initial messages for session ${sessionId}:`, error);
             }
+            // Keep connection alive with periodic heartbeat
             const heartbeatInterval = setInterval(() => {
                 try {
                     if (activeSessions.has(sessionId)) {
@@ -543,11 +575,14 @@ async function handleSseRequest(request) {
                         console.error(`Error closing controller for session ${sessionId}:`, closeError);
                     }
                 }
-            }, 30000);
+            }, 30000); // 30 second heartbeat
+            // Enhanced logging for connection lifecycle
             console.log(`SSE connection established for session: ${sessionId}`);
+            // Store heartbeat interval for cleanup
             session.heartbeatInterval = heartbeatInterval;
         },
         cancel() {
+            // Enhanced cleanup when connection is closed
             console.log(`SSE connection cancelled for session: ${sessionId}`);
             const session = activeSessions.get(sessionId);
             if (session?.heartbeatInterval) {
@@ -567,21 +602,29 @@ async function handleSseRequest(request) {
         }
     });
 }
+/**
+ * Cloudflare Workers fetch handler
+ */
 async function fetch(request, env, _ctx) {
     try {
+        // Clean up stale sessions on each request
         cleanupStaleSessions();
         const url = new URL(request.url);
         const method = request.method;
         const pathname = url.pathname;
+        // Enhanced logging for all incoming requests
         console.log(`[${new Date().toISOString()}] ${method} ${pathname} - User-Agent: ${request.headers.get('user-agent') || 'unknown'}`);
         const acceptHeader = request.headers.get('Accept') || '';
+        // Root endpoint - handle both health check (GET) and MCP protocol (POST)
         if (url.pathname === '/') {
             console.log(`[${new Date().toISOString()}] Root endpoint accessed - User-Agent: ${request.headers.get('user-agent') || 'unknown'}`);
             if (request.method === 'GET') {
+                // If client explicitly asks for SSE, initiate an SSE connection
                 if (acceptHeader.includes('text/event-stream')) {
                     console.log(`[${new Date().toISOString()}] SSE connection requested at root`);
                     return handleSseRequest(request);
                 }
+                // Otherwise, return the standard health check
                 return new Response(JSON.stringify({
                     status: 'ok',
                     version: '1.0.0',
@@ -602,6 +645,7 @@ async function fetch(request, env, _ctx) {
                 return handleMcpRequest(request, env);
             }
         }
+        // Handle CORS preflight requests
         if (request.method === 'OPTIONS') {
             return new Response(null, {
                 headers: {
@@ -611,6 +655,7 @@ async function fetch(request, env, _ctx) {
                 }
             });
         }
+        // MCP protocol endpoint (HTTP POST at root)
         if (url.pathname === '/' && request.method === 'POST') {
             console.log(`[${new Date().toISOString()}] Root POST request received - User-Agent: ${request.headers.get('user-agent') || 'unknown'}`);
             const body = await request.text();
@@ -629,6 +674,7 @@ async function fetch(request, env, _ctx) {
                 headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
             });
         }
+        // MCP protocol endpoint (HTTP POST)
         if (url.pathname === '/mcp' && request.method === 'POST') {
             const body = await request.text();
             let mcpRequest;
@@ -651,6 +697,7 @@ async function fetch(request, env, _ctx) {
                     }
                 });
             }
+            // Validate MCP request structure
             if (!mcpRequest.jsonrpc || mcpRequest.jsonrpc !== '2.0' || !mcpRequest.method) {
                 return new Response(JSON.stringify({
                     jsonrpc: '2.0',
@@ -676,6 +723,7 @@ async function fetch(request, env, _ctx) {
                 }
             });
         }
+        // MCP protocol endpoint (SSE for Cursor compatibility)
         if (url.pathname === '/mcp/sse') {
             if (request.method === 'GET') {
                 return handleSseRequest(request);
@@ -695,6 +743,7 @@ async function fetch(request, env, _ctx) {
                 });
             }
         }
+        // MCP protocol message endpoint for SSE sessions
         if (url.pathname === '/mcp/message' && request.method === 'POST') {
             const sessionId = request.headers.get('X-Session-ID') || url.searchParams.get('sessionId');
             if (!sessionId || !activeSessions.has(sessionId)) {
@@ -735,7 +784,9 @@ async function fetch(request, env, _ctx) {
                     }
                 });
             }
+            // Handle the MCP request
             const response = await handleMCPMessage(mcpRequest, sessionId);
+            // Send response through SSE
             try {
                 const responseMessage = `data: ${JSON.stringify(response)}\n\n`;
                 session.controller.enqueue(new TextEncoder().encode(responseMessage));
@@ -748,6 +799,7 @@ async function fetch(request, env, _ctx) {
                 });
             }
             catch (error) {
+                // If SSE is closed, clean up and return error
                 activeSessions.delete(sessionId);
                 return new Response(JSON.stringify({
                     jsonrpc: '2.0',
@@ -765,6 +817,7 @@ async function fetch(request, env, _ctx) {
                 });
             }
         }
+        // Environment info endpoint (for debugging)
         if (url.pathname === '/env' && request.method === 'GET') {
             return new Response(JSON.stringify({
                 environment: 'cloudflare-workers',
@@ -780,6 +833,7 @@ async function fetch(request, env, _ctx) {
                 }
             });
         }
+        // Session cleanup endpoint (for debugging)
         if (url.pathname === '/sessions' && request.method === 'GET') {
             const sessions = Array.from(activeSessions.entries()).map(([id, session]) => ({
                 id,
@@ -796,6 +850,7 @@ async function fetch(request, env, _ctx) {
                 }
             });
         }
+        // OAuth 2.0 Discovery endpoint (restore this!)
         if (url.pathname === '/.well-known/oauth-authorization-server' && request.method === 'GET') {
             return new Response(JSON.stringify({
                 issuer: 'https://tally-mcp.focuslab.workers.dev',
@@ -814,6 +869,7 @@ async function fetch(request, env, _ctx) {
                 }
             });
         }
+        // /authorize endpoint (stub for compatibility)
         if (url.pathname === '/authorize' && request.method === 'GET') {
             const redirectUri = url.searchParams.get('redirect_uri');
             const state = url.searchParams.get('state');
@@ -826,8 +882,10 @@ async function fetch(request, env, _ctx) {
             if (state) {
                 destination.searchParams.set('state', state);
             }
+            // Perform a 302 redirect
             return Response.redirect(destination.toString(), 302);
         }
+        // Default 404 response
         console.log(`[${new Date().toISOString()}] 404 Not Found: ${method} ${pathname} - User-Agent: ${request.headers.get('user-agent') || 'unknown'}`);
         return new Response(JSON.stringify({
             error: 'Not Found',
@@ -878,29 +936,32 @@ async function handleMcpRequest(request, _env) {
     }
     const body = await request.json();
     const mcpRequest = body;
+    // Reuse the existing, robust message handler
     const mcpResponse = await handleMCPMessage(mcpRequest, apiKey);
     let status = 200;
     if ('error' in mcpResponse && mcpResponse.error) {
+        // Map JSON-RPC error codes to HTTP status codes for transport-level correctness
         switch (mcpResponse.error.code) {
-            case -32700:
-            case -32600:
-            case -32602:
+            case -32700: // Parse error
+            case -32600: // Invalid Request
+            case -32602: // Invalid Params
                 status = 400;
                 break;
-            case -32601:
+            case -32601: // Method not found
                 status = 404;
                 break;
-            default:
+            default: // Server error (-32000 to -32099)
                 status = 500;
                 break;
         }
     }
+    // Return the response from the message handler with the correct HTTP status
     return new Response(JSON.stringify(mcpResponse), {
         status: status,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
 }
-exports.default = {
+// Export the Workers-compatible handler
+export default {
     fetch
 };
-//# sourceMappingURL=worker.js.map

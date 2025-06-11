@@ -16,6 +16,8 @@ import {
 import { TallyApiClient, TallyApiClientConfig } from './services/TallyApiClient';
 import { EventEmitter } from 'events';
 import { env } from './config/env';
+import { ServerCapabilities, ClientCapabilities, NegotiatedCapabilities } from './types/capabilities';
+import { StructuredError } from './types/errors';
 
 /**
  * Log levels enumeration
@@ -218,6 +220,66 @@ export const DEFAULT_HEALTH_THRESHOLDS: HealthThresholds = {
   maxErrorRate: 50,     // 50 errors per minute
   maxConnections: 90,   // 90% of max connections
 };
+
+/**
+ * Server capabilities configuration
+ */
+const SERVER_CAPABILITIES: ServerCapabilities = {
+  tools: {
+    listChanged: true
+  },
+  resources: {
+    subscribe: false,
+    listChanged: false
+  },
+  prompts: {
+    listChanged: false
+  },
+  logging: {}
+};
+
+/**
+ * Validate and merge client capabilities with server capabilities
+ */
+function negotiateCapabilities(clientCapabilities: unknown): NegotiatedCapabilities {
+  // Validate client capabilities format
+  if (clientCapabilities && typeof clientCapabilities !== 'object') {
+    throw new Error('Invalid capabilities format');
+  }
+
+  // Validate client capability values
+  if (clientCapabilities) {
+    const typedCapabilities = clientCapabilities as Record<string, unknown>;
+    for (const [key, value] of Object.entries(typedCapabilities)) {
+      if (value !== null && typeof value !== 'object') {
+        throw new Error('Invalid capability values');
+      }
+    }
+  }
+
+  // Start with server capabilities
+  const negotiatedCapabilities = { ...SERVER_CAPABILITIES };
+
+  // If client provided capabilities, merge them
+  if (clientCapabilities) {
+    const typedCapabilities = clientCapabilities as ClientCapabilities;
+    for (const [key, value] of Object.entries(typedCapabilities)) {
+      if (key in negotiatedCapabilities) {
+        // Only merge known capabilities
+        const serverKey = key as keyof ServerCapabilities;
+        const mergedCapability = {
+          ...negotiatedCapabilities[serverKey],
+          ...value
+        };
+        
+        // Type assertion to ensure type safety
+        negotiatedCapabilities[serverKey] = mergedCapability as typeof negotiatedCapabilities[typeof serverKey];
+      }
+    }
+  }
+
+  return negotiatedCapabilities;
+}
 
 /**
  * Main MCP Server class that extends the MCP SDK Server
@@ -571,13 +633,11 @@ export class MCPServer extends Server {
     const requestId = (req as any).requestId || 'unknown';
     this.log('info', `New SSE connection established [${requestId}]`);
 
-    // Check if response is already closed
     if (res.destroyed || res.headersSent) {
       this.log('warn', `Attempted to setup SSE on closed connection [${requestId}]`);
       return;
     }
 
-    // Set SSE headers
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
@@ -586,66 +646,56 @@ export class MCPServer extends Server {
       'Access-Control-Allow-Headers': 'Cache-Control, Connection',
     });
 
-    // Add connection to active connections
     this.activeConnections.add(res);
     this.connectionCount++;
 
-    // Send initial connection confirmation
     this.sendSSEMessage(res, 'connection', {
       status: 'connected',
       serverId: requestId,
       serverInfo: {
         name: 'Tally MCP Server',
         version: '1.0.0',
-        capabilities: ['tools', 'resources', 'prompts'],
+        capabilities: Object.keys(SERVER_CAPABILITIES),
       },
     });
 
-    // Set up connection timeout
+    // Send initial tools list notification
+    this.sendSSEMessage(res, 'mcp-response', {
+      jsonrpc: '2.0',
+      method: 'notifications/tools/list_changed',
+      params: {
+        tools: this._handleToolsList()
+      }
+    });
+
     const timeout = setTimeout(() => {
       this.log('debug', `SSE connection timeout [${requestId}]`);
       this.removeConnection(res);
-    }, this.config.requestTimeout * 2); // Extended timeout for SSE
+    }, this.config.requestTimeout * 2);
 
-    // Handle connection close
     req.on('close', () => {
       clearTimeout(timeout);
       this.log('info', `SSE connection closed [${requestId}]`);
       this.removeConnection(res);
     });
 
-    // Handle connection abort
     req.on('aborted', () => {
       clearTimeout(timeout);
       this.log('info', `SSE connection aborted [${requestId}]`);
       this.removeConnection(res);
     });
 
-    // Handle connection errors
     res.on('error', (error) => {
       clearTimeout(timeout);
-      this.log('error', `SSE connection error [${requestId}]:`, undefined, error as Error);
+      this.log('error', `SSE connection error [${requestId}]:`, undefined, error);
       this.removeConnection(res);
     });
 
-    // Handle response finish
     res.on('finish', () => {
       clearTimeout(timeout);
       this.log('debug', `SSE response finished [${requestId}]`);
       this.removeConnection(res);
     });
-
-    // Send periodic heartbeat to keep connection alive
-    const heartbeat = setInterval(() => {
-      if (this.activeConnections.has(res) && !res.destroyed) {
-        this.sendSSEMessage(res, 'heartbeat', { timestamp: Date.now() });
-      } else {
-        clearInterval(heartbeat);
-      }
-    }, 30000); // 30 second heartbeat
-
-    // Clean up heartbeat on connection removal
-    res.on('close', () => clearInterval(heartbeat));
   }
 
   /**
@@ -656,7 +706,7 @@ export class MCPServer extends Server {
     this.log('debug', 'Received MCP message:', { message, messageType: typeof message });
 
     try {
-      // Validate message structure - be strict about null/undefined/empty
+      // Validate message structure
       if (message === null || 
           message === undefined || 
           typeof message !== 'object' || 
@@ -688,30 +738,64 @@ export class MCPServer extends Server {
         return;
       }
 
-      // Process MCP protocol requests
       let mcpResponse;
       
       try {
-        // Handle different MCP protocol methods
         switch (message.method) {
           case 'initialize':
-            mcpResponse = {
-              jsonrpc: '2.0',
-              id: message.id,
-              result: {
-                protocolVersion: '2024-11-05',
-                capabilities: {
-                  tools: {},
-                  resources: {},
-                  prompts: {}
-                },
-                serverInfo: {
-                  name: 'tally-mcp-server',
-                  version: '1.0.0',
-                  description: 'MCP server for Tally.so form management and automation'
+            // Validate protocol version
+            if (!message.params?.protocolVersion) {
+              mcpResponse = {
+                jsonrpc: '2.0',
+                id: message.id,
+                error: {
+                  code: -32602,
+                  message: 'Invalid params',
+                  data: 'Protocol version is required'
                 }
-              }
-            };
+              };
+              break;
+            }
+
+            if (message.params.protocolVersion !== '2024-11-05') {
+              mcpResponse = {
+                jsonrpc: '2.0',
+                id: message.id,
+                error: {
+                  code: -32600,
+                  message: 'Invalid Request',
+                  data: 'Unsupported protocol version'
+                }
+              };
+              break;
+            }
+
+            try {
+              const capabilities = negotiateCapabilities(message.params.capabilities);
+              mcpResponse = {
+                jsonrpc: '2.0',
+                id: message.id,
+                result: {
+                  protocolVersion: '2024-11-05',
+                  capabilities,
+                  serverInfo: {
+                    name: 'tally-mcp-server',
+                    version: '1.0.0',
+                    description: 'MCP server for Tally.so form management and automation'
+                  }
+                }
+              };
+            } catch (error) {
+              mcpResponse = {
+                jsonrpc: '2.0',
+                id: message.id,
+                error: {
+                  code: -32602,
+                  message: 'Invalid params',
+                  data: error instanceof Error ? error.message : 'Invalid capabilities'
+                }
+              };
+            }
             break;
 
           case 'tools/list':
@@ -778,10 +862,7 @@ export class MCPServer extends Server {
         };
       }
 
-      // Send response back to all connected SSE clients
       this.broadcastToConnections('message', mcpResponse);
-
-      // Send HTTP response
       res.json(mcpResponse);
     } catch (error) {
       this.log('error', 'Error processing MCP message:', undefined, error as Error);
