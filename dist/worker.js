@@ -204,91 +204,114 @@ const SERVER_CAPABILITIES = {
 /**
  * Handle MCP protocol messages
  */
-async function handleMCPMessage(request, sessionId) {
-    const { method, params, id } = request;
-    try {
-        switch (method) {
-            case 'initialize':
-                return {
-                    jsonrpc: '2.0',
-                    id,
-                    result: {
-                        protocolVersion: '2024-11-05',
-                        capabilities: SERVER_CAPABILITIES,
-                        serverInfo: {
-                            name: 'tally-mcp-server',
-                            version: '1.0.0',
-                            description: 'MCP server for Tally.so form management and automation'
+async function handleMCPMessage(request, sessionIdOrApiKey) {
+    const { method, id } = request;
+    // Handle different MCP methods
+    switch (method) {
+        case 'initialize':
+            // Initialize the MCP connection
+            return {
+                jsonrpc: '2.0',
+                id,
+                result: {
+                    protocolVersion: '2024-11-05',
+                    capabilities: {
+                        tools: {
+                            listChanged: true
                         }
+                    },
+                    serverInfo: {
+                        name: 'tally-mcp-server',
+                        version: '1.0.0'
                     }
-                };
-            case 'tools/list':
+                }
+            };
+        case 'tools/list':
+            return {
+                jsonrpc: '2.0',
+                id,
+                result: {
+                    tools: TOOLS
+                }
+            };
+        case 'tools/call':
+            // For tools/call, we need to determine if we have a sessionId or direct API key
+            const toolResult = await handleToolCall(request.params, sessionIdOrApiKey);
+            // Make sure to include the request id in the response
+            toolResult.id = id;
+            return toolResult;
+        case 'notifications/initialized':
+        case 'notifications/roots/list_changed':
+        case 'notifications/resources/list_changed':
+        case 'notifications/resources/updated':
+        case 'notifications/resources/subscribed':
+        case 'notifications/resources/unsubscribed':
+        case 'notifications/prompts/list_changed':
+        case 'notifications/tools/list_changed':
+        case 'notifications/logging':
+            // Notifications typically don't require a response
+            // But if they do, only include id if the original notification had one
+            if (id !== undefined) {
                 return {
                     jsonrpc: '2.0',
                     id,
-                    result: {
-                        tools: TOOLS
-                    }
+                    result: {}
                 };
-            case 'tools/call':
-                return await handleToolCall(params, sessionId);
-            case 'resources/list':
-                return {
-                    jsonrpc: '2.0',
-                    id,
-                    result: {
-                        resources: []
-                    }
-                };
-            case 'prompts/list':
-                return {
-                    jsonrpc: '2.0',
-                    id,
-                    result: {
-                        prompts: []
-                    }
-                };
-            default:
-                return {
-                    jsonrpc: '2.0',
-                    id,
-                    error: {
-                        code: -32601,
-                        message: 'Method not found',
-                        data: `Unknown method: ${method}`
-                    }
-                };
-        }
-    }
-    catch (error) {
-        return {
-            jsonrpc: '2.0',
-            id,
-            error: {
-                code: -32603,
-                message: 'Internal error',
-                data: error instanceof Error ? error.message : 'Unknown error'
             }
-        };
+            else {
+                // For notifications without id, don't return anything
+                return {
+                    jsonrpc: '2.0',
+                    result: {}
+                };
+            }
+        default:
+            return {
+                jsonrpc: '2.0',
+                id,
+                error: {
+                    code: -32601,
+                    message: 'Method not found',
+                    data: `Unknown method: ${method}`
+                }
+            };
     }
 }
 /**
  * Handle tool calls
  */
-async function handleToolCall(params, sessionId) {
+async function handleToolCall(params, sessionIdOrApiKey) {
     const { name, arguments: args } = params;
-    // Get API key from session if available
     let apiKey;
-    if (sessionId && activeSessions.has(sessionId)) {
-        apiKey = activeSessions.get(sessionId).apiKey;
+    // Check if this is a sessionId (UUID format) or direct API key
+    if (sessionIdOrApiKey) {
+        // If it looks like a UUID, it's a sessionId - get API key from session
+        if (sessionIdOrApiKey.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+            const session = activeSessions.get(sessionIdOrApiKey);
+            if (session) {
+                apiKey = session.apiKey;
+            }
+        }
+        else {
+            // Otherwise, it's a direct API key (for HTTP Stream transport)
+            apiKey = sessionIdOrApiKey;
+        }
+    }
+    // If no API key from the request, try to get it from Cloudflare Workers environment
+    if (!apiKey) {
+        const env = globalThis.workerEnv;
+        if (env && env.TALLY_API_KEY) {
+            apiKey = env.TALLY_API_KEY;
+        }
     }
     if (!apiKey) {
         return {
             jsonrpc: '2.0',
+            id: undefined, // Will be set by the caller
             error: {
                 code: -32602,
                 message: 'Invalid params',
-                data: 'No API key available for this session'
+                data: 'No API key available. Please provide via token query parameter or set TALLY_API_KEY environment variable'
             }
         };
     }
@@ -296,6 +319,7 @@ async function handleToolCall(params, sessionId) {
         const result = await callTallyAPI(name, args, apiKey);
         return {
             jsonrpc: '2.0',
+            id: undefined, // Will be set by the caller
             result: {
                 content: [
                     {
@@ -309,6 +333,7 @@ async function handleToolCall(params, sessionId) {
     catch (error) {
         return {
             jsonrpc: '2.0',
+            id: undefined, // Will be set by the caller
             error: {
                 code: -32603,
                 message: 'Tool execution failed',
@@ -606,6 +631,8 @@ async function handleSseRequest(request) {
  * Cloudflare Workers fetch handler
  */
 async function fetch(request, env, _ctx) {
+    // Make environment available globally for the worker
+    globalThis.workerEnv = env;
     try {
         // Clean up stale sessions on each request
         cleanupStaleSessions();
@@ -655,9 +682,36 @@ async function fetch(request, env, _ctx) {
                 }
             });
         }
-        // MCP protocol endpoint (HTTP POST at root)
-        if (url.pathname === '/' && request.method === 'POST') {
-            console.log(`[${new Date().toISOString()}] Root POST request received - User-Agent: ${request.headers.get('user-agent') || 'unknown'}`);
+        // /mcp endpoint for HTTP Stream Transport with query parameter token support
+        if (url.pathname === '/mcp' && request.method === 'POST') {
+            console.log(`[${new Date().toISOString()}] MCP request via HTTP Stream transport - User-Agent: ${request.headers.get('user-agent') || 'unknown'}`);
+            // Extract API key from query parameter or Authorization header
+            let apiKey;
+            // Check Authorization header first
+            const authHeader = request.headers.get('Authorization');
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                apiKey = authHeader.substring(7);
+            }
+            // Fallback to query parameter
+            if (!apiKey) {
+                apiKey = url.searchParams.get('token') || undefined;
+            }
+            if (!apiKey) {
+                return new Response(JSON.stringify({
+                    jsonrpc: '2.0',
+                    error: {
+                        code: -32000,
+                        message: 'Authentication required',
+                        data: 'Please provide an API token via Authorization header (Bearer <token>) or ?token=<token> query parameter.'
+                    }
+                }), {
+                    status: 401,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    }
+                });
+            }
             const body = await request.text();
             let mcpRequest;
             try {
@@ -666,12 +720,44 @@ async function fetch(request, env, _ctx) {
             catch (error) {
                 return new Response(JSON.stringify({
                     jsonrpc: '2.0',
-                    error: { code: -32700, message: 'Parse error', data: 'Invalid JSON' }
-                }), { status: 400, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });
+                    error: {
+                        code: -32700,
+                        message: 'Parse error',
+                        data: 'Invalid JSON'
+                    }
+                }), {
+                    status: 400,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    }
+                });
             }
-            const response = await handleMCPMessage(mcpRequest);
+            // Validate MCP request structure
+            if (!mcpRequest.jsonrpc || mcpRequest.jsonrpc !== '2.0' || !mcpRequest.method) {
+                return new Response(JSON.stringify({
+                    jsonrpc: '2.0',
+                    id: mcpRequest.id,
+                    error: {
+                        code: -32600,
+                        message: 'Invalid Request',
+                        data: 'Missing required fields: jsonrpc, method'
+                    }
+                }), {
+                    status: 400,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    }
+                });
+            }
+            // Pass the API key to handleMCPMessage
+            const response = await handleMCPMessage(mcpRequest, apiKey);
             return new Response(JSON.stringify(response), {
-                headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                }
             });
         }
         // MCP protocol endpoint (HTTP POST)

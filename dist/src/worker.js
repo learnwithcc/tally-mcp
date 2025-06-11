@@ -193,79 +193,74 @@ const SERVER_CAPABILITIES = {
     prompts: {},
     logging: {}
 };
-async function handleMCPMessage(request, sessionId) {
-    const { method, params, id } = request;
-    try {
-        switch (method) {
-            case 'initialize':
-                return {
-                    jsonrpc: '2.0',
-                    id,
-                    result: {
-                        protocolVersion: '2024-11-05',
-                        capabilities: SERVER_CAPABILITIES,
-                        serverInfo: {
-                            name: 'tally-mcp-server',
-                            version: '1.0.0',
-                            description: 'MCP server for Tally.so form management and automation'
+async function handleMCPMessage(request, sessionIdOrApiKey) {
+    const { method, id } = request;
+    switch (method) {
+        case 'initialize':
+            return {
+                jsonrpc: '2.0',
+                id,
+                result: {
+                    protocolVersion: '2024-11-05',
+                    capabilities: {
+                        tools: {
+                            listChanged: true
                         }
+                    },
+                    serverInfo: {
+                        name: 'tally-mcp-server',
+                        version: '1.0.0'
                     }
-                };
-            case 'tools/list':
-                return {
-                    jsonrpc: '2.0',
-                    id,
-                    result: {
-                        tools: TOOLS
-                    }
-                };
-            case 'tools/call':
-                return await handleToolCall(params, sessionId);
-            case 'resources/list':
-                return {
-                    jsonrpc: '2.0',
-                    id,
-                    result: {
-                        resources: []
-                    }
-                };
-            case 'prompts/list':
-                return {
-                    jsonrpc: '2.0',
-                    id,
-                    result: {
-                        prompts: []
-                    }
-                };
-            default:
-                return {
-                    jsonrpc: '2.0',
-                    id,
-                    error: {
-                        code: -32601,
-                        message: 'Method not found',
-                        data: `Unknown method: ${method}`
-                    }
-                };
-        }
-    }
-    catch (error) {
-        return {
-            jsonrpc: '2.0',
-            id,
-            error: {
-                code: -32603,
-                message: 'Internal error',
-                data: error instanceof Error ? error.message : 'Unknown error'
-            }
-        };
+                }
+            };
+        case 'tools/list':
+            return {
+                jsonrpc: '2.0',
+                id,
+                result: {
+                    tools: TOOLS
+                }
+            };
+        case 'tools/call':
+            return await handleToolCall(request.params, sessionIdOrApiKey);
+        case 'notifications/initialized':
+        case 'notifications/roots/list_changed':
+        case 'notifications/resources/list_changed':
+        case 'notifications/resources/updated':
+        case 'notifications/resources/subscribed':
+        case 'notifications/resources/unsubscribed':
+        case 'notifications/prompts/list_changed':
+        case 'notifications/tools/list_changed':
+        case 'notifications/logging':
+            return {
+                jsonrpc: '2.0',
+                id
+            };
+        default:
+            return {
+                jsonrpc: '2.0',
+                id,
+                error: {
+                    code: -32601,
+                    message: 'Method not found',
+                    data: `Unknown method: ${method}`
+                }
+            };
     }
 }
-async function handleToolCall(params, sessionId) {
+async function handleToolCall(params, sessionIdOrApiKey) {
     const { name, arguments: args } = params;
     let apiKey;
-    if (sessionId && activeSessions.has(sessionId)) {
-        apiKey = activeSessions.get(sessionId).apiKey;
+    if (sessionIdOrApiKey) {
+        if (sessionIdOrApiKey.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+            const session = activeSessions.get(sessionIdOrApiKey);
+            if (session) {
+                apiKey = session.apiKey;
+            }
+        }
+        else {
+            apiKey = sessionIdOrApiKey;
+        }
     }
     if (!apiKey) {
         return {
@@ -609,8 +604,32 @@ async function fetch(request, env, _ctx) {
                 }
             });
         }
-        if (url.pathname === '/' && request.method === 'POST') {
-            console.log(`[${new Date().toISOString()}] Root POST request received - User-Agent: ${request.headers.get('user-agent') || 'unknown'}`);
+        if (url.pathname === '/mcp' && request.method === 'POST') {
+            console.log(`[${new Date().toISOString()}] MCP request via HTTP Stream transport - User-Agent: ${request.headers.get('user-agent') || 'unknown'}`);
+            let apiKey;
+            const authHeader = request.headers.get('Authorization');
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                apiKey = authHeader.substring(7);
+            }
+            if (!apiKey) {
+                apiKey = url.searchParams.get('token') || undefined;
+            }
+            if (!apiKey) {
+                return new Response(JSON.stringify({
+                    jsonrpc: '2.0',
+                    error: {
+                        code: -32000,
+                        message: 'Authentication required',
+                        data: 'Please provide an API token via Authorization header (Bearer <token>) or ?token=<token> query parameter.'
+                    }
+                }), {
+                    status: 401,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    }
+                });
+            }
             const body = await request.text();
             let mcpRequest;
             try {
@@ -619,12 +638,42 @@ async function fetch(request, env, _ctx) {
             catch (error) {
                 return new Response(JSON.stringify({
                     jsonrpc: '2.0',
-                    error: { code: -32700, message: 'Parse error', data: 'Invalid JSON' }
-                }), { status: 400, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });
+                    error: {
+                        code: -32700,
+                        message: 'Parse error',
+                        data: 'Invalid JSON'
+                    }
+                }), {
+                    status: 400,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    }
+                });
             }
-            const response = await handleMCPMessage(mcpRequest);
+            if (!mcpRequest.jsonrpc || mcpRequest.jsonrpc !== '2.0' || !mcpRequest.method) {
+                return new Response(JSON.stringify({
+                    jsonrpc: '2.0',
+                    id: mcpRequest.id,
+                    error: {
+                        code: -32600,
+                        message: 'Invalid Request',
+                        data: 'Missing required fields: jsonrpc, method'
+                    }
+                }), {
+                    status: 400,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    }
+                });
+            }
+            const response = await handleMCPMessage(mcpRequest, apiKey);
             return new Response(JSON.stringify(response), {
-                headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                }
             });
         }
         if (url.pathname === '/mcp' && request.method === 'POST') {

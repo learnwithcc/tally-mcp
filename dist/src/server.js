@@ -58,6 +58,47 @@ export const DEFAULT_HEALTH_THRESHOLDS = {
     maxErrorRate: 50,
     maxConnections: 90,
 };
+const SERVER_CAPABILITIES = {
+    tools: {
+        listChanged: true
+    },
+    resources: {
+        subscribe: false,
+        listChanged: false
+    },
+    prompts: {
+        listChanged: false
+    },
+    logging: {}
+};
+function negotiateCapabilities(clientCapabilities) {
+    if (clientCapabilities && typeof clientCapabilities !== 'object') {
+        throw new Error('Invalid capabilities format');
+    }
+    if (clientCapabilities) {
+        const typedCapabilities = clientCapabilities;
+        for (const [key, value] of Object.entries(typedCapabilities)) {
+            if (value !== null && typeof value !== 'object') {
+                throw new Error('Invalid capability values');
+            }
+        }
+    }
+    const negotiatedCapabilities = { ...SERVER_CAPABILITIES };
+    if (clientCapabilities) {
+        const typedCapabilities = clientCapabilities;
+        for (const [key, value] of Object.entries(typedCapabilities)) {
+            if (key in negotiatedCapabilities) {
+                const serverKey = key;
+                const mergedCapability = {
+                    ...negotiatedCapabilities[serverKey],
+                    ...value
+                };
+                negotiatedCapabilities[serverKey] = mergedCapability;
+            }
+        }
+    }
+    return negotiatedCapabilities;
+}
 export class MCPServer extends Server {
     constructor(config = {}) {
         super({
@@ -283,8 +324,15 @@ export class MCPServer extends Server {
             serverInfo: {
                 name: 'Tally MCP Server',
                 version: '1.0.0',
-                capabilities: ['tools', 'resources', 'prompts'],
+                capabilities: Object.keys(SERVER_CAPABILITIES),
             },
+        });
+        this.sendSSEMessage(res, 'mcp-response', {
+            jsonrpc: '2.0',
+            method: 'notifications/tools/list_changed',
+            params: {
+                tools: this._handleToolsList()
+            }
         });
         const timeout = setTimeout(() => {
             this.log('debug', `SSE connection timeout [${requestId}]`);
@@ -310,15 +358,6 @@ export class MCPServer extends Server {
             this.log('debug', `SSE response finished [${requestId}]`);
             this.removeConnection(res);
         });
-        const heartbeat = setInterval(() => {
-            if (this.activeConnections.has(res) && !res.destroyed) {
-                this.sendSSEMessage(res, 'heartbeat', { timestamp: Date.now() });
-            }
-            else {
-                clearInterval(heartbeat);
-            }
-        }, 30000);
-        res.on('close', () => clearInterval(heartbeat));
     }
     async handleMCPMessage(message, res) {
         this.log('debug', 'Received MCP message:', { message, messageType: typeof message });
@@ -355,23 +394,57 @@ export class MCPServer extends Server {
             try {
                 switch (message.method) {
                     case 'initialize':
-                        mcpResponse = {
-                            jsonrpc: '2.0',
-                            id: message.id,
-                            result: {
-                                protocolVersion: '2024-11-05',
-                                capabilities: {
-                                    tools: {},
-                                    resources: {},
-                                    prompts: {}
-                                },
-                                serverInfo: {
-                                    name: 'tally-mcp-server',
-                                    version: '1.0.0',
-                                    description: 'MCP server for Tally.so form management and automation'
+                        if (!message.params?.protocolVersion) {
+                            mcpResponse = {
+                                jsonrpc: '2.0',
+                                id: message.id,
+                                error: {
+                                    code: -32602,
+                                    message: 'Invalid params',
+                                    data: 'Protocol version is required'
                                 }
-                            }
-                        };
+                            };
+                            break;
+                        }
+                        if (message.params.protocolVersion !== '2024-11-05') {
+                            mcpResponse = {
+                                jsonrpc: '2.0',
+                                id: message.id,
+                                error: {
+                                    code: -32600,
+                                    message: 'Invalid Request',
+                                    data: 'Unsupported protocol version'
+                                }
+                            };
+                            break;
+                        }
+                        try {
+                            const capabilities = negotiateCapabilities(message.params.capabilities);
+                            mcpResponse = {
+                                jsonrpc: '2.0',
+                                id: message.id,
+                                result: {
+                                    protocolVersion: '2024-11-05',
+                                    capabilities,
+                                    serverInfo: {
+                                        name: 'tally-mcp-server',
+                                        version: '1.0.0',
+                                        description: 'MCP server for Tally.so form management and automation'
+                                    }
+                                }
+                            };
+                        }
+                        catch (error) {
+                            mcpResponse = {
+                                jsonrpc: '2.0',
+                                id: message.id,
+                                error: {
+                                    code: -32602,
+                                    message: 'Invalid params',
+                                    data: error instanceof Error ? error.message : 'Invalid capabilities'
+                                }
+                            };
+                        }
                         break;
                     case 'tools/list':
                         const toolsResult = await this._handleToolsList();

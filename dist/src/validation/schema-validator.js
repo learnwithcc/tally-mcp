@@ -109,7 +109,7 @@ export class SchemaValidator {
             });
         }
     }
-    validateJsonSchemaDraft(schema, errors, warnings) {
+    validateJsonSchemaDraft(schema, _errors, warnings) {
         if (schema.$schema) {
             if (schema.$schema !== SUPPORTED_JSON_SCHEMA_VERSION) {
                 warnings.push({
@@ -138,12 +138,12 @@ export class SchemaValidator {
             }
         });
     }
-    validateSchemaDepth(schema, maxDepth, errors, warnings, currentDepth = 0, path = '') {
+    validateSchemaDepth(schema, maxDepth, errors, _warnings, currentDepth = 0, path = '') {
         if (currentDepth > maxDepth) {
-            warnings.push({
+            errors.push({
                 code: 'SCHEMA_DEPTH_EXCEEDED',
                 message: `Schema nesting depth exceeds maximum of ${maxDepth}`,
-                severity: ValidationSeverity.WARNING,
+                severity: ValidationSeverity.ERROR,
                 path,
                 expected: `depth <= ${maxDepth}`,
                 actual: `depth > ${maxDepth}`,
@@ -154,15 +154,15 @@ export class SchemaValidator {
         if (schema.properties && typeof schema.properties === 'object') {
             Object.entries(schema.properties).forEach(([key, value]) => {
                 if (value && typeof value === 'object') {
-                    this.validateSchemaDepth(value, maxDepth, errors, warnings, currentDepth + 1, path ? `${path}.properties.${key}` : `properties.${key}`);
+                    this.validateSchemaDepth(value, maxDepth, errors, _warnings, currentDepth + 1, path ? `${path}.properties.${key}` : `properties.${key}`);
                 }
             });
         }
         if (schema.items && typeof schema.items === 'object') {
-            this.validateSchemaDepth(schema.items, maxDepth, errors, warnings, currentDepth + 1, path ? `${path}.items` : 'items');
+            this.validateSchemaDepth(schema.items, maxDepth, errors, _warnings, currentDepth + 1, path ? `${path}.items` : 'items');
         }
         if (schema.additionalProperties && typeof schema.additionalProperties === 'object') {
-            this.validateSchemaDepth(schema.additionalProperties, maxDepth, errors, warnings, currentDepth + 1, path ? `${path}.additionalProperties` : 'additionalProperties');
+            this.validateSchemaDepth(schema.additionalProperties, maxDepth, errors, _warnings, currentDepth + 1, path ? `${path}.additionalProperties` : 'additionalProperties');
         }
     }
     validateTypeSpecificRules(schema, errors, warnings, info) {
