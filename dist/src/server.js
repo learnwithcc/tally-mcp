@@ -889,35 +889,86 @@ export class MCPServer extends Server {
             tools: [
                 {
                     name: 'create_form',
-                    description: 'Create a new Tally form with specified fields and configuration',
+                    description: 'Create a new Tally form with specified fields and configuration. This tool converts simple field definitions into Tally\'s complex blocks-based structure automatically. The form status defaults to DRAFT if not specified.',
                     inputSchema: {
                         type: 'object',
                         properties: {
-                            title: { type: 'string', description: 'Form title' },
-                            description: { type: 'string', description: 'Form description' },
+                            title: {
+                                type: 'string',
+                                description: 'Form title (required) - will be displayed as the main form heading',
+                                minLength: 1,
+                                maxLength: 100
+                            },
+                            description: {
+                                type: 'string',
+                                description: 'Optional form description - displayed below the title to provide context'
+                            },
+                            status: {
+                                type: 'string',
+                                enum: ['DRAFT', 'PUBLISHED'],
+                                description: 'Form publication status. Use DRAFT for unpublished forms that are being worked on, or PUBLISHED for live forms. Defaults to DRAFT if not specified.',
+                                default: 'DRAFT'
+                            },
                             fields: {
                                 type: 'array',
+                                description: 'Array of form fields/questions. Each field will be converted to appropriate Tally blocks automatically.',
+                                minItems: 1,
                                 items: {
                                     type: 'object',
                                     properties: {
-                                        type: { type: 'string', enum: ['text', 'email', 'number', 'textarea', 'select', 'checkbox', 'radio'] },
-                                        label: { type: 'string' },
-                                        required: { type: 'boolean' },
-                                        options: { type: 'array', items: { type: 'string' } }
+                                        type: {
+                                            type: 'string',
+                                            enum: ['text', 'email', 'number', 'textarea', 'select', 'checkbox', 'radio'],
+                                            description: 'Field input type. Maps to Tally blocks: text→INPUT_TEXT, email→INPUT_EMAIL, number→INPUT_NUMBER, textarea→TEXTAREA, select→DROPDOWN, checkbox→CHECKBOXES, radio→MULTIPLE_CHOICE'
+                                        },
+                                        label: {
+                                            type: 'string',
+                                            description: 'Field label/question text - what the user will see',
+                                            minLength: 1
+                                        },
+                                        required: {
+                                            type: 'boolean',
+                                            description: 'Whether this field must be filled out before form submission',
+                                            default: false
+                                        },
+                                        options: {
+                                            type: 'array',
+                                            items: { type: 'string' },
+                                            description: 'Available options for select, checkbox, or radio field types. Required for select/checkbox/radio fields.'
+                                        }
                                     },
-                                    required: ['type', 'label']
-                                }
-                            },
-                            settings: {
-                                type: 'object',
-                                properties: {
-                                    isPublic: { type: 'boolean' },
-                                    allowMultipleSubmissions: { type: 'boolean' },
-                                    showProgressBar: { type: 'boolean' }
+                                    required: ['type', 'label'],
+                                    additionalProperties: false
                                 }
                             }
                         },
-                        required: ['title', 'fields']
+                        required: ['title', 'fields'],
+                        additionalProperties: false,
+                        examples: [
+                            {
+                                title: "Customer Feedback Survey",
+                                description: "Help us improve our service",
+                                status: "DRAFT",
+                                fields: [
+                                    {
+                                        type: "text",
+                                        label: "What is your name?",
+                                        required: true
+                                    },
+                                    {
+                                        type: "email",
+                                        label: "Email address",
+                                        required: true
+                                    },
+                                    {
+                                        type: "select",
+                                        label: "How would you rate our service?",
+                                        required: false,
+                                        options: ["Excellent", "Good", "Fair", "Poor"]
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 },
                 {

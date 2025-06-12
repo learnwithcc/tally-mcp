@@ -318,16 +318,86 @@ async function callTallyAPI(toolName, args, apiKey) {
     };
     switch (toolName) {
         case 'create_form':
+            const blocks = [];
+            blocks.push({
+                uuid: crypto.randomUUID(),
+                type: 'FORM_TITLE',
+                groupUuid: crypto.randomUUID(),
+                groupType: 'TEXT',
+                payload: {
+                    title: args.title,
+                    html: args.title
+                }
+            });
+            if (args.description) {
+                blocks.push({
+                    uuid: crypto.randomUUID(),
+                    type: 'TEXT',
+                    groupUuid: crypto.randomUUID(),
+                    groupType: 'TEXT',
+                    payload: {
+                        text: args.description,
+                        html: args.description
+                    }
+                });
+            }
+            if (args.fields && Array.isArray(args.fields)) {
+                args.fields.forEach((field) => {
+                    let blockType = 'INPUT_TEXT';
+                    switch (field.type) {
+                        case 'text':
+                            blockType = 'INPUT_TEXT';
+                            break;
+                        case 'email':
+                            blockType = 'INPUT_EMAIL';
+                            break;
+                        case 'number':
+                            blockType = 'INPUT_NUMBER';
+                            break;
+                        case 'textarea':
+                            blockType = 'TEXTAREA';
+                            break;
+                        case 'select':
+                            blockType = 'DROPDOWN';
+                            break;
+                        case 'checkbox':
+                            blockType = 'CHECKBOXES';
+                            break;
+                        case 'radio':
+                            blockType = 'MULTIPLE_CHOICE';
+                            break;
+                    }
+                    const block = {
+                        uuid: crypto.randomUUID(),
+                        type: blockType,
+                        groupUuid: crypto.randomUUID(),
+                        groupType: blockType,
+                        payload: {
+                            title: field.label,
+                            required: field.required || false
+                        }
+                    };
+                    if (field.options && Array.isArray(field.options)) {
+                        block.payload.options = field.options.map((option) => ({
+                            id: crypto.randomUUID(),
+                            text: option
+                        }));
+                    }
+                    blocks.push(block);
+                });
+            }
             const createResponse = await globalThis.fetch(`${baseURL}/forms`, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({
-                    title: args.title,
-                    description: args.description,
-                    fields: args.fields,
-                    settings: args.settings
+                    status: args.status || 'DRAFT',
+                    blocks: blocks
                 })
             });
+            if (!createResponse.ok) {
+                const errorText = await createResponse.text();
+                throw new Error(`Tally API error ${createResponse.status}: ${errorText}`);
+            }
             return await createResponse.json();
         case 'modify_form':
             const modifyResponse = await globalThis.fetch(`${baseURL}/forms/${args.formId}`, {
@@ -590,19 +660,7 @@ async function fetch(request, env) {
             response_types_supported: ['code'],
             grant_types_supported: ['authorization_code'],
             code_challenge_methods_supported: ['S256'],
-            token_endpoint_auth_methods_supported: ['none'],
             authless: true
-        }), {
-            headers: { 'Content-Type': 'application/json', ...corsHeaders }
-        });
-    }
-    if (pathname === '/.well-known/oauth-protected-resource') {
-        return new Response(JSON.stringify({
-            resource: new URL(request.url).origin,
-            authorization_servers: [new URL(request.url).origin],
-            scopes_supported: ['read', 'write'],
-            bearer_methods_supported: ['header'],
-            resource_documentation: `${new URL(request.url).origin}/docs`
         }), {
             headers: { 'Content-Type': 'application/json', ...corsHeaders }
         });
@@ -636,15 +694,9 @@ async function fetch(request, env) {
         });
     }
     if (pathname === '/register') {
-        const requestBody = request.method === 'POST' ? await request.json().catch(() => ({})) : {};
-        const redirectUris = requestBody.redirect_uris || [`${new URL(request.url).origin}/callback`];
         return new Response(JSON.stringify({
             client_id: 'authless_client',
             client_secret: 'authless_secret',
-            redirect_uris: redirectUris,
-            grant_types: ['authorization_code'],
-            response_types: ['code'],
-            token_endpoint_auth_method: 'none',
             registration_access_token: 'authless_token',
             registration_client_uri: `${new URL(request.url).origin}/register/authless_client`
         }), {
@@ -691,7 +743,6 @@ async function fetch(request, env) {
             '/mcp',
             '/mcp/sse',
             '/.well-known/oauth-authorization-server',
-            '/.well-known/oauth-protected-resource',
             '/authorize',
             '/token',
             '/register'
