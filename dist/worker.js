@@ -635,8 +635,21 @@ async function fetch(request, env) {
             response_types_supported: ['code'],
             grant_types_supported: ['authorization_code'],
             code_challenge_methods_supported: ['S256'],
+            token_endpoint_auth_methods_supported: ['none'],
             // Indicate this is an authless server
             authless: true
+        }), {
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+    }
+    // OAuth Protected Resource metadata (RFC 8705)
+    if (pathname === '/.well-known/oauth-protected-resource') {
+        return new Response(JSON.stringify({
+            resource: new URL(request.url).origin,
+            authorization_servers: [new URL(request.url).origin],
+            scopes_supported: ['read', 'write'],
+            bearer_methods_supported: ['header'],
+            resource_documentation: `${new URL(request.url).origin}/docs`
         }), {
             headers: { 'Content-Type': 'application/json', ...corsHeaders }
         });
@@ -675,9 +688,16 @@ async function fetch(request, env) {
     }
     if (pathname === '/register') {
         // Dynamic client registration - return dummy client for authless
+        // Parse the request body to get redirect_uris if provided
+        const requestBody = request.method === 'POST' ? await request.json().catch(() => ({})) : {};
+        const redirectUris = requestBody.redirect_uris || [`${new URL(request.url).origin}/callback`];
         return new Response(JSON.stringify({
             client_id: 'authless_client',
             client_secret: 'authless_secret',
+            redirect_uris: redirectUris,
+            grant_types: ['authorization_code'],
+            response_types: ['code'],
+            token_endpoint_auth_method: 'none', // Authless
             registration_access_token: 'authless_token',
             registration_client_uri: `${new URL(request.url).origin}/register/authless_client`
         }), {
@@ -730,6 +750,7 @@ async function fetch(request, env) {
             '/mcp',
             '/mcp/sse',
             '/.well-known/oauth-authorization-server',
+            '/.well-known/oauth-protected-resource',
             '/authorize',
             '/token',
             '/register'

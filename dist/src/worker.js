@@ -263,17 +263,14 @@ async function handleMCPMessage(message, sessionIdOrApiKey, env) {
 }
 async function handleToolCall(params, sessionIdOrApiKey, env) {
     const { name, arguments: args } = params;
-    console.log('handleToolCall called with:');
-    console.log('- Tool name:', name);
-    console.log('- Arguments:', JSON.stringify(args));
-    console.log('- env available:', env ? 'yes' : 'no');
+    console.log('Tool call:', name, 'with args:', JSON.stringify(args));
     let apiKey;
     if (env?.TALLY_API_KEY) {
         apiKey = env.TALLY_API_KEY;
-        console.log('Using API key from environment - starts with:', apiKey.substring(0, 8));
+        console.log('Using API key from environment');
     }
     else {
-        console.error('No TALLY_API_KEY found in environment');
+        console.error('❌ No TALLY_API_KEY found in environment');
         return {
             jsonrpc: '2.0',
             id: undefined,
@@ -285,9 +282,8 @@ async function handleToolCall(params, sessionIdOrApiKey, env) {
         };
     }
     try {
-        console.log('Making API call to Tally with tool:', name);
         const result = await callTallyAPI(name, args, apiKey);
-        console.log('API call successful, result type:', typeof result);
+        console.log('✅ Tool call successful:', name);
         return {
             jsonrpc: '2.0',
             id: undefined,
@@ -302,7 +298,7 @@ async function handleToolCall(params, sessionIdOrApiKey, env) {
         };
     }
     catch (error) {
-        console.error('Tool execution error:', error);
+        console.error('❌ Tool execution error:', error);
         return {
             jsonrpc: '2.0',
             id: undefined,
@@ -561,6 +557,17 @@ async function fetch(request, env) {
     console.log('Environment validation passed. TALLY_API_KEY is available.');
     const url = new URL(request.url);
     const pathname = url.pathname;
+    if (request.method === 'OPTIONS') {
+        return new Response(null, {
+            status: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key',
+                'Access-Control-Max-Age': '86400',
+            },
+        });
+    }
     const corsHeaders = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -583,7 +590,19 @@ async function fetch(request, env) {
             response_types_supported: ['code'],
             grant_types_supported: ['authorization_code'],
             code_challenge_methods_supported: ['S256'],
+            token_endpoint_auth_methods_supported: ['none'],
             authless: true
+        }), {
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+    }
+    if (pathname === '/.well-known/oauth-protected-resource') {
+        return new Response(JSON.stringify({
+            resource: new URL(request.url).origin,
+            authorization_servers: [new URL(request.url).origin],
+            scopes_supported: ['read', 'write'],
+            bearer_methods_supported: ['header'],
+            resource_documentation: `${new URL(request.url).origin}/docs`
         }), {
             headers: { 'Content-Type': 'application/json', ...corsHeaders }
         });
@@ -617,9 +636,15 @@ async function fetch(request, env) {
         });
     }
     if (pathname === '/register') {
+        const requestBody = request.method === 'POST' ? await request.json().catch(() => ({})) : {};
+        const redirectUris = requestBody.redirect_uris || [`${new URL(request.url).origin}/callback`];
         return new Response(JSON.stringify({
             client_id: 'authless_client',
             client_secret: 'authless_secret',
+            redirect_uris: redirectUris,
+            grant_types: ['authorization_code'],
+            response_types: ['code'],
+            token_endpoint_auth_method: 'none',
             registration_access_token: 'authless_token',
             registration_client_uri: `${new URL(request.url).origin}/register/authless_client`
         }), {
@@ -627,6 +652,18 @@ async function fetch(request, env) {
         });
     }
     if (pathname === '/mcp' || pathname === '/mcp/sse') {
+        const auth = authenticateRequest(request, env);
+        if (!auth.authenticated) {
+            return new Response(JSON.stringify({
+                error: 'Authentication Required',
+                message: auth.error,
+                hint: 'Add AUTH_TOKEN to your server configuration and use it in requests',
+                timestamp: new Date().toISOString()
+            }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+        }
         if (!env.TALLY_API_KEY) {
             return new Response(JSON.stringify({
                 jsonrpc: '2.0',
@@ -654,6 +691,7 @@ async function fetch(request, env) {
             '/mcp',
             '/mcp/sse',
             '/.well-known/oauth-authorization-server',
+            '/.well-known/oauth-protected-resource',
             '/authorize',
             '/token',
             '/register'
@@ -706,6 +744,36 @@ async function handleMcpRequest(request, env) {
         status: status,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
+}
+function authenticateRequest(request, env) {
+    if (!env.AUTH_TOKEN) {
+        console.log('🔓 No AUTH_TOKEN configured - allowing unauthenticated access');
+        return { authenticated: true };
+    }
+    const authHeader = request.headers.get('Authorization');
+    if (authHeader) {
+        const match = authHeader.match(/^Bearer\s+(.+)$/i);
+        if (match && match[1] === env.AUTH_TOKEN) {
+            console.log('✅ Valid Bearer token authentication');
+            return { authenticated: true };
+        }
+    }
+    const apiKeyHeader = request.headers.get('X-API-Key');
+    if (apiKeyHeader === env.AUTH_TOKEN) {
+        console.log('✅ Valid X-API-Key authentication');
+        return { authenticated: true };
+    }
+    const url = new URL(request.url);
+    const tokenParam = url.searchParams.get('token');
+    if (tokenParam === env.AUTH_TOKEN) {
+        console.log('✅ Valid query parameter authentication');
+        return { authenticated: true };
+    }
+    console.log('❌ Authentication failed - no valid token provided');
+    return {
+        authenticated: false,
+        error: 'Authentication required. Provide token via Authorization header, X-API-Key header, or ?token= query parameter.'
+    };
 }
 export default {
     fetch
