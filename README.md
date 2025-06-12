@@ -52,6 +52,38 @@ For clients that support custom headers:
 }
 ```
 
+### Option 3: Local Proxy (Alternative)
+
+If you prefer to run a local proxy server that handles authentication:
+
+1. **Start the local proxy**:
+   ```bash
+   # Set your environment variables
+   export REMOTE_SERVER=https://YOUR-DEPLOYMENT.workers.dev/mcp
+   export AUTH_TOKEN=YOUR_AUTH_TOKEN
+   
+   # Start proxy server
+   npm run proxy
+   ```
+
+2. **Configure Claude.ai** with the local proxy:
+   ```json
+   {
+     "mcpServers": {
+       "tally-proxy": {
+         "url": "http://localhost:3001",
+         "transport": "http-stream"
+       }
+     }
+   }
+   ```
+
+**Proxy Benefits:**
+- 🔐 Authentication handled locally
+- 🚫 No credentials sent to Claude.ai
+- 🛡️ Your tokens stay on your machine
+- 🔄 Transparent request forwarding
+
 ## 🏗️ Self-Deployment
 
 ### 1. **Deploy Your Own Server**
