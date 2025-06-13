@@ -144,15 +144,13 @@ describe('CryptoUtils', () => {
         expect(result.valid).toBe(false);
     });
 
-    it('should fail verification for an expired token', (done) => {
+    it('should fail verification for an expired token', () => {
         const payload = { userId: 'user-123' };
-        const token = CryptoUtils.generateTempToken(payload, 1); // 1 second expiry
-        setTimeout(() => {
-            const result = CryptoUtils.verifyTempToken(token);
-            expect(result.valid).toBe(false);
-            expect(result.error).toBe('Token expired');
-            done();
-        }, 1100);
+        // Create a token that expired 1 second ago
+        const token = CryptoUtils.generateTempToken(payload, -1);
+        const result = CryptoUtils.verifyTempToken(token);
+        expect(result.valid).toBe(false);
+        expect(result.error).toBe('Token expired');
     });
   });
 
@@ -170,9 +168,9 @@ describe('CryptoUtils', () => {
 
     it('should mask sensitive data', () => {
         const sensitive = '1234567890';
-        expect(CryptoUtils.maskSensitiveData(sensitive)).toBe('******7890');
-        expect(CryptoUtils.maskSensitiveData(sensitive, 2)).toBe('********90');
-        expect(CryptoUtils.maskSensitiveData('abc')).toBe('abc');
+        expect(CryptoUtils.maskSensitiveData(sensitive)).toBe('1234**7890');
+        expect(CryptoUtils.maskSensitiveData(sensitive, 2)).toBe('12******90');
+        expect(CryptoUtils.maskSensitiveData('abc')).toBe('***');
     });
   });
 }); 

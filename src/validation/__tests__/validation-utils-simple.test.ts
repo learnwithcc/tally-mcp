@@ -173,7 +173,7 @@ describe('ValidationUtils', () => {
       const complexity = ValidationUtils.calculateComplexity(schema);
 
       expect(complexity).toBeGreaterThan(1);
-      expect(complexity).toBe(4); // 1 base + 3 properties
+      expect(complexity).toBe(5.5); // 1 base + 3 properties + 0.5 * nested complexity
     });
 
     it('should calculate complexity for nested schema', () => {

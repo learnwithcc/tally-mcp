@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1749846519890" clover="3.2.0">
-  <project timestamp="1749846519890" name="All files">
-    <metrics statements="4436" coveredstatements="2501" conditionals="2081" coveredconditionals="889" methods="904" coveredmethods="496" elements="7421" coveredelements="3886" complexity="0" loc="4436" ncloc="4436" packages="9" files="64" classes="64"/>
+<coverage generated="1749850062127" clover="3.2.0">
+  <project timestamp="1749850062127" name="All files">
+    <metrics statements="4472" coveredstatements="2538" conditionals="2105" coveredconditionals="912" methods="912" coveredmethods="504" elements="7489" coveredelements="3954" complexity="0" loc="4472" ncloc="4472" packages="9" files="64" classes="64"/>
     <package name="src">
       <metrics statements="658" coveredstatements="384" conditionals="256" coveredconditionals="84" methods="97" coveredmethods="68"/>
       <file name="index.ts" path="/Users/cryophobic/dev/projects/tally-mcp/src/index.ts">
@@ -140,9 +140,9 @@
         <line num="529" count="66" type="stmt"/>
         <line num="530" count="66" type="stmt"/>
         <line num="532" count="66" type="cond" truecount="1" falsecount="0"/>
-        <line num="534" count="48" type="stmt"/>
-        <line num="535" count="48" type="stmt"/>
-        <line num="536" count="48" type="stmt"/>
+        <line num="534" count="49" type="stmt"/>
+        <line num="535" count="49" type="stmt"/>
+        <line num="536" count="49" type="stmt"/>
         <line num="544" count="50" type="stmt"/>
         <line num="545" count="50" type="stmt"/>
         <line num="546" count="50" type="stmt"/>
@@ -2161,15 +2161,15 @@
         <line num="27" count="52" type="stmt"/>
         <line num="31" count="33" type="stmt"/>
         <line num="35" count="11" type="cond" truecount="2" falsecount="0"/>
-        <line num="39" count="31" type="stmt"/>
-        <line num="40" count="44" type="cond" truecount="1" falsecount="0"/>
-        <line num="41" count="26" type="stmt"/>
+        <line num="39" count="33" type="stmt"/>
+        <line num="40" count="47" type="cond" truecount="1" falsecount="0"/>
+        <line num="41" count="28" type="stmt"/>
         <line num="44" count="5" type="stmt"/>
         <line num="48" count="9" type="stmt"/>
-        <line num="52" count="17" type="stmt"/>
-        <line num="53" count="17" type="cond" truecount="1" falsecount="0"/>
-        <line num="55" count="16" type="stmt"/>
-        <line num="56" count="16" type="stmt"/>
+        <line num="52" count="19" type="stmt"/>
+        <line num="53" count="19" type="cond" truecount="1" falsecount="0"/>
+        <line num="55" count="18" type="stmt"/>
+        <line num="56" count="18" type="stmt"/>
         <line num="60" count="0" type="stmt"/>
         <line num="61" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="62" count="0" type="stmt"/>
@@ -2211,33 +2211,33 @@
         <line num="186" count="33" type="stmt"/>
         <line num="196" count="17" type="stmt"/>
         <line num="199" count="17" type="cond" truecount="1" falsecount="0"/>
-        <line num="200" count="3" type="stmt"/>
-        <line num="207" count="3" type="stmt"/>
-        <line num="214" count="14" type="stmt"/>
-        <line num="215" count="14" type="stmt"/>
-        <line num="217" count="14" type="cond" truecount="1" falsecount="0"/>
+        <line num="200" count="1" type="stmt"/>
+        <line num="207" count="1" type="stmt"/>
+        <line num="214" count="16" type="stmt"/>
+        <line num="215" count="16" type="stmt"/>
+        <line num="217" count="16" type="cond" truecount="1" falsecount="0"/>
         <line num="218" count="2" type="stmt"/>
         <line num="225" count="2" type="stmt"/>
-        <line num="232" count="12" type="cond" truecount="1" falsecount="0"/>
+        <line num="232" count="14" type="cond" truecount="1" falsecount="0"/>
         <line num="233" count="1" type="stmt"/>
         <line num="241" count="1" type="stmt"/>
-        <line num="249" count="11" type="cond" truecount="3" falsecount="0"/>
+        <line num="249" count="13" type="cond" truecount="3" falsecount="0"/>
         <line num="251" count="1" type="stmt"/>
         <line num="253" count="1" type="stmt"/>
         <line num="261" count="1" type="stmt"/>
-        <line num="269" count="10" type="cond" truecount="3" falsecount="0"/>
+        <line num="269" count="12" type="cond" truecount="3" falsecount="0"/>
         <line num="270" count="1" type="stmt"/>
         <line num="278" count="1" type="stmt"/>
-        <line num="287" count="9" type="cond" truecount="3" falsecount="0"/>
-        <line num="288" count="1" type="stmt"/>
-        <line num="289" count="1" type="cond" truecount="1" falsecount="0"/>
+        <line num="287" count="11" type="cond" truecount="3" falsecount="0"/>
+        <line num="288" count="2" type="stmt"/>
+        <line num="289" count="2" type="cond" truecount="1" falsecount="0"/>
         <line num="290" count="1" type="stmt"/>
         <line num="298" count="1" type="stmt"/>
-        <line num="307" count="8" type="stmt"/>
-        <line num="313" count="8" type="stmt"/>
-        <line num="320" count="8" type="cond" truecount="2" falsecount="0"/>
-        <line num="321" count="8" type="cond" truecount="1" falsecount="1"/>
-        <line num="323" count="8" type="stmt"/>
+        <line num="307" count="10" type="stmt"/>
+        <line num="313" count="10" type="stmt"/>
+        <line num="320" count="10" type="cond" truecount="2" falsecount="0"/>
+        <line num="321" count="10" type="cond" truecount="1" falsecount="1"/>
+        <line num="323" count="10" type="stmt"/>
         <line num="335" count="3" type="stmt"/>
         <line num="342" count="3" type="stmt"/>
         <line num="343" count="4" type="cond" truecount="2" falsecount="0"/>
@@ -3940,7 +3940,7 @@
       </file>
     </package>
     <package name="src.utils">
-      <metrics statements="228" coveredstatements="210" conditionals="156" coveredconditionals="116" methods="44" coveredmethods="37"/>
+      <metrics statements="228" coveredstatements="211" conditionals="156" coveredconditionals="117" methods="44" coveredmethods="37"/>
       <file name="capability-negotiation.ts" path="/Users/cryophobic/dev/projects/tally-mcp/src/utils/capability-negotiation.ts">
         <metrics statements="47" coveredstatements="44" conditionals="81" coveredconditionals="55" methods="4" coveredmethods="4"/>
         <line num="1" count="2" type="stmt"/>
@@ -3993,24 +3993,24 @@
       </file>
       <file name="config.ts" path="/Users/cryophobic/dev/projects/tally-mcp/src/utils/config.ts">
         <metrics statements="28" coveredstatements="26" conditionals="6" coveredconditionals="6" methods="5" coveredmethods="5"/>
-        <line num="1" count="7" type="stmt"/>
-        <line num="4" count="7" type="stmt"/>
-        <line num="51" count="31" type="stmt"/>
-        <line num="52" count="31" type="cond" truecount="1" falsecount="0"/>
-        <line num="53" count="2" type="stmt"/>
-        <line num="55" count="29" type="stmt"/>
-        <line num="62" count="30" type="cond" truecount="2" falsecount="0"/>
-        <line num="69" count="15" type="stmt"/>
-        <line num="70" count="15" type="cond" truecount="1" falsecount="0"/>
+        <line num="1" count="5" type="stmt"/>
+        <line num="4" count="5" type="stmt"/>
+        <line num="51" count="22" type="stmt"/>
+        <line num="52" count="22" type="cond" truecount="1" falsecount="0"/>
+        <line num="53" count="1" type="stmt"/>
+        <line num="55" count="21" type="stmt"/>
+        <line num="62" count="21" type="cond" truecount="2" falsecount="0"/>
+        <line num="69" count="11" type="stmt"/>
+        <line num="70" count="11" type="cond" truecount="1" falsecount="0"/>
         <line num="71" count="2" type="stmt"/>
         <line num="72" count="2" type="cond" truecount="1" falsecount="0"/>
         <line num="73" count="1" type="stmt"/>
         <line num="75" count="1" type="stmt"/>
-        <line num="82" count="4" type="stmt"/>
-        <line num="83" count="4" type="cond" truecount="1" falsecount="0"/>
+        <line num="82" count="3" type="stmt"/>
+        <line num="83" count="3" type="cond" truecount="1" falsecount="0"/>
         <line num="84" count="1" type="stmt"/>
-        <line num="90" count="7" type="stmt"/>
-        <line num="126" count="7" type="stmt"/>
+        <line num="90" count="5" type="stmt"/>
+        <line num="126" count="5" type="stmt"/>
         <line num="127" count="1" type="stmt"/>
         <line num="129" count="1" type="stmt"/>
         <line num="130" count="1" type="stmt"/>
@@ -4020,10 +4020,10 @@
         <line num="135" count="1" type="stmt"/>
         <line num="137" count="0" type="stmt"/>
         <line num="138" count="0" type="stmt"/>
-        <line num="142" count="4" type="stmt"/>
+        <line num="142" count="3" type="stmt"/>
       </file>
       <file name="crypto.ts" path="/Users/cryophobic/dev/projects/tally-mcp/src/utils/crypto.ts">
-        <metrics statements="87" coveredstatements="84" conditionals="35" coveredconditionals="29" methods="15" coveredmethods="15"/>
+        <metrics statements="87" coveredstatements="85" conditionals="35" coveredconditionals="30" methods="15" coveredmethods="15"/>
         <line num="1" count="26" type="stmt"/>
         <line num="2" count="26" type="stmt"/>
         <line num="25" count="26" type="stmt"/>
@@ -4058,7 +4058,7 @@
         <line num="106" count="20" type="stmt"/>
         <line num="109" count="20" type="stmt"/>
         <line num="110" count="20" type="stmt"/>
-        <line num="117" count="72" type="stmt"/>
+        <line num="117" count="74" type="stmt"/>
         <line num="127" count="4" type="stmt"/>
         <line num="128" count="3" type="stmt"/>
         <line num="130" count="3" type="stmt"/>
@@ -4101,16 +4101,16 @@
         <line num="251" count="1" type="stmt"/>
         <line num="254" count="2" type="stmt"/>
         <line num="255" count="2" type="stmt"/>
-        <line num="257" count="2" type="cond" truecount="2" falsecount="1"/>
-        <line num="258" count="0" type="stmt"/>
-        <line num="261" count="2" type="stmt"/>
+        <line num="257" count="2" type="cond" truecount="3" falsecount="0"/>
+        <line num="258" count="1" type="stmt"/>
+        <line num="261" count="1" type="stmt"/>
         <line num="263" count="0" type="stmt"/>
-        <line num="271" count="3" type="cond" truecount="1" falsecount="0"/>
-        <line num="272" count="1" type="stmt"/>
-        <line num="275" count="2" type="stmt"/>
-        <line num="276" count="2" type="stmt"/>
-        <line num="277" count="2" type="stmt"/>
-        <line num="279" count="2" type="stmt"/>
+        <line num="271" count="5" type="cond" truecount="1" falsecount="0"/>
+        <line num="272" count="2" type="stmt"/>
+        <line num="275" count="3" type="stmt"/>
+        <line num="276" count="3" type="stmt"/>
+        <line num="277" count="3" type="stmt"/>
+        <line num="279" count="3" type="stmt"/>
       </file>
       <file name="index.ts" path="/Users/cryophobic/dev/projects/tally-mcp/src/utils/index.ts">
         <metrics statements="7" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="0"/>
@@ -4186,7 +4186,7 @@
       </file>
     </package>
     <package name="src.validation">
-      <metrics statements="442" coveredstatements="116" conditionals="236" coveredconditionals="86" methods="79" coveredmethods="18"/>
+      <metrics statements="478" coveredstatements="152" conditionals="260" coveredconditionals="108" methods="87" coveredmethods="26"/>
       <file name="constants.ts" path="/Users/cryophobic/dev/projects/tally-mcp/src/validation/constants.ts">
         <metrics statements="65" coveredstatements="8" conditionals="45" coveredconditionals="0" methods="9" coveredmethods="0"/>
         <line num="5" count="1" type="stmt"/>
@@ -4625,18 +4625,18 @@
         <line num="327" count="0" type="stmt"/>
       </file>
       <file name="validation-utils.ts" path="/Users/cryophobic/dev/projects/tally-mcp/src/validation/validation-utils.ts">
-        <metrics statements="29" coveredstatements="29" conditionals="16" coveredconditionals="16" methods="4" coveredmethods="4"/>
+        <metrics statements="65" coveredstatements="65" conditionals="40" coveredconditionals="38" methods="12" coveredmethods="12"/>
         <line num="5" count="2" type="stmt"/>
         <line num="14" count="2" type="stmt"/>
-        <line num="24" count="20" type="stmt"/>
-        <line num="36" count="3" type="stmt"/>
-        <line num="37" count="3" type="stmt"/>
-        <line num="38" count="3" type="stmt"/>
-        <line num="40" count="3" type="stmt"/>
-        <line num="41" count="4" type="stmt"/>
-        <line num="42" count="4" type="stmt"/>
-        <line num="43" count="4" type="stmt"/>
-        <line num="46" count="3" type="stmt"/>
+        <line num="24" count="24" type="stmt"/>
+        <line num="36" count="5" type="stmt"/>
+        <line num="37" count="5" type="stmt"/>
+        <line num="38" count="5" type="stmt"/>
+        <line num="40" count="5" type="stmt"/>
+        <line num="41" count="8" type="stmt"/>
+        <line num="42" count="8" type="stmt"/>
+        <line num="43" count="8" type="stmt"/>
+        <line num="46" count="5" type="stmt"/>
         <line num="63" count="4" type="stmt"/>
         <line num="65" count="4" type="cond" truecount="1" falsecount="0"/>
         <line num="66" count="1" type="stmt"/>
@@ -4655,6 +4655,42 @@
         <line num="97" count="7" type="cond" truecount="3" falsecount="0"/>
         <line num="98" count="7" type="stmt"/>
         <line num="103" count="11" type="stmt"/>
+        <line num="110" count="4" type="cond" truecount="3" falsecount="0"/>
+        <line num="111" count="1" type="stmt"/>
+        <line num="114" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="115" count="3" type="stmt"/>
+        <line num="116" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="117" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="119" count="1" type="stmt"/>
+        <line num="122" count="2" type="stmt"/>
+        <line num="125" count="3" type="stmt"/>
+        <line num="132" count="15" type="cond" truecount="3" falsecount="0"/>
+        <line num="133" count="3" type="stmt"/>
+        <line num="135" count="12" type="stmt"/>
+        <line num="136" count="12" type="stmt"/>
+        <line num="143" count="2" type="stmt"/>
+        <line num="150" count="5" type="stmt"/>
+        <line num="152" count="5" type="cond" truecount="3" falsecount="0"/>
+        <line num="154" count="2" type="stmt"/>
+        <line num="155" count="2" type="stmt"/>
+        <line num="162" count="2" type="stmt"/>
+        <line num="165" count="3" type="stmt"/>
+        <line num="166" count="5" type="cond" truecount="4" falsecount="0"/>
+        <line num="167" count="2" type="stmt"/>
+        <line num="176" count="3" type="stmt"/>
+        <line num="183" count="5" type="cond" truecount="1" falsecount="0"/>
+        <line num="184" count="3" type="stmt"/>
+        <line num="187" count="2" type="stmt"/>
+        <line num="189" count="2" type="stmt"/>
+        <line num="200" count="16" type="cond" truecount="4" falsecount="0"/>
+        <line num="202" count="7" type="stmt"/>
+        <line num="204" count="5" type="stmt"/>
+        <line num="206" count="3" type="stmt"/>
+        <line num="208" count="1" type="stmt"/>
+        <line num="216" count="2" type="stmt"/>
+        <line num="217" count="6" type="stmt"/>
+        <line num="218" count="6" type="stmt"/>
+        <line num="219" count="6" type="stmt"/>
       </file>
     </package>
   </project>

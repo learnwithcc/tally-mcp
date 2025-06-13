@@ -102,4 +102,121 @@ export class ValidationUtils {
 
     return Math.round(complexity * 10) / 10;
   }
+
+  /**
+   * Format a path array into a dot-notation string
+   */
+  static formatPath(path: string[]): string {
+    if (!path || path.length === 0) {
+      return '';
+    }
+
+    let formatted = path[0] || '';
+    for (let i = 1; i < path.length; i++) {
+      const segment = path[i] || '';
+      if (/^\d+$/.test(segment)) {
+        // Array index
+        formatted += `[${segment}]`;
+      } else {
+        // Object property
+        formatted += `.${segment}`;
+      }
+    }
+    return formatted;
+  }
+
+  /**
+   * Check if a string is a valid JSON Schema type
+   */
+  static isValidJsonSchemaType(type: string): boolean {
+    if (!type || typeof type !== 'string') {
+      return false;
+    }
+    const validTypes = ['string', 'number', 'integer', 'boolean', 'array', 'object', 'null'];
+    return validTypes.includes(type);
+  }
+
+  /**
+   * Merge multiple validation results (alias for mergeResults)
+   */
+  static mergeValidationResults(...results: ValidationResult[]): ValidationResult {
+    return ValidationUtils.mergeResults(...results);
+  }
+
+  /**
+   * Validate required fields are present in data
+   */
+  static validateRequired(data: any, required: string[]): ValidationError[] {
+    const errors: ValidationError[] = [];
+    
+    if (!data || typeof data !== 'object') {
+      // If data is null/undefined, all required fields are missing
+      for (const field of required) {
+        errors.push(ValidationUtils.createError(
+          'REQUIRED_FIELD_MISSING',
+          `Required field '${field}' is missing`,
+          ValidationSeverity.ERROR,
+          { path: field }
+        ));
+      }
+      return errors;
+    }
+
+    for (const field of required) {
+      if (!(field in data) || data[field] === undefined || data[field] === null) {
+        errors.push(ValidationUtils.createError(
+          'REQUIRED_FIELD_MISSING',
+          `Required field '${field}' is missing`,
+          ValidationSeverity.ERROR,
+          { path: field }
+        ));
+      }
+    }
+
+    return errors;
+  }
+
+  /**
+   * Sanitize error messages to prevent XSS
+   */
+  static sanitizeErrorMessage(message: any): string {
+    if (!message) {
+      return '';
+    }
+    
+    const str = String(message);
+    // Remove HTML tags and script content
+    return str
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<[^>]*>/g, '')
+      .replace(/javascript:/gi, '')
+      .replace(/on\w+\s*=/gi, '');
+  }
+
+  /**
+   * Get numeric level for error severity
+   */
+  static getErrorSeverityLevel(severity: ValidationSeverity): number {
+    switch (severity) {
+      case ValidationSeverity.ERROR:
+        return 3;
+      case ValidationSeverity.WARNING:
+        return 2;
+      case ValidationSeverity.INFO:
+        return 1;
+      default:
+        return 0;
+    }
+  }
+
+  /**
+   * Sort errors by severity (highest first)
+   */
+  static sortErrorsBySeverity(errors: ValidationError[]): ValidationError[] {
+    return [...errors].sort((a, b) => {
+      const levelA = ValidationUtils.getErrorSeverityLevel(a.severity);
+      const levelB = ValidationUtils.getErrorSeverityLevel(b.severity);
+      return levelB - levelA; // Descending order (highest first)
+    });
+  }
 } 
