@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1749786916677" clover="3.2.0">
-  <project timestamp="1749786916677" name="All files">
-    <metrics statements="4436" coveredstatements="2163" conditionals="2081" coveredconditionals="753" methods="904" coveredmethods="443" elements="7421" coveredelements="3359" complexity="0" loc="4436" ncloc="4436" packages="9" files="64" classes="64"/>
+<coverage generated="1749788109330" clover="3.2.0">
+  <project timestamp="1749788109330" name="All files">
+    <metrics statements="4436" coveredstatements="2160" conditionals="2081" coveredconditionals="751" methods="904" coveredmethods="443" elements="7421" coveredelements="3354" complexity="0" loc="4436" ncloc="4436" packages="9" files="64" classes="64"/>
     <package name="src">
       <metrics statements="658" coveredstatements="333" conditionals="256" coveredconditionals="75" methods="97" coveredmethods="62"/>
       <file name="index.ts" path="/Users/cryophobic/dev/projects/tally-mcp/src/index.ts">
@@ -1844,7 +1844,7 @@
       </file>
     </package>
     <package name="src.services">
-      <metrics statements="1640" coveredstatements="716" conditionals="909" coveredconditionals="295" methods="335" coveredmethods="176"/>
+      <metrics statements="1640" coveredstatements="713" conditionals="909" coveredconditionals="293" methods="335" coveredmethods="176"/>
       <file name="TallyApiClient.ts" path="/Users/cryophobic/dev/projects/tally-mcp/src/services/TallyApiClient.ts">
         <metrics statements="243" coveredstatements="91" conditionals="122" coveredconditionals="48" methods="45" coveredmethods="28"/>
         <line num="1" count="34" type="stmt"/>
@@ -2153,7 +2153,7 @@
         <line num="230" count="0" type="stmt"/>
       </file>
       <file name="api-key-service.ts" path="/Users/cryophobic/dev/projects/tally-mcp/src/services/api-key-service.ts">
-        <metrics statements="158" coveredstatements="119" conditionals="81" coveredconditionals="59" methods="39" coveredmethods="31"/>
+        <metrics statements="158" coveredstatements="116" conditionals="81" coveredconditionals="57" methods="39" coveredmethods="31"/>
         <line num="1" count="22" type="stmt"/>
         <line num="19" count="22" type="stmt"/>
         <line num="25" count="49" type="stmt"/>
@@ -2161,15 +2161,15 @@
         <line num="27" count="49" type="stmt"/>
         <line num="31" count="33" type="stmt"/>
         <line num="35" count="11" type="cond" truecount="2" falsecount="0"/>
-        <line num="39" count="33" type="stmt"/>
-        <line num="40" count="47" type="cond" truecount="1" falsecount="0"/>
-        <line num="41" count="28" type="stmt"/>
+        <line num="39" count="30" type="stmt"/>
+        <line num="40" count="43" type="cond" truecount="1" falsecount="0"/>
+        <line num="41" count="25" type="stmt"/>
         <line num="44" count="5" type="stmt"/>
         <line num="48" count="9" type="stmt"/>
-        <line num="52" count="19" type="stmt"/>
-        <line num="53" count="19" type="cond" truecount="1" falsecount="0"/>
-        <line num="55" count="18" type="stmt"/>
-        <line num="56" count="18" type="stmt"/>
+        <line num="52" count="16" type="stmt"/>
+        <line num="53" count="16" type="cond" truecount="1" falsecount="0"/>
+        <line num="55" count="15" type="stmt"/>
+        <line num="56" count="15" type="stmt"/>
         <line num="60" count="0" type="stmt"/>
         <line num="61" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="62" count="0" type="stmt"/>
@@ -2211,33 +2211,33 @@
         <line num="186" count="33" type="stmt"/>
         <line num="196" count="17" type="stmt"/>
         <line num="199" count="17" type="cond" truecount="1" falsecount="0"/>
-        <line num="200" count="1" type="stmt"/>
-        <line num="207" count="1" type="stmt"/>
-        <line num="214" count="16" type="stmt"/>
-        <line num="215" count="16" type="stmt"/>
-        <line num="217" count="16" type="cond" truecount="1" falsecount="0"/>
+        <line num="200" count="4" type="stmt"/>
+        <line num="207" count="4" type="stmt"/>
+        <line num="214" count="13" type="stmt"/>
+        <line num="215" count="13" type="stmt"/>
+        <line num="217" count="13" type="cond" truecount="1" falsecount="0"/>
         <line num="218" count="2" type="stmt"/>
         <line num="225" count="2" type="stmt"/>
-        <line num="232" count="14" type="cond" truecount="1" falsecount="0"/>
+        <line num="232" count="11" type="cond" truecount="1" falsecount="0"/>
         <line num="233" count="1" type="stmt"/>
         <line num="241" count="1" type="stmt"/>
-        <line num="249" count="13" type="cond" truecount="3" falsecount="0"/>
-        <line num="251" count="1" type="stmt"/>
-        <line num="253" count="1" type="stmt"/>
-        <line num="261" count="1" type="stmt"/>
-        <line num="269" count="12" type="cond" truecount="3" falsecount="0"/>
+        <line num="249" count="10" type="cond" truecount="1" falsecount="2"/>
+        <line num="251" count="0" type="stmt"/>
+        <line num="253" count="0" type="stmt"/>
+        <line num="261" count="0" type="stmt"/>
+        <line num="269" count="10" type="cond" truecount="3" falsecount="0"/>
         <line num="270" count="1" type="stmt"/>
         <line num="278" count="1" type="stmt"/>
-        <line num="287" count="11" type="cond" truecount="3" falsecount="0"/>
+        <line num="287" count="9" type="cond" truecount="3" falsecount="0"/>
         <line num="288" count="2" type="stmt"/>
         <line num="289" count="2" type="cond" truecount="1" falsecount="0"/>
         <line num="290" count="1" type="stmt"/>
         <line num="298" count="1" type="stmt"/>
-        <line num="307" count="10" type="stmt"/>
-        <line num="313" count="10" type="stmt"/>
-        <line num="320" count="10" type="cond" truecount="2" falsecount="0"/>
-        <line num="321" count="10" type="cond" truecount="1" falsecount="1"/>
-        <line num="323" count="10" type="stmt"/>
+        <line num="307" count="8" type="stmt"/>
+        <line num="313" count="8" type="stmt"/>
+        <line num="320" count="8" type="cond" truecount="2" falsecount="0"/>
+        <line num="321" count="8" type="cond" truecount="1" falsecount="1"/>
+        <line num="323" count="8" type="stmt"/>
         <line num="335" count="3" type="stmt"/>
         <line num="342" count="3" type="stmt"/>
         <line num="343" count="4" type="cond" truecount="2" falsecount="0"/>
@@ -4058,7 +4058,7 @@
         <line num="106" count="17" type="stmt"/>
         <line num="109" count="17" type="stmt"/>
         <line num="110" count="17" type="stmt"/>
-        <line num="117" count="72" type="stmt"/>
+        <line num="117" count="69" type="stmt"/>
         <line num="127" count="0" type="stmt"/>
         <line num="128" count="0" type="stmt"/>
         <line num="130" count="0" type="stmt"/>
