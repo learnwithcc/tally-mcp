@@ -439,4 +439,114 @@ describe('Cloudflare Worker Components', () => {
       });
     });
   });
+
+  // --- Start: Added tests for worker's main fetch handler ---
+  describe('Main Worker Fetch Handler', () => {
+    let worker: { default: { fetch: (req: Request, env: any) => Promise<Response> } };
+    let mockEnv: any;
+
+    beforeEach(async () => {
+      // Dynamically import the worker to reset its state for each test
+      worker = await import('../worker');
+      mockEnv = {
+        TALLY_API_KEY: 'test-api-key',
+        AUTH_TOKEN: 'test-auth-token',
+        DEBUG: 'true',
+      };
+      mockFetch.mockClear();
+    });
+
+    it('should handle preflight (OPTIONS) requests', async () => {
+      const request = new Request('https://tally-mcp.test/mcp', {
+        method: 'OPTIONS',
+        headers: {
+          'Origin': 'https://cursor.sh',
+          'Access-Control-Request-Method': 'POST',
+          'Access-Control-Request-Headers': 'content-type,x-mcp-auth-key',
+        },
+      });
+
+      const response = await worker.default.fetch(request, mockEnv);
+      expect(response.status).toBe(204);
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
+      expect(response.headers.get('Access-Control-Allow-Methods')).toContain('POST');
+    });
+
+    it('should reject unauthorized MCP requests', async () => {
+      const request = new Request('https://tally-mcp.test/mcp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', method: 'test', id: 1 }),
+      });
+
+      const response = await worker.default.fetch(request, mockEnv);
+      expect(response.status).toBe(401);
+      const json = await response.json();
+      expect(json.error.message).toBe('Unauthorized');
+    });
+
+    it('should process a valid MCP request with API key in header', async () => {
+        const mcpRequest = { jsonrpc: '2.0', method: 'initialize', id: 1, params: { capabilities: { protocolVersion: '1.0.0' } } };
+        const request = new Request('https://tally-mcp.test/mcp', {
+          method: 'POST',
+          headers: { 
+              'Content-Type': 'application/json',
+              'x-mcp-auth-key': 'test-api-key'
+            },
+          body: JSON.stringify(mcpRequest),
+        });
+  
+        const response = await worker.default.fetch(request, mockEnv);
+        expect(response.status).toBe(200);
+        const json = await response.json();
+        expect(json.id).toBe(1);
+        expect(json.result.capabilities.protocolVersion).toBe('1.0.0');
+    });
+
+    it('should process a valid MCP request with API key in query param (for authless transport)', async () => {
+        const mcpRequest = { jsonrpc: '2.0', method: 'initialize', id: 2, params: { capabilities: { protocolVersion: '1.0.0' } } };
+        const request = new Request('https://tally-mcp.test/mcp?apiKey=test-api-key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(mcpRequest),
+        });
+  
+        const response = await worker.default.fetch(request, mockEnv);
+        expect(response.status).toBe(200);
+        const json = await response.json();
+        expect(json.id).toBe(2);
+        expect(json.result.capabilities).toBeDefined();
+    });
+
+    it('should handle SSE connection requests', async () => {
+        const request = new Request('https://tally-mcp.test/sse?apiKey=test-api-key', {
+          method: 'GET',
+          headers: { 'Accept': 'text/event-stream' },
+        });
+  
+        const response = await worker.default.fetch(request, mockEnv);
+        expect(response.status).toBe(200);
+        expect(response.headers.get('Content-Type')).toBe('text/event-stream; charset=utf-8');
+    });
+
+    it('should reject SSE connection without API key', async () => {
+        const request = new Request('https://tally-mcp.test/sse', {
+          method: 'GET',
+          headers: { 'Accept': 'text/event-stream' },
+        });
+  
+        const response = await worker.default.fetch(request, mockEnv);
+        expect(response.status).toBe(401);
+    });
+
+    it('should return 404 for unknown paths', async () => {
+        const request = new Request('https://tally-mcp.test/unknown-path', {
+            headers: { 'x-mcp-auth-key': 'test-api-key' }
+        });
+
+        const response = await worker.default.fetch(request, mockEnv);
+        expect(response.status).toBe(404);
+    });
+  });
+  // --- End: Added tests for worker's main fetch handler ---
 }); 

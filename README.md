@@ -110,6 +110,17 @@ npm test
 npm run test:coverage
 ```
 
+### Continuous Integration
+
+In your CI (e.g., GitHub Actions), run:
+
+```bash
+npm ci
+npm run test:coverage
+```
+
+Jest enforces a >90% coverage threshold via `jest.config.js`, causing the build to fail if coverage is below this level.
+
 ### Deployment
 ```bash
 npm run build:worker

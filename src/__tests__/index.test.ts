@@ -190,6 +190,35 @@ describe('Index.ts Entry Point', () => {
       expect(process.listenerCount('unhandledRejection')).toBeGreaterThanOrEqual(initialRejectionCount);
       expect(process.listenerCount('uncaughtException')).toBeGreaterThanOrEqual(initialExceptionCount);
     });
+
+    it('should handle unhandledRejection and exit', () => {
+        // Import module to ensure handler is attached
+        require('../index');
+        
+        const testError = new Error('Test unhandled rejection');
+        const testPromise = Promise.reject(testError);
+
+        // Simulate the event
+        process.emit('unhandledRejection', testError, testPromise);
+
+        // Check that error was logged and exit was called
+        expect(consoleErrorSpy).toHaveBeenCalledWith('Unhandled Rejection at:', testPromise, 'reason:', testError);
+        expect(processExitSpy).toHaveBeenCalledWith(1);
+    });
+
+    it('should handle uncaughtException and exit', () => {
+        // Import module to ensure handler is attached
+        require('../index');
+        
+        const testError = new Error('Test uncaught exception');
+
+        // Simulate the event
+        process.emit('uncaughtException', testError);
+
+        // Check that error was logged and exit was called
+        expect(consoleErrorSpy).toHaveBeenCalledWith('Uncaught Exception:', testError);
+        expect(processExitSpy).toHaveBeenCalledWith(1);
+    });
   });
 
   describe('module exports', () => {
