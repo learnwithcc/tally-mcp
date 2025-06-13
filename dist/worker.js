@@ -9,7 +9,7 @@ const activeSessions = new Map();
 const TOOLS = [
     {
         name: 'create_form',
-        description: 'Create a new Tally form with specified fields and configuration. This tool converts simple field definitions into Tally\'s complex blocks-based structure automatically. The form status defaults to DRAFT if not specified.',
+        description: 'Create a new Tally form with specified fields and configuration. This tool converts simple field definitions into Tally\'s complex blocks-based structure automatically. The status field is optional and defaults to DRAFT if not specified.',
         inputSchema: {
             type: 'object',
             properties: {
@@ -389,15 +389,15 @@ async function callTallyAPI(toolName, args, apiKey) {
         case 'create_form':
             // Convert our field structure to Tally's blocks format
             const blocks = [];
-            // Add title block (required)
+            // Add title block (required) - use TEXT type instead of FORM_TITLE
             blocks.push({
                 uuid: crypto.randomUUID(),
-                type: 'FORM_TITLE',
+                type: 'TEXT',
                 groupUuid: crypto.randomUUID(),
                 groupType: 'TEXT',
                 payload: {
-                    title: args.title,
-                    html: args.title
+                    text: args.title,
+                    html: `<h1>${args.title}</h1>`
                 }
             });
             // Add description block if provided
@@ -416,43 +416,48 @@ async function callTallyAPI(toolName, args, apiKey) {
             // Convert fields to blocks
             if (args.fields && Array.isArray(args.fields)) {
                 args.fields.forEach((field) => {
-                    // Map our field types to Tally's block types
-                    let blockType = 'INPUT_TEXT'; // default
+                    // Try using just INPUT_TEXT for all fields to test
+                    let blockType = 'INPUT_TEXT'; // Use INPUT_TEXT for everything to test
+                    /*
                     switch (field.type) {
-                        case 'text':
-                            blockType = 'INPUT_TEXT';
-                            break;
-                        case 'email':
-                            blockType = 'INPUT_EMAIL';
-                            break;
-                        case 'number':
-                            blockType = 'INPUT_NUMBER';
-                            break;
-                        case 'textarea':
-                            blockType = 'TEXTAREA';
-                            break;
-                        case 'select':
-                            blockType = 'DROPDOWN';
-                            break;
-                        case 'checkbox':
-                            blockType = 'CHECKBOXES';
-                            break;
-                        case 'radio':
-                            blockType = 'MULTIPLE_CHOICE';
-                            break;
+                      case 'text':
+                        blockType = 'INPUT_TEXT';
+                        break;
+                      case 'email':
+                        blockType = 'INPUT_EMAIL';
+                        break;
+                      case 'number':
+                        blockType = 'INPUT_NUMBER';
+                        break;
+                      case 'textarea':
+                        blockType = 'TEXTAREA';
+                        break;
+                      case 'select':
+                        blockType = 'DROPDOWN';
+                        break;
+                      case 'checkbox':
+                        blockType = 'CHECKBOXES';
+                        break;
+                      case 'radio':
+                        blockType = 'MULTIPLE_CHOICE';
+                        break;
                     }
+                    */
+                    // Create the basic block structure
                     const block = {
                         uuid: crypto.randomUUID(),
                         type: blockType,
                         groupUuid: crypto.randomUUID(),
-                        groupType: blockType, // Use the same type for groupType
+                        groupType: blockType,
                         payload: {
-                            title: field.label,
+                            label: field.label, // Try 'label' instead of 'title'
+                            title: field.label, // Keep both to be safe
                             required: field.required || false
                         }
                     };
                     // Add options for choice-based fields
-                    if (field.options && Array.isArray(field.options)) {
+                    if ((blockType === 'DROPDOWN' || blockType === 'MULTIPLE_CHOICE' || blockType === 'CHECKBOXES')
+                        && field.options && Array.isArray(field.options)) {
                         block.payload.options = field.options.map((option) => ({
                             id: crypto.randomUUID(),
                             text: option
@@ -461,13 +466,18 @@ async function callTallyAPI(toolName, args, apiKey) {
                     blocks.push(block);
                 });
             }
+            const payload = {
+                status: args.status || 'DRAFT', // Use provided status or default to DRAFT
+                blocks: blocks
+            };
+            // Debug logging
+            console.log('=== TALLY API PAYLOAD ===');
+            console.log(JSON.stringify(payload, null, 2));
+            console.log('========================');
             const createResponse = await globalThis.fetch(`${baseURL}/forms`, {
                 method: 'POST',
                 headers,
-                body: JSON.stringify({
-                    status: args.status || 'DRAFT', // Use provided status or default to DRAFT
-                    blocks: blocks
-                })
+                body: JSON.stringify(payload)
             });
             if (!createResponse.ok) {
                 const errorText = await createResponse.text();
