@@ -13,17 +13,18 @@ describe('FormSharingTool', () => {
   let mockApiClient: jest.Mocked<TallyApiClient>;
 
   const mockFormPublicationResult = {
-    id: 'form-123',
-    url: 'https://tally.so/r/form-123',
+    formId: 'form-123',
     visibility: FormVisibility.PUBLIC,
+    isPublished: true,
     publishedAt: '2023-01-01T00:00:00Z',
-    settings: {
-      password: undefined,
-      expirationDate: undefined,
-      maxSubmissions: undefined,
-      closedMessage: 'Form is closed',
-      notificationEmails: []
-    }
+    passwordRequired: false,
+    notifyOnSubmission: true,
+    notificationEmails: [],
+    trackAnalytics: true,
+    allowIndexing: false,
+    requireCaptcha: false,
+    createdAt: '2023-01-01T00:00:00Z',
+    updatedAt: '2023-01-01T00:00:00Z'
   };
 
   const mockEmbedCodeResult = {
@@ -31,23 +32,34 @@ describe('FormSharingTool', () => {
     javascript: '<script src="https://tally.so/js/embed.js" data-form="form-123"></script>',
     iframe: '<iframe src="https://tally.so/embed/form-123" width="100%" height="500" frameborder="0"></iframe>',
     settings: {
+      formId: 'form-123',
       theme: EmbedTheme.LIGHT,
       autoHeight: true,
       width: '100%',
-      height: '500px'
+      height: '500px',
+      borderRadius: 8,
+      hideHeader: false,
+      hideFooter: false,
+      enableRedirect: true,
+      showLoadingSpinner: true,
+      animateOnLoad: true,
+      sandbox: true
     }
   };
 
   const mockShareLinkResult = {
     id: 'link-123',
     url: 'https://tally.so/r/custom-slug',
-    type: ShareLinkType.STANDARD,
+    type: ShareLinkType.DIRECT,  // Changed from STANDARD to DIRECT
     formId: 'form-123',
-    customSlug: 'custom-slug',
-    active: true,
-    clickCount: 0,
+    isActive: true,
+    passwordProtected: false,
+    currentUses: 0,
+    trackClicks: true,
+    trackSubmissions: true,
+    tags: [],
     createdAt: '2023-01-01T00:00:00Z',
-    expiresAt: undefined
+    updatedAt: '2023-01-01T00:00:00Z'
   };
 
   const mockSharingStats = {
@@ -825,9 +837,14 @@ describe('FormSharingTool', () => {
         formIds: []
       };
 
-      // Act & Assert
-      // The zod schema should throw a validation error for empty array
-      await expect(formSharingTool.performBulkOperation(input)).rejects.toThrow();
+      // Act
+      const result = await formSharingTool.performBulkOperation(input);
+
+      // Assert
+      // The zod schema should return a validation error for empty array
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Array must contain at least 1 element(s)');
+      expect(result.message).toBe('Failed to perform bulk operation');
     });
 
     it('should handle invalid email in notification emails', async () => {
@@ -837,9 +854,14 @@ describe('FormSharingTool', () => {
         notificationEmails: ['invalid-email']
       };
 
-      // Act & Assert
-      // The zod schema should throw a validation error for invalid email
-      await expect(formSharingTool.publishForm(input)).rejects.toThrow();
+      // Act
+      const result = await formSharingTool.publishForm(input);
+
+      // Assert
+      // The zod schema should return a validation error for invalid email
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Invalid email');
+      expect(result.message).toBe('Failed to publish form');
     });
 
     it('should handle invalid datetime in publish date', async () => {
@@ -849,9 +871,14 @@ describe('FormSharingTool', () => {
         publishDate: 'invalid-date'
       };
 
-      // Act & Assert
-      // The zod schema should throw a validation error for invalid datetime
-      await expect(formSharingTool.publishForm(input)).rejects.toThrow();
+      // Act
+      const result = await formSharingTool.publishForm(input);
+
+      // Assert
+      // The zod schema should return a validation error for invalid datetime
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Invalid datetime');
+      expect(result.message).toBe('Failed to publish form');
     });
   });
 }); 

@@ -218,7 +218,9 @@ describe('TeamManager', () => {
         ...mockTeamResponse.team,
         members: [mockTeamMember],
         childTeams: ['child-team-1', 'child-team-2']
-      }
+      },
+      memberCount: 1,
+      childTeamCount: 2
     };
 
     it('should delete team without options', async () => {
@@ -255,9 +257,27 @@ describe('TeamManager', () => {
 
     it('should delete child teams when deleteChildTeams option is true', async () => {
       // Arrange
-      mockTeamService.getTeam.mockResolvedValue(teamWithMembers);
+      const childTeam1: TeamResponse = {
+        team: { ...mockTeamResponse.team, id: 'child-team-1', childTeams: [] },
+        memberCount: 0,
+        childTeamCount: 0
+      };
+      const childTeam2: TeamResponse = {
+        team: { ...mockTeamResponse.team, id: 'child-team-2', childTeams: [] },
+        memberCount: 0,
+        childTeamCount: 0
+      };
+      
+      // Set up different responses for different team IDs
+      mockTeamService.getTeam
+        .mockImplementation((teamId: string) => {
+          if (teamId === 'team-123') return Promise.resolve(teamWithMembers);
+          if (teamId === 'child-team-1') return Promise.resolve(childTeam1);
+          if (teamId === 'child-team-2') return Promise.resolve(childTeam2);
+          return Promise.reject(new Error('Team not found'));
+        });
+      
       const deleteSpy = jest.spyOn(teamManager, 'deleteTeam');
-      deleteSpy.mockResolvedValue(mockSuccessResponse);
       mockTeamService.deleteTeam.mockResolvedValue(mockSuccessResponse);
 
       // Act
@@ -266,6 +286,7 @@ describe('TeamManager', () => {
       // Assert
       expect(deleteSpy).toHaveBeenCalledWith('child-team-1', { deleteChildTeams: true });
       expect(deleteSpy).toHaveBeenCalledWith('child-team-2', { deleteChildTeams: true });
+      expect(deleteSpy).toHaveBeenCalledTimes(3); // original call + 2 child calls
     });
 
     it('should move child teams to parent when deleteChildTeams is false', async () => {
@@ -567,18 +588,23 @@ describe('TeamManager', () => {
     it('should handle team with no child teams in deleteTeam', async () => {
       // Arrange
       const teamWithoutChildren = {
-        team: { ...mockTeamResponse.team, childTeams: [] }
+        team: { ...mockTeamResponse.team, childTeams: [] },
+        memberCount: 1,
+        childTeamCount: 0
       };
       mockTeamService.getTeam.mockResolvedValue(teamWithoutChildren);
       mockTeamService.deleteTeam.mockResolvedValue(mockSuccessResponse);
+      
+      // Create spy BEFORE the method call
+      const deleteSpy = jest.spyOn(teamManager, 'deleteTeam');
 
       // Act
       await teamManager.deleteTeam('team-123', { deleteChildTeams: true });
 
       // Assert
-      const deleteSpy = jest.spyOn(teamManager, 'deleteTeam');
       // Should only be called once (for the main team, not recursively)
       expect(deleteSpy).toHaveBeenCalledTimes(1);
+      expect(deleteSpy).toHaveBeenCalledWith('team-123', { deleteChildTeams: true });
     });
   });
 
