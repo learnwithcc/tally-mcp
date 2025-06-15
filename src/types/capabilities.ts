@@ -13,7 +13,7 @@ interface BaseCapability {
 /**
  * Tools capability configuration
  */
-interface ToolsCapability extends BaseCapability {
+export interface ToolsCapability extends BaseCapability {
   // Tool-specific capabilities
   call?: boolean;
   list?: boolean;
@@ -22,7 +22,7 @@ interface ToolsCapability extends BaseCapability {
 /**
  * Resources capability configuration
  */
-interface ResourcesCapability extends BaseCapability {
+export interface ResourcesCapability extends BaseCapability {
   // Resource-specific capabilities
   get?: boolean;
   put?: boolean;
@@ -32,7 +32,7 @@ interface ResourcesCapability extends BaseCapability {
 /**
  * Prompts capability configuration
  */
-interface PromptsCapability extends BaseCapability {
+export interface PromptsCapability extends BaseCapability {
   // Prompt-specific capabilities
   get?: boolean;
   list?: boolean;
@@ -41,7 +41,7 @@ interface PromptsCapability extends BaseCapability {
 /**
  * Logging capability configuration
  */
-interface LoggingCapability {
+export interface LoggingCapability {
   level?: 'debug' | 'info' | 'warn' | 'error';
   subscribe?: boolean;
 }

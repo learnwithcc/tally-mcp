@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Capability Negotiation negotiateCapabilities should throw an error for incompatible protocol versions 1`] = `[StructuredError: Protocol version mismatch. Server: 2024-11-05, Client: 0.1.0]`;
+
+exports[`Capability Negotiation negotiateCapabilities should use server default when a client capability is not specified 1`] = `
+{
+  "logging": {
+    "level": "info",
+    "subscribe": true,
+  },
+  "prompts": {
+    "get": true,
+    "list": true,
+    "listChanged": true,
+    "subscribe": true,
+  },
+  "protocolVersion": "2024-11-05",
+  "resources": {
+    "delete": true,
+    "get": true,
+    "listChanged": true,
+    "put": true,
+    "subscribe": true,
+  },
+  "tools": {
+    "call": true,
+    "list": true,
+    "listChanged": true,
+    "subscribe": true,
+  },
+}
+`;

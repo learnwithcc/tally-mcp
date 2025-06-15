@@ -54,60 +54,39 @@ export class CryptoUtils {
     const {
       length = API_KEY_CONSTANTS.DEFAULT_KEY_LENGTH,
       prefix = API_KEY_CONSTANTS.DEFAULT_PREFIX,
-      includeChecksum = true
     } = options;
 
-    // Validate length
     if (length < API_KEY_CONSTANTS.MIN_KEY_LENGTH || length > API_KEY_CONSTANTS.MAX_KEY_LENGTH) {
       throw new Error(`Key length must be between ${API_KEY_CONSTANTS.MIN_KEY_LENGTH} and ${API_KEY_CONSTANTS.MAX_KEY_LENGTH}`);
     }
 
-    // Generate random bytes
-    const randomBytes = crypto.randomBytes(length);
-    const keyBody = randomBytes.toString('base64url');
-
-    // Add checksum if requested
-    let key = prefix + keyBody;
-    if (includeChecksum) {
-      const checksum = this.calculateChecksum(key);
-      key += '_' + checksum;
-    }
-
-    return key;
+    const randomPart = crypto.randomBytes(length).toString('hex');
+    const key = `${prefix}${randomPart}`;
+    const checksum = this.calculateChecksum(key);
+    
+    return `${key}_${checksum}`;
   }
 
   /**
    * Calculate checksum for API key validation
    */
   private static calculateChecksum(data: string): string {
-    return crypto
-      .createHash('sha256')
-      .update(data)
-      .digest('base64url')
-      .slice(0, 8);
+    return crypto.createHash('sha256').update(data).digest('hex').substring(0, 8);
   }
 
   /**
    * Validate API key format and checksum
    */
   public static validateKeyFormat(key: string): boolean {
-    // Check if key has the expected prefix
-    if (!key.startsWith(API_KEY_CONSTANTS.DEFAULT_PREFIX)) {
+    const parts = key.split('_');
+    if (parts.length < 2) {
       return false;
     }
-
-    // Check if key has checksum (should end with _checksum)
-    const lastUnderscoreIndex = key.lastIndexOf('_');
-    if (lastUnderscoreIndex === -1 || lastUnderscoreIndex === key.indexOf('_')) {
-      return false; // No checksum or only the prefix underscore
-    }
-
-    const keyWithoutChecksum = key.substring(0, lastUnderscoreIndex);
-    const checksumPart = key.substring(lastUnderscoreIndex + 1);
-
-    // Validate checksum
-    const expectedChecksum = this.calculateChecksum(keyWithoutChecksum);
-    return expectedChecksum === checksumPart;
+    
+    const checksum = parts.pop();
+    const keyWithoutChecksum = parts.join('_');
+    
+    return this.calculateChecksum(keyWithoutChecksum) === checksum;
   }
 
   /**
@@ -183,10 +162,15 @@ export class CryptoUtils {
    */
   public static verifyHmac(data: string, signature: string, secret: string): boolean {
     const expectedSignature = this.createHmac(data, secret);
-    return crypto.timingSafeEqual(
-      Buffer.from(signature, 'hex'),
-      Buffer.from(expectedSignature, 'hex')
-    );
+    try {
+      return crypto.timingSafeEqual(
+        Buffer.from(signature, 'hex'),
+        Buffer.from(expectedSignature, 'hex')
+      );
+    } catch {
+      // If buffers have different lengths, timingSafeEqual throws an error
+      return false;
+    }
   }
 
   /**

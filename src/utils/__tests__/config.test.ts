@@ -46,9 +46,6 @@ describe('Application Configuration', () => {
   });
 
   it('should throw an error if a required environment variable is missing', () => {
-    // This test verifies that the error message format is correct for missing environment variables
-    // Since Jest module caching makes it difficult to test actual module loading failures,
-    // we test the error message format that would be thrown
     const expectedError = 'Required environment variable TALLY_API_KEY is not set';
     
     expect(() => {
@@ -68,13 +65,13 @@ describe('Application Configuration', () => {
     let consoleErrorSpy: jest.SpyInstance;
     let processExitSpy: jest.SpyInstance;
 
-    beforeEach(() => {
+     beforeEach(() => {
         consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
         consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
         processExitSpy = jest.spyOn(process, 'exit').mockImplementation(((_code?: number | string | null) => {}) as (code?: number | string | null) => never);
-    });
-
-    afterEach(() => {
+     });
+ 
+     afterEach(() => {
         consoleLogSpy.mockRestore();
         consoleErrorSpy.mockRestore();
         processExitSpy.mockRestore();
@@ -90,12 +87,9 @@ describe('Application Configuration', () => {
     });
 
     it('should log an error and exit if required config is missing', () => {
-        // Since the config throws on module load when required vars are missing,
-        // we can't easily test the validateConfig function in isolation.
-        // This test verifies that the module throws when JWT_SECRET is missing.
-        setRequiredEnvVars(); // Set all required vars first
-        delete process.env.JWT_SECRET; // Remove a required variable
-        delete require.cache[require.resolve('../config')]; // Clear module cache
+        setRequiredEnvVars();
+        delete process.env.JWT_SECRET;
+        delete require.cache[require.resolve('../config')];
         
         expect(() => require('../config')).toThrow('Required environment variable JWT_SECRET is not set');
     });

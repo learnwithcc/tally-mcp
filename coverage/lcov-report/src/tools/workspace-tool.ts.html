@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">37.5% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>3/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/2</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">16.66% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>1/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">37.5% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>3/8</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -93,35 +93,35 @@
 <a name='L28'></a><a href='#L28'>28</a>
 <a name='L29'></a><a href='#L29'>29</a>
 <a name='L30'></a><a href='#L30'>30</a>
-<a name='L31'></a><a href='#L31'>31</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">16x</span>
+<a name='L31'></a><a href='#L31'>31</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">238x</span>
+<span class="cline-any cline-yes">28x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { WorkspaceService } from '../services';
 import { TallyWorkspace, TallyWorkspacesResponse, UserRole } from '../models';
@@ -130,28 +130,28 @@ import { TallyApiClientConfig } from '../services/TallyApiClient';
 export class WorkspaceManagementTool {
   private workspaceService: WorkspaceService;
 &nbsp;
-  constructor(apiClientConfig: TallyApiClientConfig = {}) {
+  constructor(apiClientConfig: TallyApiClientConfig = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> {
     this.workspaceService = new WorkspaceService(apiClientConfig);
   }
 &nbsp;
-  public async listWorkspaces(options: { page?: number; limit?: number } = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span>: Promise&lt;TallyWorkspacesResponse&gt; {
-    return this.workspaceService.getWorkspaces(options);
+  public <span class="fstat-no" title="function not covered" >async </span>listWorkspaces(options: { page?: number; limit?: number } = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span>: Promise&lt;TallyWorkspacesResponse&gt; {
+<span class="cstat-no" title="statement not covered" >    return this.workspaceService.getWorkspaces(options);</span>
   }
 &nbsp;
-  public async getWorkspaceDetails(workspaceId: string): Promise&lt;TallyWorkspace&gt; {
-    return this.workspaceService.getWorkspace(workspaceId);
+  public <span class="fstat-no" title="function not covered" >async </span>getWorkspaceDetails(workspaceId: string): Promise&lt;TallyWorkspace&gt; {
+<span class="cstat-no" title="statement not covered" >    return this.workspaceService.getWorkspace(workspaceId);</span>
   }
 &nbsp;
-  public async inviteUserToWorkspace(workspaceId: string, email: string, role: UserRole): Promise&lt;any&gt; {
-    return this.workspaceService.inviteUser(workspaceId, email, role);
+  public <span class="fstat-no" title="function not covered" >async </span>inviteUserToWorkspace(workspaceId: string, email: string, role: UserRole): Promise&lt;any&gt; {
+<span class="cstat-no" title="statement not covered" >    return this.workspaceService.inviteUser(workspaceId, email, role);</span>
   }
 &nbsp;
-  public async removeUserFromWorkspace(workspaceId: string, userId: string): Promise&lt;any&gt; {
-    return this.workspaceService.removeUser(workspaceId, userId);
+  public <span class="fstat-no" title="function not covered" >async </span>removeUserFromWorkspace(workspaceId: string, userId: string): Promise&lt;any&gt; {
+<span class="cstat-no" title="statement not covered" >    return this.workspaceService.removeUser(workspaceId, userId);</span>
   }
 &nbsp;
-  public async updateUserRoleInWorkspace(workspaceId: string, userId: string, role: UserRole): Promise&lt;any&gt; {
-    return this.workspaceService.updateUserRole(workspaceId, userId, role);
+  public <span class="fstat-no" title="function not covered" >async </span>updateUserRoleInWorkspace(workspaceId: string, userId: string, role: UserRole): Promise&lt;any&gt; {
+<span class="cstat-no" title="statement not covered" >    return this.workspaceService.updateUserRole(workspaceId, userId, role);</span>
   }
 } </pre></td></tr></table></pre>
 
@@ -160,7 +160,7 @@ export class WorkspaceManagementTool {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-13T21:27:42.031Z
+                at 2025-06-14T04:35:15.627Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

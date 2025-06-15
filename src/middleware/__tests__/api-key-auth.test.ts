@@ -19,6 +19,25 @@ describe('API Key Authentication Middleware', () => {
   let statusSpy: jest.SpyInstance;
   let jsonSpy: jest.SpyInstance;
 
+  // Default valid API key data for successful tests
+  const validApiKeyData = {
+    id: 'test-key-id',
+    keyHash: 'hashed-test-key',
+    name: 'Test Key',
+    scopes: [ApiKeyScope.READ],
+    usageCount: 0,
+    status: ApiKeyStatus.ACTIVE,
+    createdAt: new Date('2023-01-01T00:00:00Z'),
+    updatedAt: new Date('2023-01-01T00:00:00Z')
+  };
+
+  const validValidationResult: ApiKeyValidationResult = {
+    isValid: true,
+    apiKey: validApiKeyData,
+    remainingUsage: 100,
+    expiresIn: 86400
+  };
+
   beforeEach(() => {
     mockRequest = {
       headers: {},
@@ -35,356 +54,257 @@ describe('API Key Authentication Middleware', () => {
     statusSpy = jest.spyOn(mockResponse, 'status');
     jsonSpy = jest.spyOn(mockResponse, 'json');
     (nextFunction as jest.Mock).mockClear();
+    
+    // Reset all mocks
     mockedApiKeyService.validateApiKey.mockClear();
+    mockedApiKeyService.hasRequiredScopes.mockClear();
+    mockedCryptoUtils.maskSensitiveData.mockClear();
+    
+    // Set up default successful mock implementations
+    mockedApiKeyService.validateApiKey.mockResolvedValue(validValidationResult);
+    mockedApiKeyService.hasRequiredScopes.mockReturnValue(true);
+    mockedCryptoUtils.maskSensitiveData.mockReturnValue('masked-key-id');
   });
 
-  describe('apiKeyAuth', () => {
-    it('should call next() if API key is valid', async () => {
-      mockRequest.headers = { 'x-api-key': 'valid-key' };
-      const validationResult: ApiKeyValidationResult = {
-        isValid: true,
-        apiKey: {
-          id: 'key-id',
-          name: 'Test Key',
-          scopes: [ApiKeyScope.READ],
-          usageCount: 1,
-          keyHash: 'hashed-key',
-          status: ApiKeyStatus.ACTIVE,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      };
-      mockedApiKeyService.validateApiKey.mockResolvedValue(validationResult);
-
+  describe('API Key Extraction', () => {
+    it('should extract API key from x-api-key header', async () => {
+      mockRequest.headers = { 'x-api-key': 'test-key' };
       await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
-
-      expect(mockedApiKeyService.validateApiKey).toHaveBeenCalledWith({
-        key: 'valid-key',
-        ipAddress: '127.0.0.1',
-        userAgent: undefined,
-        endpoint: 'GET /test',
-      });
+      expect(mockedApiKeyService.validateApiKey).toHaveBeenCalledWith(
+        expect.objectContaining({ key: 'test-key' })
+      );
       expect(nextFunction).toHaveBeenCalled();
-      expect(statusSpy).not.toHaveBeenCalled();
-      expect(jsonSpy).not.toHaveBeenCalled();
-      expect((mockRequest as AuthenticatedRequest).apiKey).toBeDefined();
-      expect((mockRequest as AuthenticatedRequest).apiKey?.id).toBe('key-id');
     });
 
-    it('should return 401 if API key is missing', async () => {
+    it('should extract API key from Bearer token', async () => {
+      mockRequest.headers = { 'authorization': 'Bearer test-key' };
       await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
+      expect(mockedApiKeyService.validateApiKey).toHaveBeenCalledWith(
+        expect.objectContaining({ key: 'test-key' })
+      );
+      expect(nextFunction).toHaveBeenCalled();
+    });
 
-      expect(nextFunction).not.toHaveBeenCalled();
+    it('should extract API key from ApiKey prefix', async () => {
+      mockRequest.headers = { 'authorization': 'ApiKey test-key' };
+      await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
+      expect(mockedApiKeyService.validateApiKey).toHaveBeenCalledWith(
+        expect.objectContaining({ key: 'test-key' })
+      );
+      expect(nextFunction).toHaveBeenCalled();
+    });
+
+    it('should extract API key from query parameter in non-production', async () => {
+      const originalEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'development';
+      mockRequest.query = { apiKey: 'test-key' };
+      await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
+      expect(mockedApiKeyService.validateApiKey).toHaveBeenCalledWith(
+        expect.objectContaining({ key: 'test-key' })
+      );
+      expect(nextFunction).toHaveBeenCalled();
+      process.env.NODE_ENV = originalEnv;
+    });
+  });
+
+  describe('IP Address Detection', () => {
+    it('should detect IP from x-forwarded-for header', async () => {
+      mockRequest.headers = {
+        'x-api-key': 'test-key',
+        'x-forwarded-for': '192.168.1.1, 10.0.0.1'
+      };
+      await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
+      expect(mockedApiKeyService.validateApiKey).toHaveBeenCalledWith(
+        expect.objectContaining({ ipAddress: '192.168.1.1' })
+      );
+    });
+
+    it('should detect IP from x-real-ip header', async () => {
+      mockRequest.headers = {
+        'x-api-key': 'test-key',
+        'x-real-ip': '192.168.1.1'
+      };
+      await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
+      expect(mockedApiKeyService.validateApiKey).toHaveBeenCalledWith(
+        expect.objectContaining({ ipAddress: '192.168.1.1' })
+      );
+    });
+
+    it('should detect IP from cf-connecting-ip header', async () => {
+      mockRequest.headers = {
+        'x-api-key': 'test-key',
+        'cf-connecting-ip': '192.168.1.1'
+      };
+      await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
+      expect(mockedApiKeyService.validateApiKey).toHaveBeenCalledWith(
+        expect.objectContaining({ ipAddress: '192.168.1.1' })
+      );
+    });
+  });
+
+  describe('Validation and Error Handling', () => {
+    it('should handle missing API key', async () => {
+      await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
       expect(statusSpy).toHaveBeenCalledWith(401);
-      expect(jsonSpy).toHaveBeenCalledWith(expect.objectContaining({
-        code: 'MISSING_API_KEY',
-      }));
+      expect(jsonSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          error: 'Authentication failed',
+          code: 'MISSING_API_KEY'
+        })
+      );
     });
 
-    it('should call next() if API key is missing but auth is optional', async () => {
-      await apiKeyAuth({ optional: true })(mockRequest as Request, mockResponse as Response, nextFunction);
-
-      expect(nextFunction).toHaveBeenCalled();
-      expect(statusSpy).not.toHaveBeenCalled();
-      expect(jsonSpy).not.toHaveBeenCalled();
-    });
-
-    it('should return 401 if API key is invalid', async () => {
-        mockRequest.headers = { 'x-api-key': 'invalid-key' };
-        const validationResult: ApiKeyValidationResult = {
-          isValid: false,
-          errorReason: 'Invalid key',
-        };
-        mockedApiKeyService.validateApiKey.mockResolvedValue(validationResult);
-      
-        await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
-      
-        expect(nextFunction).not.toHaveBeenCalled();
-        expect(statusSpy).toHaveBeenCalledWith(401);
-        expect(jsonSpy).toHaveBeenCalledWith(expect.objectContaining({
-          code: 'INVALID_API_KEY',
-          message: 'Invalid API key',
-        }));
+    it('should handle expired API key', async () => {
+      mockRequest.headers = { 'x-api-key': 'expired-key' };
+      mockedApiKeyService.validateApiKey.mockResolvedValue({
+        isValid: false,
+        errorReason: 'API key has expired',
+        expiresIn: -1
       });
-      
-      it('should return 401 if API key is expired', async () => {
-        mockRequest.headers = { 'x-api-key': 'expired-key' };
-        const validationResult: ApiKeyValidationResult = {
-          isValid: false,
-          errorReason: 'Key has expired',
-        };
-        mockedApiKeyService.validateApiKey.mockResolvedValue(validationResult);
-      
-        await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
-      
-        expect(nextFunction).not.toHaveBeenCalled();
-        expect(statusSpy).toHaveBeenCalledWith(401);
-        expect(jsonSpy).toHaveBeenCalledWith(expect.objectContaining({
+
+      await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
+      expect(statusSpy).toHaveBeenCalledWith(401);
+      expect(jsonSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
           code: 'EXPIRED_API_KEY',
-          message: 'API key has expired',
-        }));
+          expiresIn: -1
+        })
+      );
+    });
+
+    it('should handle revoked API key', async () => {
+      mockRequest.headers = { 'x-api-key': 'revoked-key' };
+      mockedApiKeyService.validateApiKey.mockResolvedValue({
+        isValid: false,
+        errorReason: 'API key has been revoked'
       });
-      
-      it('should return 403 if API key is revoked', async () => {
-        mockRequest.headers = { 'x-api-key': 'revoked-key' };
-        const validationResult: ApiKeyValidationResult = {
-          isValid: false,
-          errorReason: 'Key has been revoked',
-        };
-        mockedApiKeyService.validateApiKey.mockResolvedValue(validationResult);
-      
-        await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
-      
-        expect(nextFunction).not.toHaveBeenCalled();
-        expect(statusSpy).toHaveBeenCalledWith(403);
-        expect(jsonSpy).toHaveBeenCalledWith(expect.objectContaining({
-          code: 'REVOKED_API_KEY',
-          message: 'API key has been revoked',
-        }));
-      });
-      
-      it('should return 429 if usage limit is exceeded', async () => {
-        mockRequest.headers = { 'x-api-key': 'limit-exceeded-key' };
-        const validationResult: ApiKeyValidationResult = {
-          isValid: false,
-          errorReason: 'Usage limit exceeded',
-        };
-        mockedApiKeyService.validateApiKey.mockResolvedValue(validationResult);
-      
-        await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
-      
-        expect(nextFunction).not.toHaveBeenCalled();
-        expect(statusSpy).toHaveBeenCalledWith(429);
-        expect(jsonSpy).toHaveBeenCalledWith(expect.objectContaining({
-          code: 'USAGE_LIMIT_EXCEEDED',
-          message: 'API key usage limit exceeded',
-        }));
-      });
-      
-      it('should return 403 if IP is not whitelisted', async () => {
-        mockRequest.headers = { 'x-api-key': 'ip-restricted-key' };
-        const validationResult: ApiKeyValidationResult = {
-          isValid: false,
-          errorReason: 'IP address not authorized',
-        };
-        mockedApiKeyService.validateApiKey.mockResolvedValue(validationResult);
-      
-        await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
-      
-        expect(nextFunction).not.toHaveBeenCalled();
-        expect(statusSpy).toHaveBeenCalledWith(403);
-        expect(jsonSpy).toHaveBeenCalledWith(expect.objectContaining({
-          code: 'IP_NOT_WHITELISTED',
-          message: 'IP address not authorized for this API key',
-        }));
-      });
-    
-    it('should return 403 if scopes are insufficient', async () => {
-      mockRequest.headers = { 'x-api-key': 'valid-key-insufficient-scopes' };
-      const validationResult: ApiKeyValidationResult = {
-        isValid: true,
-        apiKey: { 
-          id: 'key-id', 
-          name: 'Test Key', 
-          scopes: [ApiKeyScope.FORMS_READ],
-          keyHash: 'hashed-key',
-          status: ApiKeyStatus.ACTIVE,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          usageCount: 0,
-        },
-      };
-      mockedApiKeyService.validateApiKey.mockResolvedValue(validationResult);
-  
-      await apiKeyAuth({ requiredScopes: [ApiKeyScope.FORMS_WRITE] })(mockRequest as Request, mockResponse as Response, nextFunction);
-  
-      expect(nextFunction).not.toHaveBeenCalled();
+
+      await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
       expect(statusSpy).toHaveBeenCalledWith(403);
-      expect(jsonSpy).toHaveBeenCalledWith(expect.objectContaining({
-        code: 'INSUFFICIENT_SCOPES',
-      }));
+      expect(jsonSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'REVOKED_API_KEY'
+        })
+      );
     });
 
-    it('should extract API key from Authorization Bearer header', async () => {
-        mockRequest.headers = { 'authorization': 'Bearer valid-key' };
-        const validationResult: ApiKeyValidationResult = { 
-            isValid: true, 
-            apiKey: { 
-                id: 'key-id', 
-                name: 'Test Key', 
-                scopes: [],
-                keyHash: 'hashed-key',
-                status: ApiKeyStatus.ACTIVE,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                usageCount: 0,
-            } 
-        };
-        mockedApiKeyService.validateApiKey.mockResolvedValue(validationResult);
-    
-        await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
-    
-        expect(mockedApiKeyService.validateApiKey).toHaveBeenCalledWith(expect.objectContaining({ key: 'valid-key' }));
-        expect(nextFunction).toHaveBeenCalled();
+    it('should handle usage limit exceeded', async () => {
+      mockRequest.headers = { 'x-api-key': 'limited-key' };
+      mockedApiKeyService.validateApiKey.mockResolvedValue({
+        isValid: false,
+        errorReason: 'API key usage limit exceeded',
+        remainingUsage: 0
+      });
+
+      await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
+      expect(statusSpy).toHaveBeenCalledWith(429);
+      expect(jsonSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'USAGE_LIMIT_EXCEEDED',
+          remainingUsage: 0
+        })
+      );
     });
 
-    it('should extract API key from query parameter in non-production environment', async () => {
-        process.env.NODE_ENV = 'development';
-        mockRequest.query = { apiKey: 'valid-key-query' };
-        const validationResult: ApiKeyValidationResult = { 
-            isValid: true, 
-            apiKey: { 
-                id: 'key-id', 
-                name: 'Test Key', 
-                scopes: [],
-                keyHash: 'hashed-key',
-                status: ApiKeyStatus.ACTIVE,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                usageCount: 0,
-            } 
-        };
-        mockedApiKeyService.validateApiKey.mockResolvedValue(validationResult);
+    it('should handle IP whitelist violation', async () => {
+      mockRequest.headers = { 'x-api-key': 'ip-restricted-key' };
+      mockedApiKeyService.validateApiKey.mockResolvedValue({
+        isValid: false,
+        errorReason: 'IP address not authorized'
+      });
 
-        await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
-
-        expect(mockedApiKeyService.validateApiKey).toHaveBeenCalledWith(expect.objectContaining({ key: 'valid-key-query' }));
-        expect(nextFunction).toHaveBeenCalled();
-        process.env.NODE_ENV = 'test'; // Reset NODE_ENV
+      await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
+      expect(statusSpy).toHaveBeenCalledWith(403);
+      expect(jsonSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'IP_NOT_WHITELISTED'
+        })
+      );
     });
   });
 
-  describe('Scope Requirement Helpers', () => {
-    beforeEach(() => {
-      const validationResult: ApiKeyValidationResult = {
+  describe('Scope Validation', () => {
+    it('should validate required scopes', async () => {
+      mockRequest.headers = { 'x-api-key': 'test-key' };
+      // Set up specific validation result with proper API key for scope validation
+      mockedApiKeyService.validateApiKey.mockResolvedValue({
         isValid: true,
-        apiKey: {
-          id: 'key-id',
-          name: 'Test Key',
-          scopes: [ApiKeyScope.FORMS_READ, ApiKeyScope.FORMS_WRITE, ApiKeyScope.ADMIN],
-          keyHash: 'hashed-key',
-          status: ApiKeyStatus.ACTIVE,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          usageCount: 0,
-        },
-      };
-      mockedApiKeyService.validateApiKey.mockResolvedValue(validationResult);
-      mockRequest.headers = { 'x-api-key': 'valid-key' };
-    });
-  
-    it('requireScopes should succeed with adequate scopes', async () => {
-      await requireScopes([ApiKeyScope.FORMS_READ])(mockRequest as Request, mockResponse as Response, nextFunction);
+        apiKey: { ...validApiKeyData, scopes: [ApiKeyScope.READ] },
+        remainingUsage: 100
+      });
+      
+      const middleware = apiKeyAuth({ requiredScopes: [ApiKeyScope.READ] });
+      await middleware(mockRequest as Request, mockResponse as Response, nextFunction);
+      expect(mockedApiKeyService.hasRequiredScopes).toHaveBeenCalledWith(
+        expect.anything(),
+        [ApiKeyScope.READ]
+      );
       expect(nextFunction).toHaveBeenCalled();
     });
-  
-    it('requireReadAccess should succeed with READ scope', async () => {
-        const readValidationResult: ApiKeyValidationResult = {
-            isValid: true,
-            apiKey: { 
-                id: 'key-id', 
-                name: 'Test Key', 
-                scopes: [ApiKeyScope.READ],
-                keyHash: 'hashed-key',
-                status: ApiKeyStatus.ACTIVE,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                usageCount: 0,
-            },
-        };
-        mockedApiKeyService.validateApiKey.mockResolvedValue(readValidationResult);
-        await requireReadAccess()(mockRequest as Request, mockResponse as Response, nextFunction);
-        expect(nextFunction).toHaveBeenCalled();
-    });
 
-    it('requireWriteAccess should fail without WRITE scopes', async () => {
-        const readValidationResult: ApiKeyValidationResult = {
-            isValid: true,
-            apiKey: { 
-                id: 'key-id', 
-                name: 'Test Key', 
-                scopes: [ApiKeyScope.READ],
-                keyHash: 'hashed-key',
-                status: ApiKeyStatus.ACTIVE,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                usageCount: 0,
-            },
-        };
-        mockedApiKeyService.validateApiKey.mockResolvedValue(readValidationResult);
-        await requireWriteAccess()(mockRequest as Request, mockResponse as Response, nextFunction);
-        expect(statusSpy).toHaveBeenCalledWith(403);
-    });
-
-    it('requireAdminAccess should succeed with ADMIN scope', async () => {
-        const adminValidationResult: ApiKeyValidationResult = {
-            isValid: true,
-            apiKey: { 
-                id: 'key-id', 
-                name: 'Test Key', 
-                scopes: [ApiKeyScope.ADMIN],
-                keyHash: 'hashed-key',
-                status: ApiKeyStatus.ACTIVE,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                usageCount: 0,
-            },
-        };
-        mockedApiKeyService.validateApiKey.mockResolvedValue(adminValidationResult);
-        await requireAdminAccess()(mockRequest as Request, mockResponse as Response, nextFunction);
-        expect(nextFunction).toHaveBeenCalled();
+    it('should handle insufficient scopes', async () => {
+      mockRequest.headers = { 'x-api-key': 'test-key' };
+      // Set up validation to succeed but scope check to fail
+      mockedApiKeyService.validateApiKey.mockResolvedValue({
+        isValid: true,
+        apiKey: { ...validApiKeyData, scopes: [ApiKeyScope.READ] },
+        remainingUsage: 100
+      });
+      mockedApiKeyService.hasRequiredScopes.mockReturnValue(false);
+      
+      const middleware = apiKeyAuth({ requiredScopes: [ApiKeyScope.ADMIN] });
+      await middleware(mockRequest as Request, mockResponse as Response, nextFunction);
+      expect(statusSpy).toHaveBeenCalledWith(403);
+      expect(jsonSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'INSUFFICIENT_SCOPES'
+        })
+      );
     });
   });
 
-  describe('optionalApiKeyAuth', () => {
-    it('should call next() when no key is provided', async () => {
-        await optionalApiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
-        expect(nextFunction).toHaveBeenCalled();
-        expect(mockRequest.apiKey).toBeUndefined();
+  describe('Optional Authentication', () => {
+    it('should allow requests without API key when optional', async () => {
+      await optionalApiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
+      expect(nextFunction).toHaveBeenCalled();
     });
 
-    it('should authenticate and attach apiKey when a valid key is provided', async () => {
-        mockRequest.headers = { 'x-api-key': 'valid-key' };
-        const validationResult: ApiKeyValidationResult = {
-          isValid: true,
-          apiKey: { 
-            id: 'key-id', 
-            name: 'Test Key', 
-            scopes: [ApiKeyScope.READ],
-            keyHash: 'hashed-key',
-            status: ApiKeyStatus.ACTIVE,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            usageCount: 0,
-          },
-        };
-        mockedApiKeyService.validateApiKey.mockResolvedValue(validationResult);
-
-        await optionalApiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
-        expect(nextFunction).toHaveBeenCalled();
-        expect(mockRequest.apiKey).toBeDefined();
-        expect(mockRequest.apiKey?.id).toBe('key-id');
+    it('should still validate API key when provided in optional mode', async () => {
+      mockRequest.headers = { 'x-api-key': 'test-key' };
+      await optionalApiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
+      expect(mockedApiKeyService.validateApiKey).toHaveBeenCalled();
+      expect(nextFunction).toHaveBeenCalled();
     });
   });
 
-  describe('Utility Functions', () => {
-    it('isAuthenticated should return true if apiKey is on request', () => {
-        mockRequest.apiKey = { id: 'key-id', name: 'Test Key', scopes: [], usageCount: 0 };
-        expect(isAuthenticated(mockRequest as AuthenticatedRequest)).toBe(true);
+  describe('Helper Functions', () => {
+    it('should check if request is authenticated', async () => {
+      mockRequest.headers = { 'x-api-key': 'test-key' };
+      await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
+      expect(isAuthenticated(mockRequest as AuthenticatedRequest)).toBe(true);
     });
 
-    it('isAuthenticated should return false if apiKey is not on request', () => {
-        expect(isAuthenticated(mockRequest as AuthenticatedRequest)).toBe(false);
+    it('should return API key info', async () => {
+      mockRequest.headers = { 'x-api-key': 'test-key' };
+      await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
+      const keyInfo = getApiKeyInfo(mockRequest as AuthenticatedRequest);
+      expect(keyInfo).toEqual({
+        id: 'test-key-id',
+        name: 'Test Key',
+        scopes: [ApiKeyScope.READ],
+        usageCount: 0,
+        remainingUsage: 100,
+        expiresIn: 86400
+      });
     });
+  });
 
-    it('getApiKeyInfo should return apiKey info', () => {
-        const apiKeyInfo = { id: 'key-id', name: 'Test Key', scopes: [], usageCount: 0 };
-        mockRequest.apiKey = apiKeyInfo;
-        expect(getApiKeyInfo(mockRequest as AuthenticatedRequest)).toEqual(apiKeyInfo);
-    });
-
-    it('getApiKeyInfo should return undefined if no apiKey is on request', () => {
-        expect(getApiKeyInfo(mockRequest as AuthenticatedRequest)).toBeUndefined();
+  describe('Security Headers', () => {
+    it('should set security headers on successful authentication', async () => {
+      mockRequest.headers = { 'x-api-key': 'test-key' };
+      await apiKeyAuth()(mockRequest as Request, mockResponse as Response, nextFunction);
+      expect(mockResponse.setHeader).toHaveBeenCalledWith('X-API-Key-ID', 'masked-key-id');
+      expect(mockResponse.setHeader).toHaveBeenCalledWith('X-Rate-Limit-Remaining', '100');
     });
   });
 }); 

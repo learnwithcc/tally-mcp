@@ -21,7 +21,9 @@ export enum ShareLinkType {
   STANDARD = 'standard',
   EMBED = 'embed',
   QR_CODE = 'qr_code',
-  SOCIAL = 'social'
+  SOCIAL = 'social',
+  DIRECT = 'direct',
+  SECURE = 'secure'
 }
 
 // ZOD SCHEMAS
@@ -60,6 +62,7 @@ export const FormPublicationSettingsSchema = z.object({
   trackAnalytics: z.boolean().default(true),
   allowIndexing: z.boolean().default(false),
   requireCaptcha: z.boolean().default(false),
+  maxSubmissions: z.number().positive().optional(),
   
   // Created/Updated timestamps
   createdAt: z.string().datetime(),

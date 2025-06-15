@@ -59,8 +59,8 @@ export class TeamManager {
    * Update an existing team
    */
   public async updateTeam(teamId: string, updates: UpdateTeamRequest): Promise<TeamResponse> {
-    // If moving to a new parent, validate the hierarchy
-    if (updates.parentTeamId !== undefined) {
+    // If parent team is being changed (including set to undefined), validate the hierarchy
+    if ('parentTeamId' in updates) {
       await this.validateTeamHierarchy(teamId, updates.parentTeamId);
     }
 
@@ -203,7 +203,8 @@ export class TeamManager {
     // Validate hierarchy constraints
     await this.validateTeamHierarchy(teamId, newParentTeamId);
     
-    return this.teamService.moveTeam(teamId, newParentTeamId);
+    // Update the team's parent
+    return this.teamService.updateTeam(teamId, { parentTeamId: newParentTeamId });
   }
 
   /**
