@@ -3,6 +3,7 @@ import {
   AnalyticsEngineDataset,
 } from '../types/monitoring';
 import { Logger } from '../utils/logger';
+import { SentryService } from './SentryService';
 
 export class MonitoringServiceImpl implements MonitoringService {
   private analyticsEngine: AnalyticsEngineDataset;
@@ -53,6 +54,7 @@ export class MonitoringServiceImpl implements MonitoringService {
       indexes: ['errors_total'],
       blobs: [error.name, error.message, error.stack || null],
     });
+    SentryService.captureException(error, context);
   }
 
   public trackExecution(label: string, duration: number): void {

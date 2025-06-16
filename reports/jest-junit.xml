@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="6" failures="0" errors="0" time="0.348">
-  <testsuite name="MonitoringServiceImpl" errors="0" failures="0" skipped="0" timestamp="2025-06-16T17:04:00" time="0.325" tests="6">
-    <testcase classname="MonitoringServiceImpl trackRequest should track request metrics and log info" name="MonitoringServiceImpl trackRequest should track request metrics and log info" time="0.004">
+<testsuites name="jest tests" tests="3" failures="0" errors="0" time="0.7">
+  <testsuite name="SentryService" errors="0" failures="0" skipped="0" timestamp="2025-06-16T19:53:22" time="0.677" tests="3">
+    <testcase classname="SentryService initialize should initialize Sentry if DSN is provided" name="SentryService initialize should initialize Sentry if DSN is provided" time="0.001">
     </testcase>
-    <testcase classname="MonitoringServiceImpl trackRequest should handle requests with errors" name="MonitoringServiceImpl trackRequest should handle requests with errors" time="0.001">
+    <testcase classname="SentryService initialize should not initialize Sentry if DSN is not provided" name="SentryService initialize should not initialize Sentry if DSN is not provided" time="0.001">
     </testcase>
-    <testcase classname="MonitoringServiceImpl trackApiCall should track a successful API call" name="MonitoringServiceImpl trackApiCall should track a successful API call" time="0.002">
-    </testcase>
-    <testcase classname="MonitoringServiceImpl trackApiCall should track a failed API call" name="MonitoringServiceImpl trackApiCall should track a failed API call" time="0.001">
-    </testcase>
-    <testcase classname="MonitoringServiceImpl trackError should track an error with context" name="MonitoringServiceImpl trackError should track an error with context" time="0.001">
-    </testcase>
-    <testcase classname="MonitoringServiceImpl trackExecution should track execution time of a labeled process" name="MonitoringServiceImpl trackExecution should track execution time of a labeled process" time="0.003">
+    <testcase classname="SentryService captureException should capture an exception with context" name="SentryService captureException should capture an exception with context" time="0.001">
     </testcase>
   </testsuite>
 </testsuites>

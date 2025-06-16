@@ -17,7 +17,11 @@ import { TallyApiClient, TallyApiClientConfig } from './services/TallyApiClient'
 import { EventEmitter } from 'events';
 import { env } from './config/env';
 import { ServerCapabilities, ClientCapabilities, NegotiatedCapabilities } from './types/capabilities';
-import { StructuredError } from './types/errors';
+import { Registry, Gauge, Counter, collectDefaultMetrics } from 'prom-client';
+import { MonitoringService } from './types/monitoring';
+import { MonitoringServiceImpl } from './services/MonitoringService';
+import { Logger } from './utils/logger';
+import { SentryService } from './services/SentryService';
 
 /**
  * Log levels enumeration
@@ -225,6 +229,7 @@ export const DEFAULT_HEALTH_THRESHOLDS: HealthThresholds = {
  * Server capabilities configuration
  */
 const SERVER_CAPABILITIES: ServerCapabilities = {
+  protocolVersion: '1.0',
   tools: {
     listChanged: true
   },
@@ -242,43 +247,26 @@ const SERVER_CAPABILITIES: ServerCapabilities = {
  * Validate and merge client capabilities with server capabilities
  */
 function negotiateCapabilities(clientCapabilities: unknown): NegotiatedCapabilities {
-  // Validate client capabilities format
-  if (clientCapabilities && typeof clientCapabilities !== 'object') {
-    throw new Error('Invalid capabilities format');
-  }
+  const clientCaps = (clientCapabilities || {}) as ClientCapabilities;
 
-  // Validate client capability values
-  if (clientCapabilities) {
-    const typedCapabilities = clientCapabilities as Record<string, unknown>;
-    for (const [key, value] of Object.entries(typedCapabilities)) {
-      if (value !== null && typeof value !== 'object') {
-        throw new Error('Invalid capability values');
-      }
+  const negotiated: NegotiatedCapabilities = {
+    protocolVersion: '1.0',
+    tools: {
+      listChanged: !!(SERVER_CAPABILITIES.tools?.listChanged && clientCaps.tools?.listChanged),
+    },
+    resources: {
+      subscribe: !!(SERVER_CAPABILITIES.resources?.subscribe && clientCaps.resources?.subscribe),
+      listChanged: !!(SERVER_CAPABILITIES.resources?.listChanged && clientCaps.resources?.listChanged),
+    },
+    prompts: {
+      listChanged: !!(SERVER_CAPABILITIES.prompts?.listChanged && clientCaps.prompts?.listChanged),
+    },
+    logging: {
+      // No logging capabilities to negotiate yet
     }
-  }
+  };
 
-  // Start with server capabilities
-  const negotiatedCapabilities = { ...SERVER_CAPABILITIES };
-
-  // If client provided capabilities, merge them
-  if (clientCapabilities) {
-    const typedCapabilities = clientCapabilities as ClientCapabilities;
-    for (const [key, value] of Object.entries(typedCapabilities)) {
-      if (key in negotiatedCapabilities) {
-        // Only merge known capabilities
-        const serverKey = key as keyof ServerCapabilities;
-        const mergedCapability = {
-          ...negotiatedCapabilities[serverKey],
-          ...value
-        };
-        
-        // Type assertion to ensure type safety
-        negotiatedCapabilities[serverKey] = mergedCapability as typeof negotiatedCapabilities[typeof serverKey];
-      }
-    }
-  }
-
-  return negotiatedCapabilities;
+  return negotiated;
 }
 
 /**
@@ -321,69 +309,58 @@ export class MCPServer extends Server {
     template: TemplateTool;
   };
 
+  private metricsRegistry: Registry;
+  private monitoringService: MonitoringService;
+
   /**
    * Create a new MCP Server instance
    * @param config Server configuration options
    */
   constructor(config: Partial<MCPServerConfig> = {}) {
-    // Initialize the base MCP Server
-    super(
-      {
+    super({
         name: 'tally-mcp-server',
         version: '1.0.0',
-      },
-      {
-        capabilities: {
-          tools: {},
-        },
-      }
-    );
-
-    // Merge configuration with defaults
+        capabilities: SERVER_CAPABILITIES,
+    });
     this.config = { ...DEFAULT_CONFIG, ...config };
-    
-    // Initialize Express app
     this.app = express();
-    
-    // Initialize server state
     this.state = ServerState.STOPPED;
     this.activeConnections = new Set();
     this.connectionCount = 0;
     this.emitter = new EventEmitter();
-    
-    // Initialize health monitoring
     this.startTime = process.hrtime();
-    this.healthThresholds = { ...DEFAULT_HEALTH_THRESHOLDS };
+    this.healthThresholds = DEFAULT_HEALTH_THRESHOLDS;
+    this.loggerConfig = { ...DEFAULT_LOGGER_CONFIG, ...(this.config.logger || {}) };
+    this.metricsRegistry = new Registry();
+    collectDefaultMetrics({ register: this.metricsRegistry });
+
     this.requestStats = {
       total: 0,
       errors: 0,
-      recentRequests: new Array(60).fill(0), // Track last 60 minutes
-      recentErrors: new Array(60).fill(0),   // Track last 60 minutes
+      recentRequests: [],
+      recentErrors: [],
       lastMinuteIndex: 0,
     };
     
-    // Initialize logging infrastructure
-    this.loggerConfig = { 
-      ...DEFAULT_LOGGER_CONFIG, 
-      ...(this.config.logger || {})
-    };
     this.errorMetrics = {
       byCategory: new Map(),
       byCode: new Map(),
       total: 0,
     };
-    
-    // Initialize tools
-    this.initializeTools();
 
-    // Setup MCP tool handlers
+    const logger = new Logger(this.loggerConfig);
+    this.monitoringService = new MonitoringServiceImpl(
+      // This is a placeholder. In a real implementation, you would
+      // pass a real Cloudflare Analytics Engine binding.
+      { writeDataPoint: () => {} },
+      logger
+    );
+
+    SentryService.initialize();
+    this.setupMiddleware();
+    this.setupRoutes();
     this.setupMCPHandlers();
-
-    // Bind methods to preserve context
-    this.initialize = this.initialize.bind(this);
-    this.shutdown = this.shutdown.bind(this);
-    this.getState = this.getState.bind(this);
-    this.getConnectionCount = this.getConnectionCount.bind(this);
+    this.setupSignalHandlers();
   }
 
   /**
@@ -1205,20 +1182,21 @@ export class MCPServer extends Server {
     });
 
     // Comprehensive health check endpoint
-    this.app.get('/health', (_req, res) => {
-      try {
-        const healthMetrics = this.getHealthMetrics();
-        const statusCode = healthMetrics.healthy ? 200 : 503;
-        res.status(statusCode).json(healthMetrics);
-      } catch (error) {
-        this.log('error', 'Error generating health metrics:', undefined, error as Error);
-        res.status(500).json({
-          healthy: false,
-          status: 'error',
-          error: 'Failed to generate health metrics',
-          timestamp: new Date().toISOString(),
-        });
-      }
+    this.app.get('/health', (req: Request, res: Response) => {
+      const start = process.hrtime();
+      const healthy = this.isHealthy();
+      const status = healthy ? 200 : 503;
+      const responseBody = {
+        status: healthy ? 'ok' : 'unhealthy',
+        timestamp: new Date().toISOString(),
+        uptime: this.getUptime(),
+      };
+      
+      res.status(status).json(responseBody);
+      
+      const duration = process.hrtime(start);
+      const durationMs = duration[0] * 1000 + duration[1] / 1e6;
+      this.monitoringService.trackRequest(req.method, req.path, status, durationMs);
     });
 
     // SSE endpoint for MCP protocol communication
@@ -1229,6 +1207,31 @@ export class MCPServer extends Server {
     // MCP protocol message endpoint (POST)
     this.app.post('/message', async (req, res) => {
       await this.handleMCPMessage(req.body, res);
+    });
+
+    this.app.get('/metrics', async (req: Request, res: Response) => {
+      const start = process.hrtime();
+      try {
+        this.updateMetricsFromHealth();
+        res.set('Content-Type', this.metricsRegistry.contentType);
+        res.end(await this.metricsRegistry.metrics());
+        
+        const duration = process.hrtime(start);
+        const durationMs = duration[0] * 1000 + duration[1] / 1e6;
+        this.monitoringService.trackRequest(req.method, req.path, 200, durationMs);
+      } catch (error) {
+        this.log('error', 'Failed to generate metrics', { error }, error instanceof Error ? error : new Error(String(error)));
+        res.status(500).send('Failed to generate metrics');
+        
+        const duration = process.hrtime(start);
+        const durationMs = duration[0] * 1000 + duration[1] / 1e6;
+        this.monitoringService.trackRequest(req.method, req.path, 500, durationMs, undefined, 'Failed to generate metrics');
+      }
+    });
+
+    // Default route for 404
+    this.app.use((_req: Request, res: Response) => {
+      res.status(404).json({ error: 'Not Found' });
     });
 
     this.log('debug', 'Server routes setup completed');
@@ -1784,5 +1787,39 @@ export class MCPServer extends Server {
 
   public broadcast(event: string, data: any): void {
     this.broadcastToConnections(event, data);
+  }
+
+  private updateMetricsFromHealth(): void {
+    const metrics = this.getHealthMetrics();
+
+    let uptimeGauge = this.metricsRegistry.getSingleMetric('process_uptime_seconds') as Gauge;
+    if (!uptimeGauge) {
+      uptimeGauge = new Gauge({ name: 'process_uptime_seconds', help: 'Server uptime in seconds', registers: [this.metricsRegistry] });
+    }
+    uptimeGauge.set(metrics.uptime);
+
+    let connectionsGauge = this.metricsRegistry.getSingleMetric('active_connections') as Gauge;
+    if (!connectionsGauge) {
+      connectionsGauge = new Gauge({ name: 'active_connections', help: 'Number of active connections', registers: [this.metricsRegistry] });
+    }
+    connectionsGauge.set(metrics.connections);
+
+    let memoryUsedGauge = this.metricsRegistry.getSingleMetric('memory_used_bytes') as Gauge;
+    if (!memoryUsedGauge) {
+      memoryUsedGauge = new Gauge({ name: 'memory_used_bytes', help: 'Memory usage in bytes', registers: [this.metricsRegistry] });
+    }
+    memoryUsedGauge.set(metrics.memory.used);
+
+    let requestsTotalGauge = this.metricsRegistry.getSingleMetric('http_requests_total') as Gauge;
+    if (!requestsTotalGauge) {
+      requestsTotalGauge = new Gauge({ name: 'http_requests_total', help: 'Total number of HTTP requests', registers: [this.metricsRegistry] });
+    }
+    requestsTotalGauge.set(metrics.requests.total);
+
+    let errorsTotalGauge = this.metricsRegistry.getSingleMetric('http_requests_errors_total') as Gauge;
+    if (!errorsTotalGauge) {
+      errorsTotalGauge = new Gauge({ name: 'http_requests_errors_total', help: 'Total number of HTTP request errors', registers: [this.metricsRegistry] });
+    }
+    errorsTotalGauge.set(metrics.requests.errors);
   }
 } 
