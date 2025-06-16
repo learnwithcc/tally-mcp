@@ -1,0 +1,23 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 30
+      arrivalRate: 50
+      name: "High Concurrency Stress Test"
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "Concurrent MCP Tool Discovery"
+    flow:
+      - post:
+          url: "/message"
+          json:
+            jsonrpc: "2.0"
+            method: "mcp.discover"
+            id: 1
+  - name: "Concurrent Health Check"
+    flow:
+      - get:
+          url: "/health" 
