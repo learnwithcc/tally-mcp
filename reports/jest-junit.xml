@@ -1,79 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="37" failures="0" errors="0" time="0.341">
-  <testsuite name="FormSharingTool" errors="0" failures="0" skipped="0" timestamp="2025-06-15T18:43:52" time="0.316" tests="37">
-    <testcase classname="FormSharingTool constructor should create an instance with FormPublicationService" name="FormSharingTool constructor should create an instance with FormPublicationService" time="0.002">
+<testsuites name="jest tests" tests="6" failures="0" errors="0" time="0.348">
+  <testsuite name="MonitoringServiceImpl" errors="0" failures="0" skipped="0" timestamp="2025-06-16T17:04:00" time="0.325" tests="6">
+    <testcase classname="MonitoringServiceImpl trackRequest should track request metrics and log info" name="MonitoringServiceImpl trackRequest should track request metrics and log info" time="0.004">
     </testcase>
-    <testcase classname="FormSharingTool publishForm should publish form successfully with minimal input" name="FormSharingTool publishForm should publish form successfully with minimal input" time="0.002">
+    <testcase classname="MonitoringServiceImpl trackRequest should handle requests with errors" name="MonitoringServiceImpl trackRequest should handle requests with errors" time="0.001">
     </testcase>
-    <testcase classname="FormSharingTool publishForm should publish form with all optional parameters" name="FormSharingTool publishForm should publish form with all optional parameters" time="0.003">
+    <testcase classname="MonitoringServiceImpl trackApiCall should track a successful API call" name="MonitoringServiceImpl trackApiCall should track a successful API call" time="0.002">
     </testcase>
-    <testcase classname="FormSharingTool publishForm should handle publication errors" name="FormSharingTool publishForm should handle publication errors" time="0.001">
+    <testcase classname="MonitoringServiceImpl trackApiCall should track a failed API call" name="MonitoringServiceImpl trackApiCall should track a failed API call" time="0.001">
     </testcase>
-    <testcase classname="FormSharingTool publishForm should handle unknown errors" name="FormSharingTool publishForm should handle unknown errors" time="0.001">
+    <testcase classname="MonitoringServiceImpl trackError should track an error with context" name="MonitoringServiceImpl trackError should track an error with context" time="0.001">
     </testcase>
-    <testcase classname="FormSharingTool publishForm should filter out undefined optional parameters" name="FormSharingTool publishForm should filter out undefined optional parameters" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool unpublishForm should unpublish form successfully" name="FormSharingTool unpublishForm should unpublish form successfully" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool unpublishForm should handle unpublish errors" name="FormSharingTool unpublishForm should handle unpublish errors" time="0.005">
-    </testcase>
-    <testcase classname="FormSharingTool getPublicationSettings should get publication settings successfully" name="FormSharingTool getPublicationSettings should get publication settings successfully" time="0.002">
-    </testcase>
-    <testcase classname="FormSharingTool getPublicationSettings should handle get settings errors" name="FormSharingTool getPublicationSettings should handle get settings errors" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool updatePublicationSettings should update publication settings successfully" name="FormSharingTool updatePublicationSettings should update publication settings successfully" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool updatePublicationSettings should filter out undefined values from settings" name="FormSharingTool updatePublicationSettings should filter out undefined values from settings" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool updatePublicationSettings should handle update settings errors" name="FormSharingTool updatePublicationSettings should handle update settings errors" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool generateEmbedCode should generate embed code successfully with minimal input" name="FormSharingTool generateEmbedCode should generate embed code successfully with minimal input" time="0.002">
-    </testcase>
-    <testcase classname="FormSharingTool generateEmbedCode should generate embed code with all options" name="FormSharingTool generateEmbedCode should generate embed code with all options" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool generateEmbedCode should handle embed code generation errors" name="FormSharingTool generateEmbedCode should handle embed code generation errors" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool generateShareLink should generate share link successfully" name="FormSharingTool generateShareLink should generate share link successfully" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool generateShareLink should generate share link with security options" name="FormSharingTool generateShareLink should generate share link with security options" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool generateShareLink should handle share link generation errors" name="FormSharingTool generateShareLink should handle share link generation errors" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool getShareLinks should get share links successfully" name="FormSharingTool getShareLinks should get share links successfully" time="0.006">
-    </testcase>
-    <testcase classname="FormSharingTool getShareLinks should handle get share links errors" name="FormSharingTool getShareLinks should handle get share links errors" time="0.003">
-    </testcase>
-    <testcase classname="FormSharingTool deactivateShareLink should deactivate share link successfully" name="FormSharingTool deactivateShareLink should deactivate share link successfully" time="0.003">
-    </testcase>
-    <testcase classname="FormSharingTool deactivateShareLink should handle deactivate share link errors" name="FormSharingTool deactivateShareLink should handle deactivate share link errors" time="0.004">
-    </testcase>
-    <testcase classname="FormSharingTool getFormSharingStats should get sharing stats successfully" name="FormSharingTool getFormSharingStats should get sharing stats successfully" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool getFormSharingStats should handle get sharing stats errors" name="FormSharingTool getFormSharingStats should handle get sharing stats errors" time="0">
-    </testcase>
-    <testcase classname="FormSharingTool getFormAnalytics should get analytics with default period" name="FormSharingTool getFormAnalytics should get analytics with default period" time="0">
-    </testcase>
-    <testcase classname="FormSharingTool getFormAnalytics should get analytics with custom period" name="FormSharingTool getFormAnalytics should get analytics with custom period" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool getFormAnalytics should handle get analytics errors" name="FormSharingTool getFormAnalytics should handle get analytics errors" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool performBulkOperation should perform bulk publish operation successfully" name="FormSharingTool performBulkOperation should perform bulk publish operation successfully" time="0.002">
-    </testcase>
-    <testcase classname="FormSharingTool performBulkOperation should perform bulk operation without settings" name="FormSharingTool performBulkOperation should perform bulk operation without settings" time="0.002">
-    </testcase>
-    <testcase classname="FormSharingTool performBulkOperation should handle bulk operation errors" name="FormSharingTool performBulkOperation should handle bulk operation errors" time="0">
-    </testcase>
-    <testcase classname="FormSharingTool validateFormForPublication should validate form successfully when form can be published" name="FormSharingTool validateFormForPublication should validate form successfully when form can be published" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool validateFormForPublication should validate form with validation issues" name="FormSharingTool validateFormForPublication should validate form with validation issues" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool validateFormForPublication should handle validation errors" name="FormSharingTool validateFormForPublication should handle validation errors" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool edge cases and error handling should handle empty form IDs array in bulk operation" name="FormSharingTool edge cases and error handling should handle empty form IDs array in bulk operation" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool edge cases and error handling should handle invalid email in notification emails" name="FormSharingTool edge cases and error handling should handle invalid email in notification emails" time="0.001">
-    </testcase>
-    <testcase classname="FormSharingTool edge cases and error handling should handle invalid datetime in publish date" name="FormSharingTool edge cases and error handling should handle invalid datetime in publish date" time="0.003">
+    <testcase classname="MonitoringServiceImpl trackExecution should track execution time of a labeled process" name="MonitoringServiceImpl trackExecution should track execution time of a labeled process" time="0.003">
     </testcase>
   </testsuite>
 </testsuites>
