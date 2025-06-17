@@ -529,7 +529,7 @@ export class AuthenticationValidator {
             const validation = schema.safeParse(responseData);
             return {
                 isValid: validation.success,
-                errors: validation.success ? [] : validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`),
+                errors: validation.success ? [] : validation.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`),
             };
         }
         catch (error) {
@@ -1063,10 +1063,7 @@ export class AuthenticationValidator {
                 client_id: this.config.oauth2Config.clientId,
                 client_secret: this.config.oauth2Config.clientSecret
             };
-            const response = await this.apiClient.makeRequest({
-                method: 'POST',
-                endpoint: '/oauth/token',
-                data: refreshData,
+            const response = await this.apiClient.post('/oauth/token', refreshData, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }

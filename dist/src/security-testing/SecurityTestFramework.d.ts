@@ -6,7 +6,6 @@ export declare class SecurityTestFramework {
     private snyk;
     private customTests;
     private reporter;
-    private server?;
     constructor(config: SecurityTestConfig);
     runAllTests(): Promise<SecurityTestResult[]>;
     runTestSuite(suite: TestSuite): Promise<SecurityTestResult[]>;

@@ -4,9 +4,9 @@
  * Integrates with OWASP ZAP (Zed Attack Proxy) for automated security testing
  */
 
+// import path from 'path';
 import { spawn, ChildProcess } from 'child_process';
 import { promises as fs } from 'fs';
-import path from 'path';
 import axios, { AxiosInstance } from 'axios';
 import { Logger } from '../../utils/logger';
 import { 
@@ -15,7 +15,7 @@ import {
   OWASPZAPConfig, 
   SecurityScanOptions,
   SecurityTestSeverity,
-  VulnerabilityReport
+  // VulnerabilityReport,
 } from '../types';
 
 export class OWASPZAPIntegration implements SecurityTestIntegration {
@@ -25,9 +25,11 @@ export class OWASPZAPIntegration implements SecurityTestIntegration {
 
   private logger: Logger;
   private config: OWASPZAPConfig;
-  private zapProcess?: ChildProcess;
+  private zapProcess: ChildProcess | undefined;
   private zapClient?: AxiosInstance;
   private baseUrl: string;
+  // private zap: any;
+  // private isInitialized = false;
 
   constructor(config: OWASPZAPConfig) {
     this.config = config;
@@ -66,7 +68,7 @@ export class OWASPZAPIntegration implements SecurityTestIntegration {
       this.configValid = true;
       this.logger.info('OWASP ZAP integration initialized successfully');
     } catch (error) {
-      this.logger.error('Failed to initialize OWASP ZAP integration', error);
+      this.logger.error('Failed to initialize OWASP ZAP integration', undefined, error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -90,7 +92,7 @@ export class OWASPZAPIntegration implements SecurityTestIntegration {
       // Check if ZAP is running or can be started
       return await this.checkZAPRunning() || await this.canStartZAP();
     } catch (error) {
-      this.logger.error('Error checking OWASP ZAP availability', error);
+      this.logger.error('Error checking OWASP ZAP availability', undefined, error instanceof Error ? error : new Error(String(error)));
       return false;
     }
   }
@@ -136,7 +138,7 @@ export class OWASPZAPIntegration implements SecurityTestIntegration {
       this.logger.info(`OWASP ZAP scan completed. Found ${results.length} security issues`);
       return results;
     } catch (error) {
-      this.logger.error('OWASP ZAP scan failed', error);
+      this.logger.error('OWASP ZAP scan failed', undefined, error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -166,7 +168,7 @@ export class OWASPZAPIntegration implements SecurityTestIntegration {
         this.zapProcess = undefined;
       }
     } catch (error) {
-      this.logger.error('Error cleaning up OWASP ZAP', error);
+      this.logger.error('Error cleaning up OWASP ZAP', undefined, error instanceof Error ? error : new Error(String(error)));
     }
   }
 
@@ -236,7 +238,7 @@ export class OWASPZAPIntegration implements SecurityTestIntegration {
 
     // Handle process events
     this.zapProcess.on('error', (error) => {
-      this.logger.error('ZAP process error', error);
+      this.logger.error('ZAP process error', undefined, error);
     });
 
     this.zapProcess.on('exit', (code) => {

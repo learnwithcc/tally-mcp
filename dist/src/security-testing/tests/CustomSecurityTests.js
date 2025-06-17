@@ -1,18 +1,29 @@
-import { Logger } from '../../utils/logger';
+import { Logger, LogLevel } from '../../utils/logger';
 import { AuthenticationTests } from './categories/AuthenticationTests';
 import { AuthorizationTests } from './categories/AuthorizationTests';
 import { InputValidationTests } from './categories/InputValidationTests';
 import { APISecurityTests } from './categories/APISecurityTests';
 import { DataProtectionTests } from './categories/DataProtectionTests';
+import { MCPServer, SERVER_CAPABILITIES } from '../../server';
 export class CustomSecurityTests {
     constructor(config) {
         this.config = config;
         this.logger = new Logger({ component: 'CustomSecurityTests' });
         this.testCategories = [];
+        this.server = new MCPServer({
+            port: 3000,
+            host: 'localhost',
+            logger: {
+                level: LogLevel.ERROR
+            },
+            capabilities: SERVER_CAPABILITIES,
+        });
     }
     async initialize() {
-        this.logger.info('Initializing custom security tests');
+        this.logger.info('Initializing custom security tests and starting server...');
         try {
+            await this.server.initialize();
+            this.logger.info('Server started for custom tests.');
             this.testCategories = [
                 new AuthenticationTests(),
                 new AuthorizationTests(),
@@ -24,7 +35,7 @@ export class CustomSecurityTests {
             this.logger.info(`Initialized ${this.testCategories.length} test categories`);
         }
         catch (error) {
-            this.logger.error('Failed to initialize custom security tests', error);
+            this.logger.error('Failed to initialize custom security tests', undefined, error);
             throw error;
         }
     }
@@ -41,7 +52,7 @@ export class CustomSecurityTests {
                         results.push(result);
                     }
                     catch (error) {
-                        this.logger.error(`Test ${test.id} failed`, error);
+                        this.logger.error(`Test ${test.id} failed`, undefined, error);
                         results.push(this.createFailedResult(test, error, startTime));
                     }
                 }
@@ -53,7 +64,7 @@ export class CustomSecurityTests {
             return results;
         }
         catch (error) {
-            this.logger.error('Custom security tests failed', error);
+            this.logger.error('Custom security tests failed', undefined, error);
             throw error;
         }
     }
@@ -69,7 +80,9 @@ export class CustomSecurityTests {
         return this.config.enabled;
     }
     async cleanup() {
-        this.logger.info('Cleaning up custom security tests');
+        this.logger.info('Cleaning up custom security tests and stopping server...');
+        await this.server.shutdown();
+        this.logger.info('Server stopped.');
     }
     async runSingleTest(test) {
         const startTime = Date.now();

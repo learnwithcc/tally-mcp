@@ -1,12 +1,12 @@
-import { sanitize, sanitizeObject, sanitizeArray } from '../input-sanitizer';
+import { sanitizeString, sanitizeObject, sanitizeArray } from '../input-sanitizer';
 import { dangerousStrings, safeStrings } from './fixtures';
 
 describe('Input Sanitization', () => {
-  describe('sanitize', () => {
+  describe('sanitizeString', () => {
     test.each(Object.entries(dangerousStrings))(
       'should remove or neutralize dangerous string: %s',
       (_, dangerousString) => {
-        const sanitized = sanitize(dangerousString);
+        const sanitized = sanitizeString(dangerousString);
         expect(sanitized).not.toContain('<script');
         expect(sanitized).not.toContain('javascript:');
         expect(sanitized).not.toContain('onclick');
@@ -18,7 +18,7 @@ describe('Input Sanitization', () => {
     test.each(Object.entries(safeStrings))(
         'should correctly handle safe string: %s',
         (_, safeString) => {
-            const sanitized = sanitize(safeString);
+            const sanitized = sanitizeString(safeString, { allowBasicFormatting: true, allowLinks: true });
             // It should not strip allowed tags
             if (safeString.includes('<b>')) {
                 expect(sanitized).toContain('<b>');
@@ -31,15 +31,15 @@ describe('Input Sanitization', () => {
     );
 
     it('should correctly handle non-string inputs', () => {
-        expect(sanitize(null)).toBe('');
-        expect(sanitize(undefined)).toBe('');
-        expect(sanitize(123)).toBe('123');
-        expect(sanitize({a: 1})).toBe('[object Object]');
+        expect(sanitizeString(null)).toBe('');
+        expect(sanitizeString(undefined)).toBe('');
+        expect(sanitizeString(123)).toBe('123');
+        expect(sanitizeString({a: 1})).toBe('[object Object]');
     });
 
     it('should add security attributes to links', () => {
       const link = '<a href="https://example.com">Click</a>';
-      const sanitized = sanitize(link);
+      const sanitized = sanitizeString(link, { allowLinks: true });
       expect(sanitized).toContain('rel="noopener noreferrer"');
       expect(sanitized).toContain('target="_blank"');
       expect(sanitized).toMatchSnapshot();

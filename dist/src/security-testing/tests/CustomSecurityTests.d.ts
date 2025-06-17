@@ -3,6 +3,7 @@ export declare class CustomSecurityTests implements SecurityTestRunner {
     private logger;
     private config;
     private testCategories;
+    private server;
     constructor(config: CustomTestConfig);
     initialize(): Promise<void>;
     runAll(): Promise<SecurityTestResult[]>;

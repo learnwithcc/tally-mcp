@@ -1,6 +1,15 @@
-export declare function sanitize(input: any): string;
-export declare function sanitizeObject<T extends Record<string, any>>(obj: T): T;
-export declare function sanitizeArray(arr: any[]): any[];
+export interface SanitizationOptions {
+    allowedTags?: string[];
+    allowedAttr?: string[];
+    allowDataAttr?: boolean;
+    allowUnknownProtocols?: boolean;
+    stripAllHtml?: boolean;
+    allowBasicFormatting?: boolean;
+    allowLinks?: boolean;
+}
+export declare function sanitizeString(input: any, options?: SanitizationOptions): string;
+export declare function sanitizeObject<T extends Record<string, any>>(obj: T, options?: SanitizationOptions): T;
+export declare function sanitizeArray(arr: any[], options?: SanitizationOptions): any[];
 export declare class InputValidator {
     static isValidId(input: string): boolean;
     static isValidEmail(input: string): boolean;

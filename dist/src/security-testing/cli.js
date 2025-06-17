@@ -9,13 +9,8 @@ async function main() {
     }
     try {
         console.log('🔒 Starting Security Testing Framework...\n');
-        const config = {
-            ...DEFAULT_SECURITY_TEST_CONFIG,
-            target: {
-                ...DEFAULT_SECURITY_TEST_CONFIG.target,
-                baseUrl: args.target || DEFAULT_SECURITY_TEST_CONFIG.target.baseUrl
-            }
-        };
+        const config = JSON.parse(JSON.stringify(DEFAULT_SECURITY_TEST_CONFIG));
+        config.target.baseUrl = args.target || config.target.baseUrl;
         if (args.suite) {
             config.suites = [args.suite];
             switch (args.suite) {
@@ -85,6 +80,8 @@ function parseArgs() {
     const args = {};
     for (let i = 2; i < process.argv.length; i++) {
         const arg = process.argv[i];
+        if (!arg)
+            continue;
         if (arg === '--help' || arg === '-h') {
             args.help = true;
         }
@@ -92,16 +89,32 @@ function parseArgs() {
             args.verbose = true;
         }
         else if (arg.startsWith('--suite=')) {
-            args.suite = arg.split('=')[1];
+            const value = arg.split('=')[1];
+            if (value) {
+                args.suite = value;
+            }
         }
         else if (arg.startsWith('--target=')) {
-            args.target = arg.split('=')[1];
+            const value = arg.split('=')[1];
+            if (value) {
+                args.target = value;
+            }
         }
         else if (arg === '--suite') {
-            args.suite = process.argv[++i];
+            if (i + 1 < process.argv.length) {
+                const value = process.argv[++i];
+                if (value) {
+                    args.suite = value;
+                }
+            }
         }
         else if (arg === '--target') {
-            args.target = process.argv[++i];
+            if (i + 1 < process.argv.length) {
+                const value = process.argv[++i];
+                if (value) {
+                    args.target = value;
+                }
+            }
         }
     }
     return args;

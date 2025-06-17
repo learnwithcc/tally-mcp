@@ -9,19 +9,19 @@ export declare const DEFAULT_SECURITY_TEST_CONFIG: {
         baseUrl: string;
         timeout: number;
     };
-    suites: readonly ["custom"];
+    suites: string[];
     owasp: {
         enabled: boolean;
         port: number;
         host: string;
-        scanTypes: readonly ["baseline"];
+        scanTypes: string[];
         maxScanTime: number;
-        reportFormats: readonly ["json"];
+        reportFormats: string[];
     };
     snyk: {
         enabled: boolean;
-        scanTypes: readonly ["dependencies"];
-        severity: readonly ["high", "critical"];
+        scanTypes: string[];
+        severity: string[];
         failOnIssues: boolean;
     };
     custom: {
@@ -34,7 +34,7 @@ export declare const DEFAULT_SECURITY_TEST_CONFIG: {
     reporting: {
         enabled: boolean;
         outputDir: string;
-        formats: readonly ["json", "html"];
+        formats: string[];
         includeEvidence: boolean;
         aggregateResults: boolean;
     };

@@ -1,4 +1,4 @@
-import { SecurityTest, SecurityTestCategory, SecurityTestResult, SecurityTestSeverity } from '../../types';
+import { SecurityTest, SecurityTestCategory, SecurityTestResult } from '../../types';
 
 export class InputValidationTests implements SecurityTestCategory {
   name = 'Input Validation';

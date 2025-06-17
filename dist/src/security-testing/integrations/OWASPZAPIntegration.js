@@ -7,6 +7,7 @@ export class OWASPZAPIntegration {
         this.name = 'OWASP ZAP';
         this.version = '2.14.0';
         this.configValid = false;
+        this.isInitialized = false;
         this.config = config;
         this.logger = new Logger({ component: 'OWASPZAPIntegration' });
         this.baseUrl = `http://${config.host || 'localhost'}:${config.port || 8080}`;
@@ -34,7 +35,7 @@ export class OWASPZAPIntegration {
             this.logger.info('OWASP ZAP integration initialized successfully');
         }
         catch (error) {
-            this.logger.error('Failed to initialize OWASP ZAP integration', error);
+            this.logger.error('Failed to initialize OWASP ZAP integration', undefined, error instanceof Error ? error : new Error(String(error)));
             throw error;
         }
     }
@@ -55,7 +56,7 @@ export class OWASPZAPIntegration {
             return await this.checkZAPRunning() || await this.canStartZAP();
         }
         catch (error) {
-            this.logger.error('Error checking OWASP ZAP availability', error);
+            this.logger.error('Error checking OWASP ZAP availability', undefined, error instanceof Error ? error : new Error(String(error)));
             return false;
         }
     }
@@ -88,7 +89,7 @@ export class OWASPZAPIntegration {
             return results;
         }
         catch (error) {
-            this.logger.error('OWASP ZAP scan failed', error);
+            this.logger.error('OWASP ZAP scan failed', undefined, error instanceof Error ? error : new Error(String(error)));
             throw error;
         }
     }
@@ -112,7 +113,7 @@ export class OWASPZAPIntegration {
             }
         }
         catch (error) {
-            this.logger.error('Error cleaning up OWASP ZAP', error);
+            this.logger.error('Error cleaning up OWASP ZAP', undefined, error instanceof Error ? error : new Error(String(error)));
         }
     }
     async checkZAPRunning() {
@@ -171,7 +172,7 @@ export class OWASPZAPIntegration {
             stdio: 'pipe'
         });
         this.zapProcess.on('error', (error) => {
-            this.logger.error('ZAP process error', error);
+            this.logger.error('ZAP process error', undefined, error);
         });
         this.zapProcess.on('exit', (code) => {
             this.logger.info(`ZAP process exited with code ${code}`);

@@ -42,6 +42,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@godaddy/terminus": "^4.12.1",
     "@modelcontextprotocol/sdk": "^1.12.1",
     "@opentelemetry/api": "1.9.0",
     "@opentelemetry/exporter-trace-otlp-http": "0.51.0",

@@ -3,7 +3,6 @@ import { OWASPZAPIntegration } from './integrations/OWASPZAPIntegration';
 import { SnykIntegration } from './integrations/SnykIntegration';
 import { CustomSecurityTests } from './tests/CustomSecurityTests';
 import { SecurityTestReporter } from './reporting/SecurityTestReporter';
-import { MCPServer } from '../server';
 export class SecurityTestFramework {
     constructor(config) {
         this.config = config;
@@ -99,14 +98,6 @@ export class SecurityTestFramework {
     async initialize() {
         this.logger.info('Initializing Security Test Framework');
         try {
-            if (this.config.suites.includes('custom') && this.config.custom.enabled) {
-                this.logger.info('Starting MCP server for custom tests');
-                this.server = new MCPServer({
-                    port: parseInt(this.config.target.baseUrl.split(':')[2]) || 3000,
-                });
-                await this.server.initialize();
-                this.logger.info('MCP server started');
-            }
             await this.owaspZap.initialize();
             await this.snyk.initialize();
             await this.customTests.initialize();
@@ -125,11 +116,6 @@ export class SecurityTestFramework {
             await this.snyk.cleanup();
             await this.customTests.cleanup();
             await this.reporter.cleanup();
-            if (this.server) {
-                this.logger.info('Stopping MCP server');
-                await this.server.shutdown();
-                this.logger.info('MCP server stopped');
-            }
             this.logger.info('Security Test Framework cleanup completed');
         }
         catch (error) {

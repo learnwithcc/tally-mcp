@@ -9,7 +9,7 @@ export declare class SnykIntegration implements SecurityTestIntegration {
     constructor(config: SnykConfig);
     initialize(): Promise<void>;
     checkAvailability(): Promise<boolean>;
-    runScan(options?: SecurityScanOptions): Promise<SecurityTestResult[]>;
+    runScan(_options?: SecurityScanOptions): Promise<SecurityTestResult[]>;
     runAll(): Promise<SecurityTestResult[]>;
     runTest(testId: string): Promise<SecurityTestResult>;
     cleanup(): Promise<void>;

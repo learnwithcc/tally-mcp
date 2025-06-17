@@ -27,7 +27,7 @@ export class SnykIntegration {
             this.logger.info('Snyk integration initialized successfully');
         }
         catch (error) {
-            this.logger.error('Failed to initialize Snyk integration', error);
+            this.logger.error('Failed to initialize Snyk integration', undefined, error instanceof Error ? error : new Error(String(error)));
             throw error;
         }
     }
@@ -39,11 +39,11 @@ export class SnykIntegration {
             return await this.checkSnykCLI();
         }
         catch (error) {
-            this.logger.error('Error checking Snyk availability', error);
+            this.logger.error('Error checking Snyk availability', undefined, error instanceof Error ? error : new Error(String(error)));
             return false;
         }
     }
-    async runScan(options) {
+    async runScan(_options) {
         this.logger.info('Starting Snyk vulnerability scan');
         if (!this.configValid) {
             throw new Error('Snyk integration not properly initialized');
@@ -59,7 +59,7 @@ export class SnykIntegration {
             return results;
         }
         catch (error) {
-            this.logger.error('Snyk scan failed', error);
+            this.logger.error('Snyk scan failed', undefined, error instanceof Error ? error : new Error(String(error)));
             throw error;
         }
     }
@@ -122,7 +122,7 @@ export class SnykIntegration {
             return results;
         }
         catch (error) {
-            this.logger.error(`Snyk ${scanType} scan failed`, error);
+            this.logger.error(`Snyk ${scanType} scan failed`, undefined, error instanceof Error ? error : new Error(String(error)));
             throw error;
         }
     }
@@ -184,15 +184,19 @@ export class SnykIntegration {
     parseScanOutput(output, scanType) {
         try {
             const jsonOutput = JSON.parse(output);
-            if (scanType === 'code') {
-                return jsonOutput.runs?.[0]?.results || [];
-            }
-            else {
+            if (scanType === 'dependencies') {
+                if (Array.isArray(jsonOutput)) {
+                    return jsonOutput.flatMap(result => result.vulnerabilities || []);
+                }
                 return jsonOutput.vulnerabilities || [];
             }
+            if (scanType === 'code' && jsonOutput.runs?.[0]?.results) {
+                return jsonOutput.runs[0].results;
+            }
+            return [];
         }
         catch (error) {
-            this.logger.error('Failed to parse Snyk output', error);
+            this.logger.error('Failed to parse Snyk output', undefined, error instanceof Error ? error : new Error(String(error)));
             return [];
         }
     }

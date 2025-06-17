@@ -18,7 +18,7 @@ export class SecurityTestReporter {
             this.logger.info(`Reports will be saved to: ${this.outputDir}`);
         }
         catch (error) {
-            this.logger.error('Failed to initialize Security Test Reporter', error);
+            this.logger.error('Failed to initialize Security Test Reporter', undefined, error instanceof Error ? error : new Error(String(error)));
             throw error;
         }
     }
@@ -34,16 +34,16 @@ export class SecurityTestReporter {
                 await this.generateReportFormat(report, format);
             }
             if (this.config.notifications) {
-                await this.sendNotifications(report);
+                await this.sendNotifications();
             }
             if (this.config.webhooks) {
-                await this.sendWebhooks(report);
+                await this.sendWebhooks();
             }
             this.lastRunTime = new Date();
             this.logger.info('Security test report generated successfully');
         }
         catch (error) {
-            this.logger.error('Failed to generate security test report', error);
+            this.logger.error('Failed to generate security test report', undefined, error instanceof Error ? error : new Error(String(error)));
             throw error;
         }
     }
@@ -244,11 +244,11 @@ export class SecurityTestReporter {
     ${testCases}
 </testsuite>`;
     }
-    async sendNotifications(report) {
-        this.logger.info('Sending notifications (not implemented)');
+    async sendNotifications() {
+        this.logger.info('Notification sending is not yet implemented.');
     }
-    async sendWebhooks(report) {
-        this.logger.info('Sending webhooks (not implemented)');
+    async sendWebhooks() {
+        this.logger.info('Webhook sending is not yet implemented.');
     }
 }
 //# sourceMappingURL=SecurityTestReporter.js.map

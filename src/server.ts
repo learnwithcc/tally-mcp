@@ -11,17 +11,23 @@ import express, { Express, Request, Response } from 'express';
 import * as os from 'os';
 import { 
   TemplateTool, 
-  WorkspaceManagementTool
+  WorkspaceManagementTool,
+  FormCreationTool,
+  FormModificationTool,
+  FormSharingTool,
+  SubmissionAnalysisTool,
+  TeamManager,
 } from './tools';
 import { TallyApiClient, TallyApiClientConfig } from './services/TallyApiClient';
 import { EventEmitter } from 'events';
 import { env } from './config/env';
 import { ServerCapabilities, ClientCapabilities, NegotiatedCapabilities } from './types/capabilities';
-import { Registry, Gauge, Counter, collectDefaultMetrics } from 'prom-client';
+import { Registry, Gauge, /* Counter, */ collectDefaultMetrics } from 'prom-client';
 import { MonitoringService } from './types/monitoring';
 import { MonitoringServiceImpl } from './services/MonitoringService';
 import { Logger } from './utils/logger';
 import { SentryService } from './services/SentryService';
+import { createTerminus, HealthCheckError } from '@godaddy/terminus';
 
 /**
  * Log levels enumeration
@@ -129,6 +135,8 @@ export interface MCPServerConfig {
   debug: boolean;
   /** Logger configuration */
   logger?: Partial<LoggerConfig>;
+  /** Server capabilities */
+  capabilities?: ServerCapabilities;
 }
 
 /**
@@ -228,7 +236,7 @@ export const DEFAULT_HEALTH_THRESHOLDS: HealthThresholds = {
 /**
  * Server capabilities configuration
  */
-const SERVER_CAPABILITIES: ServerCapabilities = {
+export const SERVER_CAPABILITIES: ServerCapabilities = {
   protocolVersion: '1.0',
   tools: {
     listChanged: true
@@ -238,7 +246,7 @@ const SERVER_CAPABILITIES: ServerCapabilities = {
     listChanged: false
   },
   prompts: {
-    listChanged: false
+    listChanged: false,
   },
   logging: {}
 };
@@ -320,7 +328,7 @@ export class MCPServer extends Server {
     super({
         name: 'tally-mcp-server',
         version: '1.0.0',
-        capabilities: SERVER_CAPABILITIES,
+        capabilities: config.capabilities || SERVER_CAPABILITIES,
     });
 
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -607,7 +615,7 @@ export class MCPServer extends Server {
    * Handle new SSE connection
    * Establishes Server-Sent Events connection for MCP protocol communication
    */
-  private handleSSEConnection(req: Request, res: Response): void {
+  private async handleSSEConnection(req: Request, res: Response): Promise<void> {
     const requestId = (req as any).requestId || 'unknown';
     this.log('info', `New SSE connection established [${requestId}]`);
 
@@ -642,7 +650,7 @@ export class MCPServer extends Server {
       jsonrpc: '2.0',
       method: 'notifications/tools/list_changed',
       params: {
-        tools: this._handleToolsList()
+        tools: await this._handleToolsList()
       }
     });
 
@@ -674,186 +682,6 @@ export class MCPServer extends Server {
       this.log('debug', `SSE response finished [${requestId}]`);
       this.removeConnection(res);
     });
-  }
-
-  /**
-   * Handle MCP protocol messages
-   * Processes incoming MCP protocol messages using proper MCP SDK request handling
-   */
-  private async handleMCPMessage(message: any, res: Response): Promise<void> {
-    this.log('debug', 'Received MCP message:', { message, messageType: typeof message });
-
-    try {
-      // Validate message structure
-      if (message === null || 
-          message === undefined || 
-          typeof message !== 'object' || 
-          Array.isArray(message) ||
-          Object.keys(message).length === 0) {
-        res.status(400).json({
-          jsonrpc: '2.0',
-          id: message?.id || null,
-          error: {
-            code: -32600,
-            message: 'Invalid Request',
-            data: 'Message must be a valid non-empty object'
-          }
-        });
-        return;
-      }
-
-      // Validate JSON-RPC structure
-      if (message.jsonrpc !== '2.0' || !message.method || typeof message.method !== 'string') {
-        res.status(400).json({
-          jsonrpc: '2.0',
-          id: message?.id || null,
-          error: {
-            code: -32600,
-            message: 'Invalid Request',
-            data: 'Request must be valid JSON-RPC 2.0 with method field'
-          }
-        });
-        return;
-      }
-
-      let mcpResponse;
-      
-      try {
-        switch (message.method) {
-          case 'initialize':
-            // Validate protocol version
-            if (!message.params?.protocolVersion) {
-              mcpResponse = {
-                jsonrpc: '2.0',
-                id: message.id,
-                error: {
-                  code: -32602,
-                  message: 'Invalid params',
-                  data: 'Protocol version is required'
-                }
-              };
-              break;
-            }
-
-            if (message.params.protocolVersion !== '2024-11-05') {
-              mcpResponse = {
-                jsonrpc: '2.0',
-                id: message.id,
-                error: {
-                  code: -32600,
-                  message: 'Invalid Request',
-                  data: 'Unsupported protocol version'
-                }
-              };
-              break;
-            }
-
-            try {
-              const capabilities = negotiateCapabilities(message.params.capabilities);
-              mcpResponse = {
-                jsonrpc: '2.0',
-                id: message.id,
-                result: {
-                  protocolVersion: '2024-11-05',
-                  capabilities,
-                  serverInfo: {
-                    name: 'tally-mcp-server',
-                    version: '1.0.0',
-                    description: 'MCP server for Tally.so form management and automation'
-                  }
-                }
-              };
-            } catch (error) {
-              mcpResponse = {
-                jsonrpc: '2.0',
-                id: message.id,
-                error: {
-                  code: -32602,
-                  message: 'Invalid params',
-                  data: error instanceof Error ? error.message : 'Invalid capabilities'
-                }
-              };
-            }
-            break;
-
-          case 'tools/list':
-            // Use the registered handler
-            const toolsResult = await this._handleToolsList();
-            mcpResponse = {
-              jsonrpc: '2.0',
-              id: message.id,
-              result: toolsResult
-            };
-            break;
-
-          case 'tools/call':
-            // Use the registered handler
-            const callResult = await this._handleToolsCall(message);
-            mcpResponse = {
-              jsonrpc: '2.0',
-              id: message.id,
-              result: callResult
-            };
-            break;
-
-          case 'resources/list':
-            mcpResponse = {
-              jsonrpc: '2.0',
-              id: message.id,
-              result: {
-                resources: []
-              }
-            };
-            break;
-
-          case 'prompts/list':
-            mcpResponse = {
-              jsonrpc: '2.0',
-              id: message.id,
-              result: {
-                prompts: []
-              }
-            };
-            break;
-
-          default:
-            mcpResponse = {
-              jsonrpc: '2.0',
-              id: message.id,
-              error: {
-                code: -32601,
-                message: 'Method not found',
-                data: `Unknown method: ${message.method}`
-              }
-            };
-        }
-      } catch (error) {
-        this.log('error', 'Error processing MCP request:', undefined, error as Error);
-        mcpResponse = {
-          jsonrpc: '2.0',
-          id: message.id,
-          error: {
-            code: -32603,
-            message: 'Internal error',
-            data: error instanceof Error ? error.message : 'Unknown error'
-          }
-        };
-      }
-
-      this.broadcastToConnections('message', mcpResponse);
-      res.json(mcpResponse);
-    } catch (error) {
-      this.log('error', 'Error processing MCP message:', undefined, error as Error);
-      res.status(500).json({
-        jsonrpc: '2.0',
-        id: message?.id || null,
-        error: {
-          code: -32603,
-          message: 'Internal error',
-          data: error instanceof Error ? error.message : 'Unknown error'
-        }
-      });
-    }
   }
 
   /**
@@ -1822,5 +1650,185 @@ export class MCPServer extends Server {
       errorsTotalGauge = new Gauge({ name: 'http_requests_errors_total', help: 'Total number of HTTP request errors', registers: [this.metricsRegistry] });
     }
     errorsTotalGauge.set(metrics.requests.errors);
+  }
+
+  /**
+   * Handle MCP protocol messages
+   * Processes incoming MCP protocol messages using proper MCP SDK request handling
+   */
+  private async handleMCPMessage(message: any, res: Response): Promise<void> {
+    this.log('debug', 'Received MCP message:', { message, messageType: typeof message });
+
+    try {
+      // Validate message structure
+      if (message === null || 
+          message === undefined || 
+          typeof message !== 'object' || 
+          Array.isArray(message) ||
+          Object.keys(message).length === 0) {
+        res.status(400).json({
+          jsonrpc: '2.0',
+          id: message?.id || null,
+          error: {
+            code: -32600,
+            message: 'Invalid Request',
+            data: 'Message must be a valid non-empty object'
+          }
+        });
+        return;
+      }
+
+      // Validate JSON-RPC structure
+      if (message.jsonrpc !== '2.0' || !message.method || typeof message.method !== 'string') {
+        res.status(400).json({
+          jsonrpc: '2.0',
+          id: message?.id || null,
+          error: {
+            code: -32600,
+            message: 'Invalid Request',
+            data: 'Request must be valid JSON-RPC 2.0 with method field'
+          }
+        });
+        return;
+      }
+
+      let mcpResponse;
+      
+      try {
+        switch (message.method) {
+          case 'initialize':
+            // Validate protocol version
+            if (!message.params?.protocolVersion) {
+              mcpResponse = {
+                jsonrpc: '2.0',
+                id: message.id,
+                error: {
+                  code: -32602,
+                  message: 'Invalid params',
+                  data: 'Protocol version is required'
+                }
+              };
+              break;
+            }
+
+            if (message.params.protocolVersion !== '2024-11-05') {
+              mcpResponse = {
+                jsonrpc: '2.0',
+                id: message.id,
+                error: {
+                  code: -32600,
+                  message: 'Invalid Request',
+                  data: 'Unsupported protocol version'
+                }
+              };
+              break;
+            }
+
+            try {
+              const capabilities = negotiateCapabilities(message.params.capabilities);
+              mcpResponse = {
+                jsonrpc: '2.0',
+                id: message.id,
+                result: {
+                  protocolVersion: '2024-11-05',
+                  capabilities,
+                  serverInfo: {
+                    name: 'tally-mcp-server',
+                    version: '1.0.0',
+                    description: 'MCP server for Tally.so form management and automation'
+                  }
+                }
+              };
+            } catch (error) {
+              mcpResponse = {
+                jsonrpc: '2.0',
+                id: message.id,
+                error: {
+                  code: -32602,
+                  message: 'Invalid params',
+                  data: error instanceof Error ? error.message : 'Invalid capabilities'
+                }
+              };
+            }
+            break;
+
+          case 'tools/list':
+            // Use the registered handler
+            const toolsResult = await this._handleToolsList();
+            mcpResponse = {
+              jsonrpc: '2.0',
+              id: message.id,
+              result: toolsResult
+            };
+            break;
+
+          case 'tools/call':
+            // Use the registered handler
+            const callResult = await this._handleToolsCall(message);
+            mcpResponse = {
+              jsonrpc: '2.0',
+              id: message.id,
+              result: callResult
+            };
+            break;
+
+          case 'resources/list':
+            mcpResponse = {
+              jsonrpc: '2.0',
+              id: message.id,
+              result: {
+                resources: []
+              }
+            };
+            break;
+
+          case 'prompts/list':
+            mcpResponse = {
+              jsonrpc: '2.0',
+              id: message.id,
+              result: {
+                prompts: []
+              }
+            };
+            break;
+
+          default:
+            mcpResponse = {
+              jsonrpc: '2.0',
+              id: message.id,
+              error: {
+                code: -32601,
+                message: 'Method not found',
+                data: `Unknown method: ${message.method}`
+              }
+            };
+        }
+      } catch (error) {
+        this.log('error', 'Error processing MCP request:', undefined, error as Error);
+        mcpResponse = {
+          jsonrpc: '2.0',
+          id: message.id,
+          error: {
+            code: -32603,
+            message: 'Internal error',
+            data: error instanceof Error ? error.message : 'Unknown error'
+          }
+        };
+      }
+
+      this.broadcastToConnections('message', mcpResponse);
+      res.json(mcpResponse);
+    } catch (error) {
+      this.log('error', 'Error processing MCP message:', undefined, error as Error);
+      res.status(500).json({
+        jsonrpc: '2.0',
+        id: message?.id || null,
+        error: {
+          code: -32603,
+          message: 'Internal error',
+          data: error instanceof Error ? error.message : 'Unknown error'
+        }
+      });
+    }
   }
 } 

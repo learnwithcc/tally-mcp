@@ -25,19 +25,19 @@ export const DEFAULT_SECURITY_TEST_CONFIG = {
     baseUrl: 'http://localhost:3000',
     timeout: 30000
   },
-  suites: ['custom'] as const,
+  suites: ['custom'],
   owasp: {
     enabled: false,
     port: 8080,
     host: 'localhost',
-    scanTypes: ['baseline'] as const,
+    scanTypes: ['baseline'],
     maxScanTime: 300000,
-    reportFormats: ['json'] as const
+    reportFormats: ['json']
   },
   snyk: {
     enabled: false,
-    scanTypes: ['dependencies'] as const,
-    severity: ['high', 'critical'] as const,
+    scanTypes: ['dependencies'],
+    severity: ['high', 'critical'],
     failOnIssues: false
   },
   custom: {
@@ -50,7 +50,7 @@ export const DEFAULT_SECURITY_TEST_CONFIG = {
   reporting: {
     enabled: true,
     outputDir: 'reports/security',
-    formats: ['json', 'html'] as const,
+    formats: ['json', 'html'],
     includeEvidence: true,
     aggregateResults: true
   },

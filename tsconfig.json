@@ -27,7 +27,6 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "exactOptionalPropertyTypes": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
@@ -40,7 +39,7 @@
     "resolveJsonModule": true
   },
   "include": ["src", "scripts", "src/types"],
-  "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.example.ts"],
+  "exclude": ["node_modules", "dist", "**/__tests__/**", "**/*.spec.ts", "**/*.example.ts"],
   "ts-node": {
     "compilerOptions": {
       "module": "commonjs"

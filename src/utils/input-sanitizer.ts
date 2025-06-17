@@ -1,13 +1,24 @@
 import DOMPurify from 'isomorphic-dompurify';
 
+export interface SanitizationOptions {
+  allowedTags?: string[];
+  allowedAttr?: string[];
+  allowDataAttr?: boolean;
+  allowUnknownProtocols?: boolean;
+  stripAllHtml?: boolean;
+  allowBasicFormatting?: boolean;
+  allowLinks?: boolean;
+}
+
 /**
  * Sanitizes a string to prevent XSS attacks.
  * It allows a safe subset of HTML tags for basic formatting.
  *
  * @param input The string or other value to sanitize.
+ * @param options Sanitization options.
  * @returns A sanitized string.
  */
-export function sanitize(input: any): string {
+export function sanitizeString(input: any, options: SanitizationOptions = {}): string {
   if (input === null || input === undefined) {
     return '';
   }
@@ -16,38 +27,55 @@ export function sanitize(input: any): string {
   // Manually remove javascript protocol to be safe
   stringifiedInput = stringifiedInput.replace(/javascript:/gi, '');
 
-  const sanitized = DOMPurify.sanitize(stringifiedInput, {
-    ALLOWED_TAGS: ['b', 'i', 'u', 'strong', 'em', 'br', 'p', 'a'],
-    ALLOWED_ATTR: ['href', 'title', 'target'],
-    ALLOW_DATA_ATTR: false,
-    ALLOW_UNKNOWN_PROTOCOLS: false,
-  });
+  let allowedTags = options.allowedTags ?? [];
+  if (options.allowBasicFormatting) {
+    allowedTags = [...new Set([...allowedTags, 'b', 'i', 'u', 'strong', 'em', 'br', 'p'])];
+  }
+  if (options.allowLinks) {
+    allowedTags = [...new Set([...allowedTags, 'a'])];
+  }
+
+  let allowedAttr = options.allowedAttr ?? [];
+  if (options.allowLinks) {
+    allowedAttr = [...new Set([...allowedAttr, 'href', 'title', 'target', 'rel'])];
+  }
+
+  const domPurifyOptions: DOMPurify.Config = {
+    ALLOWED_TAGS: options.stripAllHtml ? [] : allowedTags,
+    ALLOWED_ATTR: options.stripAllHtml ? [] : allowedAttr,
+    ALLOW_DATA_ATTR: options.allowDataAttr ?? false,
+    ALLOW_UNKNOWN_PROTOCOLS: options.allowUnknownProtocols ?? false,
+  };
+
+  const sanitized = DOMPurify.sanitize(stringifiedInput, domPurifyOptions);
 
   // Add a hook to enforce secure links
-  DOMPurify.addHook('afterSanitizeAttributes', (node) => {
-    if (node.tagName === 'A' && node.hasAttribute('href')) {
+  if (options.allowLinks) {
+    DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+      if (node.tagName === 'A' && node.hasAttribute('href')) {
         node.setAttribute('rel', 'noopener noreferrer');
         node.setAttribute('target', '_blank');
-    }
-  });
+      }
+    });
+  }
 
-  const final = DOMPurify.sanitize(sanitized, {
-      ALLOWED_TAGS: ['b', 'i', 'u', 'strong', 'em', 'br', 'p', 'a'],
-      ALLOWED_ATTR: ['href', 'title', 'target', 'rel'],
-  });
+  const final = DOMPurify.sanitize(sanitized, domPurifyOptions);
 
-  DOMPurify.removeHook('afterSanitizeAttributes');
+  if (options.allowLinks) {
+    DOMPurify.removeHook('afterSanitizeAttributes');
+  }
 
   return final;
 }
 
 /**
- * Recursively sanitizes an object by applying the `sanitize` function to all its string values.
+ * Recursively sanitizes an object by applying the `sanitizeString` function to all its string values.
  *
  * @param obj The object to sanitize.
+ * @param options Sanitization options.
  * @returns A new object with all string values sanitized.
  */
-export function sanitizeObject<T extends Record<string, any>>(obj: T): T {
+export function sanitizeObject<T extends Record<string, any>>(obj: T, options: SanitizationOptions = {}): T {
   if (!obj || typeof obj !== 'object') {
     return obj;
   }
@@ -57,9 +85,9 @@ export function sanitizeObject<T extends Record<string, any>>(obj: T): T {
   for (const key in sanitizedObj) {
     const value = sanitizedObj[key];
     if (typeof value === 'string') {
-      sanitizedObj[key] = sanitize(value) as T[Extract<keyof T, string>];
+      sanitizedObj[key] = sanitizeString(value, options) as T[Extract<keyof T, string>];
     } else if (typeof value === 'object') {
-      sanitizedObj[key] = sanitizeObject(value);
+      sanitizedObj[key] = sanitizeObject(value, options);
     }
   }
 
@@ -70,18 +98,19 @@ export function sanitizeObject<T extends Record<string, any>>(obj: T): T {
  * Sanitizes an array by applying sanitization to its elements.
  *
  * @param arr The array to sanitize.
+ * @param options Sanitization options.
  * @returns A new array with sanitized elements.
  */
-export function sanitizeArray(arr: any[]): any[] {
+export function sanitizeArray(arr: any[], options: SanitizationOptions = {}): any[] {
     if (!Array.isArray(arr)) {
         return [];
     }
     return arr.map(item => {
         if (typeof item === 'string') {
-            return sanitize(item);
+            return sanitizeString(item, options);
         }
         if (typeof item === 'object' && item !== null) {
-            return sanitizeObject(item);
+            return sanitizeObject(item, options);
         }
         return item;
     });

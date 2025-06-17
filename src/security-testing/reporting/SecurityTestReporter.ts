@@ -41,7 +41,7 @@ export class SecurityTestReporter {
       await fs.mkdir(this.outputDir, { recursive: true });
       this.logger.info(`Reports will be saved to: ${this.outputDir}`);
     } catch (error) {
-      this.logger.error('Failed to initialize Security Test Reporter', error);
+      this.logger.error('Failed to initialize Security Test Reporter', undefined, error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -68,18 +68,18 @@ export class SecurityTestReporter {
 
       // Send notifications if configured
       if (this.config.notifications) {
-        await this.sendNotifications(report);
+        await this.sendNotifications();
       }
 
       // Send webhooks if configured
       if (this.config.webhooks) {
-        await this.sendWebhooks(report);
+        await this.sendWebhooks();
       }
 
       this.lastRunTime = new Date();
       this.logger.info('Security test report generated successfully');
     } catch (error) {
-      this.logger.error('Failed to generate security test report', error);
+      this.logger.error('Failed to generate security test report', undefined, error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -310,13 +310,13 @@ export class SecurityTestReporter {
 </testsuite>`;
   }
 
-  private async sendNotifications(report: SecurityTestReport): Promise<void> {
-    // Implementation would depend on notification providers
-    this.logger.info('Sending notifications (not implemented)');
+  private async sendNotifications(): Promise<void> {
+    // TODO: Implement notification sending logic (e.g., Slack, Email)
+    this.logger.info('Notification sending is not yet implemented.');
   }
 
-  private async sendWebhooks(report: SecurityTestReport): Promise<void> {
-    // Implementation would depend on webhook configuration
-    this.logger.info('Sending webhooks (not implemented)');
+  private async sendWebhooks(): Promise<void> {
+    // TODO: Implement webhook sending logic
+    this.logger.info('Webhook sending is not yet implemented.');
   }
 } 

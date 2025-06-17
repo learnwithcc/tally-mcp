@@ -8,7 +8,7 @@
 
 import { SecurityTestFramework } from './SecurityTestFramework';
 import { DEFAULT_SECURITY_TEST_CONFIG } from './index';
-import { TestSuite } from './types';
+import { TestSuite, SecurityTestConfig } from './types';
 
 interface CLIArgs {
   suite?: TestSuite;
@@ -28,13 +28,9 @@ async function main() {
   try {
     console.log('🔒 Starting Security Testing Framework...\n');
     
-    const config = {
-      ...DEFAULT_SECURITY_TEST_CONFIG,
-      target: {
-        ...DEFAULT_SECURITY_TEST_CONFIG.target,
-        baseUrl: args.target || DEFAULT_SECURITY_TEST_CONFIG.target.baseUrl
-      }
-    };
+    const config: SecurityTestConfig = JSON.parse(JSON.stringify(DEFAULT_SECURITY_TEST_CONFIG));
+    
+    config.target.baseUrl = args.target || config.target.baseUrl;
 
     // Configure specific suite if specified
     if (args.suite) {
@@ -54,7 +50,7 @@ async function main() {
       }
     } else {
       // Run all available suites
-      config.suites = ['custom', 'owasp-zap', 'snyk'];
+      config.suites = ['custom', 'owasp-zap', 'snyk'] as TestSuite[];
       config.owasp.enabled = true;
       config.snyk.enabled = true;
       config.custom.enabled = true;
@@ -128,19 +124,36 @@ function parseArgs(): CLIArgs {
   
   for (let i = 2; i < process.argv.length; i++) {
     const arg = process.argv[i];
+    if (!arg) continue;
     
     if (arg === '--help' || arg === '-h') {
       args.help = true;
     } else if (arg === '--verbose' || arg === '-v') {
       args.verbose = true;
     } else if (arg.startsWith('--suite=')) {
-      args.suite = arg.split('=')[1] as TestSuite;
+      const value = arg.split('=')[1];
+      if (value) {
+        args.suite = value as TestSuite;
+      }
     } else if (arg.startsWith('--target=')) {
-      args.target = arg.split('=')[1];
+      const value = arg.split('=')[1];
+      if (value) {
+        args.target = value;
+      }
     } else if (arg === '--suite') {
-      args.suite = process.argv[++i] as TestSuite;
+      if (i + 1 < process.argv.length) {
+        const value = process.argv[++i];
+        if (value) {
+          args.suite = value as TestSuite;
+        }
+      }
     } else if (arg === '--target') {
-      args.target = process.argv[++i];
+      if (i + 1 < process.argv.length) {
+        const value = process.argv[++i];
+        if (value) {
+          args.target = value;
+        }
+      }
     }
   }
   
