@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { MCPServer } from './server';
 async function main() {
     console.log('Tally MCP Server starting...');

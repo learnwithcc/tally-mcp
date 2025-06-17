@@ -151,7 +151,7 @@ describe('Security Middleware', () => {
             expect(response.status).toBe(200);
         });
         it('should block directory traversal attempts', async () => {
-            const response = await request(app).get('/test/../../../etc/passwd');
+            const response = await request(app).get('/test/..%2F..%2F..%2Fetc%2Fpasswd');
             expect(response.status).toBe(400);
             expect(response.body.code).toBe('SECURITY_VIOLATION');
         });
@@ -161,10 +161,19 @@ describe('Security Middleware', () => {
             expect(response.body.code).toBe('SECURITY_VIOLATION');
         });
         it('should reject negative Content-Length', async () => {
-            const response = await request(app)
-                .post('/upload')
-                .set('Content-Length', '-1')
-                .send({ data: 'test' });
+            const testApp = express();
+            testApp.use(express.json());
+            testApp.use((req, res, next) => {
+                req.headers['content-length'] = '-1';
+                next();
+            });
+            testApp.use(securityValidation);
+            testApp.use((req, res) => {
+                if (!res.headersSent) {
+                    res.status(200).json({ message: 'Request passed validation' });
+                }
+            });
+            const response = await request(testApp).post('/upload').send({ data: 'test' });
             expect(response.status).toBe(400);
             expect(response.body.code).toBe('INVALID_CONTENT_LENGTH');
         });
@@ -175,11 +184,39 @@ describe('Security Middleware', () => {
             expect(response.status).toBe(413);
         });
         it('should warn about invalid User-Agent headers', async () => {
-            await request(app).get('/test').set('User-Agent', '');
+            consoleWarnSpy.mockClear();
+            const testApp = express();
+            testApp.use(express.json());
+            testApp.use((req, res, next) => {
+                delete req.headers['user-agent'];
+                next();
+            });
+            testApp.use(securityValidation);
+            testApp.use((req, res) => {
+                if (!res.headersSent) {
+                    res.status(200).json({ message: 'Request passed validation' });
+                }
+            });
+            await request(testApp).get('/test');
+            console.log('Console warn calls:', consoleWarnSpy.mock.calls);
             expect(consoleWarnSpy).toHaveBeenCalledWith('Security Warning: Missing or empty User-Agent header.');
         });
         it('should warn about oversized User-Agent headers', async () => {
-            await request(app).get('/test').set('User-Agent', 'a'.repeat(300));
+            consoleWarnSpy.mockClear();
+            const testApp = express();
+            testApp.use(express.json());
+            testApp.use((req, res, next) => {
+                req.headers['user-agent'] = 'a'.repeat(300);
+                next();
+            });
+            testApp.use(securityValidation);
+            testApp.use((req, res) => {
+                if (!res.headersSent) {
+                    res.status(200).json({ message: 'Request passed validation' });
+                }
+            });
+            await request(testApp).get('/test');
+            console.log('Console warn calls:', consoleWarnSpy.mock.calls);
             expect(consoleWarnSpy).toHaveBeenCalledWith('Security Warning: Oversized User-Agent header: 300 chars');
         });
     });

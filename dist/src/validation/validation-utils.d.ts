@@ -4,5 +4,12 @@ export declare class ValidationUtils {
     static mergeResults(...results: ValidationResult[]): ValidationResult;
     static formatError(error: ValidationError): string;
     static calculateComplexity(schema: Record<string, any>): number;
+    static formatPath(path: string[]): string;
+    static isValidJsonSchemaType(type: string): boolean;
+    static mergeValidationResults(...results: ValidationResult[]): ValidationResult;
+    static validateRequired(data: any, required: string[]): ValidationError[];
+    static sanitizeErrorMessage(message: any): string;
+    static getErrorSeverityLevel(severity: ValidationSeverity): number;
+    static sortErrorsBySeverity(errors: ValidationError[]): ValidationError[];
 }
 //# sourceMappingURL=validation-utils.d.ts.map

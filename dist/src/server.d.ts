@@ -129,6 +129,8 @@ export declare class MCPServer extends Server {
     private correlationIds;
     private errorMetrics;
     private tools?;
+    private metricsRegistry;
+    private monitoringService;
     constructor(config?: Partial<MCPServerConfig>);
     getState(): ServerState;
     getConnectionCount(): number;
@@ -180,5 +182,6 @@ export declare class MCPServer extends Server {
     on(event: string, listener: (...args: any[]) => void): this;
     emit(event: string, ...args: any[]): boolean;
     broadcast(event: string, data: any): void;
+    private updateMetricsFromHealth;
 }
 //# sourceMappingURL=server.d.ts.map

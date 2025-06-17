@@ -1,82 +1,55 @@
 import DOMPurify from 'isomorphic-dompurify';
-const DEFAULT_STRICT_CONFIG = {
-    allowBasicFormatting: false,
-    allowLinks: false,
-    stripAllHtml: true,
-};
-export function sanitizeString(input, options = DEFAULT_STRICT_CONFIG) {
-    if (typeof input !== 'string') {
+export function sanitize(input) {
+    if (input === null || input === undefined) {
         return '';
     }
-    if (options.stripAllHtml) {
-        return DOMPurify.sanitize(input, {
-            ALLOWED_TAGS: [],
-            ALLOWED_ATTR: [],
-            ALLOW_DATA_ATTR: false,
-            ALLOW_UNKNOWN_PROTOCOLS: false,
-        });
-    }
-    const config = {
+    let stringifiedInput = String(input);
+    stringifiedInput = stringifiedInput.replace(/javascript:/gi, '');
+    const sanitized = DOMPurify.sanitize(stringifiedInput, {
+        ALLOWED_TAGS: ['b', 'i', 'u', 'strong', 'em', 'br', 'p', 'a'],
+        ALLOWED_ATTR: ['href', 'title', 'target'],
         ALLOW_DATA_ATTR: false,
         ALLOW_UNKNOWN_PROTOCOLS: false,
-    };
-    if (options.allowedTags) {
-        config.ALLOWED_TAGS = options.allowedTags;
-    }
-    else {
-        const allowedTags = [];
-        if (options.allowBasicFormatting) {
-            allowedTags.push('b', 'i', 'u', 'strong', 'em', 'br', 'p');
+    });
+    DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+        if (node.tagName === 'A' && node.hasAttribute('href')) {
+            node.setAttribute('rel', 'noopener noreferrer');
+            node.setAttribute('target', '_blank');
         }
-        if (options.allowLinks) {
-            allowedTags.push('a');
-        }
-        config.ALLOWED_TAGS = allowedTags;
-    }
-    if (options.allowedAttributes) {
-        config.ALLOWED_ATTR = options.allowedAttributes;
-    }
-    else {
-        const allowedAttrs = [];
-        if (options.allowLinks) {
-            allowedAttrs.push('href', 'title');
-        }
-        config.ALLOWED_ATTR = allowedAttrs;
-    }
-    return String(DOMPurify.sanitize(input, config));
+    });
+    const final = DOMPurify.sanitize(sanitized, {
+        ALLOWED_TAGS: ['b', 'i', 'u', 'strong', 'em', 'br', 'p', 'a'],
+        ALLOWED_ATTR: ['href', 'title', 'target', 'rel'],
+    });
+    DOMPurify.removeHook('afterSanitizeAttributes');
+    return final;
 }
-export function sanitizeObject(obj, options = DEFAULT_STRICT_CONFIG) {
+export function sanitizeObject(obj) {
     if (!obj || typeof obj !== 'object') {
         return obj;
     }
-    const sanitized = { ...obj };
-    for (const [key, value] of Object.entries(sanitized)) {
+    const sanitizedObj = { ...obj };
+    for (const key in sanitizedObj) {
+        const value = sanitizedObj[key];
         if (typeof value === 'string') {
-            sanitized[key] = sanitizeString(value, options);
+            sanitizedObj[key] = sanitize(value);
         }
-        else if (Array.isArray(value)) {
-            sanitized[key] = value.map(item => typeof item === 'string'
-                ? sanitizeString(item, options)
-                : typeof item === 'object' && item !== null
-                    ? sanitizeObject(item, options)
-                    : item);
-        }
-        else if (typeof value === 'object' && value !== null) {
-            sanitized[key] = sanitizeObject(value, options);
+        else if (typeof value === 'object') {
+            sanitizedObj[key] = sanitizeObject(value);
         }
     }
-    return sanitized;
+    return sanitizedObj;
 }
-export function sanitizeArray(arr, options = DEFAULT_STRICT_CONFIG) {
+export function sanitizeArray(arr) {
     if (!Array.isArray(arr)) {
         return [];
     }
     return arr.map(item => {
         if (typeof item === 'string') {
-            return sanitizeString(item, options);
+            return sanitize(item);
         }
-        else if (typeof item === 'object' && item !== null) {
-            return sanitizeObject(item, options);
+        if (typeof item === 'object' && item !== null) {
+            return sanitizeObject(item);
         }
         return item;
     });
@@ -129,7 +102,11 @@ export class InputValidator {
     }
 }
 export const SanitizationPresets = {
-    STRICT: DEFAULT_STRICT_CONFIG,
+    STRICT: {
+        allowBasicFormatting: false,
+        allowLinks: false,
+        stripAllHtml: true,
+    },
     FORM_INPUT: {
         allowBasicFormatting: true,
         allowLinks: false,

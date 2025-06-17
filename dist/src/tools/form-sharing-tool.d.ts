@@ -45,6 +45,7 @@ declare const UpdatePublicationSettingsInputSchema: z.ZodObject<{
         trackAnalytics: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>;
         allowIndexing: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>;
         requireCaptcha: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>;
+        maxSubmissions: z.ZodOptional<z.ZodOptional<z.ZodNumber>>;
         createdAt: z.ZodOptional<z.ZodString>;
         updatedAt: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
@@ -53,6 +54,7 @@ declare const UpdatePublicationSettingsInputSchema: z.ZodObject<{
         createdAt?: string | undefined;
         updatedAt?: string | undefined;
         isPublished?: boolean | undefined;
+        maxSubmissions?: number | undefined;
         ipWhitelist?: string[] | undefined;
         visibility?: FormVisibility | undefined;
         publishedAt?: string | undefined;
@@ -75,6 +77,7 @@ declare const UpdatePublicationSettingsInputSchema: z.ZodObject<{
         createdAt?: string | undefined;
         updatedAt?: string | undefined;
         isPublished?: boolean | undefined;
+        maxSubmissions?: number | undefined;
         ipWhitelist?: string[] | undefined;
         visibility?: FormVisibility | undefined;
         publishedAt?: string | undefined;
@@ -100,6 +103,7 @@ declare const UpdatePublicationSettingsInputSchema: z.ZodObject<{
         createdAt?: string | undefined;
         updatedAt?: string | undefined;
         isPublished?: boolean | undefined;
+        maxSubmissions?: number | undefined;
         ipWhitelist?: string[] | undefined;
         visibility?: FormVisibility | undefined;
         publishedAt?: string | undefined;
@@ -125,6 +129,7 @@ declare const UpdatePublicationSettingsInputSchema: z.ZodObject<{
         createdAt?: string | undefined;
         updatedAt?: string | undefined;
         isPublished?: boolean | undefined;
+        maxSubmissions?: number | undefined;
         ipWhitelist?: string[] | undefined;
         visibility?: FormVisibility | undefined;
         publishedAt?: string | undefined;
@@ -243,6 +248,7 @@ export declare class FormSharingTool {
             allowIndexing: boolean;
             requireCaptcha: boolean;
             allowedDomains?: string[] | undefined;
+            maxSubmissions?: number | undefined;
             ipWhitelist?: string[] | undefined;
             publishedAt?: string | undefined;
             unpublishedAt?: string | undefined;
@@ -278,6 +284,7 @@ export declare class FormSharingTool {
             allowIndexing: boolean;
             requireCaptcha: boolean;
             allowedDomains?: string[] | undefined;
+            maxSubmissions?: number | undefined;
             ipWhitelist?: string[] | undefined;
             publishedAt?: string | undefined;
             unpublishedAt?: string | undefined;
@@ -313,6 +320,7 @@ export declare class FormSharingTool {
             allowIndexing: boolean;
             requireCaptcha: boolean;
             allowedDomains?: string[] | undefined;
+            maxSubmissions?: number | undefined;
             ipWhitelist?: string[] | undefined;
             publishedAt?: string | undefined;
             unpublishedAt?: string | undefined;
@@ -346,6 +354,7 @@ export declare class FormSharingTool {
             allowIndexing: boolean;
             requireCaptcha: boolean;
             allowedDomains?: string[] | undefined;
+            maxSubmissions?: number | undefined;
             ipWhitelist?: string[] | undefined;
             publishedAt?: string | undefined;
             unpublishedAt?: string | undefined;

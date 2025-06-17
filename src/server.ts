@@ -322,6 +322,7 @@ export class MCPServer extends Server {
         version: '1.0.0',
         capabilities: SERVER_CAPABILITIES,
     });
+
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.app = express();
     this.state = ServerState.STOPPED;

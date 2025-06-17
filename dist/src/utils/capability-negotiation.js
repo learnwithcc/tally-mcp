@@ -32,35 +32,35 @@ export function negotiateCapabilities(clientCapabilities) {
             }
         });
     }
-    if (clientCapabilities.tools && DEFAULT_SERVER_CAPABILITIES.tools) {
+    if (DEFAULT_SERVER_CAPABILITIES.tools) {
         negotiatedCapabilities.tools = {
-            call: clientCapabilities.tools.call ?? DEFAULT_SERVER_CAPABILITIES.tools.call ?? false,
-            list: clientCapabilities.tools.list ?? DEFAULT_SERVER_CAPABILITIES.tools.list ?? false,
-            listChanged: clientCapabilities.tools.listChanged ?? DEFAULT_SERVER_CAPABILITIES.tools.listChanged ?? false,
-            subscribe: clientCapabilities.tools.subscribe ?? DEFAULT_SERVER_CAPABILITIES.tools.subscribe ?? false
+            call: clientCapabilities.tools?.call ?? DEFAULT_SERVER_CAPABILITIES.tools.call ?? false,
+            list: clientCapabilities.tools?.list ?? DEFAULT_SERVER_CAPABILITIES.tools.list ?? false,
+            listChanged: clientCapabilities.tools?.listChanged ?? DEFAULT_SERVER_CAPABILITIES.tools.listChanged ?? false,
+            subscribe: clientCapabilities.tools?.subscribe ?? DEFAULT_SERVER_CAPABILITIES.tools.subscribe ?? false
         };
     }
-    if (clientCapabilities.resources && DEFAULT_SERVER_CAPABILITIES.resources) {
+    if (DEFAULT_SERVER_CAPABILITIES.resources) {
         negotiatedCapabilities.resources = {
-            get: clientCapabilities.resources.get ?? DEFAULT_SERVER_CAPABILITIES.resources.get ?? false,
-            put: clientCapabilities.resources.put ?? DEFAULT_SERVER_CAPABILITIES.resources.put ?? false,
-            delete: clientCapabilities.resources.delete ?? DEFAULT_SERVER_CAPABILITIES.resources.delete ?? false,
-            listChanged: clientCapabilities.resources.listChanged ?? DEFAULT_SERVER_CAPABILITIES.resources.listChanged ?? false,
-            subscribe: clientCapabilities.resources.subscribe ?? DEFAULT_SERVER_CAPABILITIES.resources.subscribe ?? false
+            get: clientCapabilities.resources?.get ?? DEFAULT_SERVER_CAPABILITIES.resources.get ?? false,
+            put: clientCapabilities.resources?.put ?? DEFAULT_SERVER_CAPABILITIES.resources.put ?? false,
+            delete: clientCapabilities.resources?.delete ?? DEFAULT_SERVER_CAPABILITIES.resources.delete ?? false,
+            listChanged: clientCapabilities.resources?.listChanged ?? DEFAULT_SERVER_CAPABILITIES.resources.listChanged ?? false,
+            subscribe: clientCapabilities.resources?.subscribe ?? DEFAULT_SERVER_CAPABILITIES.resources.subscribe ?? false
         };
     }
-    if (clientCapabilities.prompts && DEFAULT_SERVER_CAPABILITIES.prompts) {
+    if (DEFAULT_SERVER_CAPABILITIES.prompts) {
         negotiatedCapabilities.prompts = {
-            get: clientCapabilities.prompts.get ?? DEFAULT_SERVER_CAPABILITIES.prompts.get ?? false,
-            list: clientCapabilities.prompts.list ?? DEFAULT_SERVER_CAPABILITIES.prompts.list ?? false,
-            listChanged: clientCapabilities.prompts.listChanged ?? DEFAULT_SERVER_CAPABILITIES.prompts.listChanged ?? false,
-            subscribe: clientCapabilities.prompts.subscribe ?? DEFAULT_SERVER_CAPABILITIES.prompts.subscribe ?? false
+            get: clientCapabilities.prompts?.get ?? DEFAULT_SERVER_CAPABILITIES.prompts.get ?? false,
+            list: clientCapabilities.prompts?.list ?? DEFAULT_SERVER_CAPABILITIES.prompts.list ?? false,
+            listChanged: clientCapabilities.prompts?.listChanged ?? DEFAULT_SERVER_CAPABILITIES.prompts.listChanged ?? false,
+            subscribe: clientCapabilities.prompts?.subscribe ?? DEFAULT_SERVER_CAPABILITIES.prompts.subscribe ?? false
         };
     }
-    if (clientCapabilities.logging && DEFAULT_SERVER_CAPABILITIES.logging) {
+    if (DEFAULT_SERVER_CAPABILITIES.logging) {
         negotiatedCapabilities.logging = {
-            level: clientCapabilities.logging.level ?? DEFAULT_SERVER_CAPABILITIES.logging.level ?? 'info',
-            subscribe: clientCapabilities.logging.subscribe ?? DEFAULT_SERVER_CAPABILITIES.logging.subscribe ?? false
+            level: clientCapabilities.logging?.level ?? DEFAULT_SERVER_CAPABILITIES.logging.level ?? 'info',
+            subscribe: clientCapabilities.logging?.subscribe ?? DEFAULT_SERVER_CAPABILITIES.logging.subscribe ?? false
         };
     }
     return negotiatedCapabilities;

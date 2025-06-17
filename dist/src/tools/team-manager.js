@@ -13,7 +13,7 @@ export class TeamManager {
         return this.teamService.getTeam(teamId);
     }
     async updateTeam(teamId, updates) {
-        if (updates.parentTeamId !== undefined) {
+        if ('parentTeamId' in updates) {
             await this.validateTeamHierarchy(teamId, updates.parentTeamId);
         }
         return this.teamService.updateTeam(teamId, updates);
@@ -71,7 +71,7 @@ export class TeamManager {
     }
     async moveTeam(teamId, newParentTeamId) {
         await this.validateTeamHierarchy(teamId, newParentTeamId);
-        return this.teamService.moveTeam(teamId, newParentTeamId);
+        return this.teamService.updateTeam(teamId, { parentTeamId: newParentTeamId });
     }
     async getOrganizationStructure(workspaceId) {
         await this.workspaceTool.getWorkspaceDetails(workspaceId);

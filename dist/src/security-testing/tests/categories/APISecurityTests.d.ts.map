@@ -1,0 +1,1 @@
+{"version":3,"file":"APISecurityTests.d.ts","sourceRoot":"","sources":["../../../../../src/security-testing/tests/categories/APISecurityTests.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAE,oBAAoB,EAA4C,MAAM,aAAa,CAAC;AAE3G,qBAAa,gBAAiB,YAAW,oBAAoB;IAC3D,IAAI,SAAkB;IACtB,WAAW,SAAoC;IAC/C,OAAO,UAAQ;IACf,KAAK,EAAE,YAAY,EAAE,CA0BnB;CACH"}

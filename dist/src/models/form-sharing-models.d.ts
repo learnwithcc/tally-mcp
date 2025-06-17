@@ -16,7 +16,9 @@ export declare enum ShareLinkType {
     STANDARD = "standard",
     EMBED = "embed",
     QR_CODE = "qr_code",
-    SOCIAL = "social"
+    SOCIAL = "social",
+    DIRECT = "direct",
+    SECURE = "secure"
 }
 export declare const FormVisibilitySchema: z.ZodNativeEnum<typeof FormVisibility>;
 export declare const EmbedThemeSchema: z.ZodNativeEnum<typeof EmbedTheme>;
@@ -41,6 +43,7 @@ export declare const FormPublicationSettingsSchema: z.ZodObject<{
     trackAnalytics: z.ZodDefault<z.ZodBoolean>;
     allowIndexing: z.ZodDefault<z.ZodBoolean>;
     requireCaptcha: z.ZodDefault<z.ZodBoolean>;
+    maxSubmissions: z.ZodOptional<z.ZodNumber>;
     createdAt: z.ZodString;
     updatedAt: z.ZodString;
 }, "strip", z.ZodTypeAny, {
@@ -56,6 +59,7 @@ export declare const FormPublicationSettingsSchema: z.ZodObject<{
     allowIndexing: boolean;
     requireCaptcha: boolean;
     allowedDomains?: string[] | undefined;
+    maxSubmissions?: number | undefined;
     ipWhitelist?: string[] | undefined;
     publishedAt?: string | undefined;
     unpublishedAt?: string | undefined;
@@ -73,6 +77,7 @@ export declare const FormPublicationSettingsSchema: z.ZodObject<{
     notificationEmails: string[];
     allowedDomains?: string[] | undefined;
     isPublished?: boolean | undefined;
+    maxSubmissions?: number | undefined;
     ipWhitelist?: string[] | undefined;
     publishedAt?: string | undefined;
     unpublishedAt?: string | undefined;

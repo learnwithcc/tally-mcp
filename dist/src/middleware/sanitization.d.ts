@@ -18,6 +18,6 @@ export declare const ManualSanitization: {
     formData: (data: Record<string, any>) => Record<string, any>;
     apiResponse: (data: Record<string, any>) => Record<string, any>;
     userProfile: (data: Record<string, any>) => Record<string, any>;
-    logMessage: (message: string) => string;
+    logMessage: (message: string) => any;
 };
 //# sourceMappingURL=sanitization.d.ts.map

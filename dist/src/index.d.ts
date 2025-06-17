@@ -1,3 +1,4 @@
+import 'dotenv/config';
 declare function main(): Promise<void>;
 export { MCPServer } from './server';
 export default main;

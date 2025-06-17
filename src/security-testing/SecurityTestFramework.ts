@@ -22,7 +22,7 @@ export class SecurityTestFramework {
 
   constructor(config: SecurityTestConfig) {
     this.config = config;
-    this.logger = new Logger('SecurityTestFramework');
+    this.logger = new Logger({ component: 'SecurityTestFramework' });
     this.owaspZap = new OWASPZAPIntegration(config.owasp);
     this.snyk = new SnykIntegration(config.snyk);
     this.customTests = new CustomSecurityTests(config.custom);
@@ -78,7 +78,7 @@ export class SecurityTestFramework {
 
       return results;
     } catch (error) {
-      this.logger.error('Security test suite failed', error);
+      this.logger.error('Security test suite failed', undefined, error as Error);
       throw error;
     }
   }
@@ -124,7 +124,7 @@ export class SecurityTestFramework {
       this.logger.info('Security test framework configuration validated successfully');
       return true;
     } catch (error) {
-      this.logger.error('Configuration validation failed', error);
+      this.logger.error('Configuration validation failed', undefined, error as Error);
       return false;
     }
   }
@@ -164,7 +164,7 @@ export class SecurityTestFramework {
       
       this.logger.info('Security Test Framework initialized successfully');
     } catch (error) {
-      this.logger.error('Failed to initialize Security Test Framework', error);
+      this.logger.error('Failed to initialize Security Test Framework', undefined, error as Error);
       throw error;
     }
   }
@@ -183,7 +183,7 @@ export class SecurityTestFramework {
       
       this.logger.info('Security Test Framework cleanup completed');
     } catch (error) {
-      this.logger.error('Failed to cleanup Security Test Framework', error);
+      this.logger.error('Failed to cleanup Security Test Framework', undefined, error as Error);
     }
   }
 } 

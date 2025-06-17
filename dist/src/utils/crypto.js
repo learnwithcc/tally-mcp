@@ -15,38 +15,26 @@ export class CryptoUtils {
         return keyBuffer.slice(0, 32);
     }
     static generateApiKey(options = {}) {
-        const { length = API_KEY_CONSTANTS.DEFAULT_KEY_LENGTH, prefix = API_KEY_CONSTANTS.DEFAULT_PREFIX, includeChecksum = true } = options;
+        const { length = API_KEY_CONSTANTS.DEFAULT_KEY_LENGTH, prefix = API_KEY_CONSTANTS.DEFAULT_PREFIX, } = options;
         if (length < API_KEY_CONSTANTS.MIN_KEY_LENGTH || length > API_KEY_CONSTANTS.MAX_KEY_LENGTH) {
             throw new Error(`Key length must be between ${API_KEY_CONSTANTS.MIN_KEY_LENGTH} and ${API_KEY_CONSTANTS.MAX_KEY_LENGTH}`);
         }
-        const randomBytes = crypto.randomBytes(length);
-        const keyBody = randomBytes.toString('base64url');
-        let key = prefix + keyBody;
-        if (includeChecksum) {
-            const checksum = this.calculateChecksum(key);
-            key += '_' + checksum;
-        }
-        return key;
+        const randomPart = crypto.randomBytes(length).toString('hex');
+        const key = `${prefix}${randomPart}`;
+        const checksum = this.calculateChecksum(key);
+        return `${key}_${checksum}`;
     }
     static calculateChecksum(data) {
-        return crypto
-            .createHash('sha256')
-            .update(data)
-            .digest('base64url')
-            .slice(0, 8);
+        return crypto.createHash('sha256').update(data).digest('hex').substring(0, 8);
     }
     static validateKeyFormat(key) {
-        if (!key.startsWith(API_KEY_CONSTANTS.DEFAULT_PREFIX)) {
+        const parts = key.split('_');
+        if (parts.length < 2) {
             return false;
         }
-        const lastUnderscoreIndex = key.lastIndexOf('_');
-        if (lastUnderscoreIndex === -1 || lastUnderscoreIndex === key.indexOf('_')) {
-            return false;
-        }
-        const keyWithoutChecksum = key.substring(0, lastUnderscoreIndex);
-        const checksumPart = key.substring(lastUnderscoreIndex + 1);
-        const expectedChecksum = this.calculateChecksum(keyWithoutChecksum);
-        return expectedChecksum === checksumPart;
+        const checksum = parts.pop();
+        const keyWithoutChecksum = parts.join('_');
+        return this.calculateChecksum(keyWithoutChecksum) === checksum;
     }
     static hashApiKey(key) {
         return crypto
@@ -90,7 +78,12 @@ export class CryptoUtils {
     }
     static verifyHmac(data, signature, secret) {
         const expectedSignature = this.createHmac(data, secret);
-        return crypto.timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(expectedSignature, 'hex'));
+        try {
+            return crypto.timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(expectedSignature, 'hex'));
+        }
+        catch {
+            return false;
+        }
     }
     static generateId() {
         return crypto.randomUUID();
