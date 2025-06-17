@@ -1,0 +1,90 @@
+/**
+ * Security Testing Framework
+ * 
+ * Main entry point for the security testing framework
+ */
+
+export { SecurityTestFramework } from './SecurityTestFramework';
+
+// Types
+export * from './types';
+
+// Integrations
+export { OWASPZAPIntegration } from './integrations/OWASPZAPIntegration';
+export { SnykIntegration } from './integrations/SnykIntegration';
+
+// Test runner
+export { CustomSecurityTests } from './tests/CustomSecurityTests';
+
+// Reporting
+export { SecurityTestReporter } from './reporting/SecurityTestReporter';
+
+// Default configuration
+export const DEFAULT_SECURITY_TEST_CONFIG = {
+  target: {
+    baseUrl: 'http://localhost:3000',
+    timeout: 30000
+  },
+  suites: ['custom'] as const,
+  owasp: {
+    enabled: false,
+    port: 8080,
+    host: 'localhost',
+    scanTypes: ['baseline'] as const,
+    maxScanTime: 300000,
+    reportFormats: ['json'] as const
+  },
+  snyk: {
+    enabled: false,
+    scanTypes: ['dependencies'] as const,
+    severity: ['high', 'critical'] as const,
+    failOnIssues: false
+  },
+  custom: {
+    enabled: true,
+    parallel: false,
+    maxConcurrency: 3,
+    timeout: 10000,
+    retries: 1
+  },
+  reporting: {
+    enabled: true,
+    outputDir: 'reports/security',
+    formats: ['json', 'html'] as const,
+    includeEvidence: true,
+    aggregateResults: true
+  },
+  cicd: {
+    enabled: false,
+    breakBuildOnFailure: false,
+    publishResults: true
+  }
+};
+
+/**
+ * Quick setup function for basic security testing
+ */
+export async function createSecurityTestFramework(overrides?: any) {
+  const { SecurityTestFramework } = await import('./SecurityTestFramework');
+  
+  const config = {
+    ...DEFAULT_SECURITY_TEST_CONFIG,
+    ...overrides
+  };
+  
+  return new SecurityTestFramework(config);
+}
+
+/**
+ * Run basic security tests with minimal configuration
+ */
+export async function runBasicSecurityTests(targetUrl?: string) {
+  const framework = await createSecurityTestFramework({
+    target: {
+      baseUrl: targetUrl || 'http://localhost:3000'
+    }
+  });
+  
+  await framework.initialize();
+  return await framework.runAllTests();
+} 
