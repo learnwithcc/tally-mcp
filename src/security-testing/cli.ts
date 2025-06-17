@@ -28,7 +28,7 @@ async function main() {
   try {
     console.log('🔒 Starting Security Testing Framework...\n');
     
-    const config: SecurityTestConfig = JSON.parse(JSON.stringify(DEFAULT_SECURITY_TEST_CONFIG));
+    const config = JSON.parse(JSON.stringify(DEFAULT_SECURITY_TEST_CONFIG)) as SecurityTestConfig;
     
     config.target.baseUrl = args.target || config.target.baseUrl;
 

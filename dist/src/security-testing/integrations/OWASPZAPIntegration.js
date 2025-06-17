@@ -7,7 +7,6 @@ export class OWASPZAPIntegration {
         this.name = 'OWASP ZAP';
         this.version = '2.14.0';
         this.configValid = false;
-        this.isInitialized = false;
         this.config = config;
         this.logger = new Logger({ component: 'OWASPZAPIntegration' });
         this.baseUrl = `http://${config.host || 'localhost'}:${config.port || 8080}`;

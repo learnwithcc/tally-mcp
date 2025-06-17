@@ -11,6 +11,7 @@ import { OWASPZAPIntegration } from './integrations/OWASPZAPIntegration';
 import { SnykIntegration } from './integrations/SnykIntegration';
 import { CustomSecurityTests } from './tests/CustomSecurityTests';
 import { SecurityTestReporter } from './reporting/SecurityTestReporter';
+import { MCPServer } from '../server';
 
 export class SecurityTestFramework {
   private logger: Logger;
@@ -19,14 +20,26 @@ export class SecurityTestFramework {
   private snyk: SnykIntegration;
   private customTests: CustomSecurityTests;
   private reporter: SecurityTestReporter;
+  private server: MCPServer;
 
   constructor(config: SecurityTestConfig) {
     this.config = config;
     this.logger = new Logger({ component: 'SecurityTestFramework' });
     this.owaspZap = new OWASPZAPIntegration(config.owasp);
     this.snyk = new SnykIntegration(config.snyk);
-    this.customTests = new CustomSecurityTests(config.custom);
+    this.customTests = new CustomSecurityTests(config.custom, config.target);
     this.reporter = new SecurityTestReporter(config.reporting);
+    this.server = new MCPServer({
+      port: 3001, // Use a different port for testing
+      debug: false,
+      capabilities: {
+        protocolVersion: '2.0.0', // Specify a valid protocol version
+        tools: {
+          list: true,
+          call: true,
+        },
+      },
+    });
   }
 
   /**
@@ -157,6 +170,8 @@ export class SecurityTestFramework {
     this.logger.info('Initializing Security Test Framework');
     
     try {
+      await this.server.initialize();
+      this.logger.info('Test server started on port 3001');
       await this.owaspZap.initialize();
       await this.snyk.initialize();
       await this.customTests.initialize();
@@ -180,6 +195,8 @@ export class SecurityTestFramework {
       await this.snyk.cleanup();
       await this.customTests.cleanup();
       await this.reporter.cleanup();
+      await this.server.shutdown();
+      this.logger.info('Test server shut down');
       
       this.logger.info('Security Test Framework cleanup completed');
     } catch (error) {

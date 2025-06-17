@@ -8,8 +8,6 @@ export declare class OWASPZAPIntegration implements SecurityTestIntegration {
     private zapProcess;
     private zapClient?;
     private baseUrl;
-    private zap;
-    private isInitialized;
     constructor(config: OWASPZAPConfig);
     initialize(): Promise<void>;
     checkAvailability(): Promise<boolean>;

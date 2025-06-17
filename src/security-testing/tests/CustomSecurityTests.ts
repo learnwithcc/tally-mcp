@@ -18,42 +18,33 @@ import { AuthorizationTests } from './categories/AuthorizationTests';
 import { InputValidationTests } from './categories/InputValidationTests';
 import { APISecurityTests } from './categories/APISecurityTests';
 import { DataProtectionTests } from './categories/DataProtectionTests';
-import { MCPServer, SERVER_CAPABILITIES } from '../../server';
+import { HTTPHeaderTests } from './categories/HTTPHeaderTests';
 
 export class CustomSecurityTests implements SecurityTestRunner {
   private logger: Logger;
   private config: CustomTestConfig;
   private testCategories: SecurityTestCategory[];
-  private server: MCPServer;
+  private target: { baseUrl: string };
 
-  constructor(config: CustomTestConfig) {
+  constructor(config: CustomTestConfig, target: { baseUrl: string }) {
     this.config = config;
+    this.target = target;
     this.logger = new Logger({ component: 'CustomSecurityTests' });
     this.testCategories = [];
-    this.server = new MCPServer({
-      port: 3000,
-      host: 'localhost',
-      logger: {
-        level: LogLevel.ERROR // Keep test logs clean
-      },
-      capabilities: SERVER_CAPABILITIES,
-    });
   }
 
   async initialize(): Promise<void> {
-    this.logger.info('Initializing custom security tests and starting server...');
+    this.logger.info('Initializing custom security tests...');
 
     try {
-      await this.server.initialize();
-      this.logger.info('Server started for custom tests.');
-
       // Initialize test categories
       this.testCategories = [
-        new AuthenticationTests(),
-        new AuthorizationTests(),
-        new InputValidationTests(), 
-        new APISecurityTests(),
-        new DataProtectionTests()
+        new AuthenticationTests(this.target),
+        new AuthorizationTests(this.target),
+        new InputValidationTests(this.target),
+        new APISecurityTests(this.target),
+        new DataProtectionTests(this.target),
+        new HTTPHeaderTests(this.target)
       ];
 
       // Filter enabled categories
@@ -115,9 +106,8 @@ export class CustomSecurityTests implements SecurityTestRunner {
   }
 
   async cleanup(): Promise<void> {
-    this.logger.info('Cleaning up custom security tests and stopping server...');
-    await this.server.shutdown();
-    this.logger.info('Server stopped.');
+    this.logger.info('Cleaning up custom security tests...');
+    // No server to shutdown here
   }
 
   private async runSingleTest(test: SecurityTest): Promise<SecurityTestResult> {
