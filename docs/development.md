@@ -80,6 +80,12 @@ npm run deploy
 # Test your Cloudflare Worker URL
 ```
 
+## Diagnostic Tools
+
+The Tally MCP server includes a suite of diagnostic tools to help monitor and troubleshoot the application. These tools can be run via the `diagnostic_tool` MCP command.
+
+For detailed usage, see the [Diagnostic Tool documentation](./tools/diagnostic-tool.md).
+
 ## MCP Client Configuration
 
 ### For Cursor

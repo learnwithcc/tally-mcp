@@ -1,5 +1,7 @@
 # Tally MCP Server
 
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+
 A Model Context Protocol (MCP) server that provides AI assistants with secure access to Tally form management capabilities.
 
 ## 🚀 Quick Start

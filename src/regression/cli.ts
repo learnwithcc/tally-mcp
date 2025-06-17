@@ -3,6 +3,7 @@ import { RegressionTestCase, TestResult } from './types';
 import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
+import { writeJUnitReport } from './junitReporter';
 
 async function run() {
     console.log(chalk.bold.inverse(' Tally MCP Regression Test Suite '));
@@ -42,6 +43,9 @@ async function run() {
 
     console.log(chalk.bold('\nSummary:'));
     console.log(`${chalk.green(passedCount.toString())} passed, ${chalk.red((results.length - passedCount).toString())} failed.`);
+
+    // Write JUnit report
+    writeJUnitReport(results, path.resolve(__dirname, '../../reports'));
 
     if (results.some(r => !r.passed)) {
         process.exit(1); // Exit with error code if any tests failed
