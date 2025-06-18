@@ -9,11 +9,22 @@ export type TallyBlockType =
   | 'INPUT_TEXT'
   | 'INPUT_EMAIL'
   | 'INPUT_NUMBER'
+  | 'INPUT_PHONE_NUMBER'
+  | 'INPUT_LINK'
+  | 'INPUT_DATE'
+  | 'INPUT_TIME'
   | 'TEXTAREA'
   | 'TITLE'
   | 'DROPDOWN'
   | 'CHECKBOXES'
-  | 'MULTIPLE_CHOICE';
+  | 'MULTIPLE_CHOICE'
+  | 'LINEAR_SCALE'
+  | 'RATING'
+  | 'FILE_UPLOAD'
+  | 'SIGNATURE'
+  | 'DROPDOWN_OPTION'
+  | 'MULTIPLE_CHOICE_OPTION'
+  | 'CHECKBOX';
 
 /**
  * Base structure for a Tally block used by the public API
@@ -49,6 +60,14 @@ function mapQuestionTypeToBlockType(type: QuestionType): TallyBlockType {
       return 'INPUT_EMAIL';
     case QuestionType.NUMBER:
       return 'INPUT_NUMBER';
+    case QuestionType.PHONE:
+      return 'INPUT_PHONE_NUMBER';
+    case QuestionType.URL:
+      return 'INPUT_LINK';
+    case QuestionType.DATE:
+      return 'INPUT_DATE';
+    case QuestionType.TIME:
+      return 'INPUT_TIME';
     case QuestionType.TEXTAREA:
       return 'TEXTAREA';
     case QuestionType.DROPDOWN:
@@ -57,6 +76,14 @@ function mapQuestionTypeToBlockType(type: QuestionType): TallyBlockType {
       return 'CHECKBOXES';
     case QuestionType.MULTIPLE_CHOICE:
       return 'MULTIPLE_CHOICE';
+    case QuestionType.LINEAR_SCALE:
+      return 'LINEAR_SCALE';
+    case QuestionType.RATING:
+      return 'RATING';
+    case QuestionType.FILE:
+      return 'FILE_UPLOAD';
+    case QuestionType.SIGNATURE:
+      return 'SIGNATURE';
     default:
       // Fallback to simple text input; adjust as mapping grows.
       return 'INPUT_TEXT';
@@ -115,11 +142,49 @@ export function createQuestionBlocks(question: QuestionConfig): TallyBlock[] {
     }));
   }
 
+  // For choice-based questions where Tally expects each option as its own block
+  if (questionHasOptions(question) && ['DROPDOWN', 'MULTIPLE_CHOICE', 'CHECKBOXES'].includes(blockType)) {
+    const optionBlocks: TallyBlock[] = [];
+    const optionGroupUuid = randomUUID();
+
+    question.options.forEach((opt, idx) => {
+      let optionType: TallyBlockType | 'DROPDOWN_OPTION' | 'MULTIPLE_CHOICE_OPTION' | 'CHECKBOX';
+      switch (blockType) {
+        case 'DROPDOWN':
+          optionType = 'DROPDOWN_OPTION';
+          break;
+        case 'MULTIPLE_CHOICE':
+          optionType = 'MULTIPLE_CHOICE_OPTION';
+          break;
+        case 'CHECKBOXES':
+          optionType = 'CHECKBOX';
+          break;
+        default:
+          optionType = 'DROPDOWN_OPTION';
+      }
+
+      optionBlocks.push({
+        uuid: randomUUID(),
+        type: optionType as TallyBlockType, // cast for index signature; runtime value is correct per docs
+        groupUuid: optionGroupUuid,
+        groupType: blockType,
+        title: opt.text ?? opt.value ?? String(opt),
+        payload: {
+          index: idx,
+          text: opt.text ?? opt.value ?? String(opt),
+        },
+      } as unknown as TallyBlock);
+    });
+
+    blocks.push(...optionBlocks);
+    return blocks;
+  }
+
   blocks.push({
     uuid: randomUUID(),
     type: blockType,
     groupUuid,
-    groupType: 'QUESTION',
+    groupType: blockType,
     title: question.label,
     payload,
   });

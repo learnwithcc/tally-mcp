@@ -1,6 +1,7 @@
 import { TallyApiClient, TallyApiClientConfig } from './TallyApiClient';
 import { FormConfig, SubmissionBehavior } from '../models';
 import { TallyForm, TallyFormSchema, TallyFormsResponse } from '../models/tally-schemas';
+import { buildBlocksForForm } from '../utils/block-builder';
 
 export class TallyApiService {
   private apiClient: TallyApiClient;
@@ -83,14 +84,13 @@ export class TallyApiService {
    * @returns The payload for the Tally API.
    */
   private mapToTallyPayload(formConfig: FormConfig): any {
-    // This is where the mapping logic will go.
-    // For now, we'll return a simplified object.
+    // Build Tally-compatible blocks using our utility
+    const blocks = buildBlocksForForm(formConfig);
+
     return {
+      status: 'PUBLISHED',
       name: formConfig.title,
-      fields: formConfig.questions.map(q => ({
-        type: q.type,
-        title: q.label,
-      })),
+      blocks,
     };
   }
 

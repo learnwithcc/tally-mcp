@@ -1,5 +1,5 @@
 const activeSessions = new Map();
-import { createFormTitleBlock, createFieldBlock } from './utils/block-builder';
+import { createFormTitleBlock, createQuestionBlocks } from './utils/block-builder';
 const TOOLS = [
     {
         name: 'create_form',
@@ -378,6 +378,7 @@ async function callTallyAPI(toolName, args, apiKey) {
                     type: 'TEXT',
                     groupUuid: crypto.randomUUID(),
                     groupType: 'TEXT',
+                    title: args.description,
                     payload: {
                         text: args.description,
                         html: args.description,
@@ -386,7 +387,7 @@ async function callTallyAPI(toolName, args, apiKey) {
             }
             if (Array.isArray(args.fields)) {
                 args.fields.forEach((field) => {
-                    blocks.push(createFieldBlock(field));
+                    createQuestionBlocks(field).forEach(b => blocks.push(b));
                 });
             }
             const payload = {

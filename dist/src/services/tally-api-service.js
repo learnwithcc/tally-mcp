@@ -1,6 +1,7 @@
 import { TallyApiClient } from './TallyApiClient';
 import { SubmissionBehavior } from '../models';
 import { TallyFormSchema } from '../models/tally-schemas';
+import { buildBlocksForForm } from '../utils/block-builder';
 export class TallyApiService {
     constructor(config) {
         this.apiClient = new TallyApiClient(config);
@@ -26,12 +27,11 @@ export class TallyApiService {
         return this.apiClient.requestWithValidation('PATCH', endpoint, TallyFormSchema, updates);
     }
     mapToTallyPayload(formConfig) {
+        const blocks = buildBlocksForForm(formConfig);
         return {
+            status: 'PUBLISHED',
             name: formConfig.title,
-            fields: formConfig.questions.map(q => ({
-                type: q.type,
-                title: q.label,
-            })),
+            blocks,
         };
     }
     mapToTallyUpdatePayload(formConfig) {

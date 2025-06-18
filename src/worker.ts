@@ -466,7 +466,8 @@ async function callTallyAPI(toolName: string, args: any, apiKey: string): Promis
       // Field blocks
       if (Array.isArray(args.fields)) {
         args.fields.forEach((field: any) => {
-          createQuestionBlocks(field as any).forEach(b=>blocks.push(b));
+          const questionConfig = normalizeField(field);
+          createQuestionBlocks(questionConfig).forEach((b) => blocks.push(b));
         });
       }
 
@@ -1019,6 +1020,45 @@ function authenticateRequest(request: Request, env: Env): { authenticated: boole
     authenticated: false, 
     error: 'Authentication required. Provide token via Authorization header, X-API-Key header, or ?token= query parameter.' 
   };
+}
+
+/**
+ * Convert a simple field definition coming from the create_form args into the
+ * richer QuestionConfig structure expected by block-builder utilities.
+ */
+function normalizeField(field: any): import('./models/form-config').QuestionConfig {
+  const { QuestionType } = require('./models/form-config');
+
+  const typeMap: Record<string, import('./models/form-config').QuestionType> = {
+    text: QuestionType.TEXT,
+    email: QuestionType.EMAIL,
+    number: QuestionType.NUMBER,
+    select: QuestionType.DROPDOWN,
+    // accept both singular & plural spellings
+    dropdown: QuestionType.DROPDOWN,
+    radio: QuestionType.MULTIPLE_CHOICE,
+    'multiple_choice': QuestionType.MULTIPLE_CHOICE,
+    checkbox: QuestionType.CHECKBOXES,
+    checkboxes: QuestionType.CHECKBOXES,
+    textarea: QuestionType.TEXTAREA,
+    'long answer': QuestionType.TEXTAREA,
+  };
+
+  const qType = typeMap[(field.type || '').toLowerCase()] ?? QuestionType.TEXT;
+
+  const qc: any = {
+    id: crypto.randomUUID(),
+    type: qType,
+    label: field.label || 'Untitled',
+    required: field.required ?? false,
+    placeholder: field.placeholder,
+  };
+
+  if (field.options) {
+    qc.options = field.options.map((opt: any) => ({ text: opt, value: opt }));
+  }
+
+  return qc;
 }
 
 // Export the Workers-compatible handler
