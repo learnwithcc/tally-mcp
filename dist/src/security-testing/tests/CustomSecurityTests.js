@@ -1,35 +1,27 @@
-import { Logger, LogLevel } from '../../utils/logger';
+import { Logger } from '../../utils/logger';
 import { AuthenticationTests } from './categories/AuthenticationTests';
 import { AuthorizationTests } from './categories/AuthorizationTests';
 import { InputValidationTests } from './categories/InputValidationTests';
 import { APISecurityTests } from './categories/APISecurityTests';
 import { DataProtectionTests } from './categories/DataProtectionTests';
-import { MCPServer, SERVER_CAPABILITIES } from '../../server';
+import { HTTPHeaderTests } from './categories/HTTPHeaderTests';
 export class CustomSecurityTests {
-    constructor(config) {
+    constructor(config, target) {
         this.config = config;
+        this.target = target;
         this.logger = new Logger({ component: 'CustomSecurityTests' });
         this.testCategories = [];
-        this.server = new MCPServer({
-            port: 3000,
-            host: 'localhost',
-            logger: {
-                level: LogLevel.ERROR
-            },
-            capabilities: SERVER_CAPABILITIES,
-        });
     }
     async initialize() {
-        this.logger.info('Initializing custom security tests and starting server...');
+        this.logger.info('Initializing custom security tests...');
         try {
-            await this.server.initialize();
-            this.logger.info('Server started for custom tests.');
             this.testCategories = [
-                new AuthenticationTests(),
-                new AuthorizationTests(),
-                new InputValidationTests(),
-                new APISecurityTests(),
-                new DataProtectionTests()
+                new AuthenticationTests(this.target),
+                new AuthorizationTests(this.target),
+                new InputValidationTests(this.target),
+                new APISecurityTests(this.target),
+                new DataProtectionTests(this.target),
+                new HTTPHeaderTests(this.target)
             ];
             this.testCategories = this.testCategories.filter(category => category.enabled);
             this.logger.info(`Initialized ${this.testCategories.length} test categories`);
@@ -80,9 +72,7 @@ export class CustomSecurityTests {
         return this.config.enabled;
     }
     async cleanup() {
-        this.logger.info('Cleaning up custom security tests and stopping server...');
-        await this.server.shutdown();
-        this.logger.info('Server stopped.');
+        this.logger.info('Cleaning up custom security tests...');
     }
     async runSingleTest(test) {
         const startTime = Date.now();

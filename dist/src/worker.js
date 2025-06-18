@@ -1,4 +1,5 @@
 const activeSessions = new Map();
+import { createFormTitleBlock, createFieldBlock } from './utils/block-builder';
 const TOOLS = [
     {
         name: 'create_form',
@@ -370,16 +371,7 @@ async function callTallyAPI(toolName, args, apiKey) {
     switch (toolName) {
         case 'create_form':
             const blocks = [];
-            blocks.push({
-                uuid: crypto.randomUUID(),
-                type: 'TEXT',
-                groupUuid: crypto.randomUUID(),
-                groupType: 'TEXT',
-                payload: {
-                    text: args.title,
-                    html: `<h1>${args.title}</h1>`
-                }
-            });
+            blocks.push(createFormTitleBlock(args.title));
             if (args.description) {
                 blocks.push({
                     uuid: crypto.randomUUID(),
@@ -388,32 +380,13 @@ async function callTallyAPI(toolName, args, apiKey) {
                     groupType: 'TEXT',
                     payload: {
                         text: args.description,
-                        html: args.description
-                    }
+                        html: args.description,
+                    },
                 });
             }
-            if (args.fields && Array.isArray(args.fields)) {
+            if (Array.isArray(args.fields)) {
                 args.fields.forEach((field) => {
-                    let blockType = 'INPUT_TEXT';
-                    const block = {
-                        uuid: crypto.randomUUID(),
-                        type: blockType,
-                        groupUuid: crypto.randomUUID(),
-                        groupType: blockType,
-                        payload: {
-                            label: field.label,
-                            title: field.label,
-                            required: field.required || false
-                        }
-                    };
-                    if ((blockType === 'DROPDOWN' || blockType === 'MULTIPLE_CHOICE' || blockType === 'CHECKBOXES')
-                        && field.options && Array.isArray(field.options)) {
-                        block.payload.options = field.options.map((option) => ({
-                            id: crypto.randomUUID(),
-                            text: option
-                        }));
-                    }
-                    blocks.push(block);
+                    blocks.push(createFieldBlock(field));
                 });
             }
             const payload = {

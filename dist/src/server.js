@@ -2,13 +2,14 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import express from 'express';
 import * as os from 'os';
-import { TemplateTool, WorkspaceManagementTool, } from './tools';
+import { TemplateTool, WorkspaceManagementTool, FormCreationTool, FormModificationTool, FormPermissionManager, FormRetrievalTool, FormSharingTool, SubmissionAnalysisTool, DiagnosticTool, } from './tools';
 import { EventEmitter } from 'events';
 import { env } from './config/env';
 import { Registry, Gauge, collectDefaultMetrics } from 'prom-client';
 import { MonitoringServiceImpl } from './services/MonitoringService';
 import { Logger } from './utils/logger';
 import { SentryService } from './services/SentryService';
+import { TallyApiClient } from './services/TallyApiClient';
 export var LogLevel;
 (function (LogLevel) {
     LogLevel[LogLevel["FATAL"] = 0] = "FATAL";
@@ -96,14 +97,21 @@ function negotiateCapabilities(clientCapabilities) {
 }
 export class MCPServer extends Server {
     constructor(config = {}) {
+        const fullConfig = {
+            ...DEFAULT_CONFIG,
+            ...config,
+            logger: { ...DEFAULT_LOGGER_CONFIG, ...config.logger },
+        };
         super({
-            name: 'tally-mcp-server',
+            name: 'tally-mcp-server-test',
             version: '1.0.0',
-            capabilities: config.capabilities || SERVER_CAPABILITIES,
+            capabilities: fullConfig.capabilities,
+            debug: fullConfig.debug,
         });
         this.signalHandlers = {};
         this.correlationIds = new Map();
-        this.config = { ...DEFAULT_CONFIG, ...config };
+        this.config = fullConfig;
+        this.loggerConfig = fullConfig.logger;
         this.app = express();
         this.state = ServerState.STOPPED;
         this.activeConnections = new Set();
@@ -111,7 +119,6 @@ export class MCPServer extends Server {
         this.emitter = new EventEmitter();
         this.startTime = process.hrtime();
         this.healthThresholds = DEFAULT_HEALTH_THRESHOLDS;
-        this.loggerConfig = { ...DEFAULT_LOGGER_CONFIG, ...(this.config.logger || {}) };
         this.metricsRegistry = new Registry();
         collectDefaultMetrics({ register: this.metricsRegistry });
         this.requestStats = {
@@ -726,13 +733,21 @@ export class MCPServer extends Server {
         }
     }
     initializeTools() {
-        const apiConfig = {
-            accessToken: env.TALLY_API_KEY,
-        };
+        this.log('info', 'Initializing tools...');
+        const apiClientConfig = { accessToken: env.TALLY_API_KEY };
+        const tallyApiClient = new TallyApiClient(apiClientConfig);
         this.tools = {
-            workspaceManagement: new WorkspaceManagementTool(apiConfig),
+            workspaceManagement: new WorkspaceManagementTool(apiClientConfig),
             template: new TemplateTool(),
+            form_creation: new FormCreationTool(apiClientConfig),
+            form_modification: new FormModificationTool(apiClientConfig),
+            form_retrieval: new FormRetrievalTool(apiClientConfig),
+            form_sharing: new FormSharingTool(tallyApiClient),
+            form_permissions: new FormPermissionManager(apiClientConfig),
+            submission_analysis: new SubmissionAnalysisTool(apiClientConfig),
+            diagnostic: new DiagnosticTool(),
         };
+        this.log('info', 'Tools initialized.');
     }
     async _handleToolsList() {
         return {
@@ -991,6 +1006,37 @@ export class MCPServer extends Server {
                         },
                         required: ['templateType']
                     }
+                },
+                {
+                    name: 'submission_analysis',
+                    description: 'Analyze form submissions, including completion rates and response distributions',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            formId: { type: 'string' },
+                            filters: {
+                                type: 'object',
+                                properties: {
+                                    startDate: { type: 'string', format: 'date-time' },
+                                    endDate: { type: 'string', format: 'date-time' },
+                                    status: { type: 'string', enum: ['completed', 'incomplete', 'all'] },
+                                }
+                            }
+                        },
+                        required: ['formId']
+                    },
+                    outputSchema: {}
+                },
+                {
+                    name: 'diagnostic_tool',
+                    description: 'Runs diagnostic checks on the application.',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            toolName: { type: 'string', description: 'The name of the specific diagnostic tool to run.' },
+                        },
+                    },
+                    outputSchema: {}
                 }
             ]
         };
@@ -1029,6 +1075,46 @@ export class MCPServer extends Server {
                             {
                                 type: 'text',
                                 text: 'Workspace management functionality is being implemented'
+                            }
+                        ]
+                    };
+                case 'submission_analysis':
+                    if (this.tools?.submission_analysis) {
+                        const result = await this.tools.submission_analysis.analyze(args.formId, args.filters);
+                        return {
+                            content: [
+                                {
+                                    type: 'text',
+                                    text: JSON.stringify(result, null, 2)
+                                }
+                            ]
+                        };
+                    }
+                    return {
+                        content: [
+                            {
+                                type: 'text',
+                                text: 'Submission analysis functionality is not implemented'
+                            }
+                        ]
+                    };
+                case 'diagnostic_tool':
+                    if (this.tools?.diagnostic) {
+                        const result = await this.tools.diagnostic.execute(args.toolName);
+                        return {
+                            content: [
+                                {
+                                    type: 'text',
+                                    text: JSON.stringify(result, null, 2)
+                                }
+                            ]
+                        };
+                    }
+                    return {
+                        content: [
+                            {
+                                type: 'text',
+                                text: 'Diagnostic tool functionality is not implemented'
                             }
                         ]
                     };

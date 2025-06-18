@@ -45,7 +45,8 @@ interface MCPResponse {
   };
 }
 
-
+// At top of file imports (add after other imports), ensure BlockBuilder functions are available
+import { createFormTitleBlock, createQuestionBlocks } from './utils/block-builder';
 
 // Tool definitions for Tally MCP Server
 const TOOLS = [
@@ -441,89 +442,31 @@ async function callTallyAPI(toolName: string, args: any, apiKey: string): Promis
 
   switch (toolName) {
     case 'create_form':
-      // Convert our field structure to Tally's blocks format
-      const blocks = [];
-      
-      // Add title block (required) - use TEXT type instead of FORM_TITLE
-      blocks.push({
-        uuid: crypto.randomUUID(),
-        type: 'TEXT',
-        groupUuid: crypto.randomUUID(),
-        groupType: 'TEXT',
-        payload: {
-          text: args.title,
-          html: `<h1>${args.title}</h1>`
-        }
-      });
+      // Build blocks using BlockBuilder utility for consistency with main codebase
+      const blocks: any[] = [];
 
-      // Add description block if provided
+      // Title block (FORM_TITLE)
+      blocks.push(createFormTitleBlock(args.title));
+
+      // Optional description block – still TEXT; Tally supports plain TEXT blocks for content sections
       if (args.description) {
         blocks.push({
           uuid: crypto.randomUUID(),
           type: 'TEXT',
           groupUuid: crypto.randomUUID(),
           groupType: 'TEXT',
+          title: args.description,
           payload: {
             text: args.description,
-            html: args.description
-          }
+            html: args.description,
+          },
         });
       }
 
-      // Convert fields to blocks
-      if (args.fields && Array.isArray(args.fields)) {
+      // Field blocks
+      if (Array.isArray(args.fields)) {
         args.fields.forEach((field: any) => {
-          // Try using just INPUT_TEXT for all fields to test
-          let blockType = 'INPUT_TEXT'; // Use INPUT_TEXT for everything to test
-          /*
-          switch (field.type) {
-            case 'text':
-              blockType = 'INPUT_TEXT';
-              break;
-            case 'email':
-              blockType = 'INPUT_EMAIL';
-              break;
-            case 'number':
-              blockType = 'INPUT_NUMBER';
-              break;
-            case 'textarea':
-              blockType = 'TEXTAREA';
-              break;
-            case 'select':
-              blockType = 'DROPDOWN';
-              break;
-            case 'checkbox':
-              blockType = 'CHECKBOXES';
-              break;
-            case 'radio':
-              blockType = 'MULTIPLE_CHOICE';
-              break;
-          }
-          */
-
-          // Create the basic block structure
-          const block: any = {
-            uuid: crypto.randomUUID(),
-            type: blockType,
-            groupUuid: crypto.randomUUID(),
-            groupType: blockType,
-            payload: {
-              label: field.label,  // Try 'label' instead of 'title'
-              title: field.label,  // Keep both to be safe
-              required: field.required || false
-            }
-          };
-
-          // Add options for choice-based fields
-          if ((blockType === 'DROPDOWN' || blockType === 'MULTIPLE_CHOICE' || blockType === 'CHECKBOXES') 
-              && field.options && Array.isArray(field.options)) {
-            block.payload.options = field.options.map((option: any) => ({
-              id: crypto.randomUUID(),
-              text: option
-            }));
-          }
-
-          blocks.push(block);
+          createQuestionBlocks(field as any).forEach(b=>blocks.push(b));
         });
       }
 

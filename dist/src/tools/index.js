@@ -1,9 +1,19 @@
-export { FormCreationTool } from './form-creation-tool';
-export { FormModificationTool } from './form-modification-tool';
-export { TemplateTool } from './template-tool';
-export { SubmissionAnalysisTool } from './submission-tool';
-export { WorkspaceManagementTool } from './workspace-tool';
+export * from './form-creation-tool';
+export * from './form-modification-tool';
+export * from './form-permission-manager';
+export * from './form_retrieval_tool';
+export * from './form-sharing-tool';
+export * from './submission-tool';
+export * from './team-manager';
+export * from './template-tool';
+export * from './workspace-tool';
+export * from './diagnostic-tool';
+export * from './tool';
 export { FormPermissionManager } from './form-permission-manager';
 export { TeamManager } from './team-manager';
 export { FormSharingTool } from './form-sharing-tool';
+export { TemplateTool } from './template-tool';
+export { SubmissionAnalysisTool } from './submission-tool';
+export { WorkspaceManagementTool } from './workspace-tool';
+export { DiagnosticTool } from './diagnostic-tool';
 //# sourceMappingURL=index.js.map

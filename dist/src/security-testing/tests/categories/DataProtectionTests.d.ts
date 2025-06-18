@@ -4,5 +4,9 @@ export declare class DataProtectionTests implements SecurityTestCategory {
     description: string;
     enabled: boolean;
     tests: SecurityTest[];
+    private target;
+    constructor(target: {
+        baseUrl: string;
+    });
 }
 //# sourceMappingURL=DataProtectionTests.d.ts.map

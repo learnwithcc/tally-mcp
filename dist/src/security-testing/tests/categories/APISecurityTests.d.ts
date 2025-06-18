@@ -4,5 +4,9 @@ export declare class APISecurityTests implements SecurityTestCategory {
     description: string;
     enabled: boolean;
     tests: SecurityTest[];
+    private target;
+    constructor(target: {
+        baseUrl: string;
+    });
 }
 //# sourceMappingURL=APISecurityTests.d.ts.map

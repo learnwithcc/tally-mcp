@@ -4,5 +4,9 @@ export declare class AuthorizationTests implements SecurityTestCategory {
     description: string;
     enabled: boolean;
     tests: SecurityTest[];
+    private target;
+    constructor(target: {
+        baseUrl: string;
+    });
 }
 //# sourceMappingURL=AuthorizationTests.d.ts.map
