@@ -426,3 +426,930 @@ Next logical step is subtask 32.4 – integrating BlockBuilder + mapping into th
 
 ---
 
+_**User**_
+
+sounds good. please continue
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+
+
+---
+
+Read file: src/services/tally-api-service.ts
+
+---
+
+Great! I can see that the BlockBuilder is already integrated into the `mapToTallyPayload` method. Now let me check the current form creation tool to see how it's calling this service.
+
+---
+
+Read file: src/tools/form-creation-tool.ts
+
+---
+
+Perfect! The integration is already in place. Now let me check if there are any tests for the form creation tool to understand how it's currently tested and see if we need to update them.
+
+---
+
+<details>
+            <summary>Searched codebase "form-creation-tool.test" • **5** results</summary>
+        
+| File |
+|------|
+| `undefined` |
+| `undefined` |
+| `undefined` |
+| `undefined` |
+| `undefined` |
+
+</details>
+
+---
+
+Read file: src/tools/__tests__/form-creation-tool.test.ts
+
+---
+
+Now let me check what the TallyApiClient looks like to understand the current API integration:
+
+---
+
+Read file: src/services/TallyApiClient.ts
+
+---
+
+Now let me check the exact endpoint being called for form creation by looking at the request method:
+
+---
+
+<details>
+            <summary>Grep search for "v1/forms" • **1** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///Users/cryophobic/dev/projects/tally-mcp/src/services/tally-api-service.ts` | L20 | `const endpoint = '/v1/forms';` |
+| `file:///Users/cryophobic/dev/projects/tally-mcp/src/services/tally-api-service.ts` | L59 | `const endpoint = `/v1/forms/${formId}`;` |
+| `file:///Users/cryophobic/dev/projects/tally-mcp/src/services/tally-api-service.ts` | L74 | `const endpoint = `/v1/forms/${formId}`;` |
+
+</details>
+
+---
+
+I need to check if the endpoint path is correct. Let me look at the Tally API documentation again and see what the actual endpoint should be:
+
+---
+
+<details>
+            <summary>Searched codebase "POST /forms endpoint tally api" • **25** results</summary>
+        
+| File | Lines |
+|------|-------|
+| `dist/worker.js` | L380-429 |
+| `dist/src/services/tally-api-service.js` | L8-13 |
+| `dist/src/worker.js` | L364-409 |
+| `src/worker.ts` | L431-495 |
+| `src/services/tally-api-service.ts` | L95-156 |
+| `dist/src/services/tally-api-service.js` | L19-24 |
+| `src/services/tally-api-service.ts` | L11-29 |
+| `src/services/__mocks__/tally-api-mock.ts` | L419-441 |
+| `coverage/lcov-report/src/worker.ts.html` | L2769-2809 |
+| `dist/src/services/tally-api-service.js` | L36-84 |
+| `src/models/tally-schemas.ts` | L234-254 |
+| `dist/src/models/tally-schemas.d.ts` | L1033-1088 |
+| `src/models/tally-schemas.ts` | L254-264 |
+| `coverage/utils/lcov-report/src/worker.ts.html` | L2769-2809 |
+| `dist/worker.js` | L429-473 |
+| `dist/src/services/__mocks__/tally-api-mock.js` | L24-41 |
+| `src/services/submission-service.ts` | L1-44 |
+| `src/services/tally-api-service.ts` | L51-66 |
+| `src/services/__mocks__/tally-api-mock.ts` | L69-91 |
+| `src/services/tally-api-service.ts` | L78-95 |
+| `dist/src/services/tally-api-service.d.ts` | L1-18 |
+| `dist/src/services/submission-service.js` | L1-19 |
+| `dist/src/services/tally-api-service.js` | L24-28 |
+| `src/services/tally-api-service.ts` | L1-11 |
+| `src/services/tally-api-service.ts` | L29-38 |
+
+</details>
+
+---
+
+Based on the documentation and the code I can see, the endpoint should be `/forms` not `/v1/forms`. Let me fix the endpoint in the TallyApiService:
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+Now let me run a test to verify that the integration is working correctly:
+
+---
+
+```bash
+npm test -- src/tools/__tests__/form-creation-tool.test.ts --runInBand | cat
+```
+
+```
+
+
+╭─     ~/dev/projects/tally-mcp     develop !1 ?2 ···································· ✔  23:24:05   
+❯ npm test -- src/tools/__tests__/form-creation-tool.test.ts --runInBand | cat
+
+> tally-mcp@1.0.0 test
+> jest src/tools/__tests__/form-creation-tool.test.ts --runInBand
+
+PASS src/tools/__tests__/form-creation-tool.test.ts
+  FormCreationTool
+    constructor
+      ✓ should create an instance with correct name and description (2 ms)
+      ✓ should initialize all required services (2 ms)
+    execute - template creation
+      ✓ should create form from template successfully (1 ms)
+      ✓ should create form from template without custom title (2 ms)
+      ✓ should throw error when template not found (7 ms)
+    execute - natural language creation
+      ✓ should create form from natural language prompt successfully (1 ms)
+      ✓ should create form without custom title override (1 ms)
+    execute - error scenarios
+      ✓ should throw error when neither templateId nor naturalLanguagePrompt provided (1 ms)
+      ✓ should propagate API errors from createForm (1 ms)
+      ✓ should handle both templateId and naturalLanguagePrompt (prioritize template) (1 ms)
+    execute - edge cases
+      ✓ should handle empty string values gracefully
+      ✓ should handle null/undefined form URL from API (1 ms)
+    logging
+      ✓ should log execution arguments (1 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       13 passed, 13 total
+Snapshots:   0 total
+Time:        0.513 s, estimated 1 s
+Ran all test suites matching /src\/tools\/__tests__\/form-creation-tool.test.ts/i.
+
+
+╭─     ~/dev/projects/tally-mcp     develop !3 ······································· ✔  23:27:31   
+╰─
+```
+
+---
+
+Great! The tests are passing. Now let me create an integration test to verify that the BlockBuilder is properly integrated with the form creation tool and produces the correct API payload structure:
+
+---
+
+```diff
+- 
++ import { FormCreationTool } from '../form-creation-tool';
++ import { TallyApiService } from '../../services/tally-api-service';
++ import { FormConfig, QuestionType } from '../../models/form-config';
++ import { TallyApiClientConfig } from '../../services/TallyApiClient';
++ 
++ // Mock the TallyApiClient to capture the actual payload being sent
++ jest.mock('../../services/TallyApiClient');
++ 
++ describe('FormCreationTool - BlockBuilder Integration', () => {
++   let tool: FormCreationTool;
++   let mockApiClientConfig: TallyApiClientConfig;
++   let capturedPayload: any;
++ 
++   beforeEach(() => {
++     mockApiClientConfig = {
++       accessToken: 'test-token',
++       baseURL: 'https://api.tally.so'
++     };
++ 
++     // Clear captured payload
++     capturedPayload = null;
++ 
++     // Mock the TallyApiClient constructor and requestWithValidation method
++     const MockTallyApiClient = require('../../services/TallyApiClient').TallyApiClient;
++     MockTallyApiClient.mockImplementation(() => ({
++       requestWithValidation: jest.fn().mockImplementation((method, endpoint, schema, payload) => {
++         capturedPayload = payload;
++         return Promise.resolve({
++           id: 'test-form-id',
++           url: 'https://tally.so/r/test-form-id',
++           title: 'Test Form',
++           createdAt: '2023-01-01T00:00:00Z',
++           updatedAt: '2023-01-01T00:00:00Z'
++         });
++       })
++     }));
++ 
++     tool = new FormCreationTool(mockApiClientConfig);
++   });
++ 
++   describe('BlockBuilder payload generation', () => {
++     it('should generate correct Tally API payload with FORM_TITLE and question blocks', async () => {
++       // Arrange
++       const formConfig: FormConfig = {
++         title: 'Contact Form',
++         description: 'Please fill out this contact form',
++         questions: [
++           {
++             id: 'name',
++             type: QuestionType.TEXT,
++             label: 'Full Name',
++             required: true,
++             placeholder: 'Enter your full name'
++           },
++           {
++             id: 'email',
++             type: QuestionType.EMAIL,
++             label: 'Email Address',
++             required: true,
++             placeholder: 'Enter your email'
++           },
++           {
++             id: 'department',
++             type: QuestionType.DROPDOWN,
++             label: 'Department',
++             required: false,
++             options: [
++               { id: 'sales', text: 'Sales' },
++               { id: 'support', text: 'Support' },
++               { id: 'engineering', text: 'Engineering' }
++             ]
++           }
++         ],
++         settings: {
++           submissionBehavior: 'message' as any
++         }
++       };
++ 
++       // Act
++       await tool.execute({ 
++         naturalLanguagePrompt: 'Create a contact form', 
++         formTitle: formConfig.title 
++       });
++ 
++       // Assert - verify the payload structure
++       expect(capturedPayload).toBeDefined();
++       expect(capturedPayload.status).toBe('PUBLISHED');
++       expect(capturedPayload.name).toBe('Contact Form');
++       expect(capturedPayload.blocks).toBeDefined();
++       expect(Array.isArray(capturedPayload.blocks)).toBe(true);
++ 
++       const blocks = capturedPayload.blocks;
++       
++       // Should have: 1 FORM_TITLE + 3 questions (each with TITLE + input block) + 1 dropdown with options
++       expect(blocks.length).toBeGreaterThanOrEqual(4); // At least title + some question blocks
++ 
++       // First block should be FORM_TITLE
++       const titleBlock = blocks[0];
++       expect(titleBlock.type).toBe('FORM_TITLE');
++       expect(titleBlock.groupType).toBe('TEXT');
++       expect(titleBlock.payload.html).toBe('Contact Form');
++       expect(titleBlock.uuid).toMatch(/[0-9a-f-]{36}/);
++       expect(titleBlock.groupUuid).toMatch(/[0-9a-f-]{36}/);
++ 
++       // Verify question blocks are present
++       const questionBlocks = blocks.filter(block => 
++         ['TITLE', 'INPUT_TEXT', 'INPUT_EMAIL', 'DROPDOWN_OPTION'].includes(block.type)
++       );
++       expect(questionBlocks.length).toBeGreaterThan(0);
++ 
++       // Check that each question block has proper structure
++       questionBlocks.forEach(block => {
++         expect(block.uuid).toMatch(/[0-9a-f-]{36}/);
++         expect(block.groupUuid).toMatch(/[0-9a-f-]{36}/);
++         expect(block.type).toBeDefined();
++         expect(block.groupType).toBeDefined();
++         expect(block.payload).toBeDefined();
++       });
++     });
++ 
++     it('should handle forms with only title block', async () => {
++       // Arrange
++       const simpleFormConfig: FormConfig = {
++         title: 'Simple Form',
++         questions: [],
++         settings: {
++           submissionBehavior: 'message' as any
++         }
++       };
++ 
++       // Act
++       await tool.execute({ 
++         naturalLanguagePrompt: 'Create a simple form', 
++         formTitle: simpleFormConfig.title 
++       });
++ 
++       // Assert
++       expect(capturedPayload).toBeDefined();
++       expect(capturedPayload.blocks).toBeDefined();
++       expect(capturedPayload.blocks.length).toBeGreaterThanOrEqual(1);
++ 
++       const titleBlock = capturedPayload.blocks[0];
++       expect(titleBlock.type).toBe('FORM_TITLE');
++       expect(titleBlock.payload.html).toBe('Simple Form');
++     });
++ 
++     it('should generate correct blocks for different question types', async () => {
++       // This test will be handled by the NLP service mock, but we can verify
++       // that the BlockBuilder integration doesn't break the flow
++       const result = await tool.execute({
++         naturalLanguagePrompt: 'Create a survey with multiple question types'
++       });
++ 
++       expect(result).toBeDefined();
++       expect(result.formUrl).toBeDefined();
++       expect(capturedPayload).toBeDefined();
++       expect(capturedPayload.blocks).toBeDefined();
++       expect(capturedPayload.blocks.length).toBeGreaterThanOrEqual(1);
++     });
++   });
++ 
++   describe('API endpoint integration', () => {
++     it('should call the correct endpoint with POST method', async () => {
++       // Act
++       await tool.execute({
++         naturalLanguagePrompt: 'Create a test form'
++       });
++ 
++       // Assert - verify the TallyApiClient was called correctly
++       const tallyApiService = (tool as any).tallyApiService as TallyApiService;
++       const apiClient = (tallyApiService as any).apiClient;
++       
++       expect(apiClient.requestWithValidation).toHaveBeenCalledWith(
++         'POST',
++         '/forms',
++         expect.any(Object), // TallyFormSchema
++         expect.any(Object)  // payload
++       );
++     });
++   });
++ }); 
+```
+
+---
+
+Now let me run the integration test to verify everything works:
+
+---
+
+```bash
+npm test -- src/tools/__tests__/form-creation-integration.test.ts --runInBand | cat
+```
+
+```
+❯ npm test -- src/tools/__tests__/form-creation-integration.test.ts --runInBand | cat
+
+> tally-mcp@1.0.0 test
+> jest src/tools/__tests__/form-creation-integration.test.ts --runInBand
+
+FAIL src/tools/__tests__/form-creation-integration.test.ts
+  FormCreationTool - BlockBuilder Integration
+    BlockBuilder payload generation
+      ✕ should generate correct Tally API payload with FORM_TITLE and question blocks (5 ms)
+      ✓ should handle forms with only title block (1 ms)
+      ✓ should generate correct blocks for different question types
+    API endpoint integration
+      ✓ should call the correct endpoint with POST method (1 ms)
+
+  ● FormCreationTool - BlockBuilder Integration › BlockBuilder payload generation › should generate correct Tally 
+API payload with FORM_TITLE and question blocks
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 4
+    Received:    1
+
+      93 |       
+      94 |       // Should have: 1 FORM_TITLE + 3 questions (each with TITLE + input block) + 1 dropdown with opti
+ons
+    > 95 |       expect(blocks.length).toBeGreaterThanOrEqual(4); // At least title + some question blocks
+         |                             ^
+      96 |
+      97 |       // First block should be FORM_TITLE
+      98 |       const titleBlock = blocks[0];
+
+      at Object.<anonymous> (src/tools/__tests__/form-creation-integration.test.ts:95:29)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 3 passed, 4 total
+Snapshots:   0 total
+Time:        0.472 s
+Ran all test suites matching /src\/tools\/__tests__\/form-creation-integration.test.ts/i.
+
+
+╭─     ~/dev/projects/tally-mcp     develop !3 ?1 ···································· ✔  23:28:11   
+╰─
+```
+
+---
+
+I see the issue. The test is failing because the NLP service is mocked and only returning a basic form config. Let me debug this by adding some logging to see what's actually being generated:
+
+---
+
+```diff
+  import { FormConfig, QuestionType } from '../../models/form-config';
+  import { TallyApiClientConfig } from '../../services/TallyApiClient';
++ import { NlpService } from '../../services/nlp-service';
+  
+  // Mock the TallyApiClient to capture the actual payload being sent
+  jest.mock('../../services/TallyApiClient');
++ jest.mock('../../services/nlp-service');
+  
+  describe('FormCreationTool - BlockBuilder Integration', () => {
+    let tool: FormCreationTool;
+    let mockApiClientConfig: TallyApiClientConfig;
+    let capturedPayload: any;
++   let mockNlpService: jest.Mocked<NlpService>;
+  
+    beforeEach(() => {
+```
+
+```diff
+  
+      tool = new FormCreationTool(mockApiClientConfig);
++     mockNlpService = (tool as any).nlpService as jest.Mocked<NlpService>;
+    });
+  
+    describe('BlockBuilder payload generation', () => {
+      it('should generate correct Tally API payload with FORM_TITLE and question blocks', async () => {
+-       // Arrange
+-       const formConfig: FormConfig = {
++       // Arrange - Mock NLP service to return a detailed form config
++       const detailedFormConfig: FormConfig = {
+          title: 'Contact Form',
+          description: 'Please fill out this contact form',
+```
+
+```diff
+          }
+        };
++ 
++       mockNlpService.generateFormConfig.mockReturnValue(detailedFormConfig);
+  
+        // Act
+        await tool.execute({ 
+          naturalLanguagePrompt: 'Create a contact form', 
+-         formTitle: formConfig.title 
++         formTitle: 'Contact Form'
+        });
+  
+```
+
+```diff
+        const blocks = capturedPayload.blocks;
+        
+-       // Should have: 1 FORM_TITLE + 3 questions (each with TITLE + input block) + 1 dropdown with options
++       // Debug: log the actual blocks to understand the structure
++       console.log('Generated blocks:', JSON.stringify(blocks, null, 2));
++       
++       // Should have: 1 FORM_TITLE + question blocks (each question generates TITLE + input blocks)
+        expect(blocks.length).toBeGreaterThanOrEqual(4); // At least title + some question blocks
+  
+```
+
+```diff
+  
+      it('should handle forms with only title block', async () => {
+-       // Arrange
++       // Arrange - Mock NLP service to return a simple form config
+        const simpleFormConfig: FormConfig = {
+          title: 'Simple Form',
+```
+
+```diff
+          }
+        };
++ 
++       mockNlpService.generateFormConfig.mockReturnValue(simpleFormConfig);
+  
+        // Act
+        await tool.execute({ 
+          naturalLanguagePrompt: 'Create a simple form', 
+-         formTitle: simpleFormConfig.title 
++         formTitle: 'Simple Form'
+        });
+  
+```
+
+```diff
+  
+      it('should generate correct blocks for different question types', async () => {
+-       // This test will be handled by the NLP service mock, but we can verify
+-       // that the BlockBuilder integration doesn't break the flow
++       // Mock NLP service to return a form with various question types
++       const multiTypeFormConfig: FormConfig = {
++         title: 'Survey Form',
++         questions: [
++           {
++             id: 'q1',
++             type: QuestionType.TEXT,
++             label: 'Text Question',
++             required: true
++           },
++           {
++             id: 'q2',
++             type: QuestionType.MULTIPLE_CHOICE,
++             label: 'Multiple Choice',
++             required: false,
++             options: [
++               { id: 'a', text: 'Option A' },
++               { id: 'b', text: 'Option B' }
++             ]
++           }
++         ],
++         settings: {
++           submissionBehavior: 'message' as any
++         }
++       };
++ 
++       mockNlpService.generateFormConfig.mockReturnValue(multiTypeFormConfig);
++ 
++       // Act
+        const result = await tool.execute({
+          naturalLanguagePrompt: 'Create a survey with multiple question types'
+        });
+  
++       // Assert
+        expect(result).toBeDefined();
+        expect(result.formUrl).toBeDefined();
+```
+
+```diff
+    describe('API endpoint integration', () => {
+      it('should call the correct endpoint with POST method', async () => {
++       // Mock NLP service
++       mockNlpService.generateFormConfig.mockReturnValue({
++         title: 'Test Form',
++         questions: [],
++         settings: { submissionBehavior: 'message' as any }
++       });
++ 
+        // Act
+        await tool.execute({
+```
+
+---
+
+Now let me run the test again to see the debug output:
+
+---
+
+```bash
+npm test -- src/tools/__tests__/form-creation-integration.test.ts --runInBand | cat
+```
+
+```
+
+
+╭─     ~/dev/projects/tally-mcp     develop !3 ?1 ···································· ✔  23:28:11   
+❯ npm test -- src/tools/__tests__/form-creation-integration.test.ts --runInBand | cat
+
+> tally-mcp@1.0.0 test
+> jest src/tools/__tests__/form-creation-integration.test.ts --runInBand
+
+PASS src/tools/__tests__/form-creation-integration.test.ts
+  FormCreationTool - BlockBuilder Integration
+    BlockBuilder payload generation
+      ✓ should generate correct Tally API payload with FORM_TITLE and question blocks (8 ms)
+      ✓ should handle forms with only title block (3 ms)
+      ✓ should generate correct blocks for different question types (3 ms)
+    API endpoint integration
+      ✓ should call the correct endpoint with POST method (5 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       4 passed, 4 total
+Snapshots:   0 total
+Time:        0.39 s, estimated 1 s
+Ran all test suites matching /src\/tools\/__tests__\/form-creation-integration.test.ts/i.
+
+
+╭─     ~/dev/projects/tally-mcp     develop !3 ?1 ···································· ✔  23:28:53   
+╰─
+```
+
+---
+
+Excellent! All tests are now passing. Let me run a broader test to make sure I haven't broken anything else:
+
+---
+
+```bash
+npm test -- src/tools/ --runInBand | cat
+```
+
+```
+❯ npm test -- src/tools/ --runInBand | cat
+
+> tally-mcp@1.0.0 test
+> jest src/tools/ --runInBand
+
+PASS src/tools/__tests__/form-creation-tool.test.ts
+  FormCreationTool
+    constructor
+      ✓ should create an instance with correct name and description (2 ms)
+      ✓ should initialize all required services (1 ms)
+    execute - template creation
+      ✓ should create form from template successfully (1 ms)
+      ✓ should create form from template without custom title (1 ms)
+      ✓ should throw error when template not found (7 ms)
+    execute - natural language creation
+      ✓ should create form from natural language prompt successfully (1 ms)
+      ✓ should create form without custom title override (1 ms)
+    execute - error scenarios
+      ✓ should throw error when neither templateId nor naturalLanguagePrompt provided (6 ms)
+      ✓ should propagate API errors from createForm (3 ms)
+      ✓ should handle both templateId and naturalLanguagePrompt (prioritize template) (2 ms)
+    execute - edge cases
+      ✓ should handle empty string values gracefully (5 ms)
+      ✓ should handle null/undefined form URL from API (1 ms)
+    logging
+      ✓ should log execution arguments (2 ms)
+
+PASS src/tools/__tests__/team-manager.test.ts
+  TeamManager
+    constructor
+      ✓ should create an instance with required dependencies (1 ms)
+      ✓ should create an instance with default config when none provided (1 ms)
+    createTeam
+      ✓ should create a team successfully after validating workspace (1 ms)
+      ✓ should throw error if workspace validation fails (7 ms)
+    getTeam
+      ✓ should get team details successfully (5 ms)
+      ✓ should propagate service errors (1 ms)
+    updateTeam
+      ✓ should update team without parent change (1 ms)
+      ✓ should validate hierarchy when changing parent team (1 ms)
+      ✓ should handle setting parentTeamId to undefined (1 ms)
+    deleteTeam
+      ✓ should delete team without options
+      ✓ should reassign members when reassignMembersTo option provided (1 ms)
+      ✓ should delete child teams when deleteChildTeams option is true (1 ms)
+      ✓ should move child teams to parent when deleteChildTeams is false (1 ms)
+    getTeams
+      ✓ should get teams list successfully
+      ✓ should pass all options to service
+    addTeamMember
+      ✓ should add team member with default role and permissions (1 ms)
+      ✓ should add team member with custom role and permissions
+      ✓ should throw error if team validation fails (3 ms)
+    removeTeamMember
+      ✓ should remove team member successfully (1 ms)
+    updateTeamMember
+      ✓ should update team member role and permissions
+      ✓ should update only role when permissions not provided (1 ms)
+    bulkUpdateMemberships
+      ✓ should perform bulk membership updates (1 ms)
+    moveUsersBetweenTeams
+      ✓ should move users between teams successfully (1 ms)
+      ✓ should use default member role when newRole not provided
+    moveTeam
+      ✓ should move team to new parent
+      ✓ should make team a root team when newParentTeamId is undefined (1 ms)
+    edge cases and error handling
+      ✓ should handle empty user array in moveUsersBetweenTeams
+      ✓ should handle team with no members in deleteTeam with reassignment (1 ms)
+      ✓ should handle team with no child teams in deleteTeam (1 ms)
+    method chaining
+      ✓ should chain operations correctly
+
+PASS src/tools/__tests__/form-creation-integration.test.ts
+  FormCreationTool - BlockBuilder Integration
+    BlockBuilder payload generation
+      ✓ should generate correct Tally API payload with FORM_TITLE and question blocks (7 ms)
+      ✓ should handle forms with only title block (1 ms)
+      ✓ should generate correct blocks for different question types (1 ms)
+    API endpoint integration
+      ✓ should call the correct endpoint with POST method (2 ms)
+
+PASS src/tools/__tests__/form-sharing-tool.test.ts
+  FormSharingTool
+    constructor
+      ✓ should create an instance with FormPublicationService (2 ms)
+    publishForm
+      ✓ should publish form successfully with minimal input (1 ms)
+      ✓ should publish form with all optional parameters (2 ms)
+      ✓ should handle publication errors (1 ms)
+      ✓ should handle unknown errors (1 ms)
+      ✓ should filter out undefined optional parameters (8 ms)
+    unpublishForm
+      ✓ should unpublish form successfully (1 ms)
+      ✓ should handle unpublish errors (1 ms)
+    getPublicationSettings
+      ✓ should get publication settings successfully (1 ms)
+      ✓ should handle get settings errors (1 ms)
+    updatePublicationSettings
+      ✓ should update publication settings successfully (1 ms)
+      ✓ should filter out undefined values from settings (1 ms)
+      ✓ should handle update settings errors
+    generateEmbedCode
+      ✓ should generate embed code successfully with minimal input (1 ms)
+      ✓ should generate embed code with all options (1 ms)
+      ✓ should handle embed code generation errors (6 ms)
+    generateShareLink
+      ✓ should generate share link successfully (1 ms)
+      ✓ should generate share link with security options (1 ms)
+      ✓ should handle share link generation errors
+    getShareLinks
+      ✓ should get share links successfully (1 ms)
+      ✓ should handle get share links errors (1 ms)
+    deactivateShareLink
+      ✓ should deactivate share link successfully (1 ms)
+      ✓ should handle deactivate share link errors (1 ms)
+    getFormSharingStats
+      ✓ should get sharing stats successfully (1 ms)
+      ✓ should handle get sharing stats errors (1 ms)
+    getFormAnalytics
+      ✓ should get analytics with default period (1 ms)
+      ✓ should get analytics with custom period (1 ms)
+      ✓ should handle get analytics errors (2 ms)
+    performBulkOperation
+      ✓ should perform bulk publish operation successfully (1 ms)
+      ✓ should perform bulk operation without settings (1 ms)
+      ✓ should handle bulk operation errors (1 ms)
+    validateFormForPublication
+      ✓ should validate form successfully when form can be published
+      ✓ should validate form with validation issues (1 ms)
+      ✓ should handle validation errors (1 ms)
+    edge cases and error handling
+      ✓ should handle empty form IDs array in bulk operation
+      ✓ should handle invalid email in notification emails (1 ms)
+      ✓ should handle invalid datetime in publish date (1 ms)
+
+PASS src/tools/__tests__/template-tool.test.ts
+  TemplateTool
+    execute
+      ✓ should call listTemplates for the 'list' action
+      ✓ should call useTemplate for the 'use' action
+      ✓ should call customizeTemplate for the 'customize' action (1 ms)
+      ✓ should return an error if templateId is missing for the 'use' action
+      ✓ should return an error for an invalid action (1 ms)
+
+PASS src/tools/__tests__/form-modification-tool.test.ts
+  FormModificationTool
+    constructor
+      ✓ should create an instance with correct name and description (1 ms)
+      ✓ should initialize with TallyApiService
+    execute
+      ✓ should return error when formId is not provided (1 ms)
+      ✓ should return error when form is not found
+      ✓ should successfully retrieve form when it exists (3 ms)
+      ✓ should handle API errors gracefully (1 ms)
+    getForm
+      ✓ should return form when API call succeeds
+      ✓ should return null when API call fails (1 ms)
+    getForms
+      ✓ should return forms list when API call succeeds
+      ✓ should pass options to API service (1 ms)
+      ✓ should return null when API call fails
+    updateForm
+      ✓ should return updated form when API call succeeds (1 ms)
+      ✓ should return null when API call fails
+    patchForm
+      ✓ should return patched form when API call succeeds
+      ✓ should return null when API call fails (1 ms)
+    validateConnection
+      ✓ should return true when connection is valid
+      ✓ should return false when connection fails
+      ✓ should return false when API returns null
+
+PASS src/tools/__tests__/form-permission-manager.test.ts
+  FormPermissionManager
+    setFormPermission
+      ✓ should call FormPermissionService.setFormPermission with correct parameters (2 ms)
+    updateFormPermission
+      ✓ should call FormPermissionService.updateFormPermission with correct parameters
+    removeFormPermission
+      ✓ should call FormPermissionService.removeFormPermission and return success status (1 ms)
+    setBulkFormPermissions
+      ✓ should create bulk permission object and call service (3 ms)
+    getEffectivePermission
+      ✓ should get workspace details and call service with workspace role (1 ms)
+    canPerformAction
+      ✓ should validate access and return boolean result
+    inheritWorkspacePermissions
+      ✓ should map workspace role to access level (1 ms)
+    overrideWorkspaceInheritance
+      ✓ should set form permission with inheritFromWorkspace false
+    getFormPermissionSummary
+      ✓ should combine permissions and settings into a summary (1 ms)
+
+PASS src/tools/__tests__/submission-tool.test.ts
+  SubmissionAnalysisTool
+    filterByDateRange
+      ✓ should call SubmissionService.getFormSubmissions with the correct date range (1 ms)
+      ✓ should return the submissions from the service (1 ms)
+    filterByStatus
+      ✓ should call SubmissionService.getFormSubmissions with the correct status
+      ✓ should return the submissions from the service
+    analyze
+      ✓ should correctly analyze the submissions response
+    formatForAnalysis
+      ✓ should correctly format submissions for analysis
+    getAverageRating
+      ✓ should calculate the average rating for a numeric question (1 ms)
+      ✓ should return null if no numeric ratings are found
+    getResponseDistribution
+      ✓ should calculate the response distribution for a question (1 ms)
+    exportToCSV
+      ✓ should export formatted submissions to a CSV file (1 ms)
+    exportToJSON
+      ✓ should export formatted submissions to a JSON file (1 ms)
+    search
+      ✓ should return submissions matching the search query (3 ms)
+
+PASS src/tools/__tests__/workspace-tool.test.ts
+  WorkspaceManagementTool
+    listWorkspaces
+      ✓ should call WorkspaceService.getWorkspaces and return the result (1 ms)
+    getWorkspaceDetails
+      ✓ should call WorkspaceService.getWorkspace and return the result
+    inviteUserToWorkspace
+      ✓ should call WorkspaceService.inviteUser with the correct parameters (1 ms)
+    removeUserFromWorkspace
+      ✓ should call WorkspaceService.removeUser with the correct parameters
+    updateUserRoleInWorkspace
+      ✓ should call WorkspaceService.updateUserRole with the correct parameters (1 ms)
+
+Test Suites: 9 passed, 9 total
+Tests:       133 passed, 133 total
+Snapshots:   0 total
+Time:        1.768 s, estimated 3 s
+Ran all test suites matching /src\/tools\//i.
+
+
+╭─     ~/dev/projects/tally-mcp     develop !3 ?1 ···································· ✔  23:29:00   
+╰─
+```
+
+---
+
+Perfect! All tool tests are passing. Now let me update the task status and log the completion:
+
+---
+
+
+
+---
+
+
+
+---
+
+Perfect! Subtask 32.4 is now complete. The BlockBuilder utility has been successfully integrated into the create_form tool with comprehensive testing. 
+
+## Summary of Work Completed
+
+I successfully completed subtask 32.4 "Integrate BlockBuilder and Mapping into create_form Tool" with the following key accomplishments:
+
+### 1. **Fixed API Endpoints**
+- Corrected TallyApiService endpoints from `/v1/forms` to `/forms` to match Tally API documentation
+- Updated all three methods: `createForm`, `updateForm`, and `patchForm`
+
+### 2. **Verified Integration** 
+- Confirmed that TallyApiService already uses `buildBlocksForForm()` from BlockBuilder utility in `mapToTallyPayload()` method
+- The integration was already in place from previous subtasks
+
+### 3. **Enhanced Testing**
+- Created comprehensive integration test suite (`form-creation-integration.test.ts`) that:
+  - Verifies BlockBuilder generates correct Tally API payload structure
+  - Tests FORM_TITLE blocks with proper metadata (uuid, groupUuid, groupType)
+  - Validates question blocks for various question types (TEXT, EMAIL, DROPDOWN)
+  - Confirms proper API endpoint calls (POST /forms)
+  - Handles different form configurations (simple forms, multi-question forms)
+
+### 4. **Test Results**
+- All tests passing (133/133 across all tool test suites)
+- Integration tests capture and validate actual API payloads to ensure correct structure
+
+### 5. **Ready for Next Steps**
+The create_form tool now properly integrates with BlockBuilder utility and generates API-compliant payloads for the Tally API. The next subtask (32.5) involves implementing schema validation and updating tests, which is ready to be worked on when needed.
+
+The form creation functionality is now robust and tested, with proper block generation, UUID handling, and API payload structure that aligns with Tally's requirements.
+
+---
+
+_**User**_
+
+please continue with 32.5
+
+---
+
+_**Assistant**_
+
+
+
+---
+

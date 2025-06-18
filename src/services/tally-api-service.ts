@@ -1,6 +1,13 @@
 import { TallyApiClient, TallyApiClientConfig } from './TallyApiClient';
 import { FormConfig, SubmissionBehavior } from '../models';
-import { TallyForm, TallyFormSchema, TallyFormsResponse } from '../models/tally-schemas';
+import { 
+  TallyForm, 
+  TallyFormSchema, 
+  TallyFormsResponse,
+  TallyFormCreatePayloadSchema,
+  TallyFormUpdatePayloadSchema,
+  validateTallyResponse
+} from '../models/tally-schemas';
 import { buildBlocksForForm } from '../utils/block-builder';
 
 export class TallyApiService {
@@ -16,16 +23,16 @@ export class TallyApiService {
    * @returns The created Tally form.
    */
   public async createForm(formConfig: FormConfig): Promise<TallyForm> {
-    // The Tally API endpoint for creating forms will be defined later.
-    // This is a placeholder for the actual API call.
-    const endpoint = '/v1/forms';
+    // The Tally API endpoint for creating forms
+    const endpoint = '/forms';
 
-    // The Tally API expects a certain payload structure.
-    // We need to map our FormConfig to that structure.
-    // This mapping will be implemented in a future task.
+    // Map our FormConfig to the payload expected by the Tally API
     const payload = this.mapToTallyPayload(formConfig);
 
-    return this.apiClient.requestWithValidation('POST', endpoint, TallyFormSchema, payload);
+    // Validate the payload before sending to ensure it meets Tally API requirements
+    const validatedPayload = TallyFormCreatePayloadSchema.parse(payload);
+
+    return this.apiClient.requestWithValidation('POST', endpoint, TallyFormSchema, validatedPayload);
   }
 
   /**
@@ -57,12 +64,15 @@ export class TallyApiService {
    * @returns The updated Tally form.
    */
   public async updateForm(formId: string, formConfig: Partial<FormConfig>): Promise<TallyForm> {
-    const endpoint = `/v1/forms/${formId}`;
+    const endpoint = `/forms/${formId}`;
     
     // Map the FormConfig to the payload expected by the Tally API
     const payload = this.mapToTallyUpdatePayload(formConfig);
 
-    return this.apiClient.requestWithValidation('PUT', endpoint, TallyFormSchema, payload);
+    // Validate the payload before sending to ensure it meets Tally API requirements
+    const validatedPayload = TallyFormUpdatePayloadSchema.parse(payload);
+
+    return this.apiClient.requestWithValidation('PUT', endpoint, TallyFormSchema, validatedPayload);
   }
 
   /**
@@ -72,7 +82,7 @@ export class TallyApiService {
    * @returns The updated Tally form.
    */
   public async patchForm(formId: string, updates: Record<string, any>): Promise<TallyForm> {
-    const endpoint = `/v1/forms/${formId}`;
+    const endpoint = `/forms/${formId}`;
     
     return this.apiClient.requestWithValidation('PATCH', endpoint, TallyFormSchema, updates);
   }
@@ -102,8 +112,8 @@ export class TallyApiService {
   private mapToTallyUpdatePayload(formConfig: Partial<FormConfig>): any {
     const payload: any = {};
 
-    if (formConfig.title) {
-      payload.title = formConfig.title;
+    if (formConfig.title !== undefined) {
+      payload.name = formConfig.title;
     }
 
     if (formConfig.description !== undefined) {
