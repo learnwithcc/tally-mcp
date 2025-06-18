@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="7" failures="0" errors="0" time="0.359">
-  <testsuite name="Security Testing - Authentication and Authorization Logic" errors="0" failures="0" skipped="0" timestamp="2025-06-17T17:04:27" time="0.323" tests="7">
-    <testcase classname="Security Testing - Authentication and Authorization Logic AuthenticationTests AUTHN-001: Valid API Key test should pass on 200 OK" name="Security Testing - Authentication and Authorization Logic AuthenticationTests AUTHN-001: Valid API Key test should pass on 200 OK" time="0.003">
+<testsuites name="jest tests" tests="4" failures="0" errors="0" time="0.276">
+  <testsuite name="BlockBuilder utility" errors="0" failures="0" skipped="0" timestamp="2025-06-18T03:24:04" time="0.251" tests="4">
+    <testcase classname="BlockBuilder utility createFormTitleBlock returns a FORM_TITLE block with correct payload and metadata" name="BlockBuilder utility createFormTitleBlock returns a FORM_TITLE block with correct payload and metadata" time="0.003">
     </testcase>
-    <testcase classname="Security Testing - Authentication and Authorization Logic AuthenticationTests AUTHN-001: Valid API Key test should fail on non-200 response" name="Security Testing - Authentication and Authorization Logic AuthenticationTests AUTHN-001: Valid API Key test should fail on non-200 response" time="0.001">
+    <testcase classname="BlockBuilder utility createQuestionBlocks creates TITLE and INPUT_TEXT blocks for a simple text question" name="BlockBuilder utility createQuestionBlocks creates TITLE and INPUT_TEXT blocks for a simple text question" time="0.003">
     </testcase>
-    <testcase classname="Security Testing - Authentication and Authorization Logic AuthenticationTests AUTHN-002: Invalid API Key test should pass on 401 Unauthorized" name="Security Testing - Authentication and Authorization Logic AuthenticationTests AUTHN-002: Invalid API Key test should pass on 401 Unauthorized" time="0.001">
+    <testcase classname="BlockBuilder utility createQuestionBlocks creates option blocks for dropdown questions" name="BlockBuilder utility createQuestionBlocks creates option blocks for dropdown questions" time="0.001">
     </testcase>
-    <testcase classname="Security Testing - Authentication and Authorization Logic AuthenticationTests AUTHN-002: Invalid API Key test should fail if request succeeds" name="Security Testing - Authentication and Authorization Logic AuthenticationTests AUTHN-002: Invalid API Key test should fail if request succeeds" time="0">
-    </testcase>
-    <testcase classname="Security Testing - Authentication and Authorization Logic AuthorizationTests AUTHZ-001: API Key Scope Violation test should pass when scopes are insufficient" name="Security Testing - Authentication and Authorization Logic AuthorizationTests AUTHZ-001: API Key Scope Violation test should pass when scopes are insufficient" time="0.002">
-    </testcase>
-    <testcase classname="Security Testing - Authentication and Authorization Logic AuthorizationTests AUTHZ-002: Read-Only API Key Write Attempt should pass" name="Security Testing - Authentication and Authorization Logic AuthorizationTests AUTHZ-002: Read-Only API Key Write Attempt should pass" time="0.001">
-    </testcase>
-    <testcase classname="Security Testing - Authentication and Authorization Logic AuthorizationTests AUTHZ-003: Admin Scope Access Control should pass for admin key" name="Security Testing - Authentication and Authorization Logic AuthorizationTests AUTHZ-003: Admin Scope Access Control should pass for admin key" time="0.001">
+    <testcase classname="BlockBuilder utility createQuestionBlocks maps each QuestionType to the correct Tally block type" name="BlockBuilder utility createQuestionBlocks maps each QuestionType to the correct Tally block type" time="0.002">
     </testcase>
   </testsuite>
 </testsuites>
