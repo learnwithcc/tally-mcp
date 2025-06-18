@@ -1,5 +1,5 @@
 import { FormConfig, QuestionConfig } from '../models/form-config';
-export type TallyBlockType = 'FORM_TITLE' | 'INPUT_TEXT' | 'INPUT_EMAIL' | 'INPUT_NUMBER' | 'INPUT_PHONE_NUMBER' | 'INPUT_LINK' | 'INPUT_DATE' | 'INPUT_TIME' | 'TEXTAREA' | 'TITLE' | 'DROPDOWN' | 'CHECKBOXES' | 'MULTIPLE_CHOICE' | 'LINEAR_SCALE' | 'RATING' | 'FILE_UPLOAD' | 'SIGNATURE';
+export type TallyBlockType = 'FORM_TITLE' | 'INPUT_TEXT' | 'INPUT_EMAIL' | 'INPUT_NUMBER' | 'INPUT_PHONE_NUMBER' | 'INPUT_LINK' | 'INPUT_DATE' | 'INPUT_TIME' | 'TEXTAREA' | 'TITLE' | 'DROPDOWN' | 'CHECKBOXES' | 'MULTIPLE_CHOICE' | 'LINEAR_SCALE' | 'RATING' | 'FILE_UPLOAD' | 'SIGNATURE' | 'DROPDOWN_OPTION' | 'MULTIPLE_CHOICE_OPTION' | 'CHECKBOX';
 export interface TallyBlock {
     uuid: string;
     type: TallyBlockType;

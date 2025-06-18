@@ -1,15 +1,16 @@
 import { TallyApiClient } from './TallyApiClient';
 import { SubmissionBehavior } from '../models';
-import { TallyFormSchema } from '../models/tally-schemas';
+import { TallyFormSchema, TallyFormCreatePayloadSchema, TallyFormUpdatePayloadSchema } from '../models/tally-schemas';
 import { buildBlocksForForm } from '../utils/block-builder';
 export class TallyApiService {
     constructor(config) {
         this.apiClient = new TallyApiClient(config);
     }
     async createForm(formConfig) {
-        const endpoint = '/v1/forms';
+        const endpoint = '/forms';
         const payload = this.mapToTallyPayload(formConfig);
-        return this.apiClient.requestWithValidation('POST', endpoint, TallyFormSchema, payload);
+        const validatedPayload = TallyFormCreatePayloadSchema.parse(payload);
+        return this.apiClient.requestWithValidation('POST', endpoint, TallyFormSchema, validatedPayload);
     }
     async getForm(formId) {
         return this.apiClient.getForm(formId);
@@ -18,12 +19,13 @@ export class TallyApiService {
         return this.apiClient.getForms(options);
     }
     async updateForm(formId, formConfig) {
-        const endpoint = `/v1/forms/${formId}`;
+        const endpoint = `/forms/${formId}`;
         const payload = this.mapToTallyUpdatePayload(formConfig);
-        return this.apiClient.requestWithValidation('PUT', endpoint, TallyFormSchema, payload);
+        const validatedPayload = TallyFormUpdatePayloadSchema.parse(payload);
+        return this.apiClient.requestWithValidation('PUT', endpoint, TallyFormSchema, validatedPayload);
     }
     async patchForm(formId, updates) {
-        const endpoint = `/v1/forms/${formId}`;
+        const endpoint = `/forms/${formId}`;
         return this.apiClient.requestWithValidation('PATCH', endpoint, TallyFormSchema, updates);
     }
     mapToTallyPayload(formConfig) {
@@ -36,8 +38,8 @@ export class TallyApiService {
     }
     mapToTallyUpdatePayload(formConfig) {
         const payload = {};
-        if (formConfig.title) {
-            payload.title = formConfig.title;
+        if (formConfig.title !== undefined) {
+            payload.name = formConfig.title;
         }
         if (formConfig.description !== undefined) {
             payload.description = formConfig.description;

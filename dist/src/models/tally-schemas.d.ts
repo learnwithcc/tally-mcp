@@ -999,7 +999,8 @@ export declare const TallyWebhookPayloadSchema: z.ZodObject<{
 }>;
 export declare const TallyFormSchema: z.ZodObject<{
     id: z.ZodString;
-    title: z.ZodString;
+    title: z.ZodOptional<z.ZodString>;
+    name: z.ZodOptional<z.ZodString>;
     description: z.ZodOptional<z.ZodString>;
     isPublished: z.ZodOptional<z.ZodBoolean>;
     createdAt: z.ZodString;
@@ -1008,33 +1009,45 @@ export declare const TallyFormSchema: z.ZodObject<{
     url: z.ZodOptional<z.ZodString>;
     embedUrl: z.ZodOptional<z.ZodString>;
     status: z.ZodOptional<z.ZodString>;
-}, "strip", z.ZodTypeAny, {
-    id: string;
-    title: string;
-    createdAt: string;
-    updatedAt: string;
-    url?: string | undefined;
-    description?: string | undefined;
-    status?: string | undefined;
-    isPublished?: boolean | undefined;
-    submissionsCount?: number | undefined;
-    embedUrl?: string | undefined;
-}, {
-    id: string;
-    title: string;
-    createdAt: string;
-    updatedAt: string;
-    url?: string | undefined;
-    description?: string | undefined;
-    status?: string | undefined;
-    isPublished?: boolean | undefined;
-    submissionsCount?: number | undefined;
-    embedUrl?: string | undefined;
-}>;
+    shareUrl: z.ZodOptional<z.ZodString>;
+    share_url: z.ZodOptional<z.ZodString>;
+    publicUrl: z.ZodOptional<z.ZodString>;
+}, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+    id: z.ZodString;
+    title: z.ZodOptional<z.ZodString>;
+    name: z.ZodOptional<z.ZodString>;
+    description: z.ZodOptional<z.ZodString>;
+    isPublished: z.ZodOptional<z.ZodBoolean>;
+    createdAt: z.ZodString;
+    updatedAt: z.ZodString;
+    submissionsCount: z.ZodOptional<z.ZodNumber>;
+    url: z.ZodOptional<z.ZodString>;
+    embedUrl: z.ZodOptional<z.ZodString>;
+    status: z.ZodOptional<z.ZodString>;
+    shareUrl: z.ZodOptional<z.ZodString>;
+    share_url: z.ZodOptional<z.ZodString>;
+    publicUrl: z.ZodOptional<z.ZodString>;
+}, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+    id: z.ZodString;
+    title: z.ZodOptional<z.ZodString>;
+    name: z.ZodOptional<z.ZodString>;
+    description: z.ZodOptional<z.ZodString>;
+    isPublished: z.ZodOptional<z.ZodBoolean>;
+    createdAt: z.ZodString;
+    updatedAt: z.ZodString;
+    submissionsCount: z.ZodOptional<z.ZodNumber>;
+    url: z.ZodOptional<z.ZodString>;
+    embedUrl: z.ZodOptional<z.ZodString>;
+    status: z.ZodOptional<z.ZodString>;
+    shareUrl: z.ZodOptional<z.ZodString>;
+    share_url: z.ZodOptional<z.ZodString>;
+    publicUrl: z.ZodOptional<z.ZodString>;
+}, z.ZodTypeAny, "passthrough">>;
 export declare const TallyFormsResponseSchema: z.ZodObject<{
     forms: z.ZodArray<z.ZodObject<{
         id: z.ZodString;
-        title: z.ZodString;
+        title: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
         description: z.ZodOptional<z.ZodString>;
         isPublished: z.ZodOptional<z.ZodBoolean>;
         createdAt: z.ZodString;
@@ -1043,61 +1056,80 @@ export declare const TallyFormsResponseSchema: z.ZodObject<{
         url: z.ZodOptional<z.ZodString>;
         embedUrl: z.ZodOptional<z.ZodString>;
         status: z.ZodOptional<z.ZodString>;
-    }, "strip", z.ZodTypeAny, {
-        id: string;
-        title: string;
-        createdAt: string;
-        updatedAt: string;
-        url?: string | undefined;
-        description?: string | undefined;
-        status?: string | undefined;
-        isPublished?: boolean | undefined;
-        submissionsCount?: number | undefined;
-        embedUrl?: string | undefined;
-    }, {
-        id: string;
-        title: string;
-        createdAt: string;
-        updatedAt: string;
-        url?: string | undefined;
-        description?: string | undefined;
-        status?: string | undefined;
-        isPublished?: boolean | undefined;
-        submissionsCount?: number | undefined;
-        embedUrl?: string | undefined;
-    }>, "many">;
+        shareUrl: z.ZodOptional<z.ZodString>;
+        share_url: z.ZodOptional<z.ZodString>;
+        publicUrl: z.ZodOptional<z.ZodString>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodString;
+        title: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        description: z.ZodOptional<z.ZodString>;
+        isPublished: z.ZodOptional<z.ZodBoolean>;
+        createdAt: z.ZodString;
+        updatedAt: z.ZodString;
+        submissionsCount: z.ZodOptional<z.ZodNumber>;
+        url: z.ZodOptional<z.ZodString>;
+        embedUrl: z.ZodOptional<z.ZodString>;
+        status: z.ZodOptional<z.ZodString>;
+        shareUrl: z.ZodOptional<z.ZodString>;
+        share_url: z.ZodOptional<z.ZodString>;
+        publicUrl: z.ZodOptional<z.ZodString>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodString;
+        title: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        description: z.ZodOptional<z.ZodString>;
+        isPublished: z.ZodOptional<z.ZodBoolean>;
+        createdAt: z.ZodString;
+        updatedAt: z.ZodString;
+        submissionsCount: z.ZodOptional<z.ZodNumber>;
+        url: z.ZodOptional<z.ZodString>;
+        embedUrl: z.ZodOptional<z.ZodString>;
+        status: z.ZodOptional<z.ZodString>;
+        shareUrl: z.ZodOptional<z.ZodString>;
+        share_url: z.ZodOptional<z.ZodString>;
+        publicUrl: z.ZodOptional<z.ZodString>;
+    }, z.ZodTypeAny, "passthrough">>, "many">;
     page: z.ZodOptional<z.ZodNumber>;
     limit: z.ZodOptional<z.ZodNumber>;
     hasMore: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    forms: {
-        id: string;
-        title: string;
-        createdAt: string;
-        updatedAt: string;
-        url?: string | undefined;
-        description?: string | undefined;
-        status?: string | undefined;
-        isPublished?: boolean | undefined;
-        submissionsCount?: number | undefined;
-        embedUrl?: string | undefined;
-    }[];
+    forms: z.objectOutputType<{
+        id: z.ZodString;
+        title: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        description: z.ZodOptional<z.ZodString>;
+        isPublished: z.ZodOptional<z.ZodBoolean>;
+        createdAt: z.ZodString;
+        updatedAt: z.ZodString;
+        submissionsCount: z.ZodOptional<z.ZodNumber>;
+        url: z.ZodOptional<z.ZodString>;
+        embedUrl: z.ZodOptional<z.ZodString>;
+        status: z.ZodOptional<z.ZodString>;
+        shareUrl: z.ZodOptional<z.ZodString>;
+        share_url: z.ZodOptional<z.ZodString>;
+        publicUrl: z.ZodOptional<z.ZodString>;
+    }, z.ZodTypeAny, "passthrough">[];
     page?: number | undefined;
     limit?: number | undefined;
     hasMore?: boolean | undefined;
 }, {
-    forms: {
-        id: string;
-        title: string;
-        createdAt: string;
-        updatedAt: string;
-        url?: string | undefined;
-        description?: string | undefined;
-        status?: string | undefined;
-        isPublished?: boolean | undefined;
-        submissionsCount?: number | undefined;
-        embedUrl?: string | undefined;
-    }[];
+    forms: z.objectInputType<{
+        id: z.ZodString;
+        title: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        description: z.ZodOptional<z.ZodString>;
+        isPublished: z.ZodOptional<z.ZodBoolean>;
+        createdAt: z.ZodString;
+        updatedAt: z.ZodString;
+        submissionsCount: z.ZodOptional<z.ZodNumber>;
+        url: z.ZodOptional<z.ZodString>;
+        embedUrl: z.ZodOptional<z.ZodString>;
+        status: z.ZodOptional<z.ZodString>;
+        shareUrl: z.ZodOptional<z.ZodString>;
+        share_url: z.ZodOptional<z.ZodString>;
+        publicUrl: z.ZodOptional<z.ZodString>;
+    }, z.ZodTypeAny, "passthrough">[];
     page?: number | undefined;
     limit?: number | undefined;
     hasMore?: boolean | undefined;
@@ -1747,8 +1779,1188 @@ export type FormPermissionsResponse = z.infer<typeof FormPermissionsResponseSche
 export type BulkPermissionResponse = z.infer<typeof BulkPermissionResponseSchema>;
 export type TallySuccessResponse = z.infer<typeof TallySuccessResponseSchema>;
 export type TallyPagination = z.infer<typeof TallyPaginationSchema>;
+export declare const TallyBlockTypeSchema: z.ZodEnum<["FORM_TITLE", "TITLE", "INPUT_TEXT", "INPUT_EMAIL", "INPUT_NUMBER", "INPUT_PHONE_NUMBER", "INPUT_LINK", "INPUT_DATE", "INPUT_TIME", "TEXTAREA", "DROPDOWN", "DROPDOWN_OPTION", "CHECKBOXES", "CHECKBOX", "MULTIPLE_CHOICE", "MULTIPLE_CHOICE_OPTION", "LINEAR_SCALE", "RATING", "FILE_UPLOAD", "SIGNATURE", "HIDDEN_FIELDS", "CALCULATED_FIELDS", "MULTI_SELECT", "MATRIX", "RANKING", "PAYMENT"]>;
+export declare const TallyGroupTypeSchema: z.ZodEnum<["TEXT", "QUESTION", "INPUT_TEXT", "INPUT_EMAIL", "INPUT_NUMBER", "INPUT_PHONE_NUMBER", "INPUT_LINK", "INPUT_DATE", "INPUT_TIME", "TEXTAREA", "DROPDOWN", "CHECKBOXES", "MULTIPLE_CHOICE", "LINEAR_SCALE", "RATING", "FILE_UPLOAD", "SIGNATURE"]>;
+export declare const TallyBlockBasePayloadSchema: z.ZodObject<{
+    html: z.ZodOptional<z.ZodString>;
+    title: z.ZodOptional<z.ZodString>;
+    isRequired: z.ZodOptional<z.ZodBoolean>;
+    placeholder: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    placeholder?: string | undefined;
+    title?: string | undefined;
+    html?: string | undefined;
+    isRequired?: boolean | undefined;
+}, {
+    placeholder?: string | undefined;
+    title?: string | undefined;
+    html?: string | undefined;
+    isRequired?: boolean | undefined;
+}>;
+export declare const TallyBlockOptionSchema: z.ZodObject<{
+    id: z.ZodString;
+    text: z.ZodString;
+    index: z.ZodOptional<z.ZodNumber>;
+}, "strip", z.ZodTypeAny, {
+    text: string;
+    id: string;
+    index?: number | undefined;
+}, {
+    text: string;
+    id: string;
+    index?: number | undefined;
+}>;
+export declare const TallyChoiceOptionPayloadSchema: z.ZodObject<{
+    html: z.ZodOptional<z.ZodString>;
+    title: z.ZodOptional<z.ZodString>;
+    isRequired: z.ZodOptional<z.ZodBoolean>;
+    placeholder: z.ZodOptional<z.ZodString>;
+} & {
+    index: z.ZodNumber;
+    text: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    text: string;
+    index: number;
+    placeholder?: string | undefined;
+    title?: string | undefined;
+    html?: string | undefined;
+    isRequired?: boolean | undefined;
+}, {
+    text: string;
+    index: number;
+    placeholder?: string | undefined;
+    title?: string | undefined;
+    html?: string | undefined;
+    isRequired?: boolean | undefined;
+}>;
+export declare const TallyInputPayloadSchema: z.ZodObject<{
+    html: z.ZodOptional<z.ZodString>;
+    title: z.ZodOptional<z.ZodString>;
+} & {
+    isRequired: z.ZodBoolean;
+    placeholder: z.ZodString;
+    options: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        text: z.ZodString;
+        index: z.ZodOptional<z.ZodNumber>;
+    }, "strip", z.ZodTypeAny, {
+        text: string;
+        id: string;
+        index?: number | undefined;
+    }, {
+        text: string;
+        id: string;
+        index?: number | undefined;
+    }>, "many">>;
+}, "strip", z.ZodTypeAny, {
+    placeholder: string;
+    isRequired: boolean;
+    options?: {
+        text: string;
+        id: string;
+        index?: number | undefined;
+    }[] | undefined;
+    title?: string | undefined;
+    html?: string | undefined;
+}, {
+    placeholder: string;
+    isRequired: boolean;
+    options?: {
+        text: string;
+        id: string;
+        index?: number | undefined;
+    }[] | undefined;
+    title?: string | undefined;
+    html?: string | undefined;
+}>;
+export declare const TallyTitlePayloadSchema: z.ZodObject<{
+    html: z.ZodString;
+    title: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    html: string;
+    title?: string | undefined;
+}, {
+    html: string;
+    title?: string | undefined;
+}>;
+export declare const TallyBlockPayloadSchema: z.ZodUnion<[z.ZodObject<{
+    html: z.ZodString;
+    title: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    html: string;
+    title?: string | undefined;
+}, {
+    html: string;
+    title?: string | undefined;
+}>, z.ZodObject<{
+    html: z.ZodOptional<z.ZodString>;
+    title: z.ZodOptional<z.ZodString>;
+} & {
+    isRequired: z.ZodBoolean;
+    placeholder: z.ZodString;
+    options: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        text: z.ZodString;
+        index: z.ZodOptional<z.ZodNumber>;
+    }, "strip", z.ZodTypeAny, {
+        text: string;
+        id: string;
+        index?: number | undefined;
+    }, {
+        text: string;
+        id: string;
+        index?: number | undefined;
+    }>, "many">>;
+}, "strip", z.ZodTypeAny, {
+    placeholder: string;
+    isRequired: boolean;
+    options?: {
+        text: string;
+        id: string;
+        index?: number | undefined;
+    }[] | undefined;
+    title?: string | undefined;
+    html?: string | undefined;
+}, {
+    placeholder: string;
+    isRequired: boolean;
+    options?: {
+        text: string;
+        id: string;
+        index?: number | undefined;
+    }[] | undefined;
+    title?: string | undefined;
+    html?: string | undefined;
+}>, z.ZodObject<{
+    html: z.ZodOptional<z.ZodString>;
+    title: z.ZodOptional<z.ZodString>;
+    isRequired: z.ZodOptional<z.ZodBoolean>;
+    placeholder: z.ZodOptional<z.ZodString>;
+} & {
+    index: z.ZodNumber;
+    text: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    text: string;
+    index: number;
+    placeholder?: string | undefined;
+    title?: string | undefined;
+    html?: string | undefined;
+    isRequired?: boolean | undefined;
+}, {
+    text: string;
+    index: number;
+    placeholder?: string | undefined;
+    title?: string | undefined;
+    html?: string | undefined;
+    isRequired?: boolean | undefined;
+}>, z.ZodObject<{
+    html: z.ZodOptional<z.ZodString>;
+    title: z.ZodOptional<z.ZodString>;
+    isRequired: z.ZodOptional<z.ZodBoolean>;
+    placeholder: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    placeholder?: string | undefined;
+    title?: string | undefined;
+    html?: string | undefined;
+    isRequired?: boolean | undefined;
+}, {
+    placeholder?: string | undefined;
+    title?: string | undefined;
+    html?: string | undefined;
+    isRequired?: boolean | undefined;
+}>]>;
+export declare const TallyBlockSchema: z.ZodObject<{
+    uuid: z.ZodString;
+    type: z.ZodEnum<["FORM_TITLE", "TITLE", "INPUT_TEXT", "INPUT_EMAIL", "INPUT_NUMBER", "INPUT_PHONE_NUMBER", "INPUT_LINK", "INPUT_DATE", "INPUT_TIME", "TEXTAREA", "DROPDOWN", "DROPDOWN_OPTION", "CHECKBOXES", "CHECKBOX", "MULTIPLE_CHOICE", "MULTIPLE_CHOICE_OPTION", "LINEAR_SCALE", "RATING", "FILE_UPLOAD", "SIGNATURE", "HIDDEN_FIELDS", "CALCULATED_FIELDS", "MULTI_SELECT", "MATRIX", "RANKING", "PAYMENT"]>;
+    groupUuid: z.ZodString;
+    groupType: z.ZodEnum<["TEXT", "QUESTION", "INPUT_TEXT", "INPUT_EMAIL", "INPUT_NUMBER", "INPUT_PHONE_NUMBER", "INPUT_LINK", "INPUT_DATE", "INPUT_TIME", "TEXTAREA", "DROPDOWN", "CHECKBOXES", "MULTIPLE_CHOICE", "LINEAR_SCALE", "RATING", "FILE_UPLOAD", "SIGNATURE"]>;
+    title: z.ZodString;
+    payload: z.ZodUnion<[z.ZodObject<{
+        html: z.ZodString;
+        title: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        html: string;
+        title?: string | undefined;
+    }, {
+        html: string;
+        title?: string | undefined;
+    }>, z.ZodObject<{
+        html: z.ZodOptional<z.ZodString>;
+        title: z.ZodOptional<z.ZodString>;
+    } & {
+        isRequired: z.ZodBoolean;
+        placeholder: z.ZodString;
+        options: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            text: z.ZodString;
+            index: z.ZodOptional<z.ZodNumber>;
+        }, "strip", z.ZodTypeAny, {
+            text: string;
+            id: string;
+            index?: number | undefined;
+        }, {
+            text: string;
+            id: string;
+            index?: number | undefined;
+        }>, "many">>;
+    }, "strip", z.ZodTypeAny, {
+        placeholder: string;
+        isRequired: boolean;
+        options?: {
+            text: string;
+            id: string;
+            index?: number | undefined;
+        }[] | undefined;
+        title?: string | undefined;
+        html?: string | undefined;
+    }, {
+        placeholder: string;
+        isRequired: boolean;
+        options?: {
+            text: string;
+            id: string;
+            index?: number | undefined;
+        }[] | undefined;
+        title?: string | undefined;
+        html?: string | undefined;
+    }>, z.ZodObject<{
+        html: z.ZodOptional<z.ZodString>;
+        title: z.ZodOptional<z.ZodString>;
+        isRequired: z.ZodOptional<z.ZodBoolean>;
+        placeholder: z.ZodOptional<z.ZodString>;
+    } & {
+        index: z.ZodNumber;
+        text: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        text: string;
+        index: number;
+        placeholder?: string | undefined;
+        title?: string | undefined;
+        html?: string | undefined;
+        isRequired?: boolean | undefined;
+    }, {
+        text: string;
+        index: number;
+        placeholder?: string | undefined;
+        title?: string | undefined;
+        html?: string | undefined;
+        isRequired?: boolean | undefined;
+    }>, z.ZodObject<{
+        html: z.ZodOptional<z.ZodString>;
+        title: z.ZodOptional<z.ZodString>;
+        isRequired: z.ZodOptional<z.ZodBoolean>;
+        placeholder: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        placeholder?: string | undefined;
+        title?: string | undefined;
+        html?: string | undefined;
+        isRequired?: boolean | undefined;
+    }, {
+        placeholder?: string | undefined;
+        title?: string | undefined;
+        html?: string | undefined;
+        isRequired?: boolean | undefined;
+    }>]>;
+}, "strip", z.ZodTypeAny, {
+    type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE" | "TITLE" | "DROPDOWN_OPTION" | "CHECKBOX" | "MULTIPLE_CHOICE_OPTION";
+    uuid: string;
+    title: string;
+    groupUuid: string;
+    groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
+    payload: {
+        placeholder?: string | undefined;
+        title?: string | undefined;
+        html?: string | undefined;
+        isRequired?: boolean | undefined;
+    } | {
+        text: string;
+        index: number;
+        placeholder?: string | undefined;
+        title?: string | undefined;
+        html?: string | undefined;
+        isRequired?: boolean | undefined;
+    } | {
+        placeholder: string;
+        isRequired: boolean;
+        options?: {
+            text: string;
+            id: string;
+            index?: number | undefined;
+        }[] | undefined;
+        title?: string | undefined;
+        html?: string | undefined;
+    } | {
+        html: string;
+        title?: string | undefined;
+    };
+}, {
+    type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE" | "TITLE" | "DROPDOWN_OPTION" | "CHECKBOX" | "MULTIPLE_CHOICE_OPTION";
+    uuid: string;
+    title: string;
+    groupUuid: string;
+    groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
+    payload: {
+        placeholder?: string | undefined;
+        title?: string | undefined;
+        html?: string | undefined;
+        isRequired?: boolean | undefined;
+    } | {
+        text: string;
+        index: number;
+        placeholder?: string | undefined;
+        title?: string | undefined;
+        html?: string | undefined;
+        isRequired?: boolean | undefined;
+    } | {
+        placeholder: string;
+        isRequired: boolean;
+        options?: {
+            text: string;
+            id: string;
+            index?: number | undefined;
+        }[] | undefined;
+        title?: string | undefined;
+        html?: string | undefined;
+    } | {
+        html: string;
+        title?: string | undefined;
+    };
+}>;
+export declare const TallyFormCreatePayloadSchema: z.ZodObject<{
+    status: z.ZodDefault<z.ZodEnum<["PUBLISHED", "DRAFT"]>>;
+    name: z.ZodString;
+    blocks: z.ZodArray<z.ZodObject<{
+        uuid: z.ZodString;
+        type: z.ZodEnum<["FORM_TITLE", "TITLE", "INPUT_TEXT", "INPUT_EMAIL", "INPUT_NUMBER", "INPUT_PHONE_NUMBER", "INPUT_LINK", "INPUT_DATE", "INPUT_TIME", "TEXTAREA", "DROPDOWN", "DROPDOWN_OPTION", "CHECKBOXES", "CHECKBOX", "MULTIPLE_CHOICE", "MULTIPLE_CHOICE_OPTION", "LINEAR_SCALE", "RATING", "FILE_UPLOAD", "SIGNATURE", "HIDDEN_FIELDS", "CALCULATED_FIELDS", "MULTI_SELECT", "MATRIX", "RANKING", "PAYMENT"]>;
+        groupUuid: z.ZodString;
+        groupType: z.ZodEnum<["TEXT", "QUESTION", "INPUT_TEXT", "INPUT_EMAIL", "INPUT_NUMBER", "INPUT_PHONE_NUMBER", "INPUT_LINK", "INPUT_DATE", "INPUT_TIME", "TEXTAREA", "DROPDOWN", "CHECKBOXES", "MULTIPLE_CHOICE", "LINEAR_SCALE", "RATING", "FILE_UPLOAD", "SIGNATURE"]>;
+        title: z.ZodString;
+        payload: z.ZodUnion<[z.ZodObject<{
+            html: z.ZodString;
+            title: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            html: string;
+            title?: string | undefined;
+        }, {
+            html: string;
+            title?: string | undefined;
+        }>, z.ZodObject<{
+            html: z.ZodOptional<z.ZodString>;
+            title: z.ZodOptional<z.ZodString>;
+        } & {
+            isRequired: z.ZodBoolean;
+            placeholder: z.ZodString;
+            options: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                id: z.ZodString;
+                text: z.ZodString;
+                index: z.ZodOptional<z.ZodNumber>;
+            }, "strip", z.ZodTypeAny, {
+                text: string;
+                id: string;
+                index?: number | undefined;
+            }, {
+                text: string;
+                id: string;
+                index?: number | undefined;
+            }>, "many">>;
+        }, "strip", z.ZodTypeAny, {
+            placeholder: string;
+            isRequired: boolean;
+            options?: {
+                text: string;
+                id: string;
+                index?: number | undefined;
+            }[] | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+        }, {
+            placeholder: string;
+            isRequired: boolean;
+            options?: {
+                text: string;
+                id: string;
+                index?: number | undefined;
+            }[] | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+        }>, z.ZodObject<{
+            html: z.ZodOptional<z.ZodString>;
+            title: z.ZodOptional<z.ZodString>;
+            isRequired: z.ZodOptional<z.ZodBoolean>;
+            placeholder: z.ZodOptional<z.ZodString>;
+        } & {
+            index: z.ZodNumber;
+            text: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            text: string;
+            index: number;
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        }, {
+            text: string;
+            index: number;
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        }>, z.ZodObject<{
+            html: z.ZodOptional<z.ZodString>;
+            title: z.ZodOptional<z.ZodString>;
+            isRequired: z.ZodOptional<z.ZodBoolean>;
+            placeholder: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        }, {
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        }>]>;
+    }, "strip", z.ZodTypeAny, {
+        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE" | "TITLE" | "DROPDOWN_OPTION" | "CHECKBOX" | "MULTIPLE_CHOICE_OPTION";
+        uuid: string;
+        title: string;
+        groupUuid: string;
+        groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
+        payload: {
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        } | {
+            text: string;
+            index: number;
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        } | {
+            placeholder: string;
+            isRequired: boolean;
+            options?: {
+                text: string;
+                id: string;
+                index?: number | undefined;
+            }[] | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+        } | {
+            html: string;
+            title?: string | undefined;
+        };
+    }, {
+        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE" | "TITLE" | "DROPDOWN_OPTION" | "CHECKBOX" | "MULTIPLE_CHOICE_OPTION";
+        uuid: string;
+        title: string;
+        groupUuid: string;
+        groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
+        payload: {
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        } | {
+            text: string;
+            index: number;
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        } | {
+            placeholder: string;
+            isRequired: boolean;
+            options?: {
+                text: string;
+                id: string;
+                index?: number | undefined;
+            }[] | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+        } | {
+            html: string;
+            title?: string | undefined;
+        };
+    }>, "many">;
+    settings: z.ZodOptional<z.ZodObject<{
+        language: z.ZodOptional<z.ZodString>;
+        closeDate: z.ZodOptional<z.ZodString>;
+        closeTime: z.ZodOptional<z.ZodString>;
+        closeTimezone: z.ZodOptional<z.ZodString>;
+        submissionsLimit: z.ZodOptional<z.ZodNumber>;
+        redirectOnCompletion: z.ZodOptional<z.ZodObject<{
+            html: z.ZodString;
+            mentions: z.ZodOptional<z.ZodArray<z.ZodAny, "many">>;
+        }, "strip", z.ZodTypeAny, {
+            html: string;
+            mentions?: any[] | undefined;
+        }, {
+            html: string;
+            mentions?: any[] | undefined;
+        }>>;
+        hasSelfEmailNotifications: z.ZodOptional<z.ZodBoolean>;
+        selfEmailTo: z.ZodOptional<z.ZodObject<{
+            html: z.ZodString;
+            mentions: z.ZodOptional<z.ZodArray<z.ZodAny, "many">>;
+        }, "strip", z.ZodTypeAny, {
+            html: string;
+            mentions?: any[] | undefined;
+        }, {
+            html: string;
+            mentions?: any[] | undefined;
+        }>>;
+        selfEmailReplyTo: z.ZodOptional<z.ZodObject<{
+            html: z.ZodString;
+            mentions: z.ZodOptional<z.ZodArray<z.ZodAny, "many">>;
+        }, "strip", z.ZodTypeAny, {
+            html: string;
+            mentions?: any[] | undefined;
+        }, {
+            html: string;
+            mentions?: any[] | undefined;
+        }>>;
+        selfEmailSubject: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        selfEmailFromName: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        selfEmailBody: z.ZodOptional<z.ZodObject<{
+            html: z.ZodString;
+            mentions: z.ZodOptional<z.ZodArray<z.ZodAny, "many">>;
+        }, "strip", z.ZodTypeAny, {
+            html: string;
+            mentions?: any[] | undefined;
+        }, {
+            html: string;
+            mentions?: any[] | undefined;
+        }>>;
+        uniqueSubmissionKey: z.ZodOptional<z.ZodObject<{
+            html: z.ZodString;
+            mentions: z.ZodOptional<z.ZodArray<z.ZodAny, "many">>;
+        }, "strip", z.ZodTypeAny, {
+            html: string;
+            mentions?: any[] | undefined;
+        }, {
+            html: string;
+            mentions?: any[] | undefined;
+        }>>;
+    }, "strip", z.ZodTypeAny, {
+        language?: string | undefined;
+        closeDate?: string | undefined;
+        closeTime?: string | undefined;
+        closeTimezone?: string | undefined;
+        submissionsLimit?: number | undefined;
+        redirectOnCompletion?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        hasSelfEmailNotifications?: boolean | undefined;
+        selfEmailTo?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        selfEmailReplyTo?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        selfEmailSubject?: string | null | undefined;
+        selfEmailFromName?: string | null | undefined;
+        selfEmailBody?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        uniqueSubmissionKey?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+    }, {
+        language?: string | undefined;
+        closeDate?: string | undefined;
+        closeTime?: string | undefined;
+        closeTimezone?: string | undefined;
+        submissionsLimit?: number | undefined;
+        redirectOnCompletion?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        hasSelfEmailNotifications?: boolean | undefined;
+        selfEmailTo?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        selfEmailReplyTo?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        selfEmailSubject?: string | null | undefined;
+        selfEmailFromName?: string | null | undefined;
+        selfEmailBody?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        uniqueSubmissionKey?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+    }>>;
+}, "strip", z.ZodTypeAny, {
+    name: string;
+    status: "PUBLISHED" | "DRAFT";
+    blocks: {
+        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE" | "TITLE" | "DROPDOWN_OPTION" | "CHECKBOX" | "MULTIPLE_CHOICE_OPTION";
+        uuid: string;
+        title: string;
+        groupUuid: string;
+        groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
+        payload: {
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        } | {
+            text: string;
+            index: number;
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        } | {
+            placeholder: string;
+            isRequired: boolean;
+            options?: {
+                text: string;
+                id: string;
+                index?: number | undefined;
+            }[] | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+        } | {
+            html: string;
+            title?: string | undefined;
+        };
+    }[];
+    settings?: {
+        language?: string | undefined;
+        closeDate?: string | undefined;
+        closeTime?: string | undefined;
+        closeTimezone?: string | undefined;
+        submissionsLimit?: number | undefined;
+        redirectOnCompletion?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        hasSelfEmailNotifications?: boolean | undefined;
+        selfEmailTo?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        selfEmailReplyTo?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        selfEmailSubject?: string | null | undefined;
+        selfEmailFromName?: string | null | undefined;
+        selfEmailBody?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        uniqueSubmissionKey?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+    } | undefined;
+}, {
+    name: string;
+    blocks: {
+        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE" | "TITLE" | "DROPDOWN_OPTION" | "CHECKBOX" | "MULTIPLE_CHOICE_OPTION";
+        uuid: string;
+        title: string;
+        groupUuid: string;
+        groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
+        payload: {
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        } | {
+            text: string;
+            index: number;
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        } | {
+            placeholder: string;
+            isRequired: boolean;
+            options?: {
+                text: string;
+                id: string;
+                index?: number | undefined;
+            }[] | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+        } | {
+            html: string;
+            title?: string | undefined;
+        };
+    }[];
+    status?: "PUBLISHED" | "DRAFT" | undefined;
+    settings?: {
+        language?: string | undefined;
+        closeDate?: string | undefined;
+        closeTime?: string | undefined;
+        closeTimezone?: string | undefined;
+        submissionsLimit?: number | undefined;
+        redirectOnCompletion?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        hasSelfEmailNotifications?: boolean | undefined;
+        selfEmailTo?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        selfEmailReplyTo?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        selfEmailSubject?: string | null | undefined;
+        selfEmailFromName?: string | null | undefined;
+        selfEmailBody?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        uniqueSubmissionKey?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+    } | undefined;
+}>;
+export declare const TallyFormUpdatePayloadSchema: z.ZodObject<{
+    name: z.ZodOptional<z.ZodString>;
+    status: z.ZodOptional<z.ZodEnum<["PUBLISHED", "DRAFT"]>>;
+    blocks: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        uuid: z.ZodString;
+        type: z.ZodEnum<["FORM_TITLE", "TITLE", "INPUT_TEXT", "INPUT_EMAIL", "INPUT_NUMBER", "INPUT_PHONE_NUMBER", "INPUT_LINK", "INPUT_DATE", "INPUT_TIME", "TEXTAREA", "DROPDOWN", "DROPDOWN_OPTION", "CHECKBOXES", "CHECKBOX", "MULTIPLE_CHOICE", "MULTIPLE_CHOICE_OPTION", "LINEAR_SCALE", "RATING", "FILE_UPLOAD", "SIGNATURE", "HIDDEN_FIELDS", "CALCULATED_FIELDS", "MULTI_SELECT", "MATRIX", "RANKING", "PAYMENT"]>;
+        groupUuid: z.ZodString;
+        groupType: z.ZodEnum<["TEXT", "QUESTION", "INPUT_TEXT", "INPUT_EMAIL", "INPUT_NUMBER", "INPUT_PHONE_NUMBER", "INPUT_LINK", "INPUT_DATE", "INPUT_TIME", "TEXTAREA", "DROPDOWN", "CHECKBOXES", "MULTIPLE_CHOICE", "LINEAR_SCALE", "RATING", "FILE_UPLOAD", "SIGNATURE"]>;
+        title: z.ZodString;
+        payload: z.ZodUnion<[z.ZodObject<{
+            html: z.ZodString;
+            title: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            html: string;
+            title?: string | undefined;
+        }, {
+            html: string;
+            title?: string | undefined;
+        }>, z.ZodObject<{
+            html: z.ZodOptional<z.ZodString>;
+            title: z.ZodOptional<z.ZodString>;
+        } & {
+            isRequired: z.ZodBoolean;
+            placeholder: z.ZodString;
+            options: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                id: z.ZodString;
+                text: z.ZodString;
+                index: z.ZodOptional<z.ZodNumber>;
+            }, "strip", z.ZodTypeAny, {
+                text: string;
+                id: string;
+                index?: number | undefined;
+            }, {
+                text: string;
+                id: string;
+                index?: number | undefined;
+            }>, "many">>;
+        }, "strip", z.ZodTypeAny, {
+            placeholder: string;
+            isRequired: boolean;
+            options?: {
+                text: string;
+                id: string;
+                index?: number | undefined;
+            }[] | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+        }, {
+            placeholder: string;
+            isRequired: boolean;
+            options?: {
+                text: string;
+                id: string;
+                index?: number | undefined;
+            }[] | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+        }>, z.ZodObject<{
+            html: z.ZodOptional<z.ZodString>;
+            title: z.ZodOptional<z.ZodString>;
+            isRequired: z.ZodOptional<z.ZodBoolean>;
+            placeholder: z.ZodOptional<z.ZodString>;
+        } & {
+            index: z.ZodNumber;
+            text: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            text: string;
+            index: number;
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        }, {
+            text: string;
+            index: number;
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        }>, z.ZodObject<{
+            html: z.ZodOptional<z.ZodString>;
+            title: z.ZodOptional<z.ZodString>;
+            isRequired: z.ZodOptional<z.ZodBoolean>;
+            placeholder: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        }, {
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        }>]>;
+    }, "strip", z.ZodTypeAny, {
+        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE" | "TITLE" | "DROPDOWN_OPTION" | "CHECKBOX" | "MULTIPLE_CHOICE_OPTION";
+        uuid: string;
+        title: string;
+        groupUuid: string;
+        groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
+        payload: {
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        } | {
+            text: string;
+            index: number;
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        } | {
+            placeholder: string;
+            isRequired: boolean;
+            options?: {
+                text: string;
+                id: string;
+                index?: number | undefined;
+            }[] | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+        } | {
+            html: string;
+            title?: string | undefined;
+        };
+    }, {
+        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE" | "TITLE" | "DROPDOWN_OPTION" | "CHECKBOX" | "MULTIPLE_CHOICE_OPTION";
+        uuid: string;
+        title: string;
+        groupUuid: string;
+        groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
+        payload: {
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        } | {
+            text: string;
+            index: number;
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        } | {
+            placeholder: string;
+            isRequired: boolean;
+            options?: {
+                text: string;
+                id: string;
+                index?: number | undefined;
+            }[] | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+        } | {
+            html: string;
+            title?: string | undefined;
+        };
+    }>, "many">>;
+    settings: z.ZodOptional<z.ZodObject<{
+        language: z.ZodOptional<z.ZodString>;
+        closeDate: z.ZodOptional<z.ZodString>;
+        closeTime: z.ZodOptional<z.ZodString>;
+        closeTimezone: z.ZodOptional<z.ZodString>;
+        submissionsLimit: z.ZodOptional<z.ZodNumber>;
+        redirectOnCompletion: z.ZodOptional<z.ZodObject<{
+            html: z.ZodString;
+            mentions: z.ZodOptional<z.ZodArray<z.ZodAny, "many">>;
+        }, "strip", z.ZodTypeAny, {
+            html: string;
+            mentions?: any[] | undefined;
+        }, {
+            html: string;
+            mentions?: any[] | undefined;
+        }>>;
+        hasSelfEmailNotifications: z.ZodOptional<z.ZodBoolean>;
+        selfEmailTo: z.ZodOptional<z.ZodObject<{
+            html: z.ZodString;
+            mentions: z.ZodOptional<z.ZodArray<z.ZodAny, "many">>;
+        }, "strip", z.ZodTypeAny, {
+            html: string;
+            mentions?: any[] | undefined;
+        }, {
+            html: string;
+            mentions?: any[] | undefined;
+        }>>;
+        selfEmailReplyTo: z.ZodOptional<z.ZodObject<{
+            html: z.ZodString;
+            mentions: z.ZodOptional<z.ZodArray<z.ZodAny, "many">>;
+        }, "strip", z.ZodTypeAny, {
+            html: string;
+            mentions?: any[] | undefined;
+        }, {
+            html: string;
+            mentions?: any[] | undefined;
+        }>>;
+        selfEmailSubject: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        selfEmailFromName: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        selfEmailBody: z.ZodOptional<z.ZodObject<{
+            html: z.ZodString;
+            mentions: z.ZodOptional<z.ZodArray<z.ZodAny, "many">>;
+        }, "strip", z.ZodTypeAny, {
+            html: string;
+            mentions?: any[] | undefined;
+        }, {
+            html: string;
+            mentions?: any[] | undefined;
+        }>>;
+        uniqueSubmissionKey: z.ZodOptional<z.ZodObject<{
+            html: z.ZodString;
+            mentions: z.ZodOptional<z.ZodArray<z.ZodAny, "many">>;
+        }, "strip", z.ZodTypeAny, {
+            html: string;
+            mentions?: any[] | undefined;
+        }, {
+            html: string;
+            mentions?: any[] | undefined;
+        }>>;
+    }, "strip", z.ZodTypeAny, {
+        language?: string | undefined;
+        closeDate?: string | undefined;
+        closeTime?: string | undefined;
+        closeTimezone?: string | undefined;
+        submissionsLimit?: number | undefined;
+        redirectOnCompletion?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        hasSelfEmailNotifications?: boolean | undefined;
+        selfEmailTo?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        selfEmailReplyTo?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        selfEmailSubject?: string | null | undefined;
+        selfEmailFromName?: string | null | undefined;
+        selfEmailBody?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        uniqueSubmissionKey?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+    }, {
+        language?: string | undefined;
+        closeDate?: string | undefined;
+        closeTime?: string | undefined;
+        closeTimezone?: string | undefined;
+        submissionsLimit?: number | undefined;
+        redirectOnCompletion?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        hasSelfEmailNotifications?: boolean | undefined;
+        selfEmailTo?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        selfEmailReplyTo?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        selfEmailSubject?: string | null | undefined;
+        selfEmailFromName?: string | null | undefined;
+        selfEmailBody?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        uniqueSubmissionKey?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+    }>>;
+}, "strip", z.ZodTypeAny, {
+    name?: string | undefined;
+    status?: "PUBLISHED" | "DRAFT" | undefined;
+    settings?: {
+        language?: string | undefined;
+        closeDate?: string | undefined;
+        closeTime?: string | undefined;
+        closeTimezone?: string | undefined;
+        submissionsLimit?: number | undefined;
+        redirectOnCompletion?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        hasSelfEmailNotifications?: boolean | undefined;
+        selfEmailTo?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        selfEmailReplyTo?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        selfEmailSubject?: string | null | undefined;
+        selfEmailFromName?: string | null | undefined;
+        selfEmailBody?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        uniqueSubmissionKey?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+    } | undefined;
+    blocks?: {
+        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE" | "TITLE" | "DROPDOWN_OPTION" | "CHECKBOX" | "MULTIPLE_CHOICE_OPTION";
+        uuid: string;
+        title: string;
+        groupUuid: string;
+        groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
+        payload: {
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        } | {
+            text: string;
+            index: number;
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        } | {
+            placeholder: string;
+            isRequired: boolean;
+            options?: {
+                text: string;
+                id: string;
+                index?: number | undefined;
+            }[] | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+        } | {
+            html: string;
+            title?: string | undefined;
+        };
+    }[] | undefined;
+}, {
+    name?: string | undefined;
+    status?: "PUBLISHED" | "DRAFT" | undefined;
+    settings?: {
+        language?: string | undefined;
+        closeDate?: string | undefined;
+        closeTime?: string | undefined;
+        closeTimezone?: string | undefined;
+        submissionsLimit?: number | undefined;
+        redirectOnCompletion?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        hasSelfEmailNotifications?: boolean | undefined;
+        selfEmailTo?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        selfEmailReplyTo?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        selfEmailSubject?: string | null | undefined;
+        selfEmailFromName?: string | null | undefined;
+        selfEmailBody?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+        uniqueSubmissionKey?: {
+            html: string;
+            mentions?: any[] | undefined;
+        } | undefined;
+    } | undefined;
+    blocks?: {
+        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE" | "TITLE" | "DROPDOWN_OPTION" | "CHECKBOX" | "MULTIPLE_CHOICE_OPTION";
+        uuid: string;
+        title: string;
+        groupUuid: string;
+        groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
+        payload: {
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        } | {
+            text: string;
+            index: number;
+            placeholder?: string | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+        } | {
+            placeholder: string;
+            isRequired: boolean;
+            options?: {
+                text: string;
+                id: string;
+                index?: number | undefined;
+            }[] | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+        } | {
+            html: string;
+            title?: string | undefined;
+        };
+    }[] | undefined;
+}>;
 export declare function validateTallyResponse<T>(schema: z.ZodSchema<T>, data: unknown): T;
 export declare function safeParseTallyResponse<T>(schema: z.ZodSchema<T>, data: unknown): z.SafeParseReturnType<unknown, T>;
 export declare function createTallyValidator<T>(schema: z.ZodSchema<T>): (data: unknown) => T;
 export declare function createSafeTallyValidator<T>(schema: z.ZodSchema<T>): (data: unknown) => z.SafeParseReturnType<unknown, T>;
+export type TallyBlockType = z.infer<typeof TallyBlockTypeSchema>;
+export type TallyGroupType = z.infer<typeof TallyGroupTypeSchema>;
+export type TallyBlockBasePayload = z.infer<typeof TallyBlockBasePayloadSchema>;
+export type TallyBlockOption = z.infer<typeof TallyBlockOptionSchema>;
+export type TallyChoiceOptionPayload = z.infer<typeof TallyChoiceOptionPayloadSchema>;
+export type TallyInputPayload = z.infer<typeof TallyInputPayloadSchema>;
+export type TallyTitlePayload = z.infer<typeof TallyTitlePayloadSchema>;
+export type TallyBlockPayload = z.infer<typeof TallyBlockPayloadSchema>;
+export type TallyBlock = z.infer<typeof TallyBlockSchema>;
+export type TallyFormCreatePayload = z.infer<typeof TallyFormCreatePayloadSchema>;
+export type TallyFormUpdatePayload = z.infer<typeof TallyFormUpdatePayloadSchema>;
 //# sourceMappingURL=tally-schemas.d.ts.map

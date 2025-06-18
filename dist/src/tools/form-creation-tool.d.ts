@@ -2,12 +2,14 @@ import { FormConfig } from '../models/form-config';
 import { Tool } from './tool';
 import { TallyApiClientConfig } from '../services/TallyApiClient';
 export interface FormCreationArgs {
+    formConfig?: FormConfig;
     naturalLanguagePrompt?: string;
     templateId?: string;
     formTitle?: string;
 }
 export interface FormCreationResult {
     formUrl: string | undefined;
+    formId: string;
     formConfig: FormConfig;
 }
 export declare class FormCreationTool implements Tool<FormCreationArgs, FormCreationResult> {

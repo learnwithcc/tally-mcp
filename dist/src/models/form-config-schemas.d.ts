@@ -145,6 +145,7 @@ export declare const FormSettingsSchema: z.ZodObject<{
     allowMultipleSubmissions: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
     submissionBehavior: T.SubmissionBehavior;
+    closeDate?: string | undefined;
     showProgressBar?: boolean | undefined;
     allowDrafts?: boolean | undefined;
     showQuestionNumbers?: boolean | undefined;
@@ -152,7 +153,6 @@ export declare const FormSettingsSchema: z.ZodObject<{
     maxSubmissions?: number | undefined;
     requireAuth?: boolean | undefined;
     collectEmail?: boolean | undefined;
-    closeDate?: string | undefined;
     openDate?: string | undefined;
     submissionMessage?: string | undefined;
     redirectUrl?: string | undefined;
@@ -160,6 +160,7 @@ export declare const FormSettingsSchema: z.ZodObject<{
     allowMultipleSubmissions?: boolean | undefined;
 }, {
     submissionBehavior: T.SubmissionBehavior;
+    closeDate?: string | undefined;
     showProgressBar?: boolean | undefined;
     allowDrafts?: boolean | undefined;
     showQuestionNumbers?: boolean | undefined;
@@ -167,7 +168,6 @@ export declare const FormSettingsSchema: z.ZodObject<{
     maxSubmissions?: number | undefined;
     requireAuth?: boolean | undefined;
     collectEmail?: boolean | undefined;
-    closeDate?: string | undefined;
     openDate?: string | undefined;
     submissionMessage?: string | undefined;
     redirectUrl?: string | undefined;

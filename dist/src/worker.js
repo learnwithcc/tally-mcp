@@ -387,7 +387,8 @@ async function callTallyAPI(toolName, args, apiKey) {
             }
             if (Array.isArray(args.fields)) {
                 args.fields.forEach((field) => {
-                    createQuestionBlocks(field).forEach(b => blocks.push(b));
+                    const questionConfig = normalizeField(field);
+                    createQuestionBlocks(questionConfig).forEach((b) => blocks.push(b));
                 });
             }
             const payload = {
@@ -833,6 +834,34 @@ function authenticateRequest(request, env) {
         authenticated: false,
         error: 'Authentication required. Provide token via Authorization header, X-API-Key header, or ?token= query parameter.'
     };
+}
+function normalizeField(field) {
+    const { QuestionType } = require('./models/form-config');
+    const typeMap = {
+        text: QuestionType.TEXT,
+        email: QuestionType.EMAIL,
+        number: QuestionType.NUMBER,
+        select: QuestionType.DROPDOWN,
+        dropdown: QuestionType.DROPDOWN,
+        radio: QuestionType.MULTIPLE_CHOICE,
+        'multiple_choice': QuestionType.MULTIPLE_CHOICE,
+        checkbox: QuestionType.CHECKBOXES,
+        checkboxes: QuestionType.CHECKBOXES,
+        textarea: QuestionType.TEXTAREA,
+        'long answer': QuestionType.TEXTAREA,
+    };
+    const qType = typeMap[(field.type || '').toLowerCase()] ?? QuestionType.TEXT;
+    const qc = {
+        id: crypto.randomUUID(),
+        type: qType,
+        label: field.label || 'Untitled',
+        required: field.required ?? false,
+        placeholder: field.placeholder,
+    };
+    if (field.options) {
+        qc.options = field.options.map((opt) => ({ text: opt, value: opt }));
+    }
+    return qc;
 }
 export default {
     fetch

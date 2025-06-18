@@ -1,0 +1,286 @@
+<testsuites id="" name="" tests="9" failures="1" skipped="0" errors="0" time="32.804652000000004">
+<testsuite name="form-creation.e2e.test.ts" timestamp="2025-06-18T20:10:34.963Z" hostname="chromium" tests="9" failures="1" skipped="0" time="30.36" errors="0">
+<testcase name="Minimal Forms - Basic Functionality › should create and render a title-only form" classname="form-creation.e2e.test.ts" time="3.124">
+<system-out>
+<![CDATA[Executing form creation tool with args: {"formConfig":{"title":"E2E Test - Title Only Form - 2025-06-18T20:10:35.756Z","questions":[],"settings":{"submissionBehavior":"message"}}}
+[FormCreationTool] Created form response: {
+  "id": "3NvYO0",
+  "name": "E2E Test - Title Only Form - 2025-06-18T20:10:35.756Z",
+  "createdAt": "2025-06-18T20:10:36.219Z",
+  "updatedAt": "2025-06-18T20:10:36.219Z",
+  "status": "PUBLISHED",
+  "isNameModifiedByUser": false,
+  "numberOfSubmissions": 0,
+  "workspaceId": "w2j7BV",
+  "organizationId": "nGeNaz",
+  "hasDraftBlocks": false,
+  "index": 0,
+  "isClosed": false
+}
+]]>
+</system-out>
+</testcase>
+<testcase name="Minimal Forms - Basic Functionality › should create and render a single text question form" classname="form-creation.e2e.test.ts" time="2.352">
+<system-out>
+<![CDATA[Executing form creation tool with args: {"formConfig":{"title":"E2E Test - Single Question Form - 2025-06-18T20:10:38.746Z","questions":[{"id":"single_question","type":"text","label":"What is your name?","required":true,"placeholder":"Enter your name here"}],"settings":{"submissionBehavior":"message"}}}
+[FormCreationTool] Created form response: {
+  "id": "3qXWNO",
+  "name": "E2E Test - Single Question Form - 2025-06-18T20:10:38.746Z",
+  "createdAt": "2025-06-18T20:10:38.888Z",
+  "updatedAt": "2025-06-18T20:10:38.888Z",
+  "status": "PUBLISHED",
+  "isNameModifiedByUser": false,
+  "numberOfSubmissions": 0,
+  "workspaceId": "w2j7BV",
+  "organizationId": "nGeNaz",
+  "hasDraftBlocks": false,
+  "index": 0,
+  "isClosed": false
+}
+]]>
+</system-out>
+</testcase>
+<testcase name="Medium Complexity Forms - Multiple Field Types › should create and render a contact form with multiple field types" classname="form-creation.e2e.test.ts" time="2.159">
+<system-out>
+<![CDATA[Executing form creation tool with args: {"formConfig":{"title":"E2E Test - Contact Form - 2025-06-18T20:10:41.101Z","description":"A test contact form for E2E validation","questions":[{"id":"name","type":"text","label":"Full Name","required":true,"placeholder":"Enter your full name"},{"id":"email","type":"email","label":"Email Address","required":true,"placeholder":"Enter your email address"},{"id":"phone","type":"phone","label":"Phone Number","required":false,"placeholder":"Enter your phone number"},{"id":"message","type":"textarea","label":"Message","required":true,"placeholder":"Enter your message"}],"settings":{"submissionBehavior":"message","showProgressBar":true,"collectEmail":true}}}
+[FormCreationTool] Created form response: {
+  "id": "wQpYEY",
+  "name": "E2E Test - Contact Form - 2025-06-18T20:10:41.101Z",
+  "createdAt": "2025-06-18T20:10:41.256Z",
+  "updatedAt": "2025-06-18T20:10:41.256Z",
+  "status": "PUBLISHED",
+  "isNameModifiedByUser": false,
+  "numberOfSubmissions": 0,
+  "workspaceId": "w2j7BV",
+  "organizationId": "nGeNaz",
+  "hasDraftBlocks": false,
+  "index": 0,
+  "isClosed": false
+}
+]]>
+</system-out>
+</testcase>
+<testcase name="Medium Complexity Forms - Multiple Field Types › should create and render a survey form with choice-based questions" classname="form-creation.e2e.test.ts" time="2.149">
+<system-out>
+<![CDATA[Executing form creation tool with args: {"formConfig":{"title":"E2E Test - Survey Form - 2025-06-18T20:10:43.259Z","description":"A comprehensive survey form for testing all question types","questions":[{"id":"satisfaction","type":"rating","label":"How satisfied are you with our service?","required":true,"minRating":1,"maxRating":5,"style":"stars"},{"id":"department","type":"dropdown","label":"Which department do you need help with?","required":true,"options":[{"id":"sales","text":"Sales"},{"id":"support","text":"Customer Support"},{"id":"engineering","text":"Engineering"},{"id":"billing","text":"Billing"}]},{"id":"preferences","type":"checkboxes","label":"What features are most important to you? (Select all that apply)","required":false,"options":[{"id":"speed","text":"Fast Performance"},{"id":"reliability","text":"Reliability"},{"id":"support","text":"24/7 Support"},{"id":"pricing","text":"Competitive Pricing"},{"id":"features","text":"Advanced Features"}]},{"id":"priority","type":"multiple_choice","label":"What is your top priority for improvements?","required":true,"options":[{"id":"ui","text":"User Interface"},{"id":"performance","text":"Performance"},{"id":"documentation","text":"Documentation"},{"id":"integrations","text":"Integrations"}]},{"id":"likelihood","type":"linear_scale","label":"How likely are you to recommend us to a friend?","required":true,"minValue":0,"maxValue":10,"lowLabel":"Not likely","highLabel":"Very likely"}],"settings":{"submissionBehavior":"message","showProgressBar":true,"showQuestionNumbers":true}}}
+[FormCreationTool] Created form response: {
+  "id": "n9PvrE",
+  "name": "E2E Test - Survey Form - 2025-06-18T20:10:43.259Z",
+  "createdAt": "2025-06-18T20:10:43.418Z",
+  "updatedAt": "2025-06-18T20:10:43.418Z",
+  "status": "PUBLISHED",
+  "isNameModifiedByUser": false,
+  "numberOfSubmissions": 0,
+  "workspaceId": "w2j7BV",
+  "organizationId": "nGeNaz",
+  "hasDraftBlocks": false,
+  "index": 0,
+  "isClosed": false
+}
+]]>
+</system-out>
+</testcase>
+<testcase name="Complex Forms - Advanced Features › should create and render a complex form with file uploads and signatures" classname="form-creation.e2e.test.ts" time="2.214">
+<system-out>
+<![CDATA[Executing form creation tool with args: {"formConfig":{"title":"E2E Test - Complex Form - 2025-06-18T20:10:45.409Z","description":"A complex form with conditional logic and advanced validation","questions":[{"id":"user_type","type":"multiple_choice","label":"What type of user are you?","required":true,"options":[{"id":"individual","text":"Individual"},{"id":"business","text":"Business"},{"id":"nonprofit","text":"Non-profit Organization"}]},{"id":"company_name","type":"text","label":"Company Name","required":true,"placeholder":"Enter your company name"},{"id":"company_size","type":"dropdown","label":"Company Size","required":true,"options":[{"id":"1-10","text":"1-10 employees"},{"id":"11-50","text":"11-50 employees"},{"id":"51-200","text":"51-200 employees"},{"id":"201-1000","text":"201-1000 employees"},{"id":"1000+","text":"1000+ employees"}]},{"id":"annual_revenue","type":"number","label":"Annual Revenue (USD)","required":false,"placeholder":"Enter annual revenue","min":0,"currency":"USD"},{"id":"documents","type":"file","label":"Upload Supporting Documents","required":false,"multiple":true,"maxFiles":3,"maxFileSize":10,"allowedTypes":["application/pdf","image/jpeg","image/png"]},{"id":"signature","type":"signature","label":"Digital Signature","required":true}],"settings":{"submissionBehavior":"message","showProgressBar":true,"requireAuth":false,"allowDrafts":true}}}
+[FormCreationTool] Created form response: {
+  "id": "me82ox",
+  "name": "E2E Test - Complex Form - 2025-06-18T20:10:45.409Z",
+  "createdAt": "2025-06-18T20:10:45.576Z",
+  "updatedAt": "2025-06-18T20:10:45.576Z",
+  "status": "PUBLISHED",
+  "isNameModifiedByUser": false,
+  "numberOfSubmissions": 0,
+  "workspaceId": "w2j7BV",
+  "organizationId": "nGeNaz",
+  "hasDraftBlocks": false,
+  "index": 0,
+  "isClosed": false
+}
+]]>
+</system-out>
+</testcase>
+<testcase name="Edge Cases - Stress Testing › should handle forms with many questions and special characters" classname="form-creation.e2e.test.ts" time="2.287">
+<system-out>
+<![CDATA[Executing form creation tool with args: {"formConfig":{"title":"E2E Test - Edge Cases 🚀 - Very Long Title That Tests Character Limits and Display Handling Across Different Screen Sizes - 2025-06-18T20:10:47.627Z","description":"This form tests edge cases including special characters (🎉), long text, many questions, and various edge scenarios to ensure robust handling.","questions":[{"id":"question_1","type":"text","label":"Question 1: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":false,"placeholder":"Enter your response for question 1..."},{"id":"question_2","type":"text","label":"Question 2: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":false,"placeholder":"Enter your response for question 2..."},{"id":"question_3","type":"text","label":"Question 3: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":true,"placeholder":"Enter your response for question 3..."},{"id":"question_4","type":"text","label":"Question 4: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":false,"placeholder":"Enter your response for question 4..."},{"id":"question_5","type":"text","label":"Question 5: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":false,"placeholder":"Enter your response for question 5..."},{"id":"question_6","type":"text","label":"Question 6: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":true,"placeholder":"Enter your response for question 6..."},{"id":"question_7","type":"text","label":"Question 7: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":false,"placeholder":"Enter your response for question 7..."},{"id":"question_8","type":"text","label":"Question 8: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":false,"placeholder":"Enter your response for question 8..."},{"id":"question_9","type":"text","label":"Question 9: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":true,"placeholder":"Enter your response for question 9..."},{"id":"question_10","type":"text","label":"Question 10: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":false,"placeholder":"Enter your response for question 10..."},{"id":"question_11","type":"text","label":"Question 11: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":false,"placeholder":"Enter your response for question 11..."},{"id":"question_12","type":"text","label":"Question 12: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":true,"placeholder":"Enter your response for question 12..."},{"id":"question_13","type":"text","label":"Question 13: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":false,"placeholder":"Enter your response for question 13..."},{"id":"question_14","type":"text","label":"Question 14: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":false,"placeholder":"Enter your response for question 14..."},{"id":"question_15","type":"text","label":"Question 15: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":true,"placeholder":"Enter your response for question 15..."},{"id":"question_16","type":"text","label":"Question 16: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":false,"placeholder":"Enter your response for question 16..."},{"id":"question_17","type":"text","label":"Question 17: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":false,"placeholder":"Enter your response for question 17..."},{"id":"question_18","type":"text","label":"Question 18: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":true,"placeholder":"Enter your response for question 18..."},{"id":"question_19","type":"text","label":"Question 19: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":false,"placeholder":"Enter your response for question 19..."},{"id":"question_20","type":"text","label":"Question 20: This is a very long question label that tests how the form handles lengthy text and ensures proper wrapping and display across different screen sizes and devices","required":false,"placeholder":"Enter your response for question 20..."}],"settings":{"submissionBehavior":"message","showProgressBar":true,"showQuestionNumbers":true,"maxSubmissions":1000}}}
+[FormCreationTool] Created form response: {
+  "id": "nWXYZe",
+  "name": "E2E Test - Edge Cases 🚀 - Very Long Title That Tests Character Limits and Display Handling Across Different Screen Sizes - 2025-06-18T20:10:47.627Z",
+  "createdAt": "2025-06-18T20:10:47.805Z",
+  "updatedAt": "2025-06-18T20:10:47.805Z",
+  "status": "PUBLISHED",
+  "isNameModifiedByUser": false,
+  "numberOfSubmissions": 0,
+  "workspaceId": "w2j7BV",
+  "organizationId": "nGeNaz",
+  "hasDraftBlocks": false,
+  "index": 0,
+  "isClosed": false
+}
+]]>
+</system-out>
+</testcase>
+<testcase name="Error Handling - Invalid Scenarios › should handle invalid form URLs gracefully" classname="form-creation.e2e.test.ts" time="0.992">
+</testcase>
+<testcase name="Form Functionality - User Interactions › should allow form submission with valid data" classname="form-creation.e2e.test.ts" time="12.544">
+<failure message="form-creation.e2e.test.ts:321:7 should allow form submission with valid data" type="FAILURE">
+<![CDATA[  [chromium] › form-creation.e2e.test.ts:321:7 › Form Functionality - User Interactions › should allow form submission with valid data 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      374 |       
+      375 |       // Either URL changed or success message appeared
+    > 376 |       expect(hasSuccessMessage || currentUrl !== formUrl).toBe(true);
+          |                                                           ^
+      377 |     }
+      378 |   });
+      379 |
+        at /Users/cryophobic/dev/projects/tally-mcp/src/__tests__/e2e/form-creation.e2e.test.ts:376:59
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/artifacts/form-creation.e2e-Form-Fun-6b45e--submission-with-valid-data-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../test-results/e2e/artifacts/form-creation.e2e-Form-Fun-6b45e--submission-with-valid-data-chromium/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      374 |       
+      375 |       // Either URL changed or success message appeared
+    > 376 |       expect(hasSuccessMessage || currentUrl !== formUrl).toBe(true);
+          |                                                           ^
+      377 |     }
+      378 |   });
+      379 |
+        at /Users/cryophobic/dev/projects/tally-mcp/src/__tests__/e2e/form-creation.e2e.test.ts:376:59
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/artifacts/form-creation.e2e-Form-Fun-6b45e--submission-with-valid-data-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../test-results/e2e/artifacts/form-creation.e2e-Form-Fun-6b45e--submission-with-valid-data-chromium-retry1/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/artifacts/form-creation.e2e-Form-Fun-6b45e--submission-with-valid-data-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/e2e/artifacts/form-creation.e2e-Form-Fun-6b45e--submission-with-valid-data-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      374 |       
+      375 |       // Either URL changed or success message appeared
+    > 376 |       expect(hasSuccessMessage || currentUrl !== formUrl).toBe(true);
+          |                                                           ^
+      377 |     }
+      378 |   });
+      379 |
+        at /Users/cryophobic/dev/projects/tally-mcp/src/__tests__/e2e/form-creation.e2e.test.ts:376:59
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/artifacts/form-creation.e2e-Form-Fun-6b45e--submission-with-valid-data-chromium-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../test-results/e2e/artifacts/form-creation.e2e-Form-Fun-6b45e--submission-with-valid-data-chromium-retry2/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[Executing form creation tool with args: {"formConfig":{"title":"E2E Test - Submission Test - 2025-06-18T20:10:50.909Z","description":"A test contact form for E2E validation","questions":[{"id":"name","type":"text","label":"Full Name","required":true,"placeholder":"Enter your full name"},{"id":"email","type":"email","label":"Email Address","required":true,"placeholder":"Enter your email address"},{"id":"phone","type":"phone","label":"Phone Number","required":false,"placeholder":"Enter your phone number"},{"id":"message","type":"textarea","label":"Message","required":true,"placeholder":"Enter your message"}],"settings":{"submissionBehavior":"message","showProgressBar":true,"collectEmail":true}}}
+[FormCreationTool] Created form response: {
+  "id": "waXElZ",
+  "name": "E2E Test - Submission Test - 2025-06-18T20:10:50.909Z",
+  "createdAt": "2025-06-18T20:10:51.053Z",
+  "updatedAt": "2025-06-18T20:10:51.053Z",
+  "status": "PUBLISHED",
+  "isNameModifiedByUser": false,
+  "numberOfSubmissions": 0,
+  "workspaceId": "w2j7BV",
+  "organizationId": "nGeNaz",
+  "hasDraftBlocks": false,
+  "index": 0,
+  "isClosed": false
+}
+
+[[ATTACHMENT|artifacts/form-creation.e2e-Form-Fun-6b45e--submission-with-valid-data-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/form-creation.e2e-Form-Fun-6b45e--submission-with-valid-data-chromium/error-context.md]]
+Executing form creation tool with args: {"formConfig":{"title":"E2E Test - Submission Test - 2025-06-18T20:10:55.413Z","description":"A test contact form for E2E validation","questions":[{"id":"name","type":"text","label":"Full Name","required":true,"placeholder":"Enter your full name"},{"id":"email","type":"email","label":"Email Address","required":true,"placeholder":"Enter your email address"},{"id":"phone","type":"phone","label":"Phone Number","required":false,"placeholder":"Enter your phone number"},{"id":"message","type":"textarea","label":"Message","required":true,"placeholder":"Enter your message"}],"settings":{"submissionBehavior":"message","showProgressBar":true,"collectEmail":true}}}
+[FormCreationTool] Created form response: {
+  "id": "w7OvPa",
+  "name": "E2E Test - Submission Test - 2025-06-18T20:10:55.413Z",
+  "createdAt": "2025-06-18T20:10:55.738Z",
+  "updatedAt": "2025-06-18T20:10:55.738Z",
+  "status": "PUBLISHED",
+  "isNameModifiedByUser": false,
+  "numberOfSubmissions": 0,
+  "workspaceId": "w2j7BV",
+  "organizationId": "nGeNaz",
+  "hasDraftBlocks": false,
+  "index": 0,
+  "isClosed": false
+}
+
+[[ATTACHMENT|artifacts/form-creation.e2e-Form-Fun-6b45e--submission-with-valid-data-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/form-creation.e2e-Form-Fun-6b45e--submission-with-valid-data-chromium-retry1/error-context.md]]
+
+[[ATTACHMENT|artifacts/form-creation.e2e-Form-Fun-6b45e--submission-with-valid-data-chromium-retry1/trace.zip]]
+Executing form creation tool with args: {"formConfig":{"title":"E2E Test - Submission Test - 2025-06-18T20:11:00.080Z","description":"A test contact form for E2E validation","questions":[{"id":"name","type":"text","label":"Full Name","required":true,"placeholder":"Enter your full name"},{"id":"email","type":"email","label":"Email Address","required":true,"placeholder":"Enter your email address"},{"id":"phone","type":"phone","label":"Phone Number","required":false,"placeholder":"Enter your phone number"},{"id":"message","type":"textarea","label":"Message","required":true,"placeholder":"Enter your message"}],"settings":{"submissionBehavior":"message","showProgressBar":true,"collectEmail":true}}}
+[FormCreationTool] Created form response: {
+  "id": "wANDQy",
+  "name": "E2E Test - Submission Test - 2025-06-18T20:11:00.080Z",
+  "createdAt": "2025-06-18T20:11:00.352Z",
+  "updatedAt": "2025-06-18T20:11:00.352Z",
+  "status": "PUBLISHED",
+  "isNameModifiedByUser": false,
+  "numberOfSubmissions": 0,
+  "workspaceId": "w2j7BV",
+  "organizationId": "nGeNaz",
+  "hasDraftBlocks": false,
+  "index": 0,
+  "isClosed": false
+}
+
+[[ATTACHMENT|artifacts/form-creation.e2e-Form-Fun-6b45e--submission-with-valid-data-chromium-retry2/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/form-creation.e2e-Form-Fun-6b45e--submission-with-valid-data-chromium-retry2/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Form Functionality - User Interactions › should validate required fields" classname="form-creation.e2e.test.ts" time="2.539">
+<system-out>
+<![CDATA[Executing form creation tool with args: {"formConfig":{"title":"E2E Test - Validation Test - 2025-06-18T20:11:05.070Z","description":"A test contact form for E2E validation","questions":[{"id":"name","type":"text","label":"Full Name","required":true,"placeholder":"Enter your full name"},{"id":"email","type":"email","label":"Email Address","required":true,"placeholder":"Enter your email address"},{"id":"phone","type":"phone","label":"Phone Number","required":false,"placeholder":"Enter your phone number"},{"id":"message","type":"textarea","label":"Message","required":true,"placeholder":"Enter your message"}],"settings":{"submissionBehavior":"message","showProgressBar":true,"collectEmail":true}}}
+[FormCreationTool] Created form response: {
+  "id": "wkXWrr",
+  "name": "E2E Test - Validation Test - 2025-06-18T20:11:05.070Z",
+  "createdAt": "2025-06-18T20:11:05.332Z",
+  "updatedAt": "2025-06-18T20:11:05.332Z",
+  "status": "PUBLISHED",
+  "isNameModifiedByUser": false,
+  "numberOfSubmissions": 0,
+  "workspaceId": "w2j7BV",
+  "organizationId": "nGeNaz",
+  "hasDraftBlocks": false,
+  "index": 0,
+  "isClosed": false
+}
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>

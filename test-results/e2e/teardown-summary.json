@@ -1,0 +1,10 @@
+{
+  "timestamp": "2025-06-18T20:13:19.029Z",
+  "formsCreated": 0,
+  "formIds": [],
+  "cleanupPerformed": true,
+  "environment": {
+    "baseUrl": "https://api.tally.so",
+    "browser": "chromium"
+  }
+}

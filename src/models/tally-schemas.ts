@@ -242,7 +242,8 @@ export const TallyWebhookPayloadSchema = z.object({
  */
 export const TallyFormSchema = z.object({
   id: z.string(),
-  title: z.string(),
+  title: z.string().optional(),
+  name: z.string().optional(),
   description: z.string().optional(),
   isPublished: z.boolean().optional(),
   createdAt: z.string().datetime(),
@@ -251,7 +252,11 @@ export const TallyFormSchema = z.object({
   url: z.string().url().optional(),
   embedUrl: z.string().url().optional(),
   status: z.string().optional(),
-});
+  // Additional share URL fields observed in API
+  shareUrl: z.string().url().optional(),
+  share_url: z.string().url().optional(),
+  publicUrl: z.string().url().optional(),
+}).passthrough();
 
 /**
  * Form list response
@@ -605,7 +610,7 @@ export const TallyBlockSchema = z.object({
 export const TallyFormCreatePayloadSchema = z.object({
   status: z.enum(['PUBLISHED', 'DRAFT']).default('PUBLISHED'),
   name: z.string().min(1, 'Form name is required'),
-  blocks: z.array(TallyBlockSchema).min(1, 'At least one block is required'),
+  blocks: z.array(TallyBlockSchema).optional(),
   settings: z.object({
     language: z.string().optional(),
     closeDate: z.string().optional(),

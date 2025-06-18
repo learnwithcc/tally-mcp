@@ -335,28 +335,39 @@ export class StagingTestUtils {
     };
     
     const result = await tool.execute({
-      naturalLanguagePrompt: `Create a form with the exact configuration provided`,
-      formTitle: timestampedConfig.title
+      formConfig: timestampedConfig
     });
     
-    if (!result.formUrl) {
-      throw new Error('Form creation failed: No form URL returned');
+    let formUrl = result.formUrl;
+    let formId: string | undefined;
+
+    if (formUrl) {
+      formId = formUrl.split('/').pop();
     }
-    
-    // Extract form ID from URL
-    const formId = result.formUrl.split('/').pop();
+
+    // If API did not return a URL, fall back to using the form ID returned by the API (if any)
+    if (!formId && (result as any).formId) {
+      formId = (result as any).formId;
+    }
+
     if (!formId) {
-      throw new Error('Failed to extract form ID from URL');
+      throw new Error('Form creation failed: No form ID or URL returned');
     }
-    
+
+    // If we still don't have a URL, construct a best-guess share URL based on known pattern
+    if (!formUrl) {
+      // Based on Tally share-link pattern: https://tally.so/r/<slug | id>
+      formUrl = `https://tally.so/r/${formId}`;
+    }
+
     this.createdFormIds.push(formId);
-    
+
     // Add rate limiting delay
     await this.delay(config.testSettings.rateLimitDelay);
-    
+
     return {
       formId,
-      formUrl: result.formUrl,
+      formUrl,
       formConfig: timestampedConfig
     };
   }

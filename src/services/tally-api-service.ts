@@ -1,14 +1,14 @@
 import { TallyApiClient, TallyApiClientConfig } from './TallyApiClient';
-import { FormConfig, SubmissionBehavior } from '../models';
+import { FormConfig } from '../models/form-config';
+import { TallyFormSchema, TallyFormCreatePayload, TallyFormCreatePayloadSchema } from '../models/tally-schemas';
+import { buildBlocksForForm } from '../utils/block-builder';
 import { 
   TallyForm, 
-  TallyFormSchema, 
   TallyFormsResponse,
-  TallyFormCreatePayloadSchema,
   TallyFormUpdatePayloadSchema,
   validateTallyResponse
 } from '../models/tally-schemas';
-import { buildBlocksForForm } from '../utils/block-builder';
+import { SubmissionBehavior } from '../models';
 
 export class TallyApiService {
   private apiClient: TallyApiClient;
@@ -27,7 +27,7 @@ export class TallyApiService {
     const endpoint = '/forms';
 
     // Map our FormConfig to the payload expected by the Tally API
-    const payload = this.mapToTallyPayload(formConfig);
+    const payload = this.mapFormConfigToPayload(formConfig);
 
     // Validate the payload before sending to ensure it meets Tally API requirements
     const validatedPayload = TallyFormCreatePayloadSchema.parse(payload);
@@ -93,15 +93,22 @@ export class TallyApiService {
    * @param formConfig The internal form configuration.
    * @returns The payload for the Tally API.
    */
-  private mapToTallyPayload(formConfig: FormConfig): any {
+  private mapFormConfigToPayload(formConfig: FormConfig): TallyFormCreatePayload {
     // Build Tally-compatible blocks using our utility
     const blocks = buildBlocksForForm(formConfig);
 
-    return {
-      status: 'PUBLISHED',
+    const payload = {
+      status: 'PUBLISHED' as const,
       name: formConfig.title,
-      blocks,
+      blocks: blocks as any, // Cast to any to resolve type compatibility
     };
+
+    // DEBUG: log payload for development
+    if (process.env.DEBUG_TALLY_PAYLOAD === '1') {
+      console.log('[TallyApiService] createForm payload:', JSON.stringify(payload, null, 2));
+    }
+
+    return payload;
   }
 
   /**

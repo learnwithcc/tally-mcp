@@ -72,6 +72,39 @@ export function createQuestionBlocks(question) {
             text: opt.text ?? opt.value ?? opt.id ?? String(opt),
         }));
     }
+    if (questionHasOptions(question) && ['DROPDOWN', 'MULTIPLE_CHOICE', 'CHECKBOXES'].includes(blockType)) {
+        const optionBlocks = [];
+        const optionGroupUuid = randomUUID();
+        question.options.forEach((opt, idx) => {
+            let optionType;
+            switch (blockType) {
+                case 'DROPDOWN':
+                    optionType = 'DROPDOWN_OPTION';
+                    break;
+                case 'MULTIPLE_CHOICE':
+                    optionType = 'MULTIPLE_CHOICE_OPTION';
+                    break;
+                case 'CHECKBOXES':
+                    optionType = 'CHECKBOX';
+                    break;
+                default:
+                    optionType = 'DROPDOWN_OPTION';
+            }
+            optionBlocks.push({
+                uuid: randomUUID(),
+                type: optionType,
+                groupUuid: optionGroupUuid,
+                groupType: blockType,
+                title: opt.text ?? opt.value ?? String(opt),
+                payload: {
+                    index: idx,
+                    text: opt.text ?? opt.value ?? String(opt),
+                },
+            });
+        });
+        blocks.push(...optionBlocks);
+        return blocks;
+    }
     blocks.push({
         uuid: randomUUID(),
         type: blockType,

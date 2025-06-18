@@ -142,7 +142,8 @@ export const TallyWebhookPayloadSchema = z.object({
 });
 export const TallyFormSchema = z.object({
     id: z.string(),
-    title: z.string(),
+    title: z.string().optional(),
+    name: z.string().optional(),
     description: z.string().optional(),
     isPublished: z.boolean().optional(),
     createdAt: z.string().datetime(),
@@ -151,7 +152,10 @@ export const TallyFormSchema = z.object({
     url: z.string().url().optional(),
     embedUrl: z.string().url().optional(),
     status: z.string().optional(),
-});
+    shareUrl: z.string().url().optional(),
+    share_url: z.string().url().optional(),
+    publicUrl: z.string().url().optional(),
+}).passthrough();
 export const TallyFormsResponseSchema = z.object({
     forms: z.array(TallyFormSchema),
     page: z.number().optional(),
@@ -258,6 +262,161 @@ export const TallyPaginationSchema = z.object({
     limit: z.number(),
     hasMore: z.boolean(),
     total: z.number().optional(),
+});
+export const TallyBlockTypeSchema = z.enum([
+    'FORM_TITLE',
+    'TITLE',
+    'INPUT_TEXT',
+    'INPUT_EMAIL',
+    'INPUT_NUMBER',
+    'INPUT_PHONE_NUMBER',
+    'INPUT_LINK',
+    'INPUT_DATE',
+    'INPUT_TIME',
+    'TEXTAREA',
+    'DROPDOWN',
+    'DROPDOWN_OPTION',
+    'CHECKBOXES',
+    'CHECKBOX',
+    'MULTIPLE_CHOICE',
+    'MULTIPLE_CHOICE_OPTION',
+    'LINEAR_SCALE',
+    'RATING',
+    'FILE_UPLOAD',
+    'SIGNATURE',
+    'HIDDEN_FIELDS',
+    'CALCULATED_FIELDS',
+    'MULTI_SELECT',
+    'MATRIX',
+    'RANKING',
+    'PAYMENT'
+]);
+export const TallyGroupTypeSchema = z.enum([
+    'TEXT',
+    'QUESTION',
+    'INPUT_TEXT',
+    'INPUT_EMAIL',
+    'INPUT_NUMBER',
+    'INPUT_PHONE_NUMBER',
+    'INPUT_LINK',
+    'INPUT_DATE',
+    'INPUT_TIME',
+    'TEXTAREA',
+    'DROPDOWN',
+    'CHECKBOXES',
+    'MULTIPLE_CHOICE',
+    'LINEAR_SCALE',
+    'RATING',
+    'FILE_UPLOAD',
+    'SIGNATURE'
+]);
+export const TallyBlockBasePayloadSchema = z.object({
+    html: z.string().optional(),
+    title: z.string().optional(),
+    isRequired: z.boolean().optional(),
+    placeholder: z.string().optional(),
+});
+export const TallyBlockOptionSchema = z.object({
+    id: z.string(),
+    text: z.string(),
+    index: z.number().optional(),
+});
+export const TallyChoiceOptionPayloadSchema = TallyBlockBasePayloadSchema.extend({
+    index: z.number(),
+    text: z.string(),
+});
+export const TallyInputPayloadSchema = TallyBlockBasePayloadSchema.extend({
+    isRequired: z.boolean(),
+    placeholder: z.string(),
+    options: z.array(TallyBlockOptionSchema).optional(),
+});
+export const TallyTitlePayloadSchema = z.object({
+    html: z.string(),
+    title: z.string().optional(),
+});
+export const TallyBlockPayloadSchema = z.union([
+    TallyTitlePayloadSchema,
+    TallyInputPayloadSchema,
+    TallyChoiceOptionPayloadSchema,
+    TallyBlockBasePayloadSchema,
+]);
+export const TallyBlockSchema = z.object({
+    uuid: z.string().uuid('Block UUID must be a valid UUID'),
+    type: TallyBlockTypeSchema,
+    groupUuid: z.string().uuid('Group UUID must be a valid UUID'),
+    groupType: TallyGroupTypeSchema,
+    title: z.string(),
+    payload: TallyBlockPayloadSchema,
+});
+export const TallyFormCreatePayloadSchema = z.object({
+    status: z.enum(['PUBLISHED', 'DRAFT']).default('PUBLISHED'),
+    name: z.string().min(1, 'Form name is required'),
+    blocks: z.array(TallyBlockSchema).min(1, 'At least one block is required'),
+    settings: z.object({
+        language: z.string().optional(),
+        closeDate: z.string().optional(),
+        closeTime: z.string().optional(),
+        closeTimezone: z.string().optional(),
+        submissionsLimit: z.number().positive().optional(),
+        redirectOnCompletion: z.object({
+            html: z.string(),
+            mentions: z.array(z.any()).optional(),
+        }).optional(),
+        hasSelfEmailNotifications: z.boolean().optional(),
+        selfEmailTo: z.object({
+            html: z.string(),
+            mentions: z.array(z.any()).optional(),
+        }).optional(),
+        selfEmailReplyTo: z.object({
+            html: z.string(),
+            mentions: z.array(z.any()).optional(),
+        }).optional(),
+        selfEmailSubject: z.string().nullable().optional(),
+        selfEmailFromName: z.string().nullable().optional(),
+        selfEmailBody: z.object({
+            html: z.string(),
+            mentions: z.array(z.any()).optional(),
+        }).optional(),
+        uniqueSubmissionKey: z.object({
+            html: z.string(),
+            mentions: z.array(z.any()).optional(),
+        }).optional(),
+    }).optional(),
+});
+export const TallyFormUpdatePayloadSchema = z.object({
+    name: z.string().min(1).optional(),
+    status: z.enum(['PUBLISHED', 'DRAFT']).optional(),
+    blocks: z.array(TallyBlockSchema).optional(),
+    settings: z.object({
+        language: z.string().optional(),
+        closeDate: z.string().optional(),
+        closeTime: z.string().optional(),
+        closeTimezone: z.string().optional(),
+        submissionsLimit: z.number().positive().optional(),
+        redirectOnCompletion: z.object({
+            html: z.string(),
+            mentions: z.array(z.any()).optional(),
+        }).optional(),
+        hasSelfEmailNotifications: z.boolean().optional(),
+        selfEmailTo: z.object({
+            html: z.string(),
+            mentions: z.array(z.any()).optional(),
+        }).optional(),
+        selfEmailReplyTo: z.object({
+            html: z.string(),
+            mentions: z.array(z.any()).optional(),
+        }).optional(),
+        selfEmailSubject: z.string().nullable().optional(),
+        selfEmailFromName: z.string().nullable().optional(),
+        selfEmailBody: z.object({
+            html: z.string(),
+            mentions: z.array(z.any()).optional(),
+        }).optional(),
+        uniqueSubmissionKey: z.object({
+            html: z.string(),
+            mentions: z.array(z.any()).optional(),
+        }).optional(),
+    }).optional(),
 });
 export function validateTallyResponse(schema, data) {
     return schema.parse(data);
