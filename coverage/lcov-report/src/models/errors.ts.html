@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">9.89% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>9/91</span>
+                <span class='fraction'>0/91</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">11.25% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>9/80</span>
+                <span class='fraction'>0/80</span>
             </div>
         
             
@@ -381,7 +381,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -438,7 +438,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -464,7 +464,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -502,7 +502,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -522,7 +522,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -573,7 +573,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -603,7 +603,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -620,7 +620,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -636,7 +636,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -689,7 +689,7 @@
 /**
  * Base API error class that all other API errors extend
  */
-export abstract class TallyApiError extends Error {
+<span class="cstat-no" title="statement not covered" >export abstract class T</span>allyApiError extends Error {
   public readonly isRetryable: boolean;
   public readonly statusCode?: number;
   public readonly statusText?: string;
@@ -746,7 +746,7 @@ export abstract class TallyApiError extends Error {
  * Authentication Error (401/403)
  * Thrown when authentication fails or token is invalid
  */
-export class AuthenticationError extends TallyApiError {
+<span class="cstat-no" title="statement not covered" >export class A</span>uthenticationError extends TallyApiError {
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     message: string = <span class="branch-0 cbranch-no" title="branch not covered" >'Authentication failed',</span>
     statusCode?: number,
@@ -772,7 +772,7 @@ export class AuthenticationError extends TallyApiError {
  * Bad Request Error (400)
  * Thrown when the request is malformed or invalid
  */
-export class BadRequestError extends TallyApiError {
+<span class="cstat-no" title="statement not covered" >export class B</span>adRequestError extends TallyApiError {
   public readonly validationErrors?: Array&lt;{
     field?: string;
     message: string;
@@ -810,7 +810,7 @@ export class BadRequestError extends TallyApiError {
  * Not Found Error (404)
  * Thrown when the requested resource is not found
  */
-export class NotFoundError extends TallyApiError {
+<span class="cstat-no" title="statement not covered" >export class N</span>otFoundError extends TallyApiError {
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     message: string = <span class="branch-0 cbranch-no" title="branch not covered" >'Resource not found',</span>
     statusCode: number = <span class="branch-0 cbranch-no" title="branch not covered" >404,</span>
@@ -830,7 +830,7 @@ export class NotFoundError extends TallyApiError {
  * Rate Limit Error (429)
  * Thrown when rate limits are exceeded
  */
-export class RateLimitError extends TallyApiError {
+<span class="cstat-no" title="statement not covered" >export class R</span>ateLimitError extends TallyApiError {
   public readonly retryAfter?: number;
   public readonly limit?: number;
   public readonly remaining?: number;
@@ -881,7 +881,7 @@ export class RateLimitError extends TallyApiError {
  * Server Error (500+)
  * Thrown when the server encounters an internal error
  */
-export class ServerError extends TallyApiError {
+<span class="cstat-no" title="statement not covered" >export class S</span>erverError extends TallyApiError {
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     message: string = <span class="branch-0 cbranch-no" title="branch not covered" >'Internal server error',</span>
     statusCode: number = <span class="branch-0 cbranch-no" title="branch not covered" >500,</span>
@@ -911,7 +911,7 @@ export class ServerError extends TallyApiError {
  * Network Error
  * Thrown when network connectivity issues occur
  */
-export class NetworkError extends TallyApiError {
+<span class="cstat-no" title="statement not covered" >export class N</span>etworkError extends TallyApiError {
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     message: string = <span class="branch-0 cbranch-no" title="branch not covered" >'Network error',</span>
     cause?: Error
@@ -928,7 +928,7 @@ export class NetworkError extends TallyApiError {
  * Timeout Error
  * Thrown when requests exceed the configured timeout
  */
-export class TimeoutError extends TallyApiError {
+<span class="cstat-no" title="statement not covered" >export class T</span>imeoutError extends TallyApiError {
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     message: string = <span class="branch-0 cbranch-no" title="branch not covered" >'Request timeout',</span>
     cause?: Error
@@ -944,7 +944,7 @@ export class TimeoutError extends TallyApiError {
 /**
  * Factory function to create appropriate error based on HTTP status code
  */
-export function <span class="fstat-no" title="function not covered" >createErrorFromResponse(</span>
+<span class="cstat-no" title="statement not covered" >export function <span class="fstat-no" title="function not covered" >c</span>reateErrorFromResponse(</span>
   statusCode: number,
   statusText: string,
   headers: Record&lt;string, string&gt;,
@@ -994,7 +994,7 @@ export function <span class="fstat-no" title="function not covered" >createError
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-14T04:35:15.627Z
+                at 2025-06-18T03:57:03.632Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

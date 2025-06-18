@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">6.43% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>11/171</span>
+                <span class='fraction'>0/171</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">1.23% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/81</span>
+                <span class='fraction'>0/81</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">7.69% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>3/39</span>
+                <span class='fraction'>0/39</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">6.96% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>11/158</span>
+                <span class='fraction'>0/158</span>
             </div>
         
             
@@ -624,7 +624,7 @@
 <a name='L559'></a><a href='#L559'>559</a>
 <a name='L560'></a><a href='#L560'>560</a>
 <a name='L561'></a><a href='#L561'>561</a>
-<a name='L562'></a><a href='#L562'>562</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">3x</span>
+<a name='L562'></a><a href='#L562'>562</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -642,15 +642,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -740,20 +740,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1185,7 +1185,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span></td><td class="text"><pre class="prettyprint lang-js">import {
+<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import {</span>
   ApiKey,
   ApiKeyWithSecret,
   ApiKeyStatus,
@@ -1203,15 +1203,15 @@
   ApiKeyRotationConfigSchema,
   API_KEY_CONSTANTS
 } from '../models/api-key';
-import { CryptoUtils } from '../utils/crypto';
+<span class="cstat-no" title="statement not covered" >import { CryptoUtils } from '../utils/crypto';</span>
 &nbsp;
 /**
  * In-memory storage for API keys (in production, this would be a database)
  */
-class ApiKeyStorage {
-  private apiKeys: Map&lt;string, ApiKey&gt; = new Map();
-  private usageLogs: Map&lt;string, ApiKeyUsageLog[]&gt; = new Map();
-  private rotationConfigs: Map&lt;string, ApiKeyRotationConfig&gt; = new Map();
+<span class="fstat-no" title="function not covered" >class A</span>piKeyStorage {
+  private <span class="cstat-no" title="statement not covered" >apiKeys: Map&lt;string, ApiKey&gt; = new Map();</span>
+  private <span class="cstat-no" title="statement not covered" >usageLogs: Map&lt;string, ApiKeyUsageLog[]&gt; = new Map();</span>
+  private <span class="cstat-no" title="statement not covered" >rotationConfigs: Map&lt;string, ApiKeyRotationConfig&gt; = new Map();</span>
 &nbsp;
   // API Key operations
 <span class="fstat-no" title="function not covered" >  async </span>createApiKey(apiKey: ApiKey): Promise&lt;void&gt; {
@@ -1301,20 +1301,20 @@ class ApiKeyStorage {
 /**
  * API Key Management Service
  */
-export class ApiKeyService {
+<span class="cstat-no" title="statement not covered" >export class A</span>piKeyService {
   private storage: ApiKeyStorage;
 &nbsp;
-  constructor() {
-    this.storage = new ApiKeyStorage();
-    this.initializeBootstrapKeys();
+<span class="fstat-no" title="function not covered" >  constructor() {</span>
+<span class="cstat-no" title="statement not covered" >    this.storage = new ApiKeyStorage();</span>
+<span class="cstat-no" title="statement not covered" >    this.initializeBootstrapKeys();</span>
   }
 &nbsp;
   /**
    * Initialize bootstrap API keys from environment variables
    */
-  private async initializeBootstrapKeys(): Promise&lt;void&gt; {
-    const bootstrapKey = process.env.BOOTSTRAP_API_KEY;
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (bootstrapKey &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >CryptoUtils.validateKeyFormat(bootstrapKey))</span> {
+  private <span class="fstat-no" title="function not covered" >async </span>initializeBootstrapKeys(): Promise&lt;void&gt; {
+    const bootstrapKey = <span class="cstat-no" title="statement not covered" >process.env.BOOTSTRAP_API_KEY;</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (bootstrapKey &amp;&amp; CryptoUtils.validateKeyFormat(bootstrapKey)) {</span>
       const keyHash = <span class="cstat-no" title="statement not covered" >CryptoUtils.hashApiKey(bootstrapKey);</span>
       const existing = <span class="cstat-no" title="statement not covered" >await this.storage.getApiKeyByHash(keyHash);</span>
       
@@ -1746,14 +1746,14 @@ export class ApiKeyService {
 }
 &nbsp;
 // Export a singleton instance
-export const apiKeyService = new ApiKeyService(); </pre></td></tr></table></pre>
+export const <span class="cstat-no" title="statement not covered" >apiKeyService = new ApiKeyService(); </span></pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-14T04:35:15.627Z
+                at 2025-06-18T03:57:03.632Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
