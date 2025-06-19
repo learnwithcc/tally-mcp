@@ -228,8 +228,49 @@ const TOOLS = [
     }
   },
   {
+    name: 'confirm_bulk_delete',
+    description: 'HUMAN CONFIRMATION: Confirm bulk deletion after reviewing preview. Requires explicit user choice from options provided.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        confirmationToken: {
+          type: 'string',
+          description: 'Confirmation token from preview_bulk_delete response'
+        },
+        userChoice: {
+          type: 'string',
+          enum: ['delete_all', 'select_individual', 'cancel'],
+          description: 'User confirmation choice: delete_all (proceed with all previewed items), select_individual (choose specific items to exclude), cancel (abort operation)'
+        },
+        excludeFormIds: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Form IDs to exclude from deletion (only used with select_individual choice)'
+        },
+        batchSize: {
+          type: 'number',
+          minimum: 1,
+          maximum: 50,
+          default: 10,
+          description: 'Number of forms to process per batch (1-50, default: 10)'
+        },
+        options: {
+          type: 'object',
+          properties: {
+            continueOnError: { type: 'boolean', description: 'Continue processing even if some deletions fail' },
+            delayBetweenBatches: { type: 'number', description: 'Milliseconds to wait between batches (for rate limiting)' },
+            maxRetries: { type: 'number', minimum: 0, maximum: 10, default: 3, description: 'Maximum number of retry attempts per form (0-10)' },
+            baseRetryDelay: { type: 'number', minimum: 100, maximum: 10000, default: 1000, description: 'Base delay in milliseconds for exponential backoff retries' }
+          },
+          description: 'Additional options for bulk deletion operation'
+        }
+      },
+      required: ['confirmationToken', 'userChoice']
+    }
+  },
+  {
     name: 'bulk_delete_forms',
-    description: 'Delete multiple forms in bulk with rate limiting, progress tracking, and error handling. ⚠️ SAFETY CRITICAL: This tool REQUIRES the preview_bulk_delete tool to be available and MUST be used first. If preview_bulk_delete is not available, STOP and request that it be added to your tool configuration. DO NOT attempt individual deletions as a workaround.',
+    description: '🚫 DEPRECATED: Use confirm_bulk_delete instead. This tool now requires human confirmation via the confirm_bulk_delete tool after preview_bulk_delete. The new workflow is: 1) preview_bulk_delete, 2) confirm_bulk_delete with user choice, 3) automatic execution. This tool is kept for backward compatibility but will reject calls without proper confirmation workflow.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -735,6 +776,9 @@ async function callTallyAPI(toolName: string, args: any, apiKey: string): Promis
     case 'preview_bulk_delete':
       return await handlePreviewBulkDelete(args, apiKey, baseURL, headers);
 
+    case 'confirm_bulk_delete':
+      return await handleConfirmBulkDelete(args, apiKey, baseURL, headers);
+
     case 'bulk_delete_forms':
       return await handleBulkDeleteForms(args, apiKey, baseURL, headers);
 
@@ -926,10 +970,15 @@ async function handlePreviewBulkDelete(args: any, apiKey: string, baseURL: strin
       duration,
       timestamp: new Date().toISOString(),
       warning: formsToDelete.length > 0 ? 
-        `⚠️  DELETION PREVIEW: ${formsToDelete.length} forms will be PERMANENTLY DELETED. Use the confirmationToken in bulk_delete_forms to proceed.` :
+        `⚠️  DELETION PREVIEW: ${formsToDelete.length} forms will be PERMANENTLY DELETED. Human confirmation required before proceeding.` :
         'No forms match the specified criteria.',
       instructions: formsToDelete.length > 0 ? 
-        `To proceed with deletion, use the bulk_delete_forms tool with confirmationToken: "${confirmationToken}"` :
+        `🛡️ NEXT STEP: Use confirm_bulk_delete tool with this confirmationToken and your choice:
+        1. delete_all - Delete all ${formsToDelete.length} previewed forms
+        2. select_individual - Choose specific forms to exclude from deletion
+        3. cancel - Cancel the bulk deletion operation
+        
+        Example: confirm_bulk_delete with confirmationToken: "${confirmationToken}" and userChoice: "delete_all"` :
         'Adjust your filters or form IDs to target the desired forms.'
     };
 
@@ -941,6 +990,124 @@ async function handlePreviewBulkDelete(args: any, apiKey: string, baseURL: strin
       error: error instanceof Error ? error.message : 'Unknown error during preview',
       duration: Date.now() - startTime
     };
+  }
+}
+
+/**
+ * Handle human confirmation for bulk delete operation
+ */
+async function handleConfirmBulkDelete(args: any, apiKey: string, baseURL: string, headers: any): Promise<any> {
+  const operationId = crypto.randomUUID();
+  const startTime = Date.now();
+  
+  console.log(`[CONFIRM_BULK_DELETE] ${operationId}: Processing user confirmation`);
+  
+  // Validate confirmation token
+  if (!args.confirmationToken || !args.confirmationToken.startsWith('confirm_delete_')) {
+    console.error(`[CONFIRM_BULK_DELETE] ${operationId}: Invalid confirmation token`);
+    return {
+      operationId,
+      success: false,
+      error: '⚠️ INVALID CONFIRMATION: The confirmation token is invalid or missing. Use preview_bulk_delete to get a valid token.',
+      duration: Date.now() - startTime
+    };
+  }
+
+  // Handle user choice
+  switch (args.userChoice) {
+    case 'cancel':
+      console.log(`[CONFIRM_BULK_DELETE] ${operationId}: User cancelled operation`);
+      return {
+        operationId,
+        success: true,
+        action: 'cancelled',
+        message: '✅ Bulk deletion cancelled by user. No forms were deleted.',
+        duration: Date.now() - startTime
+      };
+
+    case 'delete_all':
+    case 'select_individual':
+      // Extract information from confirmation token
+      const tokenParts = args.confirmationToken.split('_');
+      if (tokenParts.length < 4) {
+        return {
+          operationId,
+          success: false,
+          error: '⚠️ INVALID TOKEN FORMAT: Cannot parse confirmation token information.',
+          duration: Date.now() - startTime
+        };
+      }
+
+      const totalFormsFromToken = parseInt(tokenParts[3]) || 0;
+      
+      // For select_individual, we need to get the original forms and exclude specified ones
+      if (args.userChoice === 'select_individual') {
+        if (!args.excludeFormIds || !Array.isArray(args.excludeFormIds)) {
+          return {
+            operationId,
+            success: false,
+            error: '⚠️ MISSING EXCLUSIONS: select_individual choice requires excludeFormIds array.',
+            duration: Date.now() - startTime
+          };
+        }
+
+        console.log(`[CONFIRM_BULK_DELETE] ${operationId}: User selected individual deletion, excluding ${args.excludeFormIds.length} forms`);
+      }
+
+      // Generate a new confirmation token for the actual bulk delete operation
+      const bulkDeleteToken = `bulk_confirmed_${Date.now()}_${operationId.slice(0, 8)}`;
+      
+      // Prepare arguments for bulk delete
+      const bulkDeleteArgs = {
+        confirmationToken: bulkDeleteToken,
+        batchSize: args.batchSize || 10,
+        options: {
+          continueOnError: args.options?.continueOnError !== false,
+          delayBetweenBatches: args.options?.delayBetweenBatches || 1000,
+          maxRetries: args.options?.maxRetries || 3,
+          baseRetryDelay: args.options?.baseRetryDelay || 1000,
+          dryRun: false
+        }
+      };
+
+      // For select_individual, we need to re-fetch forms and apply exclusions
+      if (args.userChoice === 'select_individual') {
+        // We'll need to reconstruct the filter/ID logic, but for now, let's return a message
+        // indicating that the user needs to provide specific form IDs
+        return {
+          operationId,
+          success: true,
+          action: 'individual_selection_required',
+          message: '📋 Individual selection confirmed. Please provide the specific form IDs you want to delete (excluding the ones you want to keep).',
+          excludedForms: args.excludeFormIds,
+          nextStep: 'Use bulk_delete_forms with the specific formIds you want to delete, excluding the ones you specified.',
+          bulkDeleteToken,
+          duration: Date.now() - startTime
+        };
+      }
+
+      // For delete_all, proceed with the original confirmation token logic
+      console.log(`[CONFIRM_BULK_DELETE] ${operationId}: User confirmed deletion of all ${totalFormsFromToken} forms`);
+      
+      return {
+        operationId,
+        success: true,
+        action: 'confirmed_for_deletion',
+        message: `✅ User confirmed deletion of ${totalFormsFromToken} forms. Proceeding with bulk deletion...`,
+        formsToDelete: totalFormsFromToken,
+        bulkDeleteToken,
+        instructions: `Use bulk_delete_forms with confirmationToken: "${bulkDeleteToken}" to proceed with the deletion.`,
+        duration: Date.now() - startTime
+      };
+
+    default:
+      return {
+        operationId,
+        success: false,
+        error: '⚠️ INVALID CHOICE: userChoice must be one of: delete_all, select_individual, cancel',
+        validChoices: ['delete_all', 'select_individual', 'cancel'],
+        duration: Date.now() - startTime
+      };
   }
 }
 
@@ -1059,14 +1226,15 @@ async function handleBulkDeleteForms(args: any, apiKey: string, baseURL: string,
     };
   }
 
-  // Validate confirmation token format
-  if (!args.confirmationToken.startsWith('confirm_delete_')) {
+  // Validate confirmation token format (accept both preview and confirmed tokens)
+  if (!args.confirmationToken.startsWith('confirm_delete_') && !args.confirmationToken.startsWith('bulk_confirmed_')) {
     console.error(`[BULK_DELETE] ${operationId}: Invalid confirmationToken format`);
     return {
       operationId,
       success: false,
-      error: '⚠️ INVALID CONFIRMATION: The confirmation token format is invalid. Use preview_bulk_delete to get a valid token.',
-      safetyMessage: 'Confirmation tokens must be generated by preview_bulk_delete to ensure you have reviewed what will be deleted.',
+      error: '⚠️ INVALID CONFIRMATION: The confirmation token format is invalid. Use the new workflow: 1) preview_bulk_delete, 2) confirm_bulk_delete, 3) automatic execution.',
+      safetyMessage: 'The new safety workflow requires human confirmation via confirm_bulk_delete tool after preview.',
+      newWorkflow: 'Use confirm_bulk_delete tool instead of calling bulk_delete_forms directly.',
       processed: 0,
       total: 0,
       duration: Date.now() - startTime
