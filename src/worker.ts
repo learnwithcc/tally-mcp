@@ -229,7 +229,7 @@ const TOOLS = [
   },
   {
     name: 'bulk_delete_forms',
-    description: 'Delete multiple forms in bulk with rate limiting, progress tracking, and error handling. ⚠️ REQUIRES CONFIRMATION: Use preview_bulk_delete first to see what will be deleted!',
+    description: 'Delete multiple forms in bulk with rate limiting, progress tracking, and error handling. ⚠️ SAFETY CRITICAL: This tool REQUIRES the preview_bulk_delete tool to be available and MUST be used first. If preview_bulk_delete is not available, STOP and request that it be added to your tool configuration. DO NOT attempt individual deletions as a workaround.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -1049,8 +1049,10 @@ async function handleBulkDeleteForms(args: any, apiKey: string, baseURL: string,
     return {
       operationId,
       success: false,
-      error: '⚠️ SAFETY VIOLATION: confirmationToken is required. Use preview_bulk_delete first to get a confirmation token.',
-      safetyMessage: 'This safety check prevents accidental bulk deletions. Always preview your deletion first using preview_bulk_delete.',
+      error: '🛡️ SAFETY VIOLATION: confirmationToken is required. Use preview_bulk_delete tool first to get a confirmation token.',
+      safetyMessage: 'This safety check prevents accidental bulk deletions. The preview_bulk_delete tool MUST be available in your MCP client configuration and used before any bulk deletion.',
+      instructions: 'If preview_bulk_delete tool is not available, request that it be added to your MCP client configuration. Do NOT attempt individual deletions as a workaround.',
+      missingTool: 'preview_bulk_delete',
       processed: 0,
       total: 0,
       duration: Date.now() - startTime
