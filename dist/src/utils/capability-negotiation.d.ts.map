@@ -1,1 +1,0 @@
-{"version":3,"file":"capability-negotiation.d.ts","sourceRoot":"","sources":["../../../src/utils/capability-negotiation.ts"],"names":[],"mappings":"AAAA,OAAO,EAAsB,kBAAkB,EAAE,sBAAsB,EAA+B,MAAM,uBAAuB,CAAC;AAoBpI,wBAAgB,qBAAqB,CAAC,kBAAkB,CAAC,EAAE,kBAAkB,GAAG,sBAAsB,CA2ErG;AAOD,wBAAgB,0BAA0B,CAAC,YAAY,EAAE,OAAO,GAAG,YAAY,IAAI,kBAAkB,CA2CpG"}

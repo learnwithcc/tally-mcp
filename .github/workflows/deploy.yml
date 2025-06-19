@@ -32,9 +32,6 @@ jobs:
         CI: true
         UPDATE_SNAPSHOTS: false
 
-    - name: Build Worker
-      run: npm run build:worker
-
     - name: Deploy to Cloudflare Workers
       uses: cloudflare/wrangler-action@v3
       with:
