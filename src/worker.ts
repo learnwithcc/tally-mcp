@@ -206,7 +206,7 @@ const TOOLS = [
           properties: {
             createdAfter: { type: 'string', description: 'ISO date string - delete forms created after this date' },
             createdBefore: { type: 'string', description: 'ISO date string - delete forms created before this date' },
-            namePattern: { type: 'string', description: 'RegEx pattern to match form names' },
+            namePattern: { type: 'string', description: 'RegEx pattern to match form names (e.g., "E2E.*" for E2E Test forms, ".*Test.*" for any test forms)' },
             status: { 
               type: 'string', 
               enum: ['draft', 'published', 'archived'],
@@ -922,9 +922,10 @@ async function handleBulkDeleteForms(args: any, apiKey: string, baseURL: string,
       }
       
       const formsData = await listResponse.json();
-      const forms = Array.isArray(formsData) ? formsData : formsData.data || [];
+      const forms = Array.isArray(formsData) ? formsData : formsData.items || formsData.data || [];
       
       console.log(`[BULK_DELETE] ${operationId}: Retrieved ${forms.length} forms for filtering`);
+      console.log(`[BULK_DELETE] ${operationId}: Response structure - isArray: ${Array.isArray(formsData)}, hasItems: ${!!formsData.items}, hasData: ${!!formsData.data}`);
       
       // Apply filters with enhanced error handling
       const filteredForms = forms.filter((form: any) => {
@@ -964,7 +965,17 @@ async function handleBulkDeleteForms(args: any, apiKey: string, baseURL: string,
           if (args.filters.namePattern) {
             try {
               const regex = new RegExp(args.filters.namePattern, 'i');
-              if (!regex.test(form.title || form.name || '')) return false;
+              const formName = form.name || form.title || '';
+              
+              // Debug logging for pattern matching
+              console.log(`[BULK_DELETE] ${operationId}: Testing pattern "${args.filters.namePattern}" against form "${formName}" (ID: ${form.id})`);
+              
+              if (!regex.test(formName)) {
+                console.log(`[BULK_DELETE] ${operationId}: Form "${formName}" did not match pattern "${args.filters.namePattern}"`);
+                return false;
+              }
+              
+              console.log(`[BULK_DELETE] ${operationId}: Form "${formName}" matched pattern "${args.filters.namePattern}"`);
             } catch (regexError) {
               operationWarnings.push({
                 type: 'INVALID_REGEX_PATTERN',
@@ -972,6 +983,7 @@ async function handleBulkDeleteForms(args: any, apiKey: string, baseURL: string,
                 error: regexError,
                 message: 'Invalid regex pattern, skipping name filter'
               });
+              console.log(`[BULK_DELETE] ${operationId}: Invalid regex pattern "${args.filters.namePattern}": ${regexError}`);
             }
           }
           
