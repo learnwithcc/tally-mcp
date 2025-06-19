@@ -503,7 +503,10 @@ async function callTallyAPI(toolName, args, apiKey) {
             return {
                 formId: args.formId,
                 shareType: args.shareType,
-                shareUrl: `https://tally.so/r/${args.formId}`,
+                // Generate correct URL based on requested share type
+                shareUrl: ['preview', 'editor'].includes(args.shareType)
+                    ? `https://tally.so/forms/${args.formId}/edit`
+                    : `https://tally.so/r/${args.formId}`,
                 embedCode: args.shareType === 'embed' ?
                     `<iframe src="https://tally.so/embed/${args.formId}" width="${args.customization?.width || '100%'}" height="${args.customization?.height || '500px'}"></iframe>` :
                     undefined

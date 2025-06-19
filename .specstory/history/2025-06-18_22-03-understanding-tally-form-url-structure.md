@@ -617,3 +617,261 @@ With these changes the application and its tests reference the current, working 
 
 ---
 
+_**User**_
+
+Let's deploy this version to our worker now please.
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+Read file: package.json
+
+---
+
+
+
+---
+
+Read file: wrangler.toml
+
+---
+
+
+
+---
+
+```bash
+npm run deploy:cloudflare
+```
+
+```
+╭─     ~/dev/projects/tally-mcp     develop ·········································· ✔  22:20:12   
+╰─ npm run deplo
+```
+
+---
+
+Deployment command triggered – Wrangler will build the TypeScript worker (via `npm run build:worker`) and push the new version to Cloudflare.
+
+Keep an eye on Wrangler’s output for any build or publish errors; once it reports “Success! Uploaded …” the new URLs should be live with the corrected link structure.
+
+---
+
+_**User**_
+
+That mostly worked. I asked for the preview URL specifically and was given `@https://tally.so/forms/wbX862` but what I should have received was `https://tally.so/forms/wbX862/edit`
+
+And, I was wrong about the published form link! It IS in fact supposed to be @https://tally.so/r/wbX862 
+
+So, a couple of small adjustments to make there please.
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+```diff
+          formId: args.formId,
+          shareType: args.shareType,
+-         // Build correct public or editor URL based on shareType
+-         shareUrl: args.shareType === 'editor'
++         // Generate correct URL based on requested share type
++         shareUrl: ['preview', 'editor'].includes(args.shareType as string)
+            ? `https://tally.so/forms/${args.formId}/edit`
+-           : `https://tally.so/forms/${args.formId}`,
++           : `https://tally.so/r/${args.formId}`,
+          embedCode: args.shareType === 'embed' ? 
+            `<iframe src="https://tally.so/embed/${args.formId}" width="${args.customization?.width || '100%'}" height="${args.customization?.height || '500px'}"></iframe>` : 
+```
+
+---
+
+```diff
+      try {
+        const linkId = this.generateLinkId();
+-       const baseUrl = `${this.baseUrl}/forms/${formId}`;
++       const baseUrl = `${this.baseUrl}/r/${formId}`;
+        
+        let url = baseUrl;
+```
+
+---
+
+```diff
+          formId: 'mock-form-id',
+          type: ShareLinkType.STANDARD,
+-         url: 'https://tally.so/forms/mock-form-id',
++         url: 'https://tally.so/r/mock-form-id',
+          isActive: true,
+          passwordProtected: false,
+```
+
+---
+
+```diff
+  
+      if (!formUrl && createdTallyForm.id) {
+-       formUrl = `https://tally.so/forms/${createdTallyForm.id}`;
++       formUrl = `https://tally.so/forms/${createdTallyForm.id}/edit`;
+      }
+  
+```
+
+---
+
+```diff
+        title: 'Contact Us',
+        description: 'Get in touch with our team',
+-       url: 'https://tally.so/forms/form_123456789',
++       url: 'https://tally.so/r/form_123456789',
+        embedUrl: 'https://tally.so/embed/form_123456789',
+        status: 'published',
+```
+
+```diff
+          id: `form_${i.toString().padStart(9, '0')}`,
+          title: `Test Form ${i}`,
+-         url: `https://tally.so/forms/form_${i.toString().padStart(9, '0')}`,
++         url: `https://tally.so/r/form_${i.toString().padStart(9, '0')}`,
+          embedUrl: `https://tally.so/embed/form_${i.toString().padStart(9, '0')}`,
+        }));
+```
+
+---
+
+```diff
+          trackSubmissions: true
+        });
+-       expect(result.url).toContain(`https://tally.so/forms/${formId}`);
++       expect(result.url).toContain(`https://tally.so/r/${formId}`);
+        expect(result.id).toBeDefined();
+        expect(result.createdAt).toBeDefined();
+```
+
+---
+
+```diff
+      submissionsCount: 5,
+      status: 'published',
+-     url: 'https://tally.so/forms/test-form-id',
++     url: 'https://tally.so/r/test-form-id',
+      embedUrl: 'https://tally.so/embed/test-form-id'
+    };
+```
+
+---
+
+
+
+---
+
+```diff
+    const mockCreatedForm = {
+      id: 'form123',
+-     url: 'https://tally.so/forms/form123',
++     url: 'https://tally.so/forms/form123/edit',
+      title: 'Test Form',
+      createdAt: '2023-01-01T00:00:00Z',
+```
+
+```diff
+        expect(mockTallyApiService.createForm).toHaveBeenCalledWith(mockFormConfig);
+        expect(result).toEqual({
+-         formUrl: 'https://tally.so/forms/form123',
++         formUrl: 'https://tally.so/forms/form123/edit',
+          formConfig: mockFormConfig
+        });
+```
+
+```diff
+        });
+        expect(result).toEqual({
+-         formUrl: 'https://tally.so/forms/form123',
++         formUrl: 'https://tally.so/forms/form123/edit',
+          formConfig: {
+            ...mockFormConfig,
+```
+
+---
+
+```diff
+          return Promise.resolve({
+            id: 'test-form-id',
+-           url: 'https://tally.so/forms/test-form-id',
++           url: 'https://tally.so/forms/test-form-id/edit',
+            title: 'Test Form',
+            createdAt: '2023-01-01T00:00:00Z',
+```
+
+---
+
+
+
+---
+
+<details>
+            <summary>Grep search for "https://tally\.so/forms/" • **2** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///Users/cryophobic/dev/projects/tally-mcp/src/tools/__tests__/form-creation-integration.test.ts` | L32 | `url: 'https://tally.so/forms/test-form-id/edit',` |
+| `file:///Users/cryophobic/dev/projects/tally-mcp/src/tools/__tests__/form-creation-integration.test.ts` | L32 | `url: 'https://tally.so/forms/test-form-id/edit',` |
+
+</details>
+
+---
+
+
+
+---
+
+```diff
+    const mockShareLinkResult = {
+      id: 'link-123',
+-     url: 'https://tally.so/forms/custom-slug',
++     url: 'https://tally.so/r/custom-slug',
+      type: ShareLinkType.DIRECT,  // Changed from STANDARD to DIRECT
+      formId: 'form-123',
+```
+
+---
+
+
+
+---
+
+```diff
+            status: 'published',
+            isPublished: true,
+-           url: 'https://tally.so/forms/form_123456789',
++           url: 'https://tally.so/r/form_123456789',
+            embedUrl: 'https://tally.so/embed/form_123456789',
+            createdAt: new Date().toISOString(),
+```
+
+---
+
+
+
+---
+
+_**User**_
+
+Please continue
+
+---
+
+_**Assistant**_
+
+
+
+---
+

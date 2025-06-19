@@ -515,7 +515,7 @@ describe('TallyApiClient', () => {
           description: 'Get in touch with our team',
           status: 'published',
           isPublished: true,
-          url: 'https://tally.so/forms/form_123456789',
+          url: 'https://tally.so/r/form_123456789',
           embedUrl: 'https://tally.so/embed/form_123456789',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),

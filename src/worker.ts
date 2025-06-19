@@ -572,10 +572,10 @@ async function callTallyAPI(toolName: string, args: any, apiKey: string): Promis
       return {
         formId: args.formId,
         shareType: args.shareType,
-        // Build correct public or editor URL based on shareType
-        shareUrl: args.shareType === 'editor'
+        // Generate correct URL based on requested share type
+        shareUrl: ['preview', 'editor'].includes(args.shareType as string)
           ? `https://tally.so/forms/${args.formId}/edit`
-          : `https://tally.so/forms/${args.formId}`,
+          : `https://tally.so/r/${args.formId}`,
         embedCode: args.shareType === 'embed' ? 
           `<iframe src="https://tally.so/embed/${args.formId}" width="${args.customization?.width || '100%'}" height="${args.customization?.height || '500px'}"></iframe>` : 
           undefined

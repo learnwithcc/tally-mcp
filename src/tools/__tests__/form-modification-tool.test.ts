@@ -18,7 +18,7 @@ describe('FormModificationTool', () => {
     updatedAt: '2023-01-01T00:00:00Z',
     submissionsCount: 5,
     status: 'published',
-    url: 'https://tally.so/forms/test-form-id',
+    url: 'https://tally.so/r/test-form-id',
     embedUrl: 'https://tally.so/embed/test-form-id'
   };
 

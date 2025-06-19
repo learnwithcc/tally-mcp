@@ -176,7 +176,7 @@ describe('FormPublicationService', () => {
         trackClicks: true,
         trackSubmissions: true
       });
-      expect(result.url).toContain(`https://tally.so/forms/${formId}`);
+      expect(result.url).toContain(`https://tally.so/r/${formId}`);
       expect(result.id).toBeDefined();
       expect(result.createdAt).toBeDefined();
     });
