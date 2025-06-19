@@ -1,0 +1,58 @@
+name: Deploy to Cloudflare Workers
+
+on:
+  push:
+    branches: [ develop ]
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run tests
+      run: npm test
+      env:
+        USE_MOCK_API: true
+
+    - name: Build project
+      run: npm run build
+
+    - name: Deploy to Cloudflare Workers
+      uses: cloudflare/wrangler-action@v3
+      with:
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        command: deploy
+        workingDirectory: '.'
+        secrets: |
+          TALLY_API_KEY
+          AUTH_TOKEN
+      env:
+        TALLY_API_KEY: ${{ secrets.TALLY_API_KEY }}
+        AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+
+    - name: Deployment notification
+      if: success()
+      run: |
+        echo "🚀 Deployment successful!"
+        echo "Your Tally MCP server has been deployed to Cloudflare Workers"
+        echo "Check your Cloudflare dashboard for the deployed worker URL"
+
+    - name: Deployment failure notification
+      if: failure()
+      run: |
+        echo "❌ Deployment failed!"
+        echo "Check the logs above for details" 
