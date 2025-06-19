@@ -188,8 +188,8 @@ const TOOLS = [
                 formId: { type: 'string', description: 'ID of the form to share' },
                 shareType: {
                     type: 'string',
-                    enum: ['link', 'embed', 'popup'],
-                    description: 'Type of sharing method'
+                    enum: ['link', 'embed', 'popup', 'preview', 'editor'],
+                    description: 'Type of sharing method: link (public), embed (iframe), popup (modal), preview/editor (draft editing)'
                 },
                 customization: {
                     type: 'object',
@@ -254,6 +254,103 @@ const SERVER_CAPABILITIES = {
     prompts: {},
     logging: {}
 };
+// Define prompts to guide LLM behavior
+const PROMPTS = [
+    {
+        name: 'tally_form_sharing_guide',
+        description: 'Guide for choosing the correct share type when sharing Tally forms',
+        arguments: [
+            {
+                name: 'form_status',
+                description: 'The current status of the form (DRAFT or PUBLISHED)',
+                required: true
+            }
+        ]
+    }
+];
+/**
+ * Handle prompt get requests
+ */
+function handlePromptGet(params, messageId) {
+    const { name, arguments: args } = params;
+    switch (name) {
+        case 'tally_form_sharing_guide':
+            const formStatus = args?.form_status || 'UNKNOWN';
+            let guidance = '';
+            if (formStatus === 'DRAFT') {
+                guidance = `
+**For DRAFT forms, use these share types:**
+
+- **preview** or **editor** → Returns https://tally.so/forms/{id}/edit
+  - Use when you want to preview/test the form before publishing
+  - Allows editing and testing form functionality
+  - Perfect for form creators to review their work
+
+- **embed** → Returns iframe embed code with https://tally.so/embed/{id}
+  - Use when you want to embed the draft form for testing
+
+**Avoid using 'link' for DRAFT forms** - it returns the public URL which won't work until published.
+        `.trim();
+            }
+            else if (formStatus === 'PUBLISHED') {
+                guidance = `
+**For PUBLISHED forms, use these share types:**
+
+- **link** → Returns https://tally.so/r/{id}
+  - Use for the public form URL that respondents will use
+  - This is the main sharing URL for live forms
+
+- **embed** → Returns iframe embed code with https://tally.so/embed/{id}
+  - Use when embedding the form in websites
+
+- **preview** or **editor** → Returns https://tally.so/forms/{id}/edit
+  - Use when you want to edit the published form
+        `.trim();
+            }
+            else {
+                guidance = `
+**Choose share type based on form status:**
+
+- **DRAFT forms**: Use 'preview' or 'editor' for testing → /forms/{id}/edit
+- **PUBLISHED forms**: Use 'link' for public sharing → /r/{id}
+- **Any status**: Use 'embed' for iframe embedding → /embed/{id}
+        `.trim();
+            }
+            return {
+                jsonrpc: '2.0',
+                id: messageId,
+                result: {
+                    description: `Guidance for sharing Tally forms with status: ${formStatus}`,
+                    messages: [
+                        {
+                            role: 'user',
+                            content: {
+                                type: 'text',
+                                text: `Form status: ${formStatus}`
+                            }
+                        },
+                        {
+                            role: 'assistant',
+                            content: {
+                                type: 'text',
+                                text: guidance
+                            }
+                        }
+                    ]
+                }
+            };
+        default:
+            return {
+                jsonrpc: '2.0',
+                id: messageId,
+                error: {
+                    code: -32602,
+                    message: 'Invalid params',
+                    data: `Unknown prompt: ${name}`
+                }
+            };
+    }
+}
 /**
  * Handle MCP messages over HTTP Stream transport
  */
@@ -273,6 +370,7 @@ async function handleMCPMessage(message, sessionIdOrApiKey, env) {
                         protocolVersion: '2024-11-05',
                         capabilities: {
                             tools: {},
+                            prompts: {},
                             logging: {}
                         },
                         serverInfo: {
@@ -295,6 +393,16 @@ async function handleMCPMessage(message, sessionIdOrApiKey, env) {
                         tools: TOOLS
                     }
                 };
+            case 'prompts/list':
+                return {
+                    jsonrpc: '2.0',
+                    id: message.id,
+                    result: {
+                        prompts: PROMPTS
+                    }
+                };
+            case 'prompts/get':
+                return handlePromptGet(message.params, message.id);
             case 'tools/call':
                 console.log('tools/call - passing env to handleToolCall');
                 const toolResult = await handleToolCall(message.params, sessionIdOrApiKey, env);
