@@ -1599,12 +1599,22 @@ export class MCPServer extends Server {
 
       switch (name) {
         case 'list_forms':
-          const forms = await this.tools.workspaceManagement.listWorkspaces();
+          if (this.tools?.form_retrieval) {
+            const forms = await this.tools.form_retrieval.execute(args || {});
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(forms, null, 2)
+                }
+              ]
+            };
+          }
           return {
             content: [
               {
                 type: 'text',
-                text: JSON.stringify(forms, null, 2)
+                text: 'Form retrieval functionality is not implemented'
               }
             ]
           };
