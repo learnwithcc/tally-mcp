@@ -40,10 +40,8 @@ jobs:
         workingDirectory: '.'
         secrets: |
           TALLY_API_KEY
-          AUTH_TOKEN
       env:
         TALLY_API_KEY: ${{ secrets.TALLY_API_KEY }}
-        AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
 
     - name: Deployment notification
       if: success()
