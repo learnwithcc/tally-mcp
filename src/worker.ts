@@ -191,8 +191,45 @@ const TOOLS = [
     }
   },
   {
+    name: 'preview_bulk_delete',
+    description: 'SAFETY PREVIEW: Show exactly which forms would be deleted before bulk deletion - USE THIS FIRST to confirm what will be deleted',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        formIds: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Array of specific form IDs to preview for deletion'
+        },
+        filters: {
+          type: 'object',
+          properties: {
+            createdAfter: { type: 'string', description: 'ISO date string - preview forms created after this date' },
+            createdBefore: { type: 'string', description: 'ISO date string - preview forms created before this date' },
+            namePattern: { type: 'string', description: 'RegEx pattern to match form names (e.g., "E2E.*" for E2E Test forms, ".*Test.*" for any test forms)' },
+            status: { 
+              type: 'string', 
+              enum: ['draft', 'published', 'archived'],
+              description: 'Filter forms by status' 
+            }
+          },
+          description: 'Filter criteria for selecting forms to preview'
+        },
+        showDetails: {
+          type: 'boolean',
+          default: true,
+          description: 'Show detailed form information (name, status, creation date, submissions count)'
+        }
+      },
+      anyOf: [
+        { required: ['formIds'] },
+        { required: ['filters'] }
+      ]
+    }
+  },
+  {
     name: 'bulk_delete_forms',
-    description: 'Delete multiple forms in bulk with rate limiting, progress tracking, and error handling',
+    description: 'Delete multiple forms in bulk with rate limiting, progress tracking, and error handling. ⚠️ REQUIRES CONFIRMATION: Use preview_bulk_delete first to see what will be deleted!',
     inputSchema: {
       type: 'object',
       properties: {
@@ -222,6 +259,10 @@ const TOOLS = [
           default: 10,
           description: 'Number of forms to process per batch (1-50, default: 10)'
         },
+        confirmationToken: {
+          type: 'string',
+          description: 'REQUIRED: Confirmation token from preview_bulk_delete response to proceed with deletion. This ensures you have previewed what will be deleted.'
+        },
         options: {
           type: 'object',
           properties: {
@@ -235,8 +276,8 @@ const TOOLS = [
         }
       },
       anyOf: [
-        { required: ['formIds'] },
-        { required: ['filters'] }
+        { required: ['formIds', 'confirmationToken'] },
+        { required: ['filters', 'confirmationToken'] }
       ]
     }
   },
@@ -691,6 +732,9 @@ async function callTallyAPI(toolName: string, args: any, apiKey: string): Promis
       });
       return { success: deleteResponse.ok, status: deleteResponse.status };
 
+    case 'preview_bulk_delete':
+      return await handlePreviewBulkDelete(args, apiKey, baseURL, headers);
+
     case 'bulk_delete_forms':
       return await handleBulkDeleteForms(args, apiKey, baseURL, headers);
 
@@ -763,6 +807,140 @@ async function callTallyAPI(toolName: string, args: any, apiKey: string): Promis
 
     default:
       throw new Error(`Unknown tool: ${toolName}`);
+  }
+}
+
+/**
+ * Preview what forms would be deleted in a bulk delete operation
+ */
+async function handlePreviewBulkDelete(args: any, apiKey: string, baseURL: string, headers: any): Promise<any> {
+  const operationId = crypto.randomUUID();
+  const startTime = Date.now();
+  
+  console.log(`[PREVIEW_BULK_DELETE] ${operationId}: Starting preview operation`);
+  
+  try {
+    // Retrieve forms using the same logic as bulk delete
+    const listResponse = await globalThis.fetch(`${baseURL}/forms`, {
+      method: 'GET',
+      headers
+    });
+
+    if (!listResponse.ok) {
+      throw new Error(`Failed to fetch forms: ${listResponse.status} ${listResponse.statusText}`);
+    }
+
+    const formsData = await listResponse.json();
+    const forms = Array.isArray(formsData) ? formsData : formsData.items || formsData.data || [];
+    
+    console.log(`[PREVIEW_BULK_DELETE] ${operationId}: Retrieved ${forms.length} forms for filtering`);
+
+    let formsToDelete: any[] = [];
+
+    // Apply filtering logic (same as bulk delete)
+    if (args.formIds && Array.isArray(args.formIds)) {
+      // Filter by specific IDs
+      formsToDelete = forms.filter((form: any) => args.formIds.includes(form.id));
+      console.log(`[PREVIEW_BULK_DELETE] ${operationId}: Filtered to ${formsToDelete.length} forms by IDs`);
+    } else if (args.filters) {
+      // Apply filters
+      formsToDelete = forms.filter((form: any) => {
+        // Apply date filters
+        if (args.filters.createdAfter) {
+          const createdDate = new Date(form.createdAt || form.created_at);
+          const afterDate = new Date(args.filters.createdAfter);
+          if (createdDate <= afterDate) return false;
+        }
+        
+        if (args.filters.createdBefore) {
+          const createdDate = new Date(form.createdAt || form.created_at);
+          const beforeDate = new Date(args.filters.createdBefore);
+          if (createdDate >= beforeDate) return false;
+        }
+
+        // Apply status filter
+        if (args.filters.status) {
+          const formStatus = (form.status || '').toLowerCase();
+          const filterStatus = args.filters.status.toLowerCase();
+          if (formStatus !== filterStatus) return false;
+        }
+
+        // Apply name pattern filter
+        if (args.filters.namePattern) {
+          try {
+            const regex = new RegExp(args.filters.namePattern, 'i');
+            const formName = form.name || form.title || '';
+            
+            console.log(`[PREVIEW_BULK_DELETE] ${operationId}: Testing pattern "${args.filters.namePattern}" against form "${formName}"`);
+            
+            if (!regex.test(formName)) return false;
+          } catch (regexError) {
+            console.warn(`[PREVIEW_BULK_DELETE] ${operationId}: Invalid regex pattern "${args.filters.namePattern}": ${regexError}`);
+            return false;
+          }
+        }
+
+        return true;
+      });
+      
+      console.log(`[PREVIEW_BULK_DELETE] ${operationId}: Filtered to ${formsToDelete.length} forms by criteria`);
+    }
+
+    // Generate confirmation token
+    const confirmationToken = `confirm_delete_${Date.now()}_${formsToDelete.length}_${crypto.randomUUID().slice(0, 8)}`;
+    
+    // Prepare detailed form information
+    const formDetails = formsToDelete.map((form: any) => {
+      const baseInfo = {
+        id: form.id,
+        name: form.name || form.title || 'Untitled Form'
+      };
+      
+      if (args.showDetails !== false) {
+        return {
+          ...baseInfo,
+          status: form.status || 'UNKNOWN',
+          createdAt: form.createdAt || form.created_at,
+          updatedAt: form.updatedAt || form.updated_at,
+          numberOfSubmissions: form.numberOfSubmissions || form.submissionCount || 0,
+          isClosed: form.isClosed || false
+        };
+      }
+      
+      return baseInfo;
+    });
+
+    const duration = Date.now() - startTime;
+    
+    console.log(`[PREVIEW_BULK_DELETE] ${operationId}: Preview completed in ${duration}ms`);
+
+    return {
+      operationId,
+      previewMode: true,
+      formsFound: formsToDelete.length,
+      totalFormsScanned: forms.length,
+      confirmationToken,
+      forms: formDetails,
+      filters: args.filters || null,
+      formIds: args.formIds || null,
+      duration,
+      timestamp: new Date().toISOString(),
+      warning: formsToDelete.length > 0 ? 
+        `⚠️  DELETION PREVIEW: ${formsToDelete.length} forms will be PERMANENTLY DELETED. Use the confirmationToken in bulk_delete_forms to proceed.` :
+        'No forms match the specified criteria.',
+      instructions: formsToDelete.length > 0 ? 
+        `To proceed with deletion, use the bulk_delete_forms tool with confirmationToken: "${confirmationToken}"` :
+        'Adjust your filters or form IDs to target the desired forms.'
+    };
+
+  } catch (error) {
+    console.error(`[PREVIEW_BULK_DELETE] ${operationId}: Error during preview:`, error);
+    return {
+      operationId,
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error during preview',
+      duration: Date.now() - startTime
+    };
   }
 }
 
@@ -865,6 +1043,36 @@ async function handleBulkDeleteForms(args: any, apiKey: string, baseURL: string,
   const maxRetries = args.options?.maxRetries || 3;
   const baseRetryDelay = args.options?.baseRetryDelay || 1000;
   
+  // SAFETY CHECK: Validate confirmation token
+  if (!args.confirmationToken) {
+    console.error(`[BULK_DELETE] ${operationId}: Missing required confirmationToken`);
+    return {
+      operationId,
+      success: false,
+      error: '⚠️ SAFETY VIOLATION: confirmationToken is required. Use preview_bulk_delete first to get a confirmation token.',
+      safetyMessage: 'This safety check prevents accidental bulk deletions. Always preview your deletion first using preview_bulk_delete.',
+      processed: 0,
+      total: 0,
+      duration: Date.now() - startTime
+    };
+  }
+
+  // Validate confirmation token format
+  if (!args.confirmationToken.startsWith('confirm_delete_')) {
+    console.error(`[BULK_DELETE] ${operationId}: Invalid confirmationToken format`);
+    return {
+      operationId,
+      success: false,
+      error: '⚠️ INVALID CONFIRMATION: The confirmation token format is invalid. Use preview_bulk_delete to get a valid token.',
+      safetyMessage: 'Confirmation tokens must be generated by preview_bulk_delete to ensure you have reviewed what will be deleted.',
+      processed: 0,
+      total: 0,
+      duration: Date.now() - startTime
+    };
+  }
+
+  console.log(`[BULK_DELETE] ${operationId}: ✅ Valid confirmation token provided: ${args.confirmationToken.slice(0, 30)}...`);
+
   // Initialize operation logging
   console.log(`[BULK_DELETE] Starting bulk deletion operation ${operationId}`, {
     operationId,
@@ -876,6 +1084,7 @@ async function handleBulkDeleteForms(args: any, apiKey: string, baseURL: string,
     baseRetryDelay,
     hasFormIds: !!args.formIds,
     hasFilters: !!args.filters,
+    confirmationToken: args.confirmationToken.slice(0, 30) + '...',
     timestamp: new Date().toISOString()
   });
   
