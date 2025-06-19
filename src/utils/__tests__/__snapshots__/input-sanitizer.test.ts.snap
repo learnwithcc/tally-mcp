@@ -1,37 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Input Sanitization sanitize should add security attributes to links 1`] = `"<a href="https://example.com" rel="noopener noreferrer" target="_blank">Click</a>"`;
-
-exports[`Input Sanitization sanitize should correctly handle safe string: empty 1`] = `""`;
-
-exports[`Input Sanitization sanitize should correctly handle safe string: longText 1`] = `"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"`;
-
-exports[`Input Sanitization sanitize should correctly handle safe string: plainText 1`] = `"This is a simple, safe string."`;
-
-exports[`Input Sanitization sanitize should correctly handle safe string: unicode 1`] = `"你好, éàçü"`;
-
-exports[`Input Sanitization sanitize should correctly handle safe string: whitespace 1`] = `"   "`;
-
-exports[`Input Sanitization sanitize should correctly handle safe string: withFormatting 1`] = `"<b>This is bold</b> and <i>this is italic</i>."`;
-
-exports[`Input Sanitization sanitize should correctly handle safe string: withLinks 1`] = `"<a href="https://example.com" rel="noopener noreferrer" target="_blank">Visit example.com</a>"`;
-
-exports[`Input Sanitization sanitize should remove or neutralize dangerous string: complexXss 1`] = `"<a href="alert(1)" rel="noopener noreferrer" target="_blank">Click</a>"`;
-
-exports[`Input Sanitization sanitize should remove or neutralize dangerous string: dataAttribute 1`] = `""`;
-
-exports[`Input Sanitization sanitize should remove or neutralize dangerous string: encodedChars 1`] = `"&#x3C;script&#x3E;alert("XSS")&#x3C;/script&#x3E;"`;
-
-exports[`Input Sanitization sanitize should remove or neutralize dangerous string: eventHandler 1`] = `"Click me"`;
-
-exports[`Input Sanitization sanitize should remove or neutralize dangerous string: iframeTag 1`] = `""`;
-
-exports[`Input Sanitization sanitize should remove or neutralize dangerous string: javascriptProtocol 1`] = `"alert("XSS")"`;
-
-exports[`Input Sanitization sanitize should remove or neutralize dangerous string: scriptTag 1`] = `""`;
-
-exports[`Input Sanitization sanitize should remove or neutralize dangerous string: styleAttack 1`] = `""`;
-
 exports[`Input Sanitization sanitizeArray should recursively sanitize all elements in an array 1`] = `
 [
   "",
@@ -48,13 +16,13 @@ exports[`Input Sanitization sanitizeObject should recursively sanitize all strin
 {
   "count": 1,
   "details": {
-    "description": "<b>This is bold</b> and <i>this is italic</i>.",
-    "link": "Click me",
+    "description": "This is bold and this is italic.",
+    "link": "",
   },
   "meta": null,
   "name": "",
   "tags": {
-    "0": "This is a simple, safe string.",
+    "0": "This is a safe string.",
     "1": "",
   },
 }

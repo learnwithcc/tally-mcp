@@ -239,8 +239,10 @@ export const DEFAULT_HEALTH_THRESHOLDS: HealthThresholds = {
  * Server capabilities configuration
  */
 export const SERVER_CAPABILITIES: ServerCapabilities = {
-  protocolVersion: '1.0',
+  protocolVersion: '2024-11-05',
   tools: {
+    call: true,
+    list: true,
     listChanged: true
   },
   resources: {
@@ -339,6 +341,7 @@ export class MCPServer extends Server {
       ...DEFAULT_CONFIG,
       ...config,
       logger: { ...DEFAULT_LOGGER_CONFIG, ...config.logger },
+      capabilities: config.capabilities || SERVER_CAPABILITIES,
     };
 
     // Initialize the underlying MCP SDK Server with capabilities
