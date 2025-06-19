@@ -57,7 +57,7 @@ export class MockDataFixtures {
       id: 'form_123456789',
       title: 'Contact Us',
       description: 'Get in touch with our team',
-      url: 'https://tally.so/r/form_123456789',
+      url: 'https://tally.so/forms/form_123456789',
       embedUrl: 'https://tally.so/embed/form_123456789',
       status: 'published',
       createdAt: '2024-01-01T00:00:00Z',
@@ -77,7 +77,7 @@ export class MockDataFixtures {
       forms.push(this.createMockForm({
         id: `form_${i.toString().padStart(9, '0')}`,
         title: `Test Form ${i}`,
-        url: `https://tally.so/r/form_${i.toString().padStart(9, '0')}`,
+        url: `https://tally.so/forms/form_${i.toString().padStart(9, '0')}`,
         embedUrl: `https://tally.so/embed/form_${i.toString().padStart(9, '0')}`,
       }));
     }

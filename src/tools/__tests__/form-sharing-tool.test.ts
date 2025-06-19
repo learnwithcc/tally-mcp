@@ -49,7 +49,7 @@ describe('FormSharingTool', () => {
 
   const mockShareLinkResult = {
     id: 'link-123',
-    url: 'https://tally.so/r/custom-slug',
+    url: 'https://tally.so/forms/custom-slug',
     type: ShareLinkType.DIRECT,  // Changed from STANDARD to DIRECT
     formId: 'form-123',
     isActive: true,

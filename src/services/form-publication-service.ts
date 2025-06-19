@@ -156,7 +156,7 @@ export class FormPublicationService {
         ...settings
       });
 
-      const embedUrl = `${this.baseUrl}/r/${formId}`;
+      const embedUrl = `${this.baseUrl}/embed/${formId}`;
       
       // Generate different embed code formats
       const html = this.generateHtmlEmbed(embedUrl, embedSettings);
@@ -271,7 +271,7 @@ export class FormPublicationService {
   ): Promise<ShareLink> {
     try {
       const linkId = this.generateLinkId();
-      const baseUrl = `${this.baseUrl}/r/${formId}`;
+      const baseUrl = `${this.baseUrl}/forms/${formId}`;
       
       let url = baseUrl;
       if (options.customSlug) {
@@ -331,7 +331,7 @@ export class FormPublicationService {
         id: linkId,
         formId: 'mock-form-id',
         type: ShareLinkType.STANDARD,
-        url: 'https://tally.so/r/mock-form-id',
+        url: 'https://tally.so/forms/mock-form-id',
         isActive: true,
         passwordProtected: false,
         currentUses: 0,

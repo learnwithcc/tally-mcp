@@ -30,7 +30,7 @@ describe('FormCreationTool - BlockBuilder Integration', () => {
         capturedPayload = payload;
         return Promise.resolve({
           id: 'test-form-id',
-          url: 'https://tally.so/r/test-form-id',
+          url: 'https://tally.so/forms/test-form-id',
           title: 'Test Form',
           createdAt: '2023-01-01T00:00:00Z',
           updatedAt: '2023-01-01T00:00:00Z'

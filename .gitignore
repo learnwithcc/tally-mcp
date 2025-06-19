@@ -33,4 +33,13 @@ tasks/
 
 # Personal development files
 wrangler.toml.local
-*.personal.* 
+*.personal.*
+
+# Build artifacts
+coverage/
+dist/
+test-results/
+
+# Ignore all env files except public examples
+.env*
+!.env.example 

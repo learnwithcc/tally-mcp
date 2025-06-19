@@ -282,7 +282,7 @@ test.describe('Error Handling - Invalid Scenarios', () => {
   
   test('should handle invalid form URLs gracefully', async ({ page }) => {
     // Act - Try to navigate to a non-existent form
-    const invalidUrl = 'https://tally.so/r/non-existent-form-id-12345';
+    const invalidUrl = 'https://tally.so/forms/non-existent-form-id-12345';
     
     // Navigate and expect either 404 page or error message
     const response = await page.goto(invalidUrl);

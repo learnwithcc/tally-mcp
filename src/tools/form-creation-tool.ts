@@ -98,7 +98,7 @@ export class FormCreationTool implements Tool<FormCreationArgs, FormCreationResu
       (createdTallyForm as any).publicUrl;
 
     if (!formUrl && createdTallyForm.id) {
-      formUrl = `https://tally.so/r/${createdTallyForm.id}`;
+      formUrl = `https://tally.so/forms/${createdTallyForm.id}`;
     }
 
     return {

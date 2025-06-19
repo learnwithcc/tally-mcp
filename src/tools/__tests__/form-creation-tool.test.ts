@@ -33,7 +33,7 @@ describe('FormCreationTool', () => {
 
   const mockCreatedForm = {
     id: 'form123',
-    url: 'https://tally.so/r/form123',
+    url: 'https://tally.so/forms/form123',
     title: 'Test Form',
     createdAt: '2023-01-01T00:00:00Z',
     updatedAt: '2023-01-01T00:00:00Z'
@@ -94,7 +94,7 @@ describe('FormCreationTool', () => {
       );
       expect(mockTallyApiService.createForm).toHaveBeenCalledWith(mockFormConfig);
       expect(result).toEqual({
-        formUrl: 'https://tally.so/r/form123',
+        formUrl: 'https://tally.so/forms/form123',
         formConfig: mockFormConfig
       });
     });
@@ -151,7 +151,7 @@ describe('FormCreationTool', () => {
         title: 'Contact Form'
       });
       expect(result).toEqual({
-        formUrl: 'https://tally.so/r/form123',
+        formUrl: 'https://tally.so/forms/form123',
         formConfig: {
           ...mockFormConfig,
           title: 'Contact Form'

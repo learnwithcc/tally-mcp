@@ -356,8 +356,8 @@ export class StagingTestUtils {
 
     // If we still don't have a URL, construct a best-guess share URL based on known pattern
     if (!formUrl) {
-      // Based on Tally share-link pattern: https://tally.so/r/<slug | id>
-      formUrl = `https://tally.so/r/${formId}`;
+      // Based on Tally public form URL pattern: https://tally.so/forms/<formId>
+      formUrl = `https://tally.so/forms/${formId}`;
     }
 
     this.createdFormIds.push(formId);
