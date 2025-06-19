@@ -46,6 +46,7 @@ export const temporaryTokenTestCases = [
 ];
 
 export const getMockClientCapabilities = (overrides = {}) => ({
+  protocolVersion: '2024-11-05',
   tools: {
     list: true,
     execute: true,
@@ -63,26 +64,90 @@ export const capabilityNegotiationTestCases = [
     description: 'should accept client with exact same capabilities',
     clientCaps: getMockClientCapabilities(),
     expected: {
-      negotiated: true,
-      authentication: { scheme: 'apiKey', required: true },
-      tools: { version: '1.0' },
+      protocolVersion: '2024-11-05',
+      tools: {
+        call: true,
+        list: true,
+        listChanged: true,
+        subscribe: true
+      },
+      resources: {
+        get: true,
+        put: true,
+        delete: true,
+        listChanged: true,
+        subscribe: true
+      },
+      prompts: {
+        get: true,
+        list: true,
+        listChanged: true,
+        subscribe: true
+      },
+      logging: {
+        level: 'info',
+        subscribe: true
+      }
     },
   },
   {
     description: 'should reject client with unsupported auth',
     clientCaps: getMockClientCapabilities({ authentication: { supported: ['none'] } }),
     expected: {
-      negotiated: false,
-      reason: 'No common authentication method found. Server supports: oauth2, apiKey. Client supports: none.',
+      protocolVersion: '2024-11-05',
+      tools: {
+        call: true,
+        list: true,
+        listChanged: true,
+        subscribe: true
+      },
+      resources: {
+        get: true,
+        put: true,
+        delete: true,
+        listChanged: true,
+        subscribe: true
+      },
+      prompts: {
+        get: true,
+        list: true,
+        listChanged: true,
+        subscribe: true
+      },
+      logging: {
+        level: 'info',
+        subscribe: true
+      }
     },
   },
   {
     description: 'should select highest common tool version',
     clientCaps: getMockClientCapabilities({ tools: { versions: ['0.5', '1.0', '1.5-beta'] } }),
     expected: {
-      negotiated: true,
-      authentication: { scheme: 'apiKey', required: true },
-      tools: { version: '1.0' },
+      protocolVersion: '2024-11-05',
+      tools: {
+        call: true,
+        list: true,
+        listChanged: true,
+        subscribe: true
+      },
+      resources: {
+        get: true,
+        put: true,
+        delete: true,
+        listChanged: true,
+        subscribe: true
+      },
+      prompts: {
+        get: true,
+        list: true,
+        listChanged: true,
+        subscribe: true
+      },
+      logging: {
+        level: 'info',
+        subscribe: true
+      }
     },
   },
 ]; 

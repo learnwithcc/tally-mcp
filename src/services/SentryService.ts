@@ -15,11 +15,17 @@ export class SentryService {
             profilesSampleRate: 1.0,
             integrations: [nodeProfilingIntegration()],
           });
+          this.isInitialized = true;
         }
       }
     } catch (error) {
       console.error('Error initializing Sentry:', error);
     }
+  }
+
+  // For testing purposes only
+  public static resetForTesting(): void {
+    this.isInitialized = false;
   }
 
   public static captureException(error: Error, context?: Record<string, unknown>): void {

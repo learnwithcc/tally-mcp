@@ -16,6 +16,11 @@ jest.mock('@sentry/profiling-node', () => ({
 }));
 
 describe('SentryService', () => {
+  beforeEach(() => {
+    // Reset the service state before each test
+    (SentryService as any).resetForTesting();
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
