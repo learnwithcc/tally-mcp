@@ -1,73 +1,59 @@
 import DOMPurify from 'isomorphic-dompurify';
-const DEFAULT_STRICT_CONFIG = {
-    allowBasicFormatting: false,
-    allowLinks: false,
-    stripAllHtml: true,
-};
-export function sanitizeString(input, options = DEFAULT_STRICT_CONFIG) {
-    if (typeof input !== 'string') {
+export function sanitizeString(input, options = {}) {
+    if (input === null || input === undefined) {
         return '';
     }
-    if (options.stripAllHtml) {
-        return DOMPurify.sanitize(input, {
-            ALLOWED_TAGS: [],
-            ALLOWED_ATTR: [],
-            ALLOW_DATA_ATTR: false,
-            ALLOW_UNKNOWN_PROTOCOLS: false,
+    let stringifiedInput = String(input);
+    stringifiedInput = stringifiedInput.replace(/javascript:/gi, '');
+    let allowedTags = options.allowedTags ?? [];
+    if (options.allowBasicFormatting) {
+        allowedTags = [...new Set([...allowedTags, 'b', 'i', 'u', 'strong', 'em', 'br', 'p'])];
+    }
+    if (options.allowLinks) {
+        allowedTags = [...new Set([...allowedTags, 'a'])];
+    }
+    let allowedAttr = options.allowedAttr ?? [];
+    if (options.allowLinks) {
+        allowedAttr = [...new Set([...allowedAttr, 'href', 'title', 'target', 'rel'])];
+    }
+    const domPurifyOptions = {
+        ALLOWED_TAGS: options.stripAllHtml ? [] : allowedTags,
+        ALLOWED_ATTR: options.stripAllHtml ? [] : allowedAttr,
+        ALLOW_DATA_ATTR: options.allowDataAttr ?? false,
+        ALLOW_UNKNOWN_PROTOCOLS: options.allowUnknownProtocols ?? false,
+    };
+    const sanitized = DOMPurify.sanitize(stringifiedInput, domPurifyOptions);
+    if (options.allowLinks) {
+        DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+            if (node.tagName === 'A' && node.hasAttribute('href')) {
+                node.setAttribute('rel', 'noopener noreferrer');
+                node.setAttribute('target', '_blank');
+            }
         });
     }
-    const config = {
-        ALLOW_DATA_ATTR: false,
-        ALLOW_UNKNOWN_PROTOCOLS: false,
-    };
-    if (options.allowedTags) {
-        config.ALLOWED_TAGS = options.allowedTags;
+    const final = DOMPurify.sanitize(sanitized, domPurifyOptions);
+    if (options.allowLinks) {
+        DOMPurify.removeHook('afterSanitizeAttributes');
     }
-    else {
-        const allowedTags = [];
-        if (options.allowBasicFormatting) {
-            allowedTags.push('b', 'i', 'u', 'strong', 'em', 'br', 'p');
-        }
-        if (options.allowLinks) {
-            allowedTags.push('a');
-        }
-        config.ALLOWED_TAGS = allowedTags;
-    }
-    if (options.allowedAttributes) {
-        config.ALLOWED_ATTR = options.allowedAttributes;
-    }
-    else {
-        const allowedAttrs = [];
-        if (options.allowLinks) {
-            allowedAttrs.push('href', 'title');
-        }
-        config.ALLOWED_ATTR = allowedAttrs;
-    }
-    return String(DOMPurify.sanitize(input, config));
+    return final;
 }
-export function sanitizeObject(obj, options = DEFAULT_STRICT_CONFIG) {
+export function sanitizeObject(obj, options = {}) {
     if (!obj || typeof obj !== 'object') {
         return obj;
     }
-    const sanitized = { ...obj };
-    for (const [key, value] of Object.entries(sanitized)) {
+    const sanitizedObj = { ...obj };
+    for (const key in sanitizedObj) {
+        const value = sanitizedObj[key];
         if (typeof value === 'string') {
-            sanitized[key] = sanitizeString(value, options);
+            sanitizedObj[key] = sanitizeString(value, options);
         }
-        else if (Array.isArray(value)) {
-            sanitized[key] = value.map(item => typeof item === 'string'
-                ? sanitizeString(item, options)
-                : typeof item === 'object' && item !== null
-                    ? sanitizeObject(item, options)
-                    : item);
-        }
-        else if (typeof value === 'object' && value !== null) {
-            sanitized[key] = sanitizeObject(value, options);
+        else if (typeof value === 'object') {
+            sanitizedObj[key] = sanitizeObject(value, options);
         }
     }
-    return sanitized;
+    return sanitizedObj;
 }
-export function sanitizeArray(arr, options = DEFAULT_STRICT_CONFIG) {
+export function sanitizeArray(arr, options = {}) {
     if (!Array.isArray(arr)) {
         return [];
     }
@@ -75,7 +61,7 @@ export function sanitizeArray(arr, options = DEFAULT_STRICT_CONFIG) {
         if (typeof item === 'string') {
             return sanitizeString(item, options);
         }
-        else if (typeof item === 'object' && item !== null) {
+        if (typeof item === 'object' && item !== null) {
             return sanitizeObject(item, options);
         }
         return item;
@@ -129,7 +115,11 @@ export class InputValidator {
     }
 }
 export const SanitizationPresets = {
-    STRICT: DEFAULT_STRICT_CONFIG,
+    STRICT: {
+        allowBasicFormatting: false,
+        allowLinks: false,
+        stripAllHtml: true,
+    },
     FORM_INPUT: {
         allowBasicFormatting: true,
         allowLinks: false,

@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 /**
  * Tally MCP Server
  * 

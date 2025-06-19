@@ -1,14 +1,8 @@
-name = "tally-mcp-server"
+name = "tally-mcp"
 main = "dist/worker.js"
-compatibility_date = "2023-10-30"
-node_compat = true
-
-# Environment variables and secrets are configured via wrangler CLI:
-# echo "YOUR_TALLY_API_KEY" | npx wrangler secret put TALLY_API_KEY
-# echo "your_unique_auth_token" | npx wrangler secret put AUTH_TOKEN
-
-# To customize the deployment subdomain, change the 'name' field above
-# This will deploy to: https://tally-mcp-server.workers.dev/mcp
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+account_id = "f1f5e285b7f9bcfc4efb9eb8904cc7e8"
 
 [build]
 command = "npm run build:worker"

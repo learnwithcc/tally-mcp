@@ -8,6 +8,7 @@ import {
   TallyApiError,
 } from '../models';
 import https from 'https';
+import { z, ZodIssue } from 'zod';
 
 /**
  * Specific authentication error types for better error handling
@@ -1159,7 +1160,7 @@ export class AuthenticationValidator {
       const validation = schema.safeParse(responseData);
       return {
         isValid: validation.success,
-        errors: validation.success ? [] : validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`),
+        errors: validation.success ? [] : validation.error.errors.map((e: ZodIssue) => `${e.path.join('.')}: ${e.message}`),
       };
     } catch (error) {
       return {
@@ -1741,7 +1742,7 @@ export class AuthenticationValidator {
    * 
    * @returns Current configuration
    */
-  public getConfig(): Readonly<Required<AuthenticationValidatorConfig>> {
+  public getConfig(): Readonly<Required<Omit<AuthenticationValidatorConfig, 'oauth2Config'>> & { oauth2Config?: OAuth2Config }> {
     return { ...this.config };
   }
 
@@ -1901,14 +1902,15 @@ export class AuthenticationValidator {
         client_secret: this.config.oauth2Config.clientSecret
       };
 
-      const response = await this.apiClient.makeRequest({
-        method: 'POST',
-        endpoint: '/oauth/token',
-        data: refreshData,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+      const response = await this.apiClient.post(
+        '/oauth/token',
+        refreshData,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
         }
-      });
+      );
 
       const responseTime = Date.now() - startTime;
 

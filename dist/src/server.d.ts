@@ -1,4 +1,5 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { ServerCapabilities } from './types/capabilities';
 export declare enum LogLevel {
     FATAL = 0,
     ERROR = 1,
@@ -64,6 +65,7 @@ export interface MCPServerConfig {
     maxConnections: number;
     debug: boolean;
     logger?: Partial<LoggerConfig>;
+    capabilities?: ServerCapabilities;
 }
 export declare const DEFAULT_CONFIG: MCPServerConfig;
 export declare enum ServerState {
@@ -113,6 +115,7 @@ export interface HealthThresholds {
     maxConnections: number;
 }
 export declare const DEFAULT_HEALTH_THRESHOLDS: HealthThresholds;
+export declare const SERVER_CAPABILITIES: ServerCapabilities;
 export declare class MCPServer extends Server {
     private config;
     private app;
@@ -129,6 +132,8 @@ export declare class MCPServer extends Server {
     private correlationIds;
     private errorMetrics;
     private tools?;
+    private metricsRegistry;
+    private monitoringService;
     constructor(config?: Partial<MCPServerConfig>);
     getState(): ServerState;
     getConnectionCount(): number;
@@ -144,7 +149,6 @@ export declare class MCPServer extends Server {
     initialize(): Promise<void>;
     shutdown(): Promise<void>;
     private handleSSEConnection;
-    private handleMCPMessage;
     private removeConnection;
     private sendSSEMessage;
     private broadcastToConnections;
@@ -180,5 +184,7 @@ export declare class MCPServer extends Server {
     on(event: string, listener: (...args: any[]) => void): this;
     emit(event: string, ...args: any[]): boolean;
     broadcast(event: string, data: any): void;
+    private updateMetricsFromHealth;
+    private handleMCPMessage;
 }
 //# sourceMappingURL=server.d.ts.map

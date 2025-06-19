@@ -1,54 +1,17 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.LogicCombinator = exports.ConditionalAction = exports.MatrixResponseType = exports.PaymentMethod = exports.TimeFormat = exports.PhoneFormat = exports.RatingStyle = exports.QuestionLayout = exports.LogicOperator = exports.ValidationType = exports.SubmissionBehavior = exports.FormTheme = exports.QuestionType = void 0;
-exports.questionHasOptions = questionHasOptions;
-exports.isTextBasedQuestion = isTextBasedQuestion;
-exports.isNumericQuestion = isNumericQuestion;
-exports.isDateTimeQuestion = isDateTimeQuestion;
-exports.isFileQuestion = isFileQuestion;
-exports.isMatrixQuestion = isMatrixQuestion;
-exports.isRequiredValidation = isRequiredValidation;
-exports.isLengthValidation = isLengthValidation;
-exports.isNumericValidation = isNumericValidation;
-exports.isPatternValidation = isPatternValidation;
-exports.isEmailValidation = isEmailValidation;
-exports.isUrlValidation = isUrlValidation;
-exports.isPhoneValidation = isPhoneValidation;
-exports.isDateValidation = isDateValidation;
-exports.isTimeValidation = isTimeValidation;
-exports.isFileValidation = isFileValidation;
-exports.isChoiceValidation = isChoiceValidation;
-exports.isRatingValidation = isRatingValidation;
-exports.isCustomValidation = isCustomValidation;
-exports.getCompatibleValidationTypes = getCompatibleValidationTypes;
-exports.isValidationRuleCompatible = isValidationRuleCompatible;
-exports.filterCompatibleValidationRules = filterCompatibleValidationRules;
-exports.createValidationRulesForQuestion = createValidationRulesForQuestion;
-exports.combineValidationRules = combineValidationRules;
-exports.createRequiredRule = createRequiredRule;
-exports.createLengthRule = createLengthRule;
-exports.createNumericRule = createNumericRule;
-exports.createPatternRule = createPatternRule;
-exports.createEmailRule = createEmailRule;
-exports.createChoiceRule = createChoiceRule;
-exports.isShowHideAction = isShowHideAction;
-exports.isRequireAction = isRequireAction;
-exports.isJumpToAction = isJumpToAction;
-exports.isJumpToPageAction = isJumpToPageAction;
-exports.isSetValueAction = isSetValueAction;
-exports.isClearValueAction = isClearValueAction;
-exports.isEnableDisableAction = isEnableDisableAction;
-exports.isShowMessageAction = isShowMessageAction;
-exports.isRedirectAction = isRedirectAction;
-exports.isSubmitFormAction = isSubmitFormAction;
-exports.isSkipAction = isSkipAction;
-exports.getReferencedQuestionIds = getReferencedQuestionIds;
-exports.logicReferencesQuestion = logicReferencesQuestion;
-exports.validateLogicReferences = validateLogicReferences;
-exports.createSimpleShowHideLogic = createSimpleShowHideLogic;
-exports.createRequiredLogic = createRequiredLogic;
-exports.createJumpLogic = createJumpLogic;
-var QuestionType;
+/**
+ * Form Configuration Data Models
+ *
+ * This file contains TypeScript interfaces and Zod schemas for form configuration,
+ * questions, validation rules, and conditional logic. These models are used for
+ * creating and modifying Tally forms through natural language processing.
+ */
+// ===============================
+// Enums and Constants
+// ===============================
+/**
+ * Supported question types for Tally forms
+ */
+export var QuestionType;
 (function (QuestionType) {
     QuestionType["TEXT"] = "text";
     QuestionType["EMAIL"] = "email";
@@ -68,23 +31,32 @@ var QuestionType;
     QuestionType["SIGNATURE"] = "signature";
     QuestionType["PAYMENT"] = "payment";
     QuestionType["MATRIX"] = "matrix";
-})(QuestionType || (exports.QuestionType = QuestionType = {}));
-var FormTheme;
+})(QuestionType || (QuestionType = {}));
+/**
+ * Form display themes and styles
+ */
+export var FormTheme;
 (function (FormTheme) {
     FormTheme["DEFAULT"] = "default";
     FormTheme["MINIMAL"] = "minimal";
     FormTheme["MODERN"] = "modern";
     FormTheme["CLASSIC"] = "classic";
     FormTheme["CUSTOM"] = "custom";
-})(FormTheme || (exports.FormTheme = FormTheme = {}));
-var SubmissionBehavior;
+})(FormTheme || (FormTheme = {}));
+/**
+ * Form submission behavior options
+ */
+export var SubmissionBehavior;
 (function (SubmissionBehavior) {
     SubmissionBehavior["REDIRECT"] = "redirect";
     SubmissionBehavior["MESSAGE"] = "message";
     SubmissionBehavior["CLOSE"] = "close";
     SubmissionBehavior["RELOAD"] = "reload";
-})(SubmissionBehavior || (exports.SubmissionBehavior = SubmissionBehavior = {}));
-var ValidationType;
+})(SubmissionBehavior || (SubmissionBehavior = {}));
+/**
+ * Validation rule types
+ */
+export var ValidationType;
 (function (ValidationType) {
     ValidationType["REQUIRED"] = "required";
     ValidationType["MIN_LENGTH"] = "min_length";
@@ -98,8 +70,11 @@ var ValidationType;
     ValidationType["DATE_RANGE"] = "date_range";
     ValidationType["FILE_TYPE"] = "file_type";
     ValidationType["FILE_SIZE"] = "file_size";
-})(ValidationType || (exports.ValidationType = ValidationType = {}));
-var LogicOperator;
+})(ValidationType || (ValidationType = {}));
+/**
+ * Conditional logic operators
+ */
+export var LogicOperator;
 (function (LogicOperator) {
     LogicOperator["EQUALS"] = "equals";
     LogicOperator["NOT_EQUALS"] = "not_equals";
@@ -111,114 +86,198 @@ var LogicOperator;
     LogicOperator["LESS_EQUAL"] = "less_equal";
     LogicOperator["IS_EMPTY"] = "is_empty";
     LogicOperator["IS_NOT_EMPTY"] = "is_not_empty";
-})(LogicOperator || (exports.LogicOperator = LogicOperator = {}));
-var QuestionLayout;
+})(LogicOperator || (LogicOperator = {}));
+/**
+ * Question layout options for choice-based questions
+ */
+export var QuestionLayout;
 (function (QuestionLayout) {
     QuestionLayout["VERTICAL"] = "vertical";
     QuestionLayout["HORIZONTAL"] = "horizontal";
     QuestionLayout["GRID"] = "grid";
-})(QuestionLayout || (exports.QuestionLayout = QuestionLayout = {}));
-var RatingStyle;
+})(QuestionLayout || (QuestionLayout = {}));
+/**
+ * Rating display styles
+ */
+export var RatingStyle;
 (function (RatingStyle) {
     RatingStyle["STARS"] = "stars";
     RatingStyle["NUMBERS"] = "numbers";
     RatingStyle["THUMBS"] = "thumbs";
     RatingStyle["HEARTS"] = "hearts";
     RatingStyle["FACES"] = "faces";
-})(RatingStyle || (exports.RatingStyle = RatingStyle = {}));
-var PhoneFormat;
+})(RatingStyle || (RatingStyle = {}));
+/**
+ * Phone number format types
+ */
+export var PhoneFormat;
 (function (PhoneFormat) {
     PhoneFormat["US"] = "US";
     PhoneFormat["INTERNATIONAL"] = "INTERNATIONAL";
     PhoneFormat["CUSTOM"] = "CUSTOM";
-})(PhoneFormat || (exports.PhoneFormat = PhoneFormat = {}));
-var TimeFormat;
+})(PhoneFormat || (PhoneFormat = {}));
+/**
+ * Time format options
+ */
+export var TimeFormat;
 (function (TimeFormat) {
     TimeFormat["TWELVE_HOUR"] = "12";
     TimeFormat["TWENTY_FOUR_HOUR"] = "24";
-})(TimeFormat || (exports.TimeFormat = TimeFormat = {}));
-var PaymentMethod;
+})(TimeFormat || (TimeFormat = {}));
+/**
+ * Payment methods
+ */
+export var PaymentMethod;
 (function (PaymentMethod) {
     PaymentMethod["CARD"] = "card";
     PaymentMethod["PAYPAL"] = "paypal";
     PaymentMethod["APPLE_PAY"] = "apple_pay";
     PaymentMethod["GOOGLE_PAY"] = "google_pay";
-})(PaymentMethod || (exports.PaymentMethod = PaymentMethod = {}));
-var MatrixResponseType;
+})(PaymentMethod || (PaymentMethod = {}));
+/**
+ * Matrix question response types
+ */
+export var MatrixResponseType;
 (function (MatrixResponseType) {
     MatrixResponseType["SINGLE_SELECT"] = "single_select";
     MatrixResponseType["MULTI_SELECT"] = "multi_select";
     MatrixResponseType["TEXT_INPUT"] = "text_input";
     MatrixResponseType["RATING"] = "rating";
-})(MatrixResponseType || (exports.MatrixResponseType = MatrixResponseType = {}));
-function questionHasOptions(question) {
+})(MatrixResponseType || (MatrixResponseType = {}));
+// ===============================
+// Type Guards and Utility Types
+// ===============================
+/**
+ * Type guard to check if a question has options
+ */
+export function questionHasOptions(question) {
     return question.type === QuestionType.MULTIPLE_CHOICE ||
         question.type === QuestionType.DROPDOWN ||
         question.type === QuestionType.CHECKBOXES;
 }
-function isTextBasedQuestion(question) {
+/**
+ * Type guard to check if a question is text-based
+ */
+export function isTextBasedQuestion(question) {
     return question.type === QuestionType.TEXT ||
         question.type === QuestionType.TEXTAREA ||
         question.type === QuestionType.EMAIL ||
         question.type === QuestionType.PHONE ||
         question.type === QuestionType.URL;
 }
-function isNumericQuestion(question) {
+/**
+ * Type guard to check if a question is numeric
+ */
+export function isNumericQuestion(question) {
     return question.type === QuestionType.NUMBER ||
         question.type === QuestionType.RATING ||
         question.type === QuestionType.LINEAR_SCALE;
 }
-function isDateTimeQuestion(question) {
+/**
+ * Type guard to check if a question is date/time related
+ */
+export function isDateTimeQuestion(question) {
     return question.type === QuestionType.DATE ||
         question.type === QuestionType.TIME;
 }
-function isFileQuestion(question) {
+/**
+ * Type guard to check if a question supports file uploads
+ */
+export function isFileQuestion(question) {
     return question.type === QuestionType.FILE ||
         question.type === QuestionType.SIGNATURE;
 }
-function isMatrixQuestion(question) {
+/**
+ * Type guard to check if a question is a matrix question
+ */
+export function isMatrixQuestion(question) {
     return question.type === QuestionType.MATRIX;
 }
-function isRequiredValidation(rule) {
+// ===============================
+// Validation Rule Type Guards and Utilities
+// ===============================
+/**
+ * Type guard for required validation
+ */
+export function isRequiredValidation(rule) {
     return rule.type === 'required';
 }
-function isLengthValidation(rule) {
+/**
+ * Type guard for length validation
+ */
+export function isLengthValidation(rule) {
     return rule.type === 'length';
 }
-function isNumericValidation(rule) {
+/**
+ * Type guard for numeric validation
+ */
+export function isNumericValidation(rule) {
     return rule.type === 'numeric';
 }
-function isPatternValidation(rule) {
+/**
+ * Type guard for pattern validation
+ */
+export function isPatternValidation(rule) {
     return rule.type === 'pattern';
 }
-function isEmailValidation(rule) {
+/**
+ * Type guard for email validation
+ */
+export function isEmailValidation(rule) {
     return rule.type === 'email';
 }
-function isUrlValidation(rule) {
+/**
+ * Type guard for URL validation
+ */
+export function isUrlValidation(rule) {
     return rule.type === 'url';
 }
-function isPhoneValidation(rule) {
+/**
+ * Type guard for phone validation
+ */
+export function isPhoneValidation(rule) {
     return rule.type === 'phone';
 }
-function isDateValidation(rule) {
+/**
+ * Type guard for date validation
+ */
+export function isDateValidation(rule) {
     return rule.type === 'date';
 }
-function isTimeValidation(rule) {
+/**
+ * Type guard for time validation
+ */
+export function isTimeValidation(rule) {
     return rule.type === 'time';
 }
-function isFileValidation(rule) {
+/**
+ * Type guard for file validation
+ */
+export function isFileValidation(rule) {
     return rule.type === 'file';
 }
-function isChoiceValidation(rule) {
+/**
+ * Type guard for choice validation
+ */
+export function isChoiceValidation(rule) {
     return rule.type === 'choice';
 }
-function isRatingValidation(rule) {
+/**
+ * Type guard for rating validation
+ */
+export function isRatingValidation(rule) {
     return rule.type === 'rating';
 }
-function isCustomValidation(rule) {
+/**
+ * Type guard for custom validation
+ */
+export function isCustomValidation(rule) {
     return rule.type === 'custom';
 }
-function getCompatibleValidationTypes(questionType) {
+/**
+ * Get compatible validation rules for a specific question type
+ */
+export function getCompatibleValidationTypes(questionType) {
     const baseTypes = ['required', 'custom'];
     switch (questionType) {
         case QuestionType.TEXT:
@@ -254,14 +313,23 @@ function getCompatibleValidationTypes(questionType) {
             return baseTypes;
     }
 }
-function isValidationRuleCompatible(rule, questionType) {
+/**
+ * Check if a validation rule is compatible with a question type
+ */
+export function isValidationRuleCompatible(rule, questionType) {
     const compatibleTypes = getCompatibleValidationTypes(questionType);
     return compatibleTypes.includes(rule.type);
 }
-function filterCompatibleValidationRules(rules, questionType) {
+/**
+ * Filter validation rules to only include compatible ones for a question type
+ */
+export function filterCompatibleValidationRules(rules, questionType) {
     return rules.filter(rule => isValidationRuleCompatible(rule, questionType));
 }
-function createValidationRulesForQuestion(rules) {
+/**
+ * Utility function to create typed validation rules for a specific question type
+ */
+export function createValidationRulesForQuestion(rules) {
     return {
         rules: rules,
         validateOnChange: true,
@@ -269,7 +337,10 @@ function createValidationRulesForQuestion(rules) {
         stopOnFirstError: false,
     };
 }
-function combineValidationRules(...ruleSets) {
+/**
+ * Combine multiple validation rule sets
+ */
+export function combineValidationRules(...ruleSets) {
     const combinedRules = [];
     const combinedCustomMessages = {};
     let validateOnChange = false;
@@ -307,7 +378,10 @@ function combineValidationRules(...ruleSets) {
     }
     return result;
 }
-function createRequiredRule(errorMessage) {
+/**
+ * Helper function to create a required validation rule
+ */
+export function createRequiredRule(errorMessage) {
     const rule = {
         type: 'required',
         required: true,
@@ -317,7 +391,10 @@ function createRequiredRule(errorMessage) {
     }
     return rule;
 }
-function createLengthRule(options) {
+/**
+ * Helper function to create a length validation rule
+ */
+export function createLengthRule(options) {
     const rule = {
         type: 'length',
     };
@@ -329,7 +406,10 @@ function createLengthRule(options) {
         rule.errorMessage = options.errorMessage;
     return rule;
 }
-function createNumericRule(options) {
+/**
+ * Helper function to create a numeric validation rule
+ */
+export function createNumericRule(options) {
     const rule = {
         type: 'numeric',
     };
@@ -345,7 +425,10 @@ function createNumericRule(options) {
         rule.errorMessage = options.errorMessage;
     return rule;
 }
-function createPatternRule(pattern, options) {
+/**
+ * Helper function to create a pattern validation rule
+ */
+export function createPatternRule(pattern, options) {
     const rule = {
         type: 'pattern',
         pattern,
@@ -358,7 +441,10 @@ function createPatternRule(pattern, options) {
         rule.errorMessage = options.errorMessage;
     return rule;
 }
-function createEmailRule(options) {
+/**
+ * Helper function to create an email validation rule
+ */
+export function createEmailRule(options) {
     const rule = {
         type: 'email',
     };
@@ -372,7 +458,10 @@ function createEmailRule(options) {
         rule.errorMessage = options.errorMessage;
     return rule;
 }
-function createChoiceRule(options) {
+/**
+ * Helper function to create a choice validation rule
+ */
+export function createChoiceRule(options) {
     const rule = {
         type: 'choice',
     };
@@ -388,40 +477,79 @@ function createChoiceRule(options) {
         rule.errorMessage = options.errorMessage;
     return rule;
 }
-function isShowHideAction(action) {
+// =======================================
+// Conditional Logic Type Guards & Utils
+// =======================================
+/**
+ * Type guard to check if an action is a show/hide action
+ */
+export function isShowHideAction(action) {
     return action.action === ConditionalAction.SHOW || action.action === ConditionalAction.HIDE;
 }
-function isRequireAction(action) {
+/**
+ * Type guard to check if an action is a require action
+ */
+export function isRequireAction(action) {
     return action.action === ConditionalAction.REQUIRE || action.action === ConditionalAction.MAKE_OPTIONAL;
 }
-function isJumpToAction(action) {
+/**
+ * Type guard to check if an action is a jump to action
+ */
+export function isJumpToAction(action) {
     return action.action === ConditionalAction.JUMP_TO;
 }
-function isJumpToPageAction(action) {
+/**
+ * Type guard to check if an action is a jump to page action
+ */
+export function isJumpToPageAction(action) {
     return action.action === ConditionalAction.JUMP_TO_PAGE;
 }
-function isSetValueAction(action) {
+/**
+ * Type guard to check if an action is a set value action
+ */
+export function isSetValueAction(action) {
     return action.action === ConditionalAction.SET_VALUE;
 }
-function isClearValueAction(action) {
+/**
+ * Type guard to check if an action is a clear value action
+ */
+export function isClearValueAction(action) {
     return action.action === ConditionalAction.CLEAR_VALUE;
 }
-function isEnableDisableAction(action) {
+/**
+ * Type guard to check if an action is an enable/disable action
+ */
+export function isEnableDisableAction(action) {
     return action.action === ConditionalAction.ENABLE || action.action === ConditionalAction.DISABLE;
 }
-function isShowMessageAction(action) {
+/**
+ * Type guard to check if an action is a show message action
+ */
+export function isShowMessageAction(action) {
     return action.action === ConditionalAction.SHOW_MESSAGE;
 }
-function isRedirectAction(action) {
+/**
+ * Type guard to check if an action is a redirect action
+ */
+export function isRedirectAction(action) {
     return action.action === ConditionalAction.REDIRECT;
 }
-function isSubmitFormAction(action) {
+/**
+ * Type guard to check if an action is a submit form action
+ */
+export function isSubmitFormAction(action) {
     return action.action === ConditionalAction.SUBMIT_FORM;
 }
-function isSkipAction(action) {
+/**
+ * Type guard to check if an action is a skip action
+ */
+export function isSkipAction(action) {
     return action.action === ConditionalAction.SKIP;
 }
-function getReferencedQuestionIds(logic) {
+/**
+ * Get all question IDs referenced in a conditional logic rule
+ */
+export function getReferencedQuestionIds(logic) {
     const questionIds = new Set();
     function processConditionGroup(group) {
         group.conditions.forEach(condition => {
@@ -448,10 +576,16 @@ function getReferencedQuestionIds(logic) {
     }
     return Array.from(questionIds);
 }
-function logicReferencesQuestion(logic, questionId) {
+/**
+ * Check if a conditional logic rule references a specific question
+ */
+export function logicReferencesQuestion(logic, questionId) {
     return getReferencedQuestionIds(logic).includes(questionId);
 }
-function validateLogicReferences(logic, existingQuestionIds) {
+/**
+ * Validate that all referenced questions exist in the form
+ */
+export function validateLogicReferences(logic, existingQuestionIds) {
     const referencedIds = getReferencedQuestionIds(logic);
     const missingQuestions = referencedIds.filter(id => !existingQuestionIds.includes(id));
     return {
@@ -459,7 +593,10 @@ function validateLogicReferences(logic, existingQuestionIds) {
         missingQuestions
     };
 }
-function createSimpleShowHideLogic(questionId, triggerQuestionId, operator, value, action = 'show') {
+/**
+ * Create a simple show/hide conditional logic rule
+ */
+export function createSimpleShowHideLogic(questionId, triggerQuestionId, operator, value, action = 'show') {
     return {
         id: `${action}_${questionId}_when_${triggerQuestionId}_${operator}_${value}`,
         name: `${action === 'show' ? 'Show' : 'Hide'} ${questionId} when ${triggerQuestionId} ${operator} ${value}`,
@@ -481,7 +618,10 @@ function createSimpleShowHideLogic(questionId, triggerQuestionId, operator, valu
         ]
     };
 }
-function createRequiredLogic(questionId, triggerQuestionId, operator, value, validationMessage) {
+/**
+ * Create a conditional logic rule for making questions required
+ */
+export function createRequiredLogic(questionId, triggerQuestionId, operator, value, validationMessage) {
     return {
         id: `require_${questionId}_when_${triggerQuestionId}_${operator}_${value}`,
         name: `Require ${questionId} when ${triggerQuestionId} ${operator} ${value}`,
@@ -504,7 +644,10 @@ function createRequiredLogic(questionId, triggerQuestionId, operator, value, val
         ]
     };
 }
-function createJumpLogic(triggerQuestionId, operator, value, targetQuestionId, skipValidation = false) {
+/**
+ * Create a jump logic rule
+ */
+export function createJumpLogic(triggerQuestionId, operator, value, targetQuestionId, skipValidation = false) {
     return {
         id: `jump_to_${targetQuestionId}_when_${triggerQuestionId}_${operator}_${value}`,
         name: `Jump to ${targetQuestionId} when ${triggerQuestionId} ${operator} ${value}`,
@@ -528,7 +671,13 @@ function createJumpLogic(triggerQuestionId, operator, value, targetQuestionId, s
         ]
     };
 }
-var ConditionalAction;
+// ===============================
+// Conditional Logic and Branching
+// ===============================
+/**
+ * Action types for conditional logic
+ */
+export var ConditionalAction;
 (function (ConditionalAction) {
     ConditionalAction["SHOW"] = "show";
     ConditionalAction["HIDE"] = "hide";
@@ -544,13 +693,15 @@ var ConditionalAction;
     ConditionalAction["ENABLE"] = "enable";
     ConditionalAction["SHOW_MESSAGE"] = "show_message";
     ConditionalAction["REDIRECT"] = "redirect";
-})(ConditionalAction || (exports.ConditionalAction = ConditionalAction = {}));
-var LogicCombinator;
+})(ConditionalAction || (ConditionalAction = {}));
+/**
+ * Logic combination operators
+ */
+export var LogicCombinator;
 (function (LogicCombinator) {
     LogicCombinator["AND"] = "and";
     LogicCombinator["OR"] = "or";
     LogicCombinator["XOR"] = "xor";
     LogicCombinator["NAND"] = "nand";
     LogicCombinator["NOR"] = "nor";
-})(LogicCombinator || (exports.LogicCombinator = LogicCombinator = {}));
-//# sourceMappingURL=form-config.js.map
+})(LogicCombinator || (LogicCombinator = {}));

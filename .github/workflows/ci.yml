@@ -29,7 +29,7 @@ jobs:
       run: npm ci
 
     - name: Run tests
-      run: npm test
+      run: npm run test:coverage
 
     - name: Publish Test Report
       uses: dorny/test-reporter@v1

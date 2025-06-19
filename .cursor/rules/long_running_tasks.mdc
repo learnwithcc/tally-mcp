@@ -1,0 +1,55 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Handling Long-Running Processes in Cursor
+
+To avoid `connection failed` or timeout errors during long-running operations like performance tests, builds, or complex tool calls, follow these guidelines.
+
+## 1. Acknowledge Cursor's Timeout Limits
+
+-   **Fixed Timeouts:** Cursor imposes a non-configurable timeout on tool calls and other background processes initiated from chat. This can be as short as 5 seconds.
+-   **No User Control:** There is currently no setting to extend this timeout.
+
+## 2. Best Practices for Long-Running Tasks
+
+-   **Break Down Tasks:** Sub-divide long processes into smaller chunks.
+    -   **Target Duration:** Aim for each chunk to complete in **under 5 seconds** to be safe.
+    -   **Example (Artillery):** Instead of one long test, run multiple short tests targeting specific phases or scenarios.
+
+-   **Kill Previous Processes:** Before starting a new instance of a server or long-running task, always ensure the previous one is terminated to avoid port conflicts (`EADDRINUSE`).
+    -   **Command:** Use `kill $(lsof -t -i:<port>) 2>/dev/null || true` to gracefully kill any process on a given port.
+
+-   **Execute Externally (If Necessary):** For tasks that cannot be broken down (e.g., a full production build), the best practice is to run them in a separate, dedicated terminal outside of the agent's control and then report the results back.
+
+-   **Provide Feedback:** Continue to report when timeouts occur, as this helps refine our internal best practices and provides data for potential future feature requests to the Cursor team.
+
+## 3. Primary Strategy: Decompose and Conquer
+
+-   **Break Down Tasks:** The most effective strategy is to break down long-running commands into smaller, incremental steps that can each complete within the timeout window.
+-   **Example (Artillery):** Instead of running a full 10-minute test suite, run a single, short scenario first to verify configuration. Then, run shorter phases of the test separately.
+    ```bash
+    # Instead of this:
+    npx artillery run long-test-suite.yml
+
+    # Do this:
+    # Step 1: Verify a single scenario
+    npx artillery run --scenario "Quick Smoke Test" test-suite.yml
+
+    # Step 2: Run a shorter phase
+    npx artillery run --phase "Warm-up" test-suite.yml
+    ```
+-   **Example (Builds/Tests):** Instead of running `npm test`, run tests for a specific file or component: `jest src/components/MyComponent.test.ts`.
+
+## 4. Use Background Execution Strategically
+
+-   **Background for Independence:** For tasks that *must* run for a long time, use the `is_background: true` flag in the `run_terminal_cmd` tool.
+-   **Fire-and-Forget:** Understand that when a task is backgrounded, the agent may not get a direct success/failure result if the connection times out. The process will continue running on the user's machine, but the agent loses its direct handle on it.
+-   **Follow-up:** After starting a background task, subsequent steps should involve checking its output (e.g., via log files) or status, rather than assuming it completed successfully.
+
+## 5. Artillery-Specific Considerations
+
+-   **Internal vs. External Timeouts:** Remember that Artillery's own HTTP request timeout (`config.http.timeout`) is separate from Cursor's process execution timeout. Increasing Artillery's timeout will not prevent Cursor from terminating the process.
+
+By following these strategies, we can work more effectively within Cursor's constraints, leading to more productive and less interrupted development sessions.

@@ -20,6 +20,8 @@ export var ShareLinkType;
     ShareLinkType["EMBED"] = "embed";
     ShareLinkType["QR_CODE"] = "qr_code";
     ShareLinkType["SOCIAL"] = "social";
+    ShareLinkType["DIRECT"] = "direct";
+    ShareLinkType["SECURE"] = "secure";
 })(ShareLinkType || (ShareLinkType = {}));
 export const FormVisibilitySchema = z.nativeEnum(FormVisibility);
 export const EmbedThemeSchema = z.nativeEnum(EmbedTheme);
@@ -44,6 +46,7 @@ export const FormPublicationSettingsSchema = z.object({
     trackAnalytics: z.boolean().default(true),
     allowIndexing: z.boolean().default(false),
     requireCaptcha: z.boolean().default(false),
+    maxSubmissions: z.number().positive().optional(),
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime()
 });

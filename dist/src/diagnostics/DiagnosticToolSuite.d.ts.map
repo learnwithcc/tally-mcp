@@ -1,0 +1,1 @@
+{"version":3,"file":"DiagnosticToolSuite.d.ts","sourceRoot":"","sources":["../../../src/diagnostics/DiagnosticToolSuite.ts"],"names":[],"mappings":"AAAA,OAAO,EAAmB,gBAAgB,EAAE,MAAM,SAAS,CAAC;AAU5D,qBAAa,mBAAmB;IAC9B,OAAO,CAAC,KAAK,CAAoB;;IAe3B,MAAM,IAAI,OAAO,CAAC,gBAAgB,EAAE,CAAC;IAQrC,OAAO,CAAC,QAAQ,EAAE,MAAM,GAAG,OAAO,CAAC,gBAAgB,GAAG,SAAS,CAAC;CAOvE"}

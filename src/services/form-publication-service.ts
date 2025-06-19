@@ -156,7 +156,7 @@ export class FormPublicationService {
         ...settings
       });
 
-      const embedUrl = `${this.baseUrl}/r/${formId}`;
+      const embedUrl = `${this.baseUrl}/embed/${formId}`;
       
       // Generate different embed code formats
       const html = this.generateHtmlEmbed(embedUrl, embedSettings);

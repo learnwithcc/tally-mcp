@@ -206,7 +206,9 @@ export declare class AuthenticationValidator {
     }>;
     performComprehensiveValidation(accessToken: string, testEndpoints?: string[]): Promise<ComprehensiveAuthValidationResult>;
     getApiClient(): TallyApiClient;
-    getConfig(): Readonly<Required<AuthenticationValidatorConfig>>;
+    getConfig(): Readonly<Required<Omit<AuthenticationValidatorConfig, 'oauth2Config'>> & {
+        oauth2Config?: OAuth2Config;
+    }>;
     validateEnvironment(): EnvValidationResult;
     private cacheAuthResult;
     private getCachedAuth;

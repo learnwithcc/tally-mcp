@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 
 /**
- * Test Cursor MCP configuration for Tally MCP server
- * This script helps verify the server works with Cursor's MCP client
+ * Cursor MCP Configuration Test Script
+ * 
+ * This script helps verify that your Cursor MCP configuration is correct
+ * and tests the connection to the Tally MCP server.
  */
 
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const os = require('os');
-const { URL } = require('url');
 
 // ANSI color codes for better output
 const colors = {
@@ -55,31 +56,10 @@ function getCursorConfigPath() {
   }
 }
 
-// Configuration - replace with your actual values
-const SERVER_URL = 'https://YOUR-DEPLOYMENT.workers.dev';
-const AUTH_TOKEN = 'YOUR_AUTH_TOKEN_HERE';
-
-/**
- * Test MCP endpoint connectivity
- */
-async function testMCPEndpoint() {
-  const url = `${SERVER_URL}/mcp`;
-  
-  const testPayload = {
-    jsonrpc: '2.0',
-    id: 1,
-    method: 'tools/list'
-  };
-
-  return new Promise((resolve, reject) => {
-    // Implementation of testMCPEndpoint function
-  });
-}
-
 // Test HTTP request to the server
 function testServerConnection(token = 'test123') {
   return new Promise((resolve, reject) => {
-    const url = `${SERVER_URL}/mcp/sse?token=${token}`;
+    const url = `https://tally-mcp.focuslab.workers.dev/mcp/sse?token=${token}`;
     
     const req = https.get(url, {
       headers: {
@@ -234,7 +214,7 @@ ${colors.yellow}"tally-mcp": {
   logInfo('1. Make sure Cursor is completely restarted after config changes');
   logInfo('2. Check Cursor logs if connection issues persist');
   logInfo('3. Verify your Tally API token is valid');
-  logInfo(`4. Test the server directly: curl ${SERVER_URL}/`);
+  logInfo('4. Test the server directly: curl https://tally-mcp.focuslab.workers.dev/');
   
   log('\n✨ Configuration test complete!\n', 'green');
 }

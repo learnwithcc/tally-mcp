@@ -2,9 +2,14 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import express from 'express';
 import * as os from 'os';
-import { TemplateTool, WorkspaceManagementTool } from './tools';
+import { TemplateTool, WorkspaceManagementTool, FormCreationTool, FormModificationTool, FormPermissionManager, FormRetrievalTool, FormSharingTool, SubmissionAnalysisTool, DiagnosticTool, } from './tools';
 import { EventEmitter } from 'events';
 import { env } from './config/env';
+import { Registry, Gauge, collectDefaultMetrics } from 'prom-client';
+import { MonitoringServiceImpl } from './services/MonitoringService';
+import { Logger } from './utils/logger';
+import { SentryService } from './services/SentryService';
+import { TallyApiClient } from './services/TallyApiClient';
 export var LogLevel;
 (function (LogLevel) {
     LogLevel[LogLevel["FATAL"] = 0] = "FATAL";
@@ -58,7 +63,8 @@ export const DEFAULT_HEALTH_THRESHOLDS = {
     maxErrorRate: 50,
     maxConnections: 90,
 };
-const SERVER_CAPABILITIES = {
+export const SERVER_CAPABILITIES = {
+    protocolVersion: '1.0',
     tools: {
         listChanged: true
     },
@@ -67,80 +73,73 @@ const SERVER_CAPABILITIES = {
         listChanged: false
     },
     prompts: {
-        listChanged: false
+        listChanged: false,
     },
     logging: {}
 };
 function negotiateCapabilities(clientCapabilities) {
-    if (clientCapabilities && typeof clientCapabilities !== 'object') {
-        throw new Error('Invalid capabilities format');
-    }
-    if (clientCapabilities) {
-        const typedCapabilities = clientCapabilities;
-        for (const [key, value] of Object.entries(typedCapabilities)) {
-            if (value !== null && typeof value !== 'object') {
-                throw new Error('Invalid capability values');
-            }
-        }
-    }
-    const negotiatedCapabilities = { ...SERVER_CAPABILITIES };
-    if (clientCapabilities) {
-        const typedCapabilities = clientCapabilities;
-        for (const [key, value] of Object.entries(typedCapabilities)) {
-            if (key in negotiatedCapabilities) {
-                const serverKey = key;
-                const mergedCapability = {
-                    ...negotiatedCapabilities[serverKey],
-                    ...value
-                };
-                negotiatedCapabilities[serverKey] = mergedCapability;
-            }
-        }
-    }
-    return negotiatedCapabilities;
+    const clientCaps = (clientCapabilities || {});
+    const negotiated = {
+        protocolVersion: '1.0',
+        tools: {
+            listChanged: !!(SERVER_CAPABILITIES.tools?.listChanged && clientCaps.tools?.listChanged),
+        },
+        resources: {
+            subscribe: !!(SERVER_CAPABILITIES.resources?.subscribe && clientCaps.resources?.subscribe),
+            listChanged: !!(SERVER_CAPABILITIES.resources?.listChanged && clientCaps.resources?.listChanged),
+        },
+        prompts: {
+            listChanged: !!(SERVER_CAPABILITIES.prompts?.listChanged && clientCaps.prompts?.listChanged),
+        },
+        logging: {}
+    };
+    return negotiated;
 }
 export class MCPServer extends Server {
     constructor(config = {}) {
+        const fullConfig = {
+            ...DEFAULT_CONFIG,
+            ...config,
+            logger: { ...DEFAULT_LOGGER_CONFIG, ...config.logger },
+        };
         super({
-            name: 'tally-mcp-server',
+            name: 'tally-mcp-server-test',
             version: '1.0.0',
-        }, {
-            capabilities: {
-                tools: {},
-            },
+            capabilities: fullConfig.capabilities,
+            debug: fullConfig.debug,
         });
         this.signalHandlers = {};
         this.correlationIds = new Map();
-        this.config = { ...DEFAULT_CONFIG, ...config };
+        this.config = fullConfig;
+        this.loggerConfig = fullConfig.logger;
         this.app = express();
         this.state = ServerState.STOPPED;
         this.activeConnections = new Set();
         this.connectionCount = 0;
         this.emitter = new EventEmitter();
         this.startTime = process.hrtime();
-        this.healthThresholds = { ...DEFAULT_HEALTH_THRESHOLDS };
+        this.healthThresholds = DEFAULT_HEALTH_THRESHOLDS;
+        this.metricsRegistry = new Registry();
+        collectDefaultMetrics({ register: this.metricsRegistry });
         this.requestStats = {
             total: 0,
             errors: 0,
-            recentRequests: new Array(60).fill(0),
-            recentErrors: new Array(60).fill(0),
+            recentRequests: [],
+            recentErrors: [],
             lastMinuteIndex: 0,
-        };
-        this.loggerConfig = {
-            ...DEFAULT_LOGGER_CONFIG,
-            ...(this.config.logger || {})
         };
         this.errorMetrics = {
             byCategory: new Map(),
             byCode: new Map(),
             total: 0,
         };
-        this.initializeTools();
+        const logger = new Logger(this.loggerConfig);
+        this.monitoringService = new MonitoringServiceImpl({ writeDataPoint: () => { } }, logger);
+        SentryService.initialize();
+        this.setupMiddleware();
+        this.setupRoutes();
         this.setupMCPHandlers();
-        this.initialize = this.initialize.bind(this);
-        this.shutdown = this.shutdown.bind(this);
-        this.getState = this.getState.bind(this);
-        this.getConnectionCount = this.getConnectionCount.bind(this);
+        this.setupSignalHandlers();
     }
     getState() {
         return this.state;
@@ -302,7 +301,7 @@ export class MCPServer extends Server {
             throw error;
         }
     }
-    handleSSEConnection(req, res) {
+    async handleSSEConnection(req, res) {
         const requestId = req.requestId || 'unknown';
         this.log('info', `New SSE connection established [${requestId}]`);
         if (res.destroyed || res.headersSent) {
@@ -331,7 +330,7 @@ export class MCPServer extends Server {
             jsonrpc: '2.0',
             method: 'notifications/tools/list_changed',
             params: {
-                tools: this._handleToolsList()
+                tools: await this._handleToolsList()
             }
         });
         const timeout = setTimeout(() => {
@@ -358,167 +357,6 @@ export class MCPServer extends Server {
             this.log('debug', `SSE response finished [${requestId}]`);
             this.removeConnection(res);
         });
-    }
-    async handleMCPMessage(message, res) {
-        this.log('debug', 'Received MCP message:', { message, messageType: typeof message });
-        try {
-            if (message === null ||
-                message === undefined ||
-                typeof message !== 'object' ||
-                Array.isArray(message) ||
-                Object.keys(message).length === 0) {
-                res.status(400).json({
-                    jsonrpc: '2.0',
-                    id: message?.id || null,
-                    error: {
-                        code: -32600,
-                        message: 'Invalid Request',
-                        data: 'Message must be a valid non-empty object'
-                    }
-                });
-                return;
-            }
-            if (message.jsonrpc !== '2.0' || !message.method || typeof message.method !== 'string') {
-                res.status(400).json({
-                    jsonrpc: '2.0',
-                    id: message?.id || null,
-                    error: {
-                        code: -32600,
-                        message: 'Invalid Request',
-                        data: 'Request must be valid JSON-RPC 2.0 with method field'
-                    }
-                });
-                return;
-            }
-            let mcpResponse;
-            try {
-                switch (message.method) {
-                    case 'initialize':
-                        if (!message.params?.protocolVersion) {
-                            mcpResponse = {
-                                jsonrpc: '2.0',
-                                id: message.id,
-                                error: {
-                                    code: -32602,
-                                    message: 'Invalid params',
-                                    data: 'Protocol version is required'
-                                }
-                            };
-                            break;
-                        }
-                        if (message.params.protocolVersion !== '2024-11-05') {
-                            mcpResponse = {
-                                jsonrpc: '2.0',
-                                id: message.id,
-                                error: {
-                                    code: -32600,
-                                    message: 'Invalid Request',
-                                    data: 'Unsupported protocol version'
-                                }
-                            };
-                            break;
-                        }
-                        try {
-                            const capabilities = negotiateCapabilities(message.params.capabilities);
-                            mcpResponse = {
-                                jsonrpc: '2.0',
-                                id: message.id,
-                                result: {
-                                    protocolVersion: '2024-11-05',
-                                    capabilities,
-                                    serverInfo: {
-                                        name: 'tally-mcp-server',
-                                        version: '1.0.0',
-                                        description: 'MCP server for Tally.so form management and automation'
-                                    }
-                                }
-                            };
-                        }
-                        catch (error) {
-                            mcpResponse = {
-                                jsonrpc: '2.0',
-                                id: message.id,
-                                error: {
-                                    code: -32602,
-                                    message: 'Invalid params',
-                                    data: error instanceof Error ? error.message : 'Invalid capabilities'
-                                }
-                            };
-                        }
-                        break;
-                    case 'tools/list':
-                        const toolsResult = await this._handleToolsList();
-                        mcpResponse = {
-                            jsonrpc: '2.0',
-                            id: message.id,
-                            result: toolsResult
-                        };
-                        break;
-                    case 'tools/call':
-                        const callResult = await this._handleToolsCall(message);
-                        mcpResponse = {
-                            jsonrpc: '2.0',
-                            id: message.id,
-                            result: callResult
-                        };
-                        break;
-                    case 'resources/list':
-                        mcpResponse = {
-                            jsonrpc: '2.0',
-                            id: message.id,
-                            result: {
-                                resources: []
-                            }
-                        };
-                        break;
-                    case 'prompts/list':
-                        mcpResponse = {
-                            jsonrpc: '2.0',
-                            id: message.id,
-                            result: {
-                                prompts: []
-                            }
-                        };
-                        break;
-                    default:
-                        mcpResponse = {
-                            jsonrpc: '2.0',
-                            id: message.id,
-                            error: {
-                                code: -32601,
-                                message: 'Method not found',
-                                data: `Unknown method: ${message.method}`
-                            }
-                        };
-                }
-            }
-            catch (error) {
-                this.log('error', 'Error processing MCP request:', undefined, error);
-                mcpResponse = {
-                    jsonrpc: '2.0',
-                    id: message.id,
-                    error: {
-                        code: -32603,
-                        message: 'Internal error',
-                        data: error instanceof Error ? error.message : 'Unknown error'
-                    }
-                };
-            }
-            this.broadcastToConnections('message', mcpResponse);
-            res.json(mcpResponse);
-        }
-        catch (error) {
-            this.log('error', 'Error processing MCP message:', undefined, error);
-            res.status(500).json({
-                jsonrpc: '2.0',
-                id: message?.id || null,
-                error: {
-                    code: -32603,
-                    message: 'Internal error',
-                    data: error instanceof Error ? error.message : 'Unknown error'
-                }
-            });
-        }
     }
     removeConnection(res) {
         if (this.activeConnections.has(res)) {
@@ -722,27 +560,46 @@ export class MCPServer extends Server {
                 connections: this.connectionCount,
             });
         });
-        this.app.get('/health', (_req, res) => {
-            try {
-                const healthMetrics = this.getHealthMetrics();
-                const statusCode = healthMetrics.healthy ? 200 : 503;
-                res.status(statusCode).json(healthMetrics);
-            }
-            catch (error) {
-                this.log('error', 'Error generating health metrics:', undefined, error);
-                res.status(500).json({
-                    healthy: false,
-                    status: 'error',
-                    error: 'Failed to generate health metrics',
-                    timestamp: new Date().toISOString(),
-                });
-            }
+        this.app.get('/health', (req, res) => {
+            const start = process.hrtime();
+            const healthy = this.isHealthy();
+            const status = healthy ? 200 : 503;
+            const responseBody = {
+                status: healthy ? 'ok' : 'unhealthy',
+                timestamp: new Date().toISOString(),
+                uptime: this.getUptime(),
+            };
+            res.status(status).json(responseBody);
+            const duration = process.hrtime(start);
+            const durationMs = duration[0] * 1000 + duration[1] / 1e6;
+            this.monitoringService.trackRequest(req.method, req.path, status, durationMs);
         });
         this.app.get('/sse', (req, res) => {
             this.handleSSEConnection(req, res);
         });
         this.app.post('/message', async (req, res) => {
             await this.handleMCPMessage(req.body, res);
+        });
+        this.app.get('/metrics', async (req, res) => {
+            const start = process.hrtime();
+            try {
+                this.updateMetricsFromHealth();
+                res.set('Content-Type', this.metricsRegistry.contentType);
+                res.end(await this.metricsRegistry.metrics());
+                const duration = process.hrtime(start);
+                const durationMs = duration[0] * 1000 + duration[1] / 1e6;
+                this.monitoringService.trackRequest(req.method, req.path, 200, durationMs);
+            }
+            catch (error) {
+                this.log('error', 'Failed to generate metrics', { error }, error instanceof Error ? error : new Error(String(error)));
+                res.status(500).send('Failed to generate metrics');
+                const duration = process.hrtime(start);
+                const durationMs = duration[0] * 1000 + duration[1] / 1e6;
+                this.monitoringService.trackRequest(req.method, req.path, 500, durationMs, undefined, 'Failed to generate metrics');
+            }
+        });
+        this.app.use((_req, res) => {
+            res.status(404).json({ error: 'Not Found' });
         });
         this.log('debug', 'Server routes setup completed');
     }
@@ -876,48 +733,107 @@ export class MCPServer extends Server {
         }
     }
     initializeTools() {
-        const apiConfig = {
-            accessToken: env.TALLY_API_KEY,
-        };
+        this.log('info', 'Initializing tools...');
+        const apiClientConfig = { accessToken: env.TALLY_API_KEY };
+        const tallyApiClient = new TallyApiClient(apiClientConfig);
         this.tools = {
-            workspaceManagement: new WorkspaceManagementTool(apiConfig),
+            workspaceManagement: new WorkspaceManagementTool(apiClientConfig),
             template: new TemplateTool(),
+            form_creation: new FormCreationTool(apiClientConfig),
+            form_modification: new FormModificationTool(apiClientConfig),
+            form_retrieval: new FormRetrievalTool(apiClientConfig),
+            form_sharing: new FormSharingTool(tallyApiClient),
+            form_permissions: new FormPermissionManager(apiClientConfig),
+            submission_analysis: new SubmissionAnalysisTool(apiClientConfig),
+            diagnostic: new DiagnosticTool(),
         };
+        this.log('info', 'Tools initialized.');
     }
     async _handleToolsList() {
         return {
             tools: [
                 {
                     name: 'create_form',
-                    description: 'Create a new Tally form with specified fields and configuration',
+                    description: 'Create a new Tally form with specified fields and configuration. This tool converts simple field definitions into Tally\'s complex blocks-based structure automatically. The form status defaults to DRAFT if not specified.',
                     inputSchema: {
                         type: 'object',
                         properties: {
-                            title: { type: 'string', description: 'Form title' },
-                            description: { type: 'string', description: 'Form description' },
+                            title: {
+                                type: 'string',
+                                description: 'Form title (required) - will be displayed as the main form heading',
+                                minLength: 1,
+                                maxLength: 100
+                            },
+                            description: {
+                                type: 'string',
+                                description: 'Optional form description - displayed below the title to provide context'
+                            },
+                            status: {
+                                type: 'string',
+                                enum: ['DRAFT', 'PUBLISHED'],
+                                description: 'Form publication status. Use DRAFT for unpublished forms that are being worked on, or PUBLISHED for live forms. Defaults to DRAFT if not specified.',
+                                default: 'DRAFT'
+                            },
                             fields: {
                                 type: 'array',
+                                description: 'Array of form fields/questions. Each field will be converted to appropriate Tally blocks automatically.',
+                                minItems: 1,
                                 items: {
                                     type: 'object',
                                     properties: {
-                                        type: { type: 'string', enum: ['text', 'email', 'number', 'textarea', 'select', 'checkbox', 'radio'] },
-                                        label: { type: 'string' },
-                                        required: { type: 'boolean' },
-                                        options: { type: 'array', items: { type: 'string' } }
+                                        type: {
+                                            type: 'string',
+                                            enum: ['text', 'email', 'number', 'textarea', 'select', 'checkbox', 'radio'],
+                                            description: 'Field input type. Maps to Tally blocks: text→INPUT_TEXT, email→INPUT_EMAIL, number→INPUT_NUMBER, textarea→TEXTAREA, select→DROPDOWN, checkbox→CHECKBOXES, radio→MULTIPLE_CHOICE'
+                                        },
+                                        label: {
+                                            type: 'string',
+                                            description: 'Field label/question text - what the user will see',
+                                            minLength: 1
+                                        },
+                                        required: {
+                                            type: 'boolean',
+                                            description: 'Whether this field must be filled out before form submission',
+                                            default: false
+                                        },
+                                        options: {
+                                            type: 'array',
+                                            items: { type: 'string' },
+                                            description: 'Available options for select, checkbox, or radio field types. Required for select/checkbox/radio fields.'
+                                        }
                                     },
-                                    required: ['type', 'label']
-                                }
-                            },
-                            settings: {
-                                type: 'object',
-                                properties: {
-                                    isPublic: { type: 'boolean' },
-                                    allowMultipleSubmissions: { type: 'boolean' },
-                                    showProgressBar: { type: 'boolean' }
+                                    required: ['type', 'label'],
+                                    additionalProperties: false
                                 }
                             }
                         },
-                        required: ['title', 'fields']
+                        required: ['title', 'fields'],
+                        additionalProperties: false,
+                        examples: [
+                            {
+                                title: "Customer Feedback Survey",
+                                description: "Help us improve our service",
+                                status: "DRAFT",
+                                fields: [
+                                    {
+                                        type: "text",
+                                        label: "What is your name?",
+                                        required: true
+                                    },
+                                    {
+                                        type: "email",
+                                        label: "Email address",
+                                        required: true
+                                    },
+                                    {
+                                        type: "select",
+                                        label: "How would you rate our service?",
+                                        required: false,
+                                        options: ["Excellent", "Good", "Fair", "Poor"]
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 },
                 {
@@ -1090,6 +1006,37 @@ export class MCPServer extends Server {
                         },
                         required: ['templateType']
                     }
+                },
+                {
+                    name: 'submission_analysis',
+                    description: 'Analyze form submissions, including completion rates and response distributions',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            formId: { type: 'string' },
+                            filters: {
+                                type: 'object',
+                                properties: {
+                                    startDate: { type: 'string', format: 'date-time' },
+                                    endDate: { type: 'string', format: 'date-time' },
+                                    status: { type: 'string', enum: ['completed', 'incomplete', 'all'] },
+                                }
+                            }
+                        },
+                        required: ['formId']
+                    },
+                    outputSchema: {}
+                },
+                {
+                    name: 'diagnostic_tool',
+                    description: 'Runs diagnostic checks on the application.',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            toolName: { type: 'string', description: 'The name of the specific diagnostic tool to run.' },
+                        },
+                    },
+                    outputSchema: {}
                 }
             ]
         };
@@ -1128,6 +1075,46 @@ export class MCPServer extends Server {
                             {
                                 type: 'text',
                                 text: 'Workspace management functionality is being implemented'
+                            }
+                        ]
+                    };
+                case 'submission_analysis':
+                    if (this.tools?.submission_analysis) {
+                        const result = await this.tools.submission_analysis.analyze(args.formId, args.filters);
+                        return {
+                            content: [
+                                {
+                                    type: 'text',
+                                    text: JSON.stringify(result, null, 2)
+                                }
+                            ]
+                        };
+                    }
+                    return {
+                        content: [
+                            {
+                                type: 'text',
+                                text: 'Submission analysis functionality is not implemented'
+                            }
+                        ]
+                    };
+                case 'diagnostic_tool':
+                    if (this.tools?.diagnostic) {
+                        const result = await this.tools.diagnostic.execute(args.toolName);
+                        return {
+                            content: [
+                                {
+                                    type: 'text',
+                                    text: JSON.stringify(result, null, 2)
+                                }
+                            ]
+                        };
+                    }
+                    return {
+                        content: [
+                            {
+                                type: 'text',
+                                text: 'Diagnostic tool functionality is not implemented'
                             }
                         ]
                     };
@@ -1171,6 +1158,195 @@ export class MCPServer extends Server {
     }
     broadcast(event, data) {
         this.broadcastToConnections(event, data);
+    }
+    updateMetricsFromHealth() {
+        const metrics = this.getHealthMetrics();
+        let uptimeGauge = this.metricsRegistry.getSingleMetric('process_uptime_seconds');
+        if (!uptimeGauge) {
+            uptimeGauge = new Gauge({ name: 'process_uptime_seconds', help: 'Server uptime in seconds', registers: [this.metricsRegistry] });
+        }
+        uptimeGauge.set(metrics.uptime);
+        let connectionsGauge = this.metricsRegistry.getSingleMetric('active_connections');
+        if (!connectionsGauge) {
+            connectionsGauge = new Gauge({ name: 'active_connections', help: 'Number of active connections', registers: [this.metricsRegistry] });
+        }
+        connectionsGauge.set(metrics.connections);
+        let memoryUsedGauge = this.metricsRegistry.getSingleMetric('memory_used_bytes');
+        if (!memoryUsedGauge) {
+            memoryUsedGauge = new Gauge({ name: 'memory_used_bytes', help: 'Memory usage in bytes', registers: [this.metricsRegistry] });
+        }
+        memoryUsedGauge.set(metrics.memory.used);
+        let requestsTotalGauge = this.metricsRegistry.getSingleMetric('http_requests_total');
+        if (!requestsTotalGauge) {
+            requestsTotalGauge = new Gauge({ name: 'http_requests_total', help: 'Total number of HTTP requests', registers: [this.metricsRegistry] });
+        }
+        requestsTotalGauge.set(metrics.requests.total);
+        let errorsTotalGauge = this.metricsRegistry.getSingleMetric('http_requests_errors_total');
+        if (!errorsTotalGauge) {
+            errorsTotalGauge = new Gauge({ name: 'http_requests_errors_total', help: 'Total number of HTTP request errors', registers: [this.metricsRegistry] });
+        }
+        errorsTotalGauge.set(metrics.requests.errors);
+    }
+    async handleMCPMessage(message, res) {
+        this.log('debug', 'Received MCP message:', { message, messageType: typeof message });
+        try {
+            if (message === null ||
+                message === undefined ||
+                typeof message !== 'object' ||
+                Array.isArray(message) ||
+                Object.keys(message).length === 0) {
+                res.status(400).json({
+                    jsonrpc: '2.0',
+                    id: message?.id || null,
+                    error: {
+                        code: -32600,
+                        message: 'Invalid Request',
+                        data: 'Message must be a valid non-empty object'
+                    }
+                });
+                return;
+            }
+            if (message.jsonrpc !== '2.0' || !message.method || typeof message.method !== 'string') {
+                res.status(400).json({
+                    jsonrpc: '2.0',
+                    id: message?.id || null,
+                    error: {
+                        code: -32600,
+                        message: 'Invalid Request',
+                        data: 'Request must be valid JSON-RPC 2.0 with method field'
+                    }
+                });
+                return;
+            }
+            let mcpResponse;
+            try {
+                switch (message.method) {
+                    case 'initialize':
+                        if (!message.params?.protocolVersion) {
+                            mcpResponse = {
+                                jsonrpc: '2.0',
+                                id: message.id,
+                                error: {
+                                    code: -32602,
+                                    message: 'Invalid params',
+                                    data: 'Protocol version is required'
+                                }
+                            };
+                            break;
+                        }
+                        if (message.params.protocolVersion !== '2024-11-05') {
+                            mcpResponse = {
+                                jsonrpc: '2.0',
+                                id: message.id,
+                                error: {
+                                    code: -32600,
+                                    message: 'Invalid Request',
+                                    data: 'Unsupported protocol version'
+                                }
+                            };
+                            break;
+                        }
+                        try {
+                            const capabilities = negotiateCapabilities(message.params.capabilities);
+                            mcpResponse = {
+                                jsonrpc: '2.0',
+                                id: message.id,
+                                result: {
+                                    protocolVersion: '2024-11-05',
+                                    capabilities,
+                                    serverInfo: {
+                                        name: 'tally-mcp-server',
+                                        version: '1.0.0',
+                                        description: 'MCP server for Tally.so form management and automation'
+                                    }
+                                }
+                            };
+                        }
+                        catch (error) {
+                            mcpResponse = {
+                                jsonrpc: '2.0',
+                                id: message.id,
+                                error: {
+                                    code: -32602,
+                                    message: 'Invalid params',
+                                    data: error instanceof Error ? error.message : 'Invalid capabilities'
+                                }
+                            };
+                        }
+                        break;
+                    case 'tools/list':
+                        const toolsResult = await this._handleToolsList();
+                        mcpResponse = {
+                            jsonrpc: '2.0',
+                            id: message.id,
+                            result: toolsResult
+                        };
+                        break;
+                    case 'tools/call':
+                        const callResult = await this._handleToolsCall(message);
+                        mcpResponse = {
+                            jsonrpc: '2.0',
+                            id: message.id,
+                            result: callResult
+                        };
+                        break;
+                    case 'resources/list':
+                        mcpResponse = {
+                            jsonrpc: '2.0',
+                            id: message.id,
+                            result: {
+                                resources: []
+                            }
+                        };
+                        break;
+                    case 'prompts/list':
+                        mcpResponse = {
+                            jsonrpc: '2.0',
+                            id: message.id,
+                            result: {
+                                prompts: []
+                            }
+                        };
+                        break;
+                    default:
+                        mcpResponse = {
+                            jsonrpc: '2.0',
+                            id: message.id,
+                            error: {
+                                code: -32601,
+                                message: 'Method not found',
+                                data: `Unknown method: ${message.method}`
+                            }
+                        };
+                }
+            }
+            catch (error) {
+                this.log('error', 'Error processing MCP request:', undefined, error);
+                mcpResponse = {
+                    jsonrpc: '2.0',
+                    id: message.id,
+                    error: {
+                        code: -32603,
+                        message: 'Internal error',
+                        data: error instanceof Error ? error.message : 'Unknown error'
+                    }
+                };
+            }
+            this.broadcastToConnections('message', mcpResponse);
+            res.json(mcpResponse);
+        }
+        catch (error) {
+            this.log('error', 'Error processing MCP message:', undefined, error);
+            res.status(500).json({
+                jsonrpc: '2.0',
+                id: message?.id || null,
+                error: {
+                    code: -32603,
+                    message: 'Internal error',
+                    data: error instanceof Error ? error.message : 'Unknown error'
+                }
+            });
+        }
     }
 }
 //# sourceMappingURL=server.js.map

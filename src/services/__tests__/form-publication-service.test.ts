@@ -126,7 +126,7 @@ describe('FormPublicationService', () => {
       });
 
       expect(result.html).toContain('iframe');
-      expect(result.html).toContain(`https://tally.so/r/${formId}`);
+      expect(result.html).toContain(`https://tally.so/embed/${formId}`);
       expect(result.javascript).toContain('iframe');
       expect(result.iframe).toContain('iframe');
     });

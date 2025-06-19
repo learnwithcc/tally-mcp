@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">2.94% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>3/102</span>
+                <span class='fraction'>0/102</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">3.12% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/96</span>
+                <span class='fraction'>0/96</span>
             </div>
         
             
@@ -521,8 +521,9 @@
 <a name='L456'></a><a href='#L456'>456</a>
 <a name='L457'></a><a href='#L457'>457</a>
 <a name='L458'></a><a href='#L458'>458</a>
-<a name='L459'></a><a href='#L459'>459</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
+<a name='L459'></a><a href='#L459'>459</a>
+<a name='L460'></a><a href='#L460'>460</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -548,7 +549,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -725,6 +726,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -979,8 +981,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { WorkspaceManagementTool } from './workspace-tool';
-import { TeamService } from '../services/team-service';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { WorkspaceManagementTool } from './workspace-tool';</span>
+<span class="cstat-no" title="statement not covered" >import { TeamService } from '../services/team-service';</span>
 import { TallyApiClientConfig } from '../services/TallyApiClient';
 import { 
   TeamMember,
@@ -1006,7 +1008,7 @@ import {
  * It provides comprehensive team management functionality including nested team structures,
  * user assignment, permission inheritance, and organization visualization.
  */
-export class TeamManager {
+<span class="cstat-no" title="statement not covered" >export class T</span>eamManager {
   private workspaceTool: WorkspaceManagementTool;
   private teamService: TeamService;
 &nbsp;
@@ -1040,8 +1042,8 @@ export class TeamManager {
    * Update an existing team
    */
   public <span class="fstat-no" title="function not covered" >async </span>updateTeam(teamId: string, updates: UpdateTeamRequest): Promise&lt;TeamResponse&gt; {
-    // If moving to a new parent, validate the hierarchy
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (updates.parentTeamId !== undefined) {</span>
+    // If parent team is being changed (including set to undefined), validate the hierarchy
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if ('parentTeamId' in updates) {</span>
 <span class="cstat-no" title="statement not covered" >      await this.validateTeamHierarchy(teamId, updates.parentTeamId);</span>
     }
 &nbsp;
@@ -1184,7 +1186,8 @@ export class TeamManager {
     // Validate hierarchy constraints
 <span class="cstat-no" title="statement not covered" >    await this.validateTeamHierarchy(teamId, newParentTeamId);</span>
     
-<span class="cstat-no" title="statement not covered" >    return this.teamService.moveTeam(teamId, newParentTeamId);</span>
+    // Update the team's parent
+<span class="cstat-no" title="statement not covered" >    return this.teamService.updateTeam(teamId, { parentTeamId: newParentTeamId });</span>
   }
 &nbsp;
   /**
@@ -1444,7 +1447,7 @@ export class TeamManager {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-11T00:46:41.012Z
+                at 2025-06-18T03:57:03.632Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -1,0 +1,17 @@
+name = "your-tally-mcp-server"
+main = "dist/index.js"
+compatibility_date = "2024-11-01"
+
+[[routes]]
+pattern = "your-subdomain.workers.dev/*"
+zone_name = "workers.dev"
+
+[env.production]
+name = "your-tally-mcp-server-prod"
+
+[env.staging]
+name = "your-tally-mcp-server-staging"
+
+# Note: Secrets are managed via CLI:
+# echo "your_api_key" | npx wrangler secret put TALLY_API_KEY
+# echo "your_auth_token" | npx wrangler secret put AUTH_TOKEN 

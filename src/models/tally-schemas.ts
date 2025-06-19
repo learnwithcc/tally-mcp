@@ -242,7 +242,8 @@ export const TallyWebhookPayloadSchema = z.object({
  */
 export const TallyFormSchema = z.object({
   id: z.string(),
-  title: z.string(),
+  title: z.string().optional(),
+  name: z.string().optional(),
   description: z.string().optional(),
   isPublished: z.boolean().optional(),
   createdAt: z.string().datetime(),
@@ -251,7 +252,11 @@ export const TallyFormSchema = z.object({
   url: z.string().url().optional(),
   embedUrl: z.string().url().optional(),
   status: z.string().optional(),
-});
+  // Additional share URL fields observed in API
+  shareUrl: z.string().url().optional(),
+  share_url: z.string().url().optional(),
+  publicUrl: z.string().url().optional(),
+}).passthrough();
 
 /**
  * Form list response
@@ -475,6 +480,209 @@ export type TallySuccessResponse = z.infer<typeof TallySuccessResponseSchema>;
 export type TallyPagination = z.infer<typeof TallyPaginationSchema>;
 
 // ===============================
+// Form Block Schemas for API Requests
+// ===============================
+
+/**
+ * Tally block types for form creation
+ */
+export const TallyBlockTypeSchema = z.enum([
+  'FORM_TITLE',
+  'TITLE',
+  'INPUT_TEXT',
+  'INPUT_EMAIL', 
+  'INPUT_NUMBER',
+  'INPUT_PHONE_NUMBER',
+  'INPUT_LINK',
+  'INPUT_DATE',
+  'INPUT_TIME',
+  'TEXTAREA',
+  'DROPDOWN',
+  'DROPDOWN_OPTION',
+  'CHECKBOXES',
+  'CHECKBOX',
+  'MULTIPLE_CHOICE',
+  'MULTIPLE_CHOICE_OPTION',
+  'LINEAR_SCALE',
+  'RATING',
+  'FILE_UPLOAD',
+  'SIGNATURE',
+  'HIDDEN_FIELDS',
+  'CALCULATED_FIELDS',
+  'MULTI_SELECT',
+  'MATRIX',
+  'RANKING',
+  'PAYMENT'
+]);
+
+/**
+ * Tally group types for blocks
+ */
+export const TallyGroupTypeSchema = z.enum([
+  'TEXT',
+  'QUESTION',
+  'INPUT_TEXT',
+  'INPUT_EMAIL',
+  'INPUT_NUMBER', 
+  'INPUT_PHONE_NUMBER',
+  'INPUT_LINK',
+  'INPUT_DATE',
+  'INPUT_TIME',
+  'TEXTAREA',
+  'DROPDOWN',
+  'CHECKBOXES',
+  'MULTIPLE_CHOICE',
+  'LINEAR_SCALE',
+  'RATING',
+  'FILE_UPLOAD',
+  'SIGNATURE'
+]);
+
+/**
+ * Basic payload structure that all blocks share
+ */
+export const TallyBlockBasePayloadSchema = z.object({
+  html: z.string().optional(),
+  title: z.string().optional(),
+  isRequired: z.boolean().optional(),
+  placeholder: z.string().optional(),
+});
+
+/**
+ * Option structure for choice-based questions
+ */
+export const TallyBlockOptionSchema = z.object({
+  id: z.string(),
+  text: z.string(),
+  index: z.number().optional(),
+});
+
+/**
+ * Payload for dropdown/multiple choice option blocks
+ */
+export const TallyChoiceOptionPayloadSchema = TallyBlockBasePayloadSchema.extend({
+  index: z.number(),
+  text: z.string(),
+});
+
+/**
+ * Payload for input blocks (text, email, etc.)
+ */
+export const TallyInputPayloadSchema = TallyBlockBasePayloadSchema.extend({
+  isRequired: z.boolean(),
+  placeholder: z.string(),
+  options: z.array(TallyBlockOptionSchema).optional(),
+});
+
+/**
+ * Payload for title blocks (FORM_TITLE, TITLE)
+ */
+export const TallyTitlePayloadSchema = z.object({
+  html: z.string(),
+  title: z.string().optional(),
+});
+
+/**
+ * Union of all possible block payload types
+ */
+export const TallyBlockPayloadSchema = z.union([
+  TallyTitlePayloadSchema,
+  TallyInputPayloadSchema,
+  TallyChoiceOptionPayloadSchema,
+  TallyBlockBasePayloadSchema,
+]);
+
+/**
+ * Complete Tally block structure for API requests
+ */
+export const TallyBlockSchema = z.object({
+  uuid: z.string().uuid('Block UUID must be a valid UUID'),
+  type: TallyBlockTypeSchema,
+  groupUuid: z.string().uuid('Group UUID must be a valid UUID'),
+  groupType: TallyGroupTypeSchema,
+  title: z.string(),
+  payload: TallyBlockPayloadSchema,
+});
+
+/**
+ * Form creation payload structure for Tally API
+ */
+export const TallyFormCreatePayloadSchema = z.object({
+  status: z.enum(['PUBLISHED', 'DRAFT']).default('PUBLISHED'),
+  name: z.string().min(1, 'Form name is required'),
+  blocks: z.array(TallyBlockSchema).optional(),
+  settings: z.object({
+    language: z.string().optional(),
+    closeDate: z.string().optional(),
+    closeTime: z.string().optional(),
+    closeTimezone: z.string().optional(),
+    submissionsLimit: z.number().positive().optional(),
+    redirectOnCompletion: z.object({
+      html: z.string(),
+      mentions: z.array(z.any()).optional(),
+    }).optional(),
+    hasSelfEmailNotifications: z.boolean().optional(),
+    selfEmailTo: z.object({
+      html: z.string(),
+      mentions: z.array(z.any()).optional(),
+    }).optional(),
+    selfEmailReplyTo: z.object({
+      html: z.string(),
+      mentions: z.array(z.any()).optional(),
+    }).optional(),
+    selfEmailSubject: z.string().nullable().optional(),
+    selfEmailFromName: z.string().nullable().optional(),
+    selfEmailBody: z.object({
+      html: z.string(),
+      mentions: z.array(z.any()).optional(),
+    }).optional(),
+    uniqueSubmissionKey: z.object({
+      html: z.string(),
+      mentions: z.array(z.any()).optional(),
+    }).optional(),
+  }).optional(),
+});
+
+/**
+ * Form update payload structure for Tally API
+ */
+export const TallyFormUpdatePayloadSchema = z.object({
+  name: z.string().min(1).optional(),
+  status: z.enum(['PUBLISHED', 'DRAFT']).optional(),
+  blocks: z.array(TallyBlockSchema).optional(),
+  settings: z.object({
+    language: z.string().optional(),
+    closeDate: z.string().optional(),
+    closeTime: z.string().optional(),
+    closeTimezone: z.string().optional(),
+    submissionsLimit: z.number().positive().optional(),
+    redirectOnCompletion: z.object({
+      html: z.string(),
+      mentions: z.array(z.any()).optional(),
+    }).optional(),
+    hasSelfEmailNotifications: z.boolean().optional(),
+    selfEmailTo: z.object({
+      html: z.string(),
+      mentions: z.array(z.any()).optional(),
+    }).optional(),
+    selfEmailReplyTo: z.object({
+      html: z.string(),
+      mentions: z.array(z.any()).optional(),
+    }).optional(),
+    selfEmailSubject: z.string().nullable().optional(),
+    selfEmailFromName: z.string().nullable().optional(),
+    selfEmailBody: z.object({
+      html: z.string(),
+      mentions: z.array(z.any()).optional(),
+    }).optional(),
+    uniqueSubmissionKey: z.object({
+      html: z.string(),
+      mentions: z.array(z.any()).optional(),
+    }).optional(),
+  }).optional(),
+});
+
+// ===============================
 // Schema Validation Utilities
 // ===============================
 
@@ -521,4 +729,16 @@ export function createTallyValidator<T>(schema: z.ZodSchema<T>) {
  */
 export function createSafeTallyValidator<T>(schema: z.ZodSchema<T>) {
   return (data: unknown): z.SafeParseReturnType<unknown, T> => schema.safeParse(data);
-} 
+}
+
+export type TallyBlockType = z.infer<typeof TallyBlockTypeSchema>;
+export type TallyGroupType = z.infer<typeof TallyGroupTypeSchema>;
+export type TallyBlockBasePayload = z.infer<typeof TallyBlockBasePayloadSchema>;
+export type TallyBlockOption = z.infer<typeof TallyBlockOptionSchema>;
+export type TallyChoiceOptionPayload = z.infer<typeof TallyChoiceOptionPayloadSchema>;
+export type TallyInputPayload = z.infer<typeof TallyInputPayloadSchema>;
+export type TallyTitlePayload = z.infer<typeof TallyTitlePayloadSchema>;
+export type TallyBlockPayload = z.infer<typeof TallyBlockPayloadSchema>;
+export type TallyBlock = z.infer<typeof TallyBlockSchema>;
+export type TallyFormCreatePayload = z.infer<typeof TallyFormCreatePayloadSchema>;
+export type TallyFormUpdatePayload = z.infer<typeof TallyFormUpdatePayloadSchema>; 

@@ -2,20 +2,20 @@ interface BaseCapability {
     listChanged?: boolean;
     subscribe?: boolean;
 }
-interface ToolsCapability extends BaseCapability {
+export interface ToolsCapability extends BaseCapability {
     call?: boolean;
     list?: boolean;
 }
-interface ResourcesCapability extends BaseCapability {
+export interface ResourcesCapability extends BaseCapability {
     get?: boolean;
     put?: boolean;
     delete?: boolean;
 }
-interface PromptsCapability extends BaseCapability {
+export interface PromptsCapability extends BaseCapability {
     get?: boolean;
     list?: boolean;
 }
-interface LoggingCapability {
+export interface LoggingCapability {
     level?: 'debug' | 'info' | 'warn' | 'error';
     subscribe?: boolean;
 }

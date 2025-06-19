@@ -19,6 +19,14 @@ module.exports = {
   forceExit: true, // Force Jest to exit after tests complete
   detectOpenHandles: true, // Help identify unclosed handles
   coverageReporters: ['json', 'lcov', 'text', 'clover'],
+  coverageThreshold: {
+    global: {
+      branches: 90,
+      functions: 90,
+      lines: 90,
+      statements: 90,
+    },
+  },
   reporters: [
     'default',
     [ 'jest-junit', {

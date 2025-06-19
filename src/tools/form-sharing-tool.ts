@@ -210,14 +210,24 @@ export class FormSharingTool {
    */
   async generateShareLink(input: z.infer<typeof GenerateShareLinkInputSchema>) {
     try {
-      const { formId, ...options } = GenerateShareLinkInputSchema.parse(input);
+      const { formId, type, ...otherOptions } = GenerateShareLinkInputSchema.parse(input);
 
-      const result = await this.publicationService.generateShareLink(formId, options as ShareLinkGenerationOptions);
+      // Filter out undefined values from otherOptions
+      const filteredOptions = Object.fromEntries(
+        Object.entries(otherOptions).filter(([_, value]) => value !== undefined)
+      );
+
+      const options: ShareLinkGenerationOptions = {
+        type,
+        ...filteredOptions
+      };
+
+      const result = await this.publicationService.generateShareLink(formId, options);
 
       return {
         success: true,
         data: result,
-        message: `Generated ${result.type} share link for form ${formId}`,
+        message: `Generated ${result.type.toUpperCase()} share link for form ${formId}`,
         shareUrl: result.url
       };
     } catch (error) {

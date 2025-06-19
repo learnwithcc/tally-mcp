@@ -1,36 +1,88 @@
 const activeSessions = new Map();
+import { createFormTitleBlock, createQuestionBlocks } from './utils/block-builder';
 const TOOLS = [
     {
         name: 'create_form',
-        description: 'Create a new Tally form with specified fields and configuration',
+        description: 'Create a new Tally form with specified fields and configuration. This tool converts simple field definitions into Tally\'s complex blocks-based structure automatically. The status field is optional and defaults to DRAFT if not specified.',
         inputSchema: {
             type: 'object',
             properties: {
-                title: { type: 'string', description: 'Form title' },
-                description: { type: 'string', description: 'Form description' },
+                title: {
+                    type: 'string',
+                    description: 'Form title (required) - will be displayed as the main form heading',
+                    minLength: 1,
+                    maxLength: 100
+                },
+                description: {
+                    type: 'string',
+                    description: 'Optional form description - displayed below the title to provide context'
+                },
+                status: {
+                    type: 'string',
+                    enum: ['DRAFT', 'PUBLISHED'],
+                    description: 'Form publication status. Use DRAFT for unpublished forms that are being worked on, or PUBLISHED for live forms. Defaults to DRAFT if not specified.',
+                    default: 'DRAFT'
+                },
                 fields: {
                     type: 'array',
+                    description: 'Array of form fields/questions. Each field will be converted to appropriate Tally blocks automatically.',
+                    minItems: 1,
                     items: {
                         type: 'object',
                         properties: {
-                            type: { type: 'string', enum: ['text', 'email', 'number', 'textarea', 'select', 'checkbox', 'radio'] },
-                            label: { type: 'string' },
-                            required: { type: 'boolean' },
-                            options: { type: 'array', items: { type: 'string' } }
+                            type: {
+                                type: 'string',
+                                enum: ['text', 'email', 'number', 'textarea', 'select', 'checkbox', 'radio'],
+                                description: 'Field input type. Maps to Tally blocks: text→INPUT_TEXT, email→INPUT_EMAIL, number→INPUT_NUMBER, textarea→TEXTAREA, select→DROPDOWN, checkbox→CHECKBOXES, radio→MULTIPLE_CHOICE'
+                            },
+                            label: {
+                                type: 'string',
+                                description: 'Field label/question text - what the user will see',
+                                minLength: 1
+                            },
+                            required: {
+                                type: 'boolean',
+                                description: 'Whether this field must be filled out before form submission',
+                                default: false
+                            },
+                            options: {
+                                type: 'array',
+                                items: { type: 'string' },
+                                description: 'Available options for select, checkbox, or radio field types. Required for select/checkbox/radio fields.'
+                            }
                         },
-                        required: ['type', 'label']
-                    }
-                },
-                settings: {
-                    type: 'object',
-                    properties: {
-                        isPublic: { type: 'boolean' },
-                        allowMultipleSubmissions: { type: 'boolean' },
-                        showProgressBar: { type: 'boolean' }
+                        required: ['type', 'label'],
+                        additionalProperties: false
                     }
                 }
             },
-            required: ['title', 'fields']
+            required: ['title', 'fields'],
+            additionalProperties: false,
+            examples: [
+                {
+                    title: "Customer Feedback Survey",
+                    description: "Help us improve our service",
+                    status: "DRAFT",
+                    fields: [
+                        {
+                            type: "text",
+                            label: "What is your name?",
+                            required: true
+                        },
+                        {
+                            type: "email",
+                            label: "Email address",
+                            required: true
+                        },
+                        {
+                            type: "select",
+                            label: "How would you rate our service?",
+                            required: false,
+                            options: ["Excellent", "Good", "Fair", "Poor"]
+                        }
+                    ]
+                }
+            ]
         }
     },
     {
@@ -263,17 +315,14 @@ async function handleMCPMessage(message, sessionIdOrApiKey, env) {
 }
 async function handleToolCall(params, sessionIdOrApiKey, env) {
     const { name, arguments: args } = params;
-    console.log('handleToolCall called with:');
-    console.log('- Tool name:', name);
-    console.log('- Arguments:', JSON.stringify(args));
-    console.log('- env available:', env ? 'yes' : 'no');
+    console.log('Tool call:', name, 'with args:', JSON.stringify(args));
     let apiKey;
     if (env?.TALLY_API_KEY) {
         apiKey = env.TALLY_API_KEY;
-        console.log('Using API key from environment - starts with:', apiKey.substring(0, 8));
+        console.log('Using API key from environment');
     }
     else {
-        console.error('No TALLY_API_KEY found in environment');
+        console.error('❌ No TALLY_API_KEY found in environment');
         return {
             jsonrpc: '2.0',
             id: undefined,
@@ -285,9 +334,8 @@ async function handleToolCall(params, sessionIdOrApiKey, env) {
         };
     }
     try {
-        console.log('Making API call to Tally with tool:', name);
         const result = await callTallyAPI(name, args, apiKey);
-        console.log('API call successful, result type:', typeof result);
+        console.log('✅ Tool call successful:', name);
         return {
             jsonrpc: '2.0',
             id: undefined,
@@ -302,7 +350,7 @@ async function handleToolCall(params, sessionIdOrApiKey, env) {
         };
     }
     catch (error) {
-        console.error('Tool execution error:', error);
+        console.error('❌ Tool execution error:', error);
         return {
             jsonrpc: '2.0',
             id: undefined,
@@ -322,16 +370,43 @@ async function callTallyAPI(toolName, args, apiKey) {
     };
     switch (toolName) {
         case 'create_form':
+            const blocks = [];
+            blocks.push(createFormTitleBlock(args.title));
+            if (args.description) {
+                blocks.push({
+                    uuid: crypto.randomUUID(),
+                    type: 'TEXT',
+                    groupUuid: crypto.randomUUID(),
+                    groupType: 'TEXT',
+                    title: args.description,
+                    payload: {
+                        text: args.description,
+                        html: args.description,
+                    },
+                });
+            }
+            if (Array.isArray(args.fields)) {
+                args.fields.forEach((field) => {
+                    const questionConfig = normalizeField(field);
+                    createQuestionBlocks(questionConfig).forEach((b) => blocks.push(b));
+                });
+            }
+            const payload = {
+                status: args.status || 'DRAFT',
+                blocks: blocks
+            };
+            console.log('=== TALLY API PAYLOAD ===');
+            console.log(JSON.stringify(payload, null, 2));
+            console.log('========================');
             const createResponse = await globalThis.fetch(`${baseURL}/forms`, {
                 method: 'POST',
                 headers,
-                body: JSON.stringify({
-                    title: args.title,
-                    description: args.description,
-                    fields: args.fields,
-                    settings: args.settings
-                })
+                body: JSON.stringify(payload)
             });
+            if (!createResponse.ok) {
+                const errorText = await createResponse.text();
+                throw new Error(`Tally API error ${createResponse.status}: ${errorText}`);
+            }
             return await createResponse.json();
         case 'modify_form':
             const modifyResponse = await globalThis.fetch(`${baseURL}/forms/${args.formId}`, {
@@ -561,6 +636,17 @@ async function fetch(request, env) {
     console.log('Environment validation passed. TALLY_API_KEY is available.');
     const url = new URL(request.url);
     const pathname = url.pathname;
+    if (request.method === 'OPTIONS') {
+        return new Response(null, {
+            status: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key',
+                'Access-Control-Max-Age': '86400',
+            },
+        });
+    }
     const corsHeaders = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -627,6 +713,18 @@ async function fetch(request, env) {
         });
     }
     if (pathname === '/mcp' || pathname === '/mcp/sse') {
+        const auth = authenticateRequest(request, env);
+        if (!auth.authenticated) {
+            return new Response(JSON.stringify({
+                error: 'Authentication Required',
+                message: auth.error,
+                hint: 'Add AUTH_TOKEN to your server configuration and use it in requests',
+                timestamp: new Date().toISOString()
+            }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+        }
         if (!env.TALLY_API_KEY) {
             return new Response(JSON.stringify({
                 jsonrpc: '2.0',
@@ -706,6 +804,64 @@ async function handleMcpRequest(request, env) {
         status: status,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
+}
+function authenticateRequest(request, env) {
+    if (!env.AUTH_TOKEN) {
+        console.log('🔓 No AUTH_TOKEN configured - allowing unauthenticated access');
+        return { authenticated: true };
+    }
+    const authHeader = request.headers.get('Authorization');
+    if (authHeader) {
+        const match = authHeader.match(/^Bearer\s+(.+)$/i);
+        if (match && match[1] === env.AUTH_TOKEN) {
+            console.log('✅ Valid Bearer token authentication');
+            return { authenticated: true };
+        }
+    }
+    const apiKeyHeader = request.headers.get('X-API-Key');
+    if (apiKeyHeader === env.AUTH_TOKEN) {
+        console.log('✅ Valid X-API-Key authentication');
+        return { authenticated: true };
+    }
+    const url = new URL(request.url);
+    const tokenParam = url.searchParams.get('token');
+    if (tokenParam === env.AUTH_TOKEN) {
+        console.log('✅ Valid query parameter authentication');
+        return { authenticated: true };
+    }
+    console.log('❌ Authentication failed - no valid token provided');
+    return {
+        authenticated: false,
+        error: 'Authentication required. Provide token via Authorization header, X-API-Key header, or ?token= query parameter.'
+    };
+}
+function normalizeField(field) {
+    const { QuestionType } = require('./models/form-config');
+    const typeMap = {
+        text: QuestionType.TEXT,
+        email: QuestionType.EMAIL,
+        number: QuestionType.NUMBER,
+        select: QuestionType.DROPDOWN,
+        dropdown: QuestionType.DROPDOWN,
+        radio: QuestionType.MULTIPLE_CHOICE,
+        'multiple_choice': QuestionType.MULTIPLE_CHOICE,
+        checkbox: QuestionType.CHECKBOXES,
+        checkboxes: QuestionType.CHECKBOXES,
+        textarea: QuestionType.TEXTAREA,
+        'long answer': QuestionType.TEXTAREA,
+    };
+    const qType = typeMap[(field.type || '').toLowerCase()] ?? QuestionType.TEXT;
+    const qc = {
+        id: crypto.randomUUID(),
+        type: qType,
+        label: field.label || 'Untitled',
+        required: field.required ?? false,
+        placeholder: field.placeholder,
+    };
+    if (field.options) {
+        qc.options = field.options.map((opt) => ({ text: opt, value: opt }));
+    }
+    return qc;
 }
 export default {
     fetch

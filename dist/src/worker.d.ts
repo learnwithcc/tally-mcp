@@ -1,5 +1,6 @@
 interface Env {
     TALLY_API_KEY: string;
+    AUTH_TOKEN?: string;
     PORT?: string;
     DEBUG?: string;
     [key: string]: string | undefined;

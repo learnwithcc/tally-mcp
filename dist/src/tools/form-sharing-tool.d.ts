@@ -45,6 +45,7 @@ declare const UpdatePublicationSettingsInputSchema: z.ZodObject<{
         trackAnalytics: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>;
         allowIndexing: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>;
         requireCaptcha: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>;
+        maxSubmissions: z.ZodOptional<z.ZodOptional<z.ZodNumber>>;
         createdAt: z.ZodOptional<z.ZodString>;
         updatedAt: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
@@ -53,6 +54,7 @@ declare const UpdatePublicationSettingsInputSchema: z.ZodObject<{
         createdAt?: string | undefined;
         updatedAt?: string | undefined;
         isPublished?: boolean | undefined;
+        maxSubmissions?: number | undefined;
         ipWhitelist?: string[] | undefined;
         visibility?: FormVisibility | undefined;
         publishedAt?: string | undefined;
@@ -75,6 +77,7 @@ declare const UpdatePublicationSettingsInputSchema: z.ZodObject<{
         createdAt?: string | undefined;
         updatedAt?: string | undefined;
         isPublished?: boolean | undefined;
+        maxSubmissions?: number | undefined;
         ipWhitelist?: string[] | undefined;
         visibility?: FormVisibility | undefined;
         publishedAt?: string | undefined;
@@ -100,6 +103,7 @@ declare const UpdatePublicationSettingsInputSchema: z.ZodObject<{
         createdAt?: string | undefined;
         updatedAt?: string | undefined;
         isPublished?: boolean | undefined;
+        maxSubmissions?: number | undefined;
         ipWhitelist?: string[] | undefined;
         visibility?: FormVisibility | undefined;
         publishedAt?: string | undefined;
@@ -125,6 +129,7 @@ declare const UpdatePublicationSettingsInputSchema: z.ZodObject<{
         createdAt?: string | undefined;
         updatedAt?: string | undefined;
         isPublished?: boolean | undefined;
+        maxSubmissions?: number | undefined;
         ipWhitelist?: string[] | undefined;
         visibility?: FormVisibility | undefined;
         publishedAt?: string | undefined;
@@ -243,6 +248,7 @@ export declare class FormSharingTool {
             allowIndexing: boolean;
             requireCaptcha: boolean;
             allowedDomains?: string[] | undefined;
+            maxSubmissions?: number | undefined;
             ipWhitelist?: string[] | undefined;
             publishedAt?: string | undefined;
             unpublishedAt?: string | undefined;
@@ -254,12 +260,12 @@ export declare class FormSharingTool {
             customSlug?: string | undefined;
         };
         message: string;
-        error?: never;
+        error?: undefined;
     } | {
         success: boolean;
         error: string;
         message: string;
-        data?: never;
+        data?: undefined;
     }>;
     unpublishForm(input: {
         formId: string;
@@ -278,6 +284,7 @@ export declare class FormSharingTool {
             allowIndexing: boolean;
             requireCaptcha: boolean;
             allowedDomains?: string[] | undefined;
+            maxSubmissions?: number | undefined;
             ipWhitelist?: string[] | undefined;
             publishedAt?: string | undefined;
             unpublishedAt?: string | undefined;
@@ -289,12 +296,12 @@ export declare class FormSharingTool {
             customSlug?: string | undefined;
         };
         message: string;
-        error?: never;
+        error?: undefined;
     } | {
         success: boolean;
         error: string;
         message: string;
-        data?: never;
+        data?: undefined;
     }>;
     getPublicationSettings(input: {
         formId: string;
@@ -313,6 +320,7 @@ export declare class FormSharingTool {
             allowIndexing: boolean;
             requireCaptcha: boolean;
             allowedDomains?: string[] | undefined;
+            maxSubmissions?: number | undefined;
             ipWhitelist?: string[] | undefined;
             publishedAt?: string | undefined;
             unpublishedAt?: string | undefined;
@@ -324,12 +332,12 @@ export declare class FormSharingTool {
             customSlug?: string | undefined;
         };
         message: string;
-        error?: never;
+        error?: undefined;
     } | {
         success: boolean;
         error: string;
         message: string;
-        data?: never;
+        data?: undefined;
     }>;
     updatePublicationSettings(input: z.infer<typeof UpdatePublicationSettingsInputSchema>): Promise<{
         success: boolean;
@@ -346,6 +354,7 @@ export declare class FormSharingTool {
             allowIndexing: boolean;
             requireCaptcha: boolean;
             allowedDomains?: string[] | undefined;
+            maxSubmissions?: number | undefined;
             ipWhitelist?: string[] | undefined;
             publishedAt?: string | undefined;
             unpublishedAt?: string | undefined;
@@ -357,12 +366,12 @@ export declare class FormSharingTool {
             customSlug?: string | undefined;
         };
         message: string;
-        error?: never;
+        error?: undefined;
     } | {
         success: boolean;
         error: string;
         message: string;
-        data?: never;
+        data?: undefined;
     }>;
     generateEmbedCode(input: z.infer<typeof GenerateEmbedCodeInputSchema>): Promise<{
         success: boolean;
@@ -373,13 +382,13 @@ export declare class FormSharingTool {
             javascript: string;
             iframe: string;
         };
-        error?: never;
+        error?: undefined;
     } | {
         success: boolean;
         error: string;
         message: string;
-        data?: never;
-        embedCode?: never;
+        data?: undefined;
+        embedCode?: undefined;
     }>;
     generateShareLink(input: z.infer<typeof GenerateShareLinkInputSchema>): Promise<{
         success: boolean;
@@ -406,13 +415,13 @@ export declare class FormSharingTool {
         };
         message: string;
         shareUrl: string;
-        error?: never;
+        error?: undefined;
     } | {
         success: boolean;
         error: string;
         message: string;
-        data?: never;
-        shareUrl?: never;
+        data?: undefined;
+        shareUrl?: undefined;
     }>;
     getShareLinks(input: {
         formId: string;
@@ -441,13 +450,13 @@ export declare class FormSharingTool {
         }[];
         message: string;
         count: number;
-        error?: never;
+        error?: undefined;
     } | {
         success: boolean;
         error: string;
         message: string;
-        data?: never;
-        count?: never;
+        data?: undefined;
+        count?: undefined;
     }>;
     deactivateShareLink(input: {
         linkId: string;
@@ -475,12 +484,12 @@ export declare class FormSharingTool {
             lastAccessedAt?: string | undefined;
         };
         message: string;
-        error?: never;
+        error?: undefined;
     } | {
         success: boolean;
         error: string;
         message: string;
-        data?: never;
+        data?: undefined;
     }>;
     getFormSharingStats(input: {
         formId: string;
@@ -520,13 +529,13 @@ export declare class FormSharingTool {
             totalSubmissions: number;
             conversionRate: number;
         };
-        error?: never;
+        error?: undefined;
     } | {
         success: boolean;
         error: string;
         message: string;
-        data?: never;
-        summary?: never;
+        data?: undefined;
+        summary?: undefined;
     }>;
     getFormAnalytics(input: z.infer<typeof GetFormAnalyticsInputSchema>): Promise<{
         success: boolean;
@@ -534,14 +543,14 @@ export declare class FormSharingTool {
         message: string;
         period: "day" | "week" | "month" | "year";
         dataPoints: number;
-        error?: never;
+        error?: undefined;
     } | {
         success: boolean;
         error: string;
         message: string;
-        data?: never;
-        period?: never;
-        dataPoints?: never;
+        data?: undefined;
+        period?: undefined;
+        dataPoints?: undefined;
     }>;
     performBulkOperation(input: z.infer<typeof BulkOperationInputSchema>): Promise<{
         success: boolean;
@@ -565,13 +574,13 @@ export declare class FormSharingTool {
             failed: number;
             status: "completed" | "pending" | "in_progress" | "failed";
         };
-        error?: never;
+        error?: undefined;
     } | {
         success: boolean;
         error: string;
         message: string;
-        data?: never;
-        summary?: never;
+        data?: undefined;
+        summary?: undefined;
     }>;
     validateFormForPublication(input: {
         formId: string;
@@ -581,14 +590,14 @@ export declare class FormSharingTool {
         message: string;
         canPublish: boolean;
         issuesCount: number;
-        error?: never;
+        error?: undefined;
     } | {
         success: boolean;
         error: string;
         message: string;
-        data?: never;
-        canPublish?: never;
-        issuesCount?: never;
+        data?: undefined;
+        canPublish?: undefined;
+        issuesCount?: undefined;
     }>;
 }
 export { PublishFormInputSchema, UpdatePublicationSettingsInputSchema, GenerateEmbedCodeInputSchema, GenerateShareLinkInputSchema, GetFormAnalyticsInputSchema, BulkOperationInputSchema };

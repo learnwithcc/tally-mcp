@@ -5,39 +5,92 @@
  */
 // Global session storage (in a real implementation, you'd use Durable Objects or external storage)
 const activeSessions = new Map();
+// At top of file imports (add after other imports), ensure BlockBuilder functions are available
+import { createFormTitleBlock, createQuestionBlocks } from './utils/block-builder';
 // Tool definitions for Tally MCP Server
 const TOOLS = [
     {
         name: 'create_form',
-        description: 'Create a new Tally form with specified fields and configuration',
+        description: 'Create a new Tally form with specified fields and configuration. This tool converts simple field definitions into Tally\'s complex blocks-based structure automatically. The status field is optional and defaults to DRAFT if not specified.',
         inputSchema: {
             type: 'object',
             properties: {
-                title: { type: 'string', description: 'Form title' },
-                description: { type: 'string', description: 'Form description' },
+                title: {
+                    type: 'string',
+                    description: 'Form title (required) - will be displayed as the main form heading',
+                    minLength: 1,
+                    maxLength: 100
+                },
+                description: {
+                    type: 'string',
+                    description: 'Optional form description - displayed below the title to provide context'
+                },
+                status: {
+                    type: 'string',
+                    enum: ['DRAFT', 'PUBLISHED'],
+                    description: 'Form publication status. Use DRAFT for unpublished forms that are being worked on, or PUBLISHED for live forms. Defaults to DRAFT if not specified.',
+                    default: 'DRAFT'
+                },
                 fields: {
                     type: 'array',
+                    description: 'Array of form fields/questions. Each field will be converted to appropriate Tally blocks automatically.',
+                    minItems: 1,
                     items: {
                         type: 'object',
                         properties: {
-                            type: { type: 'string', enum: ['text', 'email', 'number', 'textarea', 'select', 'checkbox', 'radio'] },
-                            label: { type: 'string' },
-                            required: { type: 'boolean' },
-                            options: { type: 'array', items: { type: 'string' } }
+                            type: {
+                                type: 'string',
+                                enum: ['text', 'email', 'number', 'textarea', 'select', 'checkbox', 'radio'],
+                                description: 'Field input type. Maps to Tally blocks: text→INPUT_TEXT, email→INPUT_EMAIL, number→INPUT_NUMBER, textarea→TEXTAREA, select→DROPDOWN, checkbox→CHECKBOXES, radio→MULTIPLE_CHOICE'
+                            },
+                            label: {
+                                type: 'string',
+                                description: 'Field label/question text - what the user will see',
+                                minLength: 1
+                            },
+                            required: {
+                                type: 'boolean',
+                                description: 'Whether this field must be filled out before form submission',
+                                default: false
+                            },
+                            options: {
+                                type: 'array',
+                                items: { type: 'string' },
+                                description: 'Available options for select, checkbox, or radio field types. Required for select/checkbox/radio fields.'
+                            }
                         },
-                        required: ['type', 'label']
-                    }
-                },
-                settings: {
-                    type: 'object',
-                    properties: {
-                        isPublic: { type: 'boolean' },
-                        allowMultipleSubmissions: { type: 'boolean' },
-                        showProgressBar: { type: 'boolean' }
+                        required: ['type', 'label'],
+                        additionalProperties: false
                     }
                 }
             },
-            required: ['title', 'fields']
+            required: ['title', 'fields'],
+            additionalProperties: false,
+            examples: [
+                {
+                    title: "Customer Feedback Survey",
+                    description: "Help us improve our service",
+                    status: "DRAFT",
+                    fields: [
+                        {
+                            type: "text",
+                            label: "What is your name?",
+                            required: true
+                        },
+                        {
+                            type: "email",
+                            label: "Email address",
+                            required: true
+                        },
+                        {
+                            type: "select",
+                            label: "How would you rate our service?",
+                            required: false,
+                            options: ["Excellent", "Good", "Fair", "Poor"]
+                        }
+                    ]
+                }
+            ]
         }
     },
     {
@@ -135,8 +188,8 @@ const TOOLS = [
                 formId: { type: 'string', description: 'ID of the form to share' },
                 shareType: {
                     type: 'string',
-                    enum: ['link', 'embed', 'popup'],
-                    description: 'Type of sharing method'
+                    enum: ['link', 'embed', 'popup', 'preview', 'editor'],
+                    description: 'Type of sharing method: link (public), embed (iframe), popup (modal), preview/editor (draft editing)'
                 },
                 customization: {
                     type: 'object',
@@ -201,6 +254,103 @@ const SERVER_CAPABILITIES = {
     prompts: {},
     logging: {}
 };
+// Define prompts to guide LLM behavior
+const PROMPTS = [
+    {
+        name: 'tally_form_sharing_guide',
+        description: 'Guide for choosing the correct share type when sharing Tally forms',
+        arguments: [
+            {
+                name: 'form_status',
+                description: 'The current status of the form (DRAFT or PUBLISHED)',
+                required: true
+            }
+        ]
+    }
+];
+/**
+ * Handle prompt get requests
+ */
+function handlePromptGet(params, messageId) {
+    const { name, arguments: args } = params;
+    switch (name) {
+        case 'tally_form_sharing_guide':
+            const formStatus = args?.form_status || 'UNKNOWN';
+            let guidance = '';
+            if (formStatus === 'DRAFT') {
+                guidance = `
+**For DRAFT forms, use these share types:**
+
+- **preview** or **editor** → Returns https://tally.so/forms/{id}/edit
+  - Use when you want to preview/test the form before publishing
+  - Allows editing and testing form functionality
+  - Perfect for form creators to review their work
+
+- **embed** → Returns iframe embed code with https://tally.so/embed/{id}
+  - Use when you want to embed the draft form for testing
+
+**Avoid using 'link' for DRAFT forms** - it returns the public URL which won't work until published.
+        `.trim();
+            }
+            else if (formStatus === 'PUBLISHED') {
+                guidance = `
+**For PUBLISHED forms, use these share types:**
+
+- **link** → Returns https://tally.so/r/{id}
+  - Use for the public form URL that respondents will use
+  - This is the main sharing URL for live forms
+
+- **embed** → Returns iframe embed code with https://tally.so/embed/{id}
+  - Use when embedding the form in websites
+
+- **preview** or **editor** → Returns https://tally.so/forms/{id}/edit
+  - Use when you want to edit the published form
+        `.trim();
+            }
+            else {
+                guidance = `
+**Choose share type based on form status:**
+
+- **DRAFT forms**: Use 'preview' or 'editor' for testing → /forms/{id}/edit
+- **PUBLISHED forms**: Use 'link' for public sharing → /r/{id}
+- **Any status**: Use 'embed' for iframe embedding → /embed/{id}
+        `.trim();
+            }
+            return {
+                jsonrpc: '2.0',
+                id: messageId,
+                result: {
+                    description: `Guidance for sharing Tally forms with status: ${formStatus}`,
+                    messages: [
+                        {
+                            role: 'user',
+                            content: {
+                                type: 'text',
+                                text: `Form status: ${formStatus}`
+                            }
+                        },
+                        {
+                            role: 'assistant',
+                            content: {
+                                type: 'text',
+                                text: guidance
+                            }
+                        }
+                    ]
+                }
+            };
+        default:
+            return {
+                jsonrpc: '2.0',
+                id: messageId,
+                error: {
+                    code: -32602,
+                    message: 'Invalid params',
+                    data: `Unknown prompt: ${name}`
+                }
+            };
+    }
+}
 /**
  * Handle MCP messages over HTTP Stream transport
  */
@@ -220,6 +370,7 @@ async function handleMCPMessage(message, sessionIdOrApiKey, env) {
                         protocolVersion: '2024-11-05',
                         capabilities: {
                             tools: {},
+                            prompts: {},
                             logging: {}
                         },
                         serverInfo: {
@@ -242,6 +393,16 @@ async function handleMCPMessage(message, sessionIdOrApiKey, env) {
                         tools: TOOLS
                     }
                 };
+            case 'prompts/list':
+                return {
+                    jsonrpc: '2.0',
+                    id: message.id,
+                    result: {
+                        prompts: PROMPTS
+                    }
+                };
+            case 'prompts/get':
+                return handlePromptGet(message.params, message.id);
             case 'tools/call':
                 console.log('tools/call - passing env to handleToolCall');
                 const toolResult = await handleToolCall(message.params, sessionIdOrApiKey, env);
@@ -336,16 +497,48 @@ async function callTallyAPI(toolName, args, apiKey) {
     };
     switch (toolName) {
         case 'create_form':
+            // Build blocks using BlockBuilder utility for consistency with main codebase
+            const blocks = [];
+            // Title block (FORM_TITLE)
+            blocks.push(createFormTitleBlock(args.title));
+            // Optional description block – still TEXT; Tally supports plain TEXT blocks for content sections
+            if (args.description) {
+                blocks.push({
+                    uuid: crypto.randomUUID(),
+                    type: 'TEXT',
+                    groupUuid: crypto.randomUUID(),
+                    groupType: 'TEXT',
+                    title: args.description,
+                    payload: {
+                        text: args.description,
+                        html: args.description,
+                    },
+                });
+            }
+            // Field blocks
+            if (Array.isArray(args.fields)) {
+                args.fields.forEach((field) => {
+                    const questionConfig = normalizeField(field);
+                    createQuestionBlocks(questionConfig).forEach((b) => blocks.push(b));
+                });
+            }
+            const payload = {
+                status: args.status || 'DRAFT', // Use provided status or default to DRAFT
+                blocks: blocks
+            };
+            // Debug logging
+            console.log('=== TALLY API PAYLOAD ===');
+            console.log(JSON.stringify(payload, null, 2));
+            console.log('========================');
             const createResponse = await globalThis.fetch(`${baseURL}/forms`, {
                 method: 'POST',
                 headers,
-                body: JSON.stringify({
-                    title: args.title,
-                    description: args.description,
-                    fields: args.fields,
-                    settings: args.settings
-                })
+                body: JSON.stringify(payload)
             });
+            if (!createResponse.ok) {
+                const errorText = await createResponse.text();
+                throw new Error(`Tally API error ${createResponse.status}: ${errorText}`);
+            }
             return await createResponse.json();
         case 'modify_form':
             const modifyResponse = await globalThis.fetch(`${baseURL}/forms/${args.formId}`, {
@@ -418,7 +611,10 @@ async function callTallyAPI(toolName, args, apiKey) {
             return {
                 formId: args.formId,
                 shareType: args.shareType,
-                shareUrl: `https://tally.so/r/${args.formId}`,
+                // Generate correct URL based on requested share type
+                shareUrl: ['preview', 'editor'].includes(args.shareType)
+                    ? `https://tally.so/forms/${args.formId}/edit`
+                    : `https://tally.so/r/${args.formId}`,
                 embedCode: args.shareType === 'embed' ?
                     `<iframe src="https://tally.so/embed/${args.formId}" width="${args.customization?.width || '100%'}" height="${args.customization?.height || '500px'}"></iframe>` :
                     undefined
@@ -822,6 +1018,39 @@ function authenticateRequest(request, env) {
         authenticated: false,
         error: 'Authentication required. Provide token via Authorization header, X-API-Key header, or ?token= query parameter.'
     };
+}
+/**
+ * Convert a simple field definition coming from the create_form args into the
+ * richer QuestionConfig structure expected by block-builder utilities.
+ */
+function normalizeField(field) {
+    const { QuestionType } = require('./models/form-config');
+    const typeMap = {
+        text: QuestionType.TEXT,
+        email: QuestionType.EMAIL,
+        number: QuestionType.NUMBER,
+        select: QuestionType.DROPDOWN,
+        // accept both singular & plural spellings
+        dropdown: QuestionType.DROPDOWN,
+        radio: QuestionType.MULTIPLE_CHOICE,
+        'multiple_choice': QuestionType.MULTIPLE_CHOICE,
+        checkbox: QuestionType.CHECKBOXES,
+        checkboxes: QuestionType.CHECKBOXES,
+        textarea: QuestionType.TEXTAREA,
+        'long answer': QuestionType.TEXTAREA,
+    };
+    const qType = typeMap[(field.type || '').toLowerCase()] ?? QuestionType.TEXT;
+    const qc = {
+        id: crypto.randomUUID(),
+        type: qType,
+        label: field.label || 'Untitled',
+        required: field.required ?? false,
+        placeholder: field.placeholder,
+    };
+    if (field.options) {
+        qc.options = field.options.map((opt) => ({ text: opt, value: opt }));
+    }
+    return qc;
 }
 // Export the Workers-compatible handler
 export default {

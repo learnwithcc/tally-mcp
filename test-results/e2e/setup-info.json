@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-06-18T20:12:56.914Z",
+  "environment": {
+    "baseUrl": "https://api.tally.so",
+    "browser": "chromium",
+    "headless": "true",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    }
+  }
+}

@@ -500,3 +500,18 @@ You're all set to contact the Tally team with confidence! 🚀
 
 ---
 
+<<<<<<< HEAD
+=======
+_**User**_
+
+There's some weird stuff happening with our server now. Check out the output.
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+>>>>>>> develop

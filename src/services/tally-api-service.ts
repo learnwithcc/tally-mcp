@@ -1,6 +1,14 @@
 import { TallyApiClient, TallyApiClientConfig } from './TallyApiClient';
-import { FormConfig, SubmissionBehavior } from '../models';
-import { TallyForm, TallyFormSchema, TallyFormsResponse } from '../models/tally-schemas';
+import { FormConfig } from '../models/form-config';
+import { TallyFormSchema, TallyFormCreatePayload, TallyFormCreatePayloadSchema } from '../models/tally-schemas';
+import { buildBlocksForForm } from '../utils/block-builder';
+import { 
+  TallyForm, 
+  TallyFormsResponse,
+  TallyFormUpdatePayloadSchema,
+  validateTallyResponse
+} from '../models/tally-schemas';
+import { SubmissionBehavior } from '../models';
 
 export class TallyApiService {
   private apiClient: TallyApiClient;
@@ -15,16 +23,16 @@ export class TallyApiService {
    * @returns The created Tally form.
    */
   public async createForm(formConfig: FormConfig): Promise<TallyForm> {
-    // The Tally API endpoint for creating forms will be defined later.
-    // This is a placeholder for the actual API call.
-    const endpoint = '/v1/forms';
+    // The Tally API endpoint for creating forms
+    const endpoint = '/forms';
 
-    // The Tally API expects a certain payload structure.
-    // We need to map our FormConfig to that structure.
-    // This mapping will be implemented in a future task.
-    const payload = this.mapToTallyPayload(formConfig);
+    // Map our FormConfig to the payload expected by the Tally API
+    const payload = this.mapFormConfigToPayload(formConfig);
 
-    return this.apiClient.requestWithValidation('POST', endpoint, TallyFormSchema, payload);
+    // Validate the payload before sending to ensure it meets Tally API requirements
+    const validatedPayload = TallyFormCreatePayloadSchema.parse(payload);
+
+    return this.apiClient.requestWithValidation('POST', endpoint, TallyFormSchema, validatedPayload);
   }
 
   /**
@@ -56,12 +64,15 @@ export class TallyApiService {
    * @returns The updated Tally form.
    */
   public async updateForm(formId: string, formConfig: Partial<FormConfig>): Promise<TallyForm> {
-    const endpoint = `/v1/forms/${formId}`;
+    const endpoint = `/forms/${formId}`;
     
     // Map the FormConfig to the payload expected by the Tally API
     const payload = this.mapToTallyUpdatePayload(formConfig);
 
-    return this.apiClient.requestWithValidation('PUT', endpoint, TallyFormSchema, payload);
+    // Validate the payload before sending to ensure it meets Tally API requirements
+    const validatedPayload = TallyFormUpdatePayloadSchema.parse(payload);
+
+    return this.apiClient.requestWithValidation('PUT', endpoint, TallyFormSchema, validatedPayload);
   }
 
   /**
@@ -71,7 +82,7 @@ export class TallyApiService {
    * @returns The updated Tally form.
    */
   public async patchForm(formId: string, updates: Record<string, any>): Promise<TallyForm> {
-    const endpoint = `/v1/forms/${formId}`;
+    const endpoint = `/forms/${formId}`;
     
     return this.apiClient.requestWithValidation('PATCH', endpoint, TallyFormSchema, updates);
   }
@@ -82,16 +93,22 @@ export class TallyApiService {
    * @param formConfig The internal form configuration.
    * @returns The payload for the Tally API.
    */
-  private mapToTallyPayload(formConfig: FormConfig): any {
-    // This is where the mapping logic will go.
-    // For now, we'll return a simplified object.
-    return {
+  private mapFormConfigToPayload(formConfig: FormConfig): TallyFormCreatePayload {
+    // Build Tally-compatible blocks using our utility
+    const blocks = buildBlocksForForm(formConfig);
+
+    const payload = {
+      status: 'PUBLISHED' as const,
       name: formConfig.title,
-      fields: formConfig.questions.map(q => ({
-        type: q.type,
-        title: q.label,
-      })),
+      blocks: blocks as any, // Cast to any to resolve type compatibility
     };
+
+    // DEBUG: log payload for development
+    if (process.env.DEBUG_TALLY_PAYLOAD === '1') {
+      console.log('[TallyApiService] createForm payload:', JSON.stringify(payload, null, 2));
+    }
+
+    return payload;
   }
 
   /**
@@ -102,8 +119,8 @@ export class TallyApiService {
   private mapToTallyUpdatePayload(formConfig: Partial<FormConfig>): any {
     const payload: any = {};
 
-    if (formConfig.title) {
-      payload.title = formConfig.title;
+    if (formConfig.title !== undefined) {
+      payload.name = formConfig.title;
     }
 
     if (formConfig.description !== undefined) {
