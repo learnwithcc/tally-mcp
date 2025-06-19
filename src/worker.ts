@@ -191,6 +191,56 @@ const TOOLS = [
     }
   },
   {
+    name: 'bulk_delete_forms',
+    description: 'Delete multiple forms in bulk with rate limiting, progress tracking, and error handling',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        formIds: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Array of specific form IDs to delete'
+        },
+        filters: {
+          type: 'object',
+          properties: {
+            createdAfter: { type: 'string', description: 'ISO date string - delete forms created after this date' },
+            createdBefore: { type: 'string', description: 'ISO date string - delete forms created before this date' },
+            namePattern: { type: 'string', description: 'RegEx pattern to match form names' },
+            status: { 
+              type: 'string', 
+              enum: ['draft', 'published', 'archived'],
+              description: 'Filter forms by status' 
+            }
+          },
+          description: 'Filter criteria for selecting forms to delete'
+        },
+        batchSize: {
+          type: 'number',
+          minimum: 1,
+          maximum: 50,
+          default: 10,
+          description: 'Number of forms to process per batch (1-50, default: 10)'
+        },
+        options: {
+          type: 'object',
+          properties: {
+            dryRun: { type: 'boolean', description: 'Preview what would be deleted without actually deleting' },
+            continueOnError: { type: 'boolean', description: 'Continue processing even if some deletions fail' },
+            delayBetweenBatches: { type: 'number', description: 'Milliseconds to wait between batches (for rate limiting)' },
+            maxRetries: { type: 'number', minimum: 0, maximum: 10, default: 3, description: 'Maximum number of retry attempts per form (0-10)' },
+            baseRetryDelay: { type: 'number', minimum: 100, maximum: 10000, default: 1000, description: 'Base delay in milliseconds for exponential backoff retries' }
+          },
+          description: 'Additional options for bulk deletion operation'
+        }
+      },
+      anyOf: [
+        { required: ['formIds'] },
+        { required: ['filters'] }
+      ]
+    }
+  },
+  {
     name: 'get_submissions',
     description: 'Retrieve submissions for a specific form',
     inputSchema: {
@@ -641,6 +691,9 @@ async function callTallyAPI(toolName: string, args: any, apiKey: string): Promis
       });
       return { success: deleteResponse.ok, status: deleteResponse.status };
 
+    case 'bulk_delete_forms':
+      return await handleBulkDeleteForms(args, apiKey, baseURL, headers);
+
     case 'get_submissions':
       let submissionsURL = `${baseURL}/forms/${args.formId}/submissions?limit=${args.limit || 50}&offset=${args.offset || 0}`;
       if (args.since) {
@@ -711,6 +764,408 @@ async function callTallyAPI(toolName: string, args: any, apiKey: string): Promis
     default:
       throw new Error(`Unknown tool: ${toolName}`);
   }
+}
+
+/**
+ * Delete a single form with exponential backoff retry logic
+ */
+async function deleteFormWithRetry(
+  formId: string, 
+  baseURL: string, 
+  headers: any, 
+  maxRetries: number, 
+  baseRetryDelay: number
+): Promise<any> {
+  let lastError: any = null;
+  
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      // Add jitter to prevent thundering herd
+      if (attempt > 0) {
+        const jitter = Math.random() * 0.1 * baseRetryDelay; // 10% jitter
+        const delay = Math.min(baseRetryDelay * Math.pow(2, attempt - 1) + jitter, 30000); // Cap at 30s
+        console.log(`Retrying form ${formId} deletion after ${Math.round(delay)}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
+        await new Promise(resolve => globalThis.setTimeout(resolve, delay));
+      }
+      
+      const deleteResponse = await globalThis.fetch(`${baseURL}/forms/${formId}`, {
+        method: 'DELETE',
+        headers
+      });
+      
+      const result: any = {
+        formId,
+        success: deleteResponse.ok,
+        status: deleteResponse.status,
+        timestamp: new Date().toISOString(),
+        attempts: attempt + 1
+      };
+      
+      if (!deleteResponse.ok) {
+        const errorText = await deleteResponse.text().catch(() => 'Unknown error');
+        result.error = errorText;
+        
+        // Check if we should retry based on status code
+        if (shouldRetryDelete(deleteResponse.status) && attempt < maxRetries) {
+          lastError = new Error(`HTTP ${deleteResponse.status}: ${errorText}`);
+          console.log(`Form ${formId} deletion failed with status ${deleteResponse.status}, will retry`);
+          continue;
+        }
+      }
+      
+      return result;
+    } catch (error) {
+      lastError = error;
+      
+      if (attempt < maxRetries) {
+        console.log(`Form ${formId} deletion failed with network error: ${error}, will retry`);
+        continue;
+      }
+      
+      return {
+        formId,
+        success: false,
+        status: 0,
+        error: `Network error after ${attempt + 1} attempts: ${error}`,
+        timestamp: new Date().toISOString(),
+        attempts: attempt + 1
+      };
+    }
+  }
+  
+  // If we get here, all retries failed
+  return {
+    formId,
+    success: false,
+    status: 0,
+    error: `Failed after ${maxRetries + 1} attempts. Last error: ${lastError}`,
+    timestamp: new Date().toISOString(),
+    attempts: maxRetries + 1
+  };
+}
+
+/**
+ * Determine if a delete operation should be retried based on HTTP status code
+ */
+function shouldRetryDelete(statusCode: number): boolean {
+  // Retry on server errors (5xx) and rate limiting (429)
+  return statusCode >= 500 || statusCode === 429 || statusCode === 408; // 408 = Request Timeout
+}
+
+/**
+ * Handle bulk form deletion with rate limiting, error handling, and progress tracking
+ */
+async function handleBulkDeleteForms(args: any, apiKey: string, baseURL: string, headers: any): Promise<any> {
+  const operationId = crypto.randomUUID();
+  const startTime = Date.now();
+  const batchSize = args.batchSize || 10;
+  const delayBetweenBatches = args.options?.delayBetweenBatches || 1000;
+  const continueOnError = args.options?.continueOnError !== false;
+  const dryRun = args.options?.dryRun || false;
+  const maxRetries = args.options?.maxRetries || 3;
+  const baseRetryDelay = args.options?.baseRetryDelay || 1000;
+  
+  // Initialize operation logging
+  console.log(`[BULK_DELETE] Starting bulk deletion operation ${operationId}`, {
+    operationId,
+    batchSize,
+    delayBetweenBatches,
+    continueOnError,
+    dryRun,
+    maxRetries,
+    baseRetryDelay,
+    hasFormIds: !!args.formIds,
+    hasFilters: !!args.filters,
+    timestamp: new Date().toISOString()
+  });
+  
+  let formsToDelete: string[] = [];
+  const operationErrors: any[] = [];
+  const operationWarnings: any[] = [];
+  
+  // Handle formIds array
+  if (args.formIds && Array.isArray(args.formIds)) {
+    formsToDelete = [...args.formIds];
+  }
+  
+  // Handle filters - get forms list and apply filters
+  if (args.filters) {
+    console.log(`[BULK_DELETE] ${operationId}: Applying filters to select forms`, args.filters);
+    
+    try {
+      const listResponse = await globalThis.fetch(`${baseURL}/forms`, {
+        method: 'GET',
+        headers
+      });
+      
+      if (!listResponse.ok) {
+        const errorText = await listResponse.text().catch(() => 'Unknown error');
+        const error = {
+          type: 'FORMS_LIST_FETCH_ERROR',
+          status: listResponse.status,
+          message: errorText,
+          timestamp: new Date().toISOString()
+        };
+        operationErrors.push(error);
+        
+        console.error(`[BULK_DELETE] ${operationId}: Failed to fetch forms list`, error);
+        
+        return {
+          operationId,
+          success: false,
+          error: `Failed to fetch forms list: HTTP ${listResponse.status} - ${errorText}`,
+          processed: 0,
+          total: 0,
+          errors: operationErrors,
+          duration: Date.now() - startTime
+        };
+      }
+      
+      const formsData = await listResponse.json();
+      const forms = Array.isArray(formsData) ? formsData : formsData.data || [];
+      
+      console.log(`[BULK_DELETE] ${operationId}: Retrieved ${forms.length} forms for filtering`);
+      
+      // Apply filters with enhanced error handling
+      const filteredForms = forms.filter((form: any) => {
+        try {
+          // Apply date filters
+          if (args.filters.createdAfter) {
+            const createdDate = new Date(form.createdAt || form.created_at);
+            if (isNaN(createdDate.getTime())) {
+              operationWarnings.push({
+                type: 'INVALID_DATE_FORMAT',
+                formId: form.id,
+                field: 'createdAt',
+                value: form.createdAt || form.created_at,
+                message: 'Invalid date format, skipping date filter for this form'
+              });
+            } else if (createdDate < new Date(args.filters.createdAfter)) {
+              return false;
+            }
+          }
+          
+          if (args.filters.createdBefore) {
+            const createdDate = new Date(form.createdAt || form.created_at);
+            if (isNaN(createdDate.getTime())) {
+              operationWarnings.push({
+                type: 'INVALID_DATE_FORMAT',
+                formId: form.id,
+                field: 'createdAt',
+                value: form.createdAt || form.created_at,
+                message: 'Invalid date format, skipping date filter for this form'
+              });
+            } else if (createdDate > new Date(args.filters.createdBefore)) {
+              return false;
+            }
+          }
+          
+          // Apply name pattern filter
+          if (args.filters.namePattern) {
+            try {
+              const regex = new RegExp(args.filters.namePattern, 'i');
+              if (!regex.test(form.title || form.name || '')) return false;
+            } catch (regexError) {
+              operationWarnings.push({
+                type: 'INVALID_REGEX_PATTERN',
+                pattern: args.filters.namePattern,
+                error: regexError,
+                message: 'Invalid regex pattern, skipping name filter'
+              });
+            }
+          }
+          
+          // Apply status filter
+          if (args.filters.status) {
+            if (form.status !== args.filters.status.toUpperCase()) return false;
+          }
+          
+          return true;
+        } catch (filterError) {
+          operationWarnings.push({
+            type: 'FILTER_APPLICATION_ERROR',
+            formId: form.id,
+            error: filterError,
+            message: 'Error applying filters to form, including in results'
+          });
+          return true; // Include form if filter fails
+        }
+      });
+      
+      const filteredFormIds = filteredForms.map((form: any) => form.id);
+      formsToDelete = [...formsToDelete, ...filteredFormIds];
+      
+      console.log(`[BULK_DELETE] ${operationId}: Filters applied, ${filteredFormIds.length} forms selected for deletion`);
+      
+    } catch (error) {
+      const errorDetails = {
+        type: 'FILTER_PROCESSING_ERROR',
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString()
+      };
+      operationErrors.push(errorDetails);
+      
+      console.error(`[BULK_DELETE] ${operationId}: Filter processing failed`, errorDetails);
+      
+      return {
+        operationId,
+        success: false,
+        error: `Failed to process filters: ${errorDetails.error}`,
+        processed: 0,
+        total: 0,
+        errors: operationErrors,
+        warnings: operationWarnings,
+        duration: Date.now() - startTime
+      };
+    }
+  }
+  
+  // Remove duplicates
+  formsToDelete = [...new Set(formsToDelete)];
+  
+  if (formsToDelete.length === 0) {
+    const noFormsDuration = Date.now() - startTime;
+    const noFormsResult = {
+      operationId,
+      success: true,
+      message: 'No forms found matching criteria',
+      processed: 0,
+      total: 0,
+      dryRun,
+      results: [],
+      duration: noFormsDuration,
+      startedAt: new Date(startTime).toISOString(),
+      completedAt: new Date().toISOString(),
+      errors: operationErrors,
+      warnings: operationWarnings
+    };
+    
+    console.log(`[BULK_DELETE] ${operationId}: No forms found matching criteria`, {
+      operationId,
+      hasFormIds: !!args.formIds,
+      hasFilters: !!args.filters,
+      formIdsCount: args.formIds?.length || 0,
+      duration: noFormsDuration,
+      errorCount: operationErrors.length,
+      warningCount: operationWarnings.length
+    });
+    
+    return noFormsResult;
+  }
+  
+  // Dry run mode - return what would be deleted
+  if (dryRun) {
+    const dryRunDuration = Date.now() - startTime;
+    const dryRunResult = {
+      operationId,
+      success: true,
+      message: `Dry run: ${formsToDelete.length} forms would be deleted`,
+      processed: 0,
+      total: formsToDelete.length,
+      dryRun: true,
+      formsToDelete,
+      batchSize,
+      estimatedBatches: Math.ceil(formsToDelete.length / batchSize),
+      estimatedDuration: formsToDelete.length * 500, // Rough estimate: 500ms per form
+      duration: dryRunDuration,
+      startedAt: new Date(startTime).toISOString(),
+      completedAt: new Date().toISOString(),
+      errors: operationErrors,
+      warnings: operationWarnings
+    };
+    
+    console.log(`[BULK_DELETE] ${operationId}: Dry run completed`, {
+      operationId,
+      formsFound: formsToDelete.length,
+      estimatedBatches: dryRunResult.estimatedBatches,
+      duration: dryRunDuration,
+      errorCount: operationErrors.length,
+      warningCount: operationWarnings.length
+    });
+    
+    return dryRunResult;
+  }
+  
+  // Process deletions in batches
+  const results: any[] = [];
+  let processed = 0;
+  let succeeded = 0;
+  let failed = 0;
+  
+  for (let i = 0; i < formsToDelete.length; i += batchSize) {
+    const batch = formsToDelete.slice(i, i + batchSize);
+    const batchNumber = Math.floor(i / batchSize) + 1;
+    const totalBatches = Math.ceil(formsToDelete.length / batchSize);
+    
+    console.log(`Processing batch ${batchNumber}/${totalBatches} (${batch.length} forms)`);
+    
+    // Process batch with retry logic and rate limiting
+    const batchPromises = batch.map(async (formId) => {
+      return await deleteFormWithRetry(formId, baseURL, headers, maxRetries, baseRetryDelay);
+    });
+    
+    const batchResults = await Promise.all(batchPromises);
+    results.push(...batchResults);
+    
+    // Update counters
+    processed += batch.length;
+    const batchSucceeded = batchResults.filter((r: any) => r.success).length;
+    const batchFailed = batchResults.length - batchSucceeded;
+    succeeded += batchSucceeded;
+    failed += batchFailed;
+    
+    console.log(`Batch ${batchNumber} completed: ${batchSucceeded} succeeded, ${batchFailed} failed`);
+    
+    // Check if we should continue on error
+    if (batchFailed > 0 && !continueOnError) {
+      console.log('Stopping bulk deletion due to errors and continueOnError=false');
+      break;
+    }
+    
+    // Wait between batches for rate limiting (except for the last batch)
+    if (i + batchSize < formsToDelete.length) {
+      console.log(`Waiting ${delayBetweenBatches}ms before next batch...`);
+      await new Promise(resolve => globalThis.setTimeout(resolve, delayBetweenBatches));
+    }
+  }
+  
+  const duration = Date.now() - startTime;
+  const finalResult = {
+    operationId,
+    success: failed === 0 || continueOnError,
+    message: `Bulk deletion completed: ${succeeded} succeeded, ${failed} failed out of ${processed} processed`,
+    processed,
+    total: formsToDelete.length,
+    succeeded,
+    failed,
+    dryRun: false,
+    results,
+    batchSize,
+    duration,
+    startedAt: new Date(startTime).toISOString(),
+    completedAt: new Date().toISOString(),
+    errors: operationErrors,
+    warnings: operationWarnings,
+    statistics: {
+      averageTimePerForm: processed > 0 ? Math.round(duration / processed) : 0,
+      successRate: processed > 0 ? Math.round((succeeded / processed) * 100) : 0,
+      totalBatches: Math.ceil(formsToDelete.length / batchSize),
+      retriesUsed: results.reduce((sum: number, r: any) => sum + (r.attempts || 1) - 1, 0)
+    }
+  };
+  
+  console.log(`[BULK_DELETE] ${operationId}: Operation completed`, {
+    operationId,
+    success: finalResult.success,
+    processed,
+    succeeded,
+    failed,
+    duration,
+    errorCount: operationErrors.length,
+    warningCount: operationWarnings.length
+  });
+  
+  return finalResult;
 }
 
 /**

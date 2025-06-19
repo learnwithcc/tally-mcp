@@ -1036,7 +1036,7 @@ export class FormModificationOperations {
    */
   public convertTallyFormToFormConfig(tallyForm: TallyForm & { questions?: any[], settings?: any }): FormConfig {
     return {
-      title: tallyForm.title,
+      title: tallyForm.title || 'Untitled Form',
       description: tallyForm.description || undefined,
       questions: (tallyForm.questions || []).map((field: any) => {
         return {
