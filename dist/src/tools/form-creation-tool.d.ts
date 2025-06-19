@@ -1,5 +1,5 @@
-import { FormConfig } from '../models/form-config';
 import { Tool } from './tool';
+import { FormConfig } from '../models/form-config';
 import { TallyApiClientConfig } from '../services/TallyApiClient';
 export interface FormCreationArgs {
     formConfig?: FormConfig;

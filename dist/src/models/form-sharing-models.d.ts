@@ -75,8 +75,8 @@ export declare const FormPublicationSettingsSchema: z.ZodObject<{
     updatedAt: string;
     visibility: FormVisibility;
     notificationEmails: string[];
-    allowedDomains?: string[] | undefined;
     isPublished?: boolean | undefined;
+    allowedDomains?: string[] | undefined;
     maxSubmissions?: number | undefined;
     ipWhitelist?: string[] | undefined;
     publishedAt?: string | undefined;
@@ -166,9 +166,9 @@ export declare const ShareLinkSchema: z.ZodObject<{
     updatedAt: z.ZodString;
     lastAccessedAt: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    url: string;
     type: ShareLinkType;
     id: string;
+    url: string;
     formId: string;
     createdAt: string;
     updatedAt: string;
@@ -178,22 +178,22 @@ export declare const ShareLinkSchema: z.ZodObject<{
     currentUses: number;
     trackClicks: boolean;
     trackSubmissions: boolean;
-    description?: string | undefined;
     title?: string | undefined;
+    description?: string | undefined;
     expiresAt?: string | undefined;
     password?: string | undefined;
     shortUrl?: string | undefined;
     maxUses?: number | undefined;
     lastAccessedAt?: string | undefined;
 }, {
-    url: string;
     type: ShareLinkType;
     id: string;
+    url: string;
     formId: string;
     createdAt: string;
     updatedAt: string;
-    description?: string | undefined;
     title?: string | undefined;
+    description?: string | undefined;
     tags?: string[] | undefined;
     expiresAt?: string | undefined;
     isActive?: boolean | undefined;

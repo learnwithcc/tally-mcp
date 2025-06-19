@@ -72,12 +72,12 @@ export declare const MCPToolSchema: z.ZodObject<{
     description: z.ZodString;
     inputSchema: z.ZodEffects<z.ZodRecord<z.ZodString, z.ZodAny>, Record<string, any>, Record<string, any>>;
 }, "strip", z.ZodTypeAny, {
-    description: string;
     name: string;
+    description: string;
     inputSchema: Record<string, any>;
 }, {
-    description: string;
     name: string;
+    description: string;
     inputSchema: Record<string, any>;
 }>;
 export declare const ValidationErrorSchema: z.ZodObject<{
@@ -90,8 +90,8 @@ export declare const ValidationErrorSchema: z.ZodObject<{
     context: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
     specReference: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    message: string;
     code: string;
+    message: string;
     severity: ValidationSeverity;
     path?: string | undefined;
     expected?: any;
@@ -99,8 +99,8 @@ export declare const ValidationErrorSchema: z.ZodObject<{
     actual?: any;
     specReference?: string | undefined;
 }, {
-    message: string;
     code: string;
+    message: string;
     severity: ValidationSeverity;
     path?: string | undefined;
     expected?: any;
@@ -120,8 +120,8 @@ export declare const ValidationResultSchema: z.ZodObject<{
         context: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
         specReference: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        message: string;
         code: string;
+        message: string;
         severity: ValidationSeverity;
         path?: string | undefined;
         expected?: any;
@@ -129,8 +129,8 @@ export declare const ValidationResultSchema: z.ZodObject<{
         actual?: any;
         specReference?: string | undefined;
     }, {
-        message: string;
         code: string;
+        message: string;
         severity: ValidationSeverity;
         path?: string | undefined;
         expected?: any;
@@ -148,8 +148,8 @@ export declare const ValidationResultSchema: z.ZodObject<{
         context: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
         specReference: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        message: string;
         code: string;
+        message: string;
         severity: ValidationSeverity;
         path?: string | undefined;
         expected?: any;
@@ -157,8 +157,8 @@ export declare const ValidationResultSchema: z.ZodObject<{
         actual?: any;
         specReference?: string | undefined;
     }, {
-        message: string;
         code: string;
+        message: string;
         severity: ValidationSeverity;
         path?: string | undefined;
         expected?: any;
@@ -176,8 +176,8 @@ export declare const ValidationResultSchema: z.ZodObject<{
         context: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
         specReference: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        message: string;
         code: string;
+        message: string;
         severity: ValidationSeverity;
         path?: string | undefined;
         expected?: any;
@@ -185,8 +185,8 @@ export declare const ValidationResultSchema: z.ZodObject<{
         actual?: any;
         specReference?: string | undefined;
     }, {
-        message: string;
         code: string;
+        message: string;
         severity: ValidationSeverity;
         path?: string | undefined;
         expected?: any;
@@ -208,9 +208,10 @@ export declare const ValidationResultSchema: z.ZodObject<{
         infoCount: number;
     }>;
 }, "strip", z.ZodTypeAny, {
-    info: {
-        message: string;
+    valid: boolean;
+    errors: {
         code: string;
+        message: string;
         severity: ValidationSeverity;
         path?: string | undefined;
         expected?: any;
@@ -218,10 +219,9 @@ export declare const ValidationResultSchema: z.ZodObject<{
         actual?: any;
         specReference?: string | undefined;
     }[];
-    valid: boolean;
-    errors: {
-        message: string;
+    info: {
         code: string;
+        message: string;
         severity: ValidationSeverity;
         path?: string | undefined;
         expected?: any;
@@ -235,8 +235,8 @@ export declare const ValidationResultSchema: z.ZodObject<{
         infoCount: number;
     };
     warnings: {
-        message: string;
         code: string;
+        message: string;
         severity: ValidationSeverity;
         path?: string | undefined;
         expected?: any;
@@ -245,9 +245,10 @@ export declare const ValidationResultSchema: z.ZodObject<{
         specReference?: string | undefined;
     }[];
 }, {
-    info: {
-        message: string;
+    valid: boolean;
+    errors: {
         code: string;
+        message: string;
         severity: ValidationSeverity;
         path?: string | undefined;
         expected?: any;
@@ -255,10 +256,9 @@ export declare const ValidationResultSchema: z.ZodObject<{
         actual?: any;
         specReference?: string | undefined;
     }[];
-    valid: boolean;
-    errors: {
-        message: string;
+    info: {
         code: string;
+        message: string;
         severity: ValidationSeverity;
         path?: string | undefined;
         expected?: any;
@@ -272,8 +272,8 @@ export declare const ValidationResultSchema: z.ZodObject<{
         infoCount: number;
     };
     warnings: {
-        message: string;
         code: string;
+        message: string;
         severity: ValidationSeverity;
         path?: string | undefined;
         expected?: any;

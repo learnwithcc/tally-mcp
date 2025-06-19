@@ -38,7 +38,7 @@ module.exports = {
       outputName: 'jest-junit.xml',
     } ]
   ],
-  // Update snapshots in CI if UPDATE_SNAPSHOTS env var is set
-  updateSnapshot: process.env.UPDATE_SNAPSHOTS === 'true' ? 'all' : 'new',
+  // Update snapshots in CI if UPDATE_SNAPSHOTS env var is set  
+  updateSnapshot: process.env.UPDATE_SNAPSHOTS === 'true',
   globalSetup: '<rootDir>/jest.global-setup.js',
 }; 

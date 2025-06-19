@@ -13,6 +13,28 @@ export class SchemaValidator {
         const errors = [];
         const warnings = [];
         const info = [];
+        if (!schema || typeof schema !== 'object') {
+            errors.push({
+                code: 'SCHEMA_INVALID',
+                message: 'Schema must be a valid object',
+                severity: ValidationSeverity.ERROR,
+                path: '',
+                expected: 'object',
+                actual: schema === null ? 'null' : typeof schema,
+                specReference: 'JSON Schema Core Specification'
+            });
+            return {
+                valid: false,
+                errors,
+                warnings,
+                info,
+                summary: {
+                    errorCount: errors.length,
+                    warningCount: warnings.length,
+                    infoCount: info.length
+                }
+            };
+        }
         this.validateBasicStructure(schema, errors, warnings);
         if (this.config.validateJsonSchemaDraft) {
             this.validateJsonSchemaDraft(schema, errors, warnings);
@@ -222,9 +244,22 @@ export class SchemaValidator {
                 });
             }
         }
+        if (schema.exclusiveMinimum !== undefined && schema.exclusiveMaximum !== undefined) {
+            if (schema.exclusiveMinimum >= schema.exclusiveMaximum) {
+                errors.push({
+                    code: 'NUMERIC_EXCLUSIVE_RANGE_CONFLICT',
+                    message: 'exclusiveMinimum cannot be greater than or equal to exclusiveMaximum',
+                    severity: ValidationSeverity.ERROR,
+                    path: 'exclusiveMinimum',
+                    expected: `< ${schema.exclusiveMaximum}`,
+                    actual: schema.exclusiveMinimum,
+                    specReference: 'JSON Schema Validation'
+                });
+            }
+        }
         if (schema.multipleOf !== undefined && schema.multipleOf <= 0) {
             errors.push({
-                code: 'INVALID_MULTIPLE_OF',
+                code: 'MULTIPLE_OF_NOT_POSITIVE',
                 message: 'multipleOf must be greater than 0',
                 severity: ValidationSeverity.ERROR,
                 path: 'multipleOf',
@@ -235,6 +270,28 @@ export class SchemaValidator {
         }
     }
     validateObjectSchema(schema, errors, _warnings, _info) {
+        if (schema.minProperties !== undefined && schema.minProperties < 0) {
+            errors.push({
+                code: 'OBJECT_MIN_PROPERTIES_NEGATIVE',
+                message: 'minProperties cannot be negative',
+                severity: ValidationSeverity.ERROR,
+                path: 'minProperties',
+                expected: '>= 0',
+                actual: schema.minProperties,
+                specReference: 'JSON Schema Validation'
+            });
+        }
+        if (schema.maxProperties !== undefined && schema.maxProperties < 0) {
+            errors.push({
+                code: 'OBJECT_MAX_PROPERTIES_NEGATIVE',
+                message: 'maxProperties cannot be negative',
+                severity: ValidationSeverity.ERROR,
+                path: 'maxProperties',
+                expected: '>= 0',
+                actual: schema.maxProperties,
+                specReference: 'JSON Schema Validation'
+            });
+        }
         if (schema.minProperties !== undefined && schema.maxProperties !== undefined) {
             if (schema.minProperties > schema.maxProperties) {
                 errors.push({
@@ -250,6 +307,28 @@ export class SchemaValidator {
         }
     }
     validateArraySchema(schema, errors, _warnings, _info) {
+        if (schema.minItems !== undefined && schema.minItems < 0) {
+            errors.push({
+                code: 'ARRAY_MIN_ITEMS_NEGATIVE',
+                message: 'minItems cannot be negative',
+                severity: ValidationSeverity.ERROR,
+                path: 'minItems',
+                expected: '>= 0',
+                actual: schema.minItems,
+                specReference: 'JSON Schema Validation'
+            });
+        }
+        if (schema.maxItems !== undefined && schema.maxItems < 0) {
+            errors.push({
+                code: 'ARRAY_MAX_ITEMS_NEGATIVE',
+                message: 'maxItems cannot be negative',
+                severity: ValidationSeverity.ERROR,
+                path: 'maxItems',
+                expected: '>= 0',
+                actual: schema.maxItems,
+                specReference: 'JSON Schema Validation'
+            });
+        }
         if (schema.minItems !== undefined && schema.maxItems !== undefined) {
             if (schema.minItems > schema.maxItems) {
                 errors.push({

@@ -49,11 +49,11 @@ declare const UpdatePublicationSettingsInputSchema: z.ZodObject<{
         createdAt: z.ZodOptional<z.ZodString>;
         updatedAt: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        allowedDomains?: string[] | undefined;
         formId?: string | undefined;
         createdAt?: string | undefined;
         updatedAt?: string | undefined;
         isPublished?: boolean | undefined;
+        allowedDomains?: string[] | undefined;
         maxSubmissions?: number | undefined;
         ipWhitelist?: string[] | undefined;
         visibility?: FormVisibility | undefined;
@@ -72,11 +72,11 @@ declare const UpdatePublicationSettingsInputSchema: z.ZodObject<{
         allowIndexing?: boolean | undefined;
         requireCaptcha?: boolean | undefined;
     }, {
-        allowedDomains?: string[] | undefined;
         formId?: string | undefined;
         createdAt?: string | undefined;
         updatedAt?: string | undefined;
         isPublished?: boolean | undefined;
+        allowedDomains?: string[] | undefined;
         maxSubmissions?: number | undefined;
         ipWhitelist?: string[] | undefined;
         visibility?: FormVisibility | undefined;
@@ -98,11 +98,11 @@ declare const UpdatePublicationSettingsInputSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     formId: string;
     settings: {
-        allowedDomains?: string[] | undefined;
         formId?: string | undefined;
         createdAt?: string | undefined;
         updatedAt?: string | undefined;
         isPublished?: boolean | undefined;
+        allowedDomains?: string[] | undefined;
         maxSubmissions?: number | undefined;
         ipWhitelist?: string[] | undefined;
         visibility?: FormVisibility | undefined;
@@ -124,11 +124,11 @@ declare const UpdatePublicationSettingsInputSchema: z.ZodObject<{
 }, {
     formId: string;
     settings: {
-        allowedDomains?: string[] | undefined;
         formId?: string | undefined;
         createdAt?: string | undefined;
         updatedAt?: string | undefined;
         isPublished?: boolean | undefined;
+        allowedDomains?: string[] | undefined;
         maxSubmissions?: number | undefined;
         ipWhitelist?: string[] | undefined;
         visibility?: FormVisibility | undefined;
@@ -393,9 +393,9 @@ export declare class FormSharingTool {
     generateShareLink(input: z.infer<typeof GenerateShareLinkInputSchema>): Promise<{
         success: boolean;
         data: {
-            url: string;
             type: ShareLinkType;
             id: string;
+            url: string;
             formId: string;
             createdAt: string;
             updatedAt: string;
@@ -405,8 +405,8 @@ export declare class FormSharingTool {
             currentUses: number;
             trackClicks: boolean;
             trackSubmissions: boolean;
-            description?: string | undefined;
             title?: string | undefined;
+            description?: string | undefined;
             expiresAt?: string | undefined;
             password?: string | undefined;
             shortUrl?: string | undefined;
@@ -428,9 +428,9 @@ export declare class FormSharingTool {
     }): Promise<{
         success: boolean;
         data: {
-            url: string;
             type: ShareLinkType;
             id: string;
+            url: string;
             formId: string;
             createdAt: string;
             updatedAt: string;
@@ -440,8 +440,8 @@ export declare class FormSharingTool {
             currentUses: number;
             trackClicks: boolean;
             trackSubmissions: boolean;
-            description?: string | undefined;
             title?: string | undefined;
+            description?: string | undefined;
             expiresAt?: string | undefined;
             password?: string | undefined;
             shortUrl?: string | undefined;
@@ -463,9 +463,9 @@ export declare class FormSharingTool {
     }): Promise<{
         success: boolean;
         data: {
-            url: string;
             type: ShareLinkType;
             id: string;
+            url: string;
             formId: string;
             createdAt: string;
             updatedAt: string;
@@ -475,8 +475,8 @@ export declare class FormSharingTool {
             currentUses: number;
             trackClicks: boolean;
             trackSubmissions: boolean;
-            description?: string | undefined;
             title?: string | undefined;
+            description?: string | undefined;
             expiresAt?: string | undefined;
             password?: string | undefined;
             shortUrl?: string | undefined;

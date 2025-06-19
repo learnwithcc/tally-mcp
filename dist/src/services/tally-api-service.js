@@ -1,14 +1,15 @@
 import { TallyApiClient } from './TallyApiClient';
-import { SubmissionBehavior } from '../models';
-import { TallyFormSchema, TallyFormCreatePayloadSchema, TallyFormUpdatePayloadSchema } from '../models/tally-schemas';
+import { TallyFormSchema, TallyFormCreatePayloadSchema } from '../models/tally-schemas';
 import { buildBlocksForForm } from '../utils/block-builder';
+import { TallyFormUpdatePayloadSchema } from '../models/tally-schemas';
+import { SubmissionBehavior } from '../models';
 export class TallyApiService {
     constructor(config) {
         this.apiClient = new TallyApiClient(config);
     }
     async createForm(formConfig) {
         const endpoint = '/forms';
-        const payload = this.mapToTallyPayload(formConfig);
+        const payload = this.mapFormConfigToPayload(formConfig);
         const validatedPayload = TallyFormCreatePayloadSchema.parse(payload);
         return this.apiClient.requestWithValidation('POST', endpoint, TallyFormSchema, validatedPayload);
     }
@@ -28,13 +29,17 @@ export class TallyApiService {
         const endpoint = `/forms/${formId}`;
         return this.apiClient.requestWithValidation('PATCH', endpoint, TallyFormSchema, updates);
     }
-    mapToTallyPayload(formConfig) {
+    mapFormConfigToPayload(formConfig) {
         const blocks = buildBlocksForForm(formConfig);
-        return {
+        const payload = {
             status: 'PUBLISHED',
             name: formConfig.title,
-            blocks,
+            blocks: blocks,
         };
+        if (process.env.DEBUG_TALLY_PAYLOAD === '1') {
+            console.log('[TallyApiService] createForm payload:', JSON.stringify(payload, null, 2));
+        }
+        return payload;
     }
     mapToTallyUpdatePayload(formConfig) {
         const payload = {};

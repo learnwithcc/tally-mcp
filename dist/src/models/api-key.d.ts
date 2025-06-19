@@ -51,19 +51,19 @@ export declare const UpdateApiKeySchema: z.ZodObject<{
     ipWhitelist: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodString>>;
 }, "strip", z.ZodTypeAny, {
-    description?: string | undefined;
     scopes?: ApiKeyScope[] | undefined;
     name?: string | undefined;
     status?: ApiKeyStatus | undefined;
+    description?: string | undefined;
     metadata?: Record<string, string> | undefined;
     expiresAt?: Date | undefined;
     maxUsage?: number | undefined;
     ipWhitelist?: string[] | undefined;
 }, {
-    description?: string | undefined;
     scopes?: ApiKeyScope[] | undefined;
     name?: string | undefined;
     status?: ApiKeyStatus | undefined;
+    description?: string | undefined;
     metadata?: Record<string, string> | undefined;
     expiresAt?: Date | undefined;
     maxUsage?: number | undefined;

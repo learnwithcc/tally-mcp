@@ -89,7 +89,7 @@ export class FormPublicationService {
                 ...defaultSettings,
                 ...settings
             });
-            const embedUrl = `${this.baseUrl}/r/${formId}`;
+            const embedUrl = `${this.baseUrl}/embed/${formId}`;
             const html = this.generateHtmlEmbed(embedUrl, embedSettings);
             const javascript = this.generateJavaScriptEmbed(embedUrl, embedSettings);
             const iframe = this.generateIframeEmbed(embedUrl, embedSettings);

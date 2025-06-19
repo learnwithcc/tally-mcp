@@ -59,3 +59,23 @@ exports[`Input Sanitization sanitizeObject should recursively sanitize all strin
   },
 }
 `;
+
+exports[`Input Sanitization sanitizeString should add security attributes to links 1`] = `"<a href="https://example.com" rel="noopener noreferrer" target="_blank">Click</a>"`;
+
+exports[`Input Sanitization sanitizeString should correctly handle safe string: plainText 1`] = `"This is a safe string."`;
+
+exports[`Input Sanitization sanitizeString should correctly handle safe string: textWithNumbers 1`] = `"Here are some numbers 12345"`;
+
+exports[`Input Sanitization sanitizeString should correctly handle safe string: withFormatting 1`] = `"<b>This is bold</b> and <i>this is italic</i>."`;
+
+exports[`Input Sanitization sanitizeString should correctly handle safe string: withLinks 1`] = `"<a href="https://example.com" title="Example" rel="noopener noreferrer" target="_blank">Example Link</a>"`;
+
+exports[`Input Sanitization sanitizeString should remove or neutralize dangerous string: eventHandler 1`] = `""`;
+
+exports[`Input Sanitization sanitizeString should remove or neutralize dangerous string: iframeTag 1`] = `""`;
+
+exports[`Input Sanitization sanitizeString should remove or neutralize dangerous string: javascriptProtocol 1`] = `"Click me"`;
+
+exports[`Input Sanitization sanitizeString should remove or neutralize dangerous string: scriptTag 1`] = `""`;
+
+exports[`Input Sanitization sanitizeString should remove or neutralize dangerous string: unclosedTag 1`] = `"hello"`;

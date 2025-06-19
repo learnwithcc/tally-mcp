@@ -183,15 +183,15 @@ export declare const QuestionOptionSchema: z.ZodObject<{
     metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
 }, "strip", z.ZodTypeAny, {
     text: string;
-    id?: string | undefined;
     value?: string | undefined;
+    id?: string | undefined;
     isDefault?: boolean | undefined;
     imageUrl?: string | undefined;
     metadata?: Record<string, any> | undefined;
 }, {
     text: string;
-    id?: string | undefined;
     value?: string | undefined;
+    id?: string | undefined;
     isDefault?: boolean | undefined;
     imageUrl?: string | undefined;
     metadata?: Record<string, any> | undefined;
@@ -211,21 +211,21 @@ export declare const BaseQuestionConfigSchema: z.ZodObject<{
     logic: any;
     order: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
 }, {
-    required: boolean;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
 }>;
@@ -244,29 +244,29 @@ export declare const TextQuestionConfigSchema: z.ZodObject<{
     maxLength: z.ZodOptional<z.ZodNumber>;
     format: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.TEXT;
     label: string;
-    minLength?: number | undefined;
-    maxLength?: number | undefined;
-    format?: string | undefined;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
+    minLength?: number | undefined;
+    maxLength?: number | undefined;
+    format?: string | undefined;
     logic?: any;
     order?: number | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.TEXT;
     label: string;
-    minLength?: number | undefined;
-    maxLength?: number | undefined;
-    format?: string | undefined;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
+    minLength?: number | undefined;
+    maxLength?: number | undefined;
+    format?: string | undefined;
     logic?: any;
     order?: number | undefined;
 }>;
@@ -286,32 +286,32 @@ export declare const TextareaQuestionConfigSchema: z.ZodObject<{
     rows: z.ZodOptional<z.ZodNumber>;
     autoResize: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.TEXTAREA;
     label: string;
-    minLength?: number | undefined;
-    maxLength?: number | undefined;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
+    rows?: number | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
+    minLength?: number | undefined;
+    maxLength?: number | undefined;
     logic?: any;
     order?: number | undefined;
-    rows?: number | undefined;
     autoResize?: boolean | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.TEXTAREA;
     label: string;
-    minLength?: number | undefined;
-    maxLength?: number | undefined;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
+    rows?: number | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
+    minLength?: number | undefined;
+    maxLength?: number | undefined;
     logic?: any;
     order?: number | undefined;
-    rows?: number | undefined;
     autoResize?: boolean | undefined;
 }>;
 export declare const EmailQuestionConfigSchema: z.ZodObject<{
@@ -328,25 +328,25 @@ export declare const EmailQuestionConfigSchema: z.ZodObject<{
     validateFormat: z.ZodOptional<z.ZodBoolean>;
     suggestDomains: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.EMAIL;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     validateFormat?: boolean | undefined;
     suggestDomains?: boolean | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.EMAIL;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     validateFormat?: boolean | undefined;
@@ -367,27 +367,27 @@ export declare const PhoneQuestionConfigSchema: z.ZodObject<{
     customPattern: z.ZodOptional<z.ZodString>;
     autoFormat: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.PHONE;
     label: string;
-    format?: T.PhoneFormat | undefined;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
+    format?: T.PhoneFormat | undefined;
     logic?: any;
     order?: number | undefined;
     customPattern?: string | undefined;
     autoFormat?: boolean | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.PHONE;
     label: string;
-    format?: T.PhoneFormat | undefined;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
+    format?: T.PhoneFormat | undefined;
     logic?: any;
     order?: number | undefined;
     customPattern?: string | undefined;
@@ -407,25 +407,25 @@ export declare const UrlQuestionConfigSchema: z.ZodObject<{
     validateFormat: z.ZodOptional<z.ZodBoolean>;
     allowedSchemes: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.URL;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     validateFormat?: boolean | undefined;
     allowedSchemes?: string[] | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.URL;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     validateFormat?: boolean | undefined;
@@ -449,13 +449,13 @@ export declare const NumberQuestionConfigSchema: z.ZodObject<{
     useThousandSeparator: z.ZodOptional<z.ZodBoolean>;
     currency: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.NUMBER;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     min?: number | undefined;
@@ -465,13 +465,13 @@ export declare const NumberQuestionConfigSchema: z.ZodObject<{
     useThousandSeparator?: boolean | undefined;
     currency?: string | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.NUMBER;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     min?: number | undefined;
@@ -498,13 +498,13 @@ export declare const DateQuestionConfigSchema: z.ZodObject<{
     includeTime: z.ZodOptional<z.ZodBoolean>;
     defaultDate: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.DATE;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     minDate?: string | undefined;
@@ -513,13 +513,13 @@ export declare const DateQuestionConfigSchema: z.ZodObject<{
     includeTime?: boolean | undefined;
     defaultDate?: string | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.DATE;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     minDate?: string | undefined;
@@ -543,27 +543,27 @@ export declare const TimeQuestionConfigSchema: z.ZodObject<{
     minuteStep: z.ZodOptional<z.ZodNumber>;
     defaultTime: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.TIME;
     label: string;
-    format?: T.TimeFormat | undefined;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
+    format?: T.TimeFormat | undefined;
     logic?: any;
     order?: number | undefined;
     minuteStep?: number | undefined;
     defaultTime?: string | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.TIME;
     label: string;
-    format?: T.TimeFormat | undefined;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
+    format?: T.TimeFormat | undefined;
     logic?: any;
     order?: number | undefined;
     minuteStep?: number | undefined;
@@ -589,15 +589,15 @@ export declare const MultipleChoiceQuestionConfigSchema: z.ZodObject<{
         metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
     }, "strip", z.ZodTypeAny, {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }, {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
@@ -606,42 +606,42 @@ export declare const MultipleChoiceQuestionConfigSchema: z.ZodObject<{
     randomizeOptions: z.ZodOptional<z.ZodBoolean>;
     layout: z.ZodOptional<z.ZodNativeEnum<typeof T.QuestionLayout>>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
-    type: T.QuestionType.MULTIPLE_CHOICE;
-    label: string;
     options: {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }[];
+    type: T.QuestionType.MULTIPLE_CHOICE;
+    label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     allowOther?: boolean | undefined;
     randomizeOptions?: boolean | undefined;
     layout?: T.QuestionLayout | undefined;
 }, {
-    required: boolean;
-    type: T.QuestionType.MULTIPLE_CHOICE;
-    label: string;
     options: {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }[];
+    type: T.QuestionType.MULTIPLE_CHOICE;
+    label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     allowOther?: boolean | undefined;
@@ -668,15 +668,15 @@ export declare const DropdownQuestionConfigSchema: z.ZodObject<{
         metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
     }, "strip", z.ZodTypeAny, {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }, {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
@@ -685,42 +685,42 @@ export declare const DropdownQuestionConfigSchema: z.ZodObject<{
     searchable: z.ZodOptional<z.ZodBoolean>;
     dropdownPlaceholder: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
-    type: T.QuestionType.DROPDOWN;
-    label: string;
     options: {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }[];
+    type: T.QuestionType.DROPDOWN;
+    label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     allowOther?: boolean | undefined;
     searchable?: boolean | undefined;
     dropdownPlaceholder?: string | undefined;
 }, {
-    required: boolean;
-    type: T.QuestionType.DROPDOWN;
-    label: string;
     options: {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }[];
+    type: T.QuestionType.DROPDOWN;
+    label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     allowOther?: boolean | undefined;
@@ -747,15 +747,15 @@ export declare const CheckboxesQuestionConfigSchema: z.ZodObject<{
         metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
     }, "strip", z.ZodTypeAny, {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }, {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
@@ -766,21 +766,21 @@ export declare const CheckboxesQuestionConfigSchema: z.ZodObject<{
     randomizeOptions: z.ZodOptional<z.ZodBoolean>;
     layout: z.ZodOptional<z.ZodNativeEnum<typeof T.QuestionLayout>>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
-    type: T.QuestionType.CHECKBOXES;
-    label: string;
     options: {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }[];
+    type: T.QuestionType.CHECKBOXES;
+    label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     allowOther?: boolean | undefined;
@@ -789,21 +789,21 @@ export declare const CheckboxesQuestionConfigSchema: z.ZodObject<{
     maxSelections?: number | undefined;
     minSelections?: number | undefined;
 }, {
-    required: boolean;
-    type: T.QuestionType.CHECKBOXES;
-    label: string;
     options: {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }[];
+    type: T.QuestionType.CHECKBOXES;
+    label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     allowOther?: boolean | undefined;
@@ -831,15 +831,15 @@ export declare const RatingQuestionConfigSchema: z.ZodObject<{
     lowLabel: z.ZodOptional<z.ZodString>;
     highLabel: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.RATING;
     label: string;
+    required: boolean;
     minRating: number;
     maxRating: number;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     ratingLabels?: string[] | undefined;
@@ -848,15 +848,15 @@ export declare const RatingQuestionConfigSchema: z.ZodObject<{
     lowLabel?: string | undefined;
     highLabel?: string | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.RATING;
     label: string;
+    required: boolean;
     minRating: number;
     maxRating: number;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     ratingLabels?: string[] | undefined;
@@ -883,15 +883,15 @@ export declare const LinearScaleQuestionConfigSchema: z.ZodObject<{
     highLabel: z.ZodOptional<z.ZodString>;
     showNumbers: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.LINEAR_SCALE;
     label: string;
+    required: boolean;
     minValue: number;
     maxValue: number;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     step?: number | undefined;
@@ -899,15 +899,15 @@ export declare const LinearScaleQuestionConfigSchema: z.ZodObject<{
     lowLabel?: string | undefined;
     highLabel?: string | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.LINEAR_SCALE;
     label: string;
+    required: boolean;
     minValue: number;
     maxValue: number;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     step?: number | undefined;
@@ -932,13 +932,13 @@ export declare const FileQuestionConfigSchema: z.ZodObject<{
     multiple: z.ZodOptional<z.ZodBoolean>;
     uploadText: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.FILE;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     allowedTypes?: string[] | undefined;
@@ -947,13 +947,13 @@ export declare const FileQuestionConfigSchema: z.ZodObject<{
     multiple?: boolean | undefined;
     uploadText?: string | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.FILE;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     allowedTypes?: string[] | undefined;
@@ -978,13 +978,13 @@ export declare const SignatureQuestionConfigSchema: z.ZodObject<{
     penColor: z.ZodOptional<z.ZodString>;
     backgroundColor: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.SIGNATURE;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     canvasWidth?: number | undefined;
@@ -992,13 +992,13 @@ export declare const SignatureQuestionConfigSchema: z.ZodObject<{
     penColor?: string | undefined;
     backgroundColor?: string | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.SIGNATURE;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     canvasWidth?: number | undefined;
@@ -1025,14 +1025,14 @@ export declare const PaymentQuestionConfigSchema: z.ZodObject<{
     paymentDescription: z.ZodOptional<z.ZodString>;
     acceptedMethods: z.ZodOptional<z.ZodArray<z.ZodNativeEnum<typeof T.PaymentMethod>, "many">>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.PAYMENT;
     label: string;
+    required: boolean;
     currency: string;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     amount?: number | undefined;
@@ -1042,14 +1042,14 @@ export declare const PaymentQuestionConfigSchema: z.ZodObject<{
     paymentDescription?: string | undefined;
     acceptedMethods?: T.PaymentMethod[] | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.PAYMENT;
     label: string;
+    required: boolean;
     currency: string;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     amount?: number | undefined;
@@ -1074,29 +1074,29 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     maxLength: z.ZodOptional<z.ZodNumber>;
     format: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.TEXT;
     label: string;
-    minLength?: number | undefined;
-    maxLength?: number | undefined;
-    format?: string | undefined;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
+    minLength?: number | undefined;
+    maxLength?: number | undefined;
+    format?: string | undefined;
     logic?: any;
     order?: number | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.TEXT;
     label: string;
-    minLength?: number | undefined;
-    maxLength?: number | undefined;
-    format?: string | undefined;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
+    minLength?: number | undefined;
+    maxLength?: number | undefined;
+    format?: string | undefined;
     logic?: any;
     order?: number | undefined;
 }>, z.ZodObject<{
@@ -1115,32 +1115,32 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     rows: z.ZodOptional<z.ZodNumber>;
     autoResize: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.TEXTAREA;
     label: string;
-    minLength?: number | undefined;
-    maxLength?: number | undefined;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
+    rows?: number | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
+    minLength?: number | undefined;
+    maxLength?: number | undefined;
     logic?: any;
     order?: number | undefined;
-    rows?: number | undefined;
     autoResize?: boolean | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.TEXTAREA;
     label: string;
-    minLength?: number | undefined;
-    maxLength?: number | undefined;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
+    rows?: number | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
+    minLength?: number | undefined;
+    maxLength?: number | undefined;
     logic?: any;
     order?: number | undefined;
-    rows?: number | undefined;
     autoResize?: boolean | undefined;
 }>, z.ZodObject<{
     id: z.ZodOptional<z.ZodString>;
@@ -1156,25 +1156,25 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     validateFormat: z.ZodOptional<z.ZodBoolean>;
     suggestDomains: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.EMAIL;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     validateFormat?: boolean | undefined;
     suggestDomains?: boolean | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.EMAIL;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     validateFormat?: boolean | undefined;
@@ -1194,27 +1194,27 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     customPattern: z.ZodOptional<z.ZodString>;
     autoFormat: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.PHONE;
     label: string;
-    format?: T.PhoneFormat | undefined;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
+    format?: T.PhoneFormat | undefined;
     logic?: any;
     order?: number | undefined;
     customPattern?: string | undefined;
     autoFormat?: boolean | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.PHONE;
     label: string;
-    format?: T.PhoneFormat | undefined;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
+    format?: T.PhoneFormat | undefined;
     logic?: any;
     order?: number | undefined;
     customPattern?: string | undefined;
@@ -1233,25 +1233,25 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     validateFormat: z.ZodOptional<z.ZodBoolean>;
     allowedSchemes: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.URL;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     validateFormat?: boolean | undefined;
     allowedSchemes?: string[] | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.URL;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     validateFormat?: boolean | undefined;
@@ -1274,13 +1274,13 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     useThousandSeparator: z.ZodOptional<z.ZodBoolean>;
     currency: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.NUMBER;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     min?: number | undefined;
@@ -1290,13 +1290,13 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     useThousandSeparator?: boolean | undefined;
     currency?: string | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.NUMBER;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     min?: number | undefined;
@@ -1322,13 +1322,13 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     includeTime: z.ZodOptional<z.ZodBoolean>;
     defaultDate: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.DATE;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     minDate?: string | undefined;
@@ -1337,13 +1337,13 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     includeTime?: boolean | undefined;
     defaultDate?: string | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.DATE;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     minDate?: string | undefined;
@@ -1366,27 +1366,27 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     minuteStep: z.ZodOptional<z.ZodNumber>;
     defaultTime: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.TIME;
     label: string;
-    format?: T.TimeFormat | undefined;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
+    format?: T.TimeFormat | undefined;
     logic?: any;
     order?: number | undefined;
     minuteStep?: number | undefined;
     defaultTime?: string | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.TIME;
     label: string;
-    format?: T.TimeFormat | undefined;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
+    format?: T.TimeFormat | undefined;
     logic?: any;
     order?: number | undefined;
     minuteStep?: number | undefined;
@@ -1411,15 +1411,15 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
         metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
     }, "strip", z.ZodTypeAny, {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }, {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
@@ -1428,42 +1428,42 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     randomizeOptions: z.ZodOptional<z.ZodBoolean>;
     layout: z.ZodOptional<z.ZodNativeEnum<typeof T.QuestionLayout>>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
-    type: T.QuestionType.MULTIPLE_CHOICE;
-    label: string;
     options: {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }[];
+    type: T.QuestionType.MULTIPLE_CHOICE;
+    label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     allowOther?: boolean | undefined;
     randomizeOptions?: boolean | undefined;
     layout?: T.QuestionLayout | undefined;
 }, {
-    required: boolean;
-    type: T.QuestionType.MULTIPLE_CHOICE;
-    label: string;
     options: {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }[];
+    type: T.QuestionType.MULTIPLE_CHOICE;
+    label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     allowOther?: boolean | undefined;
@@ -1489,15 +1489,15 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
         metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
     }, "strip", z.ZodTypeAny, {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }, {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
@@ -1506,42 +1506,42 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     searchable: z.ZodOptional<z.ZodBoolean>;
     dropdownPlaceholder: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
-    type: T.QuestionType.DROPDOWN;
-    label: string;
     options: {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }[];
+    type: T.QuestionType.DROPDOWN;
+    label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     allowOther?: boolean | undefined;
     searchable?: boolean | undefined;
     dropdownPlaceholder?: string | undefined;
 }, {
-    required: boolean;
-    type: T.QuestionType.DROPDOWN;
-    label: string;
     options: {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }[];
+    type: T.QuestionType.DROPDOWN;
+    label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     allowOther?: boolean | undefined;
@@ -1567,15 +1567,15 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
         metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
     }, "strip", z.ZodTypeAny, {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }, {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
@@ -1586,21 +1586,21 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     randomizeOptions: z.ZodOptional<z.ZodBoolean>;
     layout: z.ZodOptional<z.ZodNativeEnum<typeof T.QuestionLayout>>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
-    type: T.QuestionType.CHECKBOXES;
-    label: string;
     options: {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }[];
+    type: T.QuestionType.CHECKBOXES;
+    label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     allowOther?: boolean | undefined;
@@ -1609,21 +1609,21 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     maxSelections?: number | undefined;
     minSelections?: number | undefined;
 }, {
-    required: boolean;
-    type: T.QuestionType.CHECKBOXES;
-    label: string;
     options: {
         text: string;
-        id?: string | undefined;
         value?: string | undefined;
+        id?: string | undefined;
         isDefault?: boolean | undefined;
         imageUrl?: string | undefined;
         metadata?: Record<string, any> | undefined;
     }[];
+    type: T.QuestionType.CHECKBOXES;
+    label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     allowOther?: boolean | undefined;
@@ -1650,15 +1650,15 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     lowLabel: z.ZodOptional<z.ZodString>;
     highLabel: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.RATING;
     label: string;
+    required: boolean;
     minRating: number;
     maxRating: number;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     ratingLabels?: string[] | undefined;
@@ -1667,15 +1667,15 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     lowLabel?: string | undefined;
     highLabel?: string | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.RATING;
     label: string;
+    required: boolean;
     minRating: number;
     maxRating: number;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     ratingLabels?: string[] | undefined;
@@ -1701,15 +1701,15 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     highLabel: z.ZodOptional<z.ZodString>;
     showNumbers: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.LINEAR_SCALE;
     label: string;
+    required: boolean;
     minValue: number;
     maxValue: number;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     step?: number | undefined;
@@ -1717,15 +1717,15 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     lowLabel?: string | undefined;
     highLabel?: string | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.LINEAR_SCALE;
     label: string;
+    required: boolean;
     minValue: number;
     maxValue: number;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     step?: number | undefined;
@@ -1749,13 +1749,13 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     multiple: z.ZodOptional<z.ZodBoolean>;
     uploadText: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.FILE;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     allowedTypes?: string[] | undefined;
@@ -1764,13 +1764,13 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     multiple?: boolean | undefined;
     uploadText?: string | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.FILE;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     allowedTypes?: string[] | undefined;
@@ -1794,13 +1794,13 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     penColor: z.ZodOptional<z.ZodString>;
     backgroundColor: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.SIGNATURE;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     canvasWidth?: number | undefined;
@@ -1808,13 +1808,13 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     penColor?: string | undefined;
     backgroundColor?: string | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.SIGNATURE;
     label: string;
+    required: boolean;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     canvasWidth?: number | undefined;
@@ -1840,14 +1840,14 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     paymentDescription: z.ZodOptional<z.ZodString>;
     acceptedMethods: z.ZodOptional<z.ZodArray<z.ZodNativeEnum<typeof T.PaymentMethod>, "many">>;
 }, "strip", z.ZodTypeAny, {
-    required: boolean;
     type: T.QuestionType.PAYMENT;
     label: string;
+    required: boolean;
     currency: string;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     amount?: number | undefined;
@@ -1857,14 +1857,14 @@ export declare const QuestionConfigSchema: z.ZodDiscriminatedUnion<"type", [z.Zo
     paymentDescription?: string | undefined;
     acceptedMethods?: T.PaymentMethod[] | undefined;
 }, {
-    required: boolean;
     type: T.QuestionType.PAYMENT;
     label: string;
+    required: boolean;
     currency: string;
+    validation?: any;
     id?: string | undefined;
     description?: string | undefined;
     placeholder?: string | undefined;
-    validation?: any;
     logic?: any;
     order?: number | undefined;
     amount?: number | undefined;
@@ -1891,13 +1891,13 @@ export declare const RequiredValidationSchema: z.ZodObject<{
     type: z.ZodLiteral<"required">;
     required: z.ZodLiteral<true>;
 }, "strip", z.ZodTypeAny, {
-    required: true;
     type: "required";
+    required: true;
     errorMessage?: string | undefined;
     enabled?: boolean | undefined;
 }, {
-    required: true;
     type: "required";
+    required: true;
     errorMessage?: string | undefined;
     enabled?: boolean | undefined;
 }>;
@@ -1956,15 +1956,15 @@ export declare const PatternValidationSchema: z.ZodObject<{
     flags: z.ZodOptional<z.ZodString>;
     caseSensitive: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    pattern: string;
     type: "pattern";
+    pattern: string;
     flags?: string | undefined;
     caseSensitive?: boolean | undefined;
     errorMessage?: string | undefined;
     enabled?: boolean | undefined;
 }, {
-    pattern: string;
     type: "pattern";
+    pattern: string;
     flags?: string | undefined;
     caseSensitive?: boolean | undefined;
     errorMessage?: string | undefined;
@@ -2248,18 +2248,18 @@ export declare const LogicConditionSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     questionId: string;
     operator: T.LogicOperator;
+    value?: any;
     id?: string | undefined;
     caseSensitive?: boolean | undefined;
     errorMessage?: string | undefined;
-    value?: any;
     negate?: boolean | undefined;
 }, {
     questionId: string;
     operator: T.LogicOperator;
+    value?: any;
     id?: string | undefined;
     caseSensitive?: boolean | undefined;
     errorMessage?: string | undefined;
-    value?: any;
     negate?: boolean | undefined;
 }>;
 export declare const BaseConditionalActionSchema: z.ZodObject<{
@@ -2426,7 +2426,7 @@ export declare const ShowMessageActionSchema: z.ZodObject<{
     action: T.ConditionalAction.SHOW_MESSAGE;
     enabled?: boolean | undefined;
     delay?: number | undefined;
-    messageType?: "info" | "warning" | "error" | "success" | undefined;
+    messageType?: "error" | "success" | "info" | "warning" | undefined;
     duration?: number | undefined;
     position?: "above" | "below" | "inline" | "popup" | undefined;
 }, {
@@ -2434,7 +2434,7 @@ export declare const ShowMessageActionSchema: z.ZodObject<{
     action: T.ConditionalAction.SHOW_MESSAGE;
     enabled?: boolean | undefined;
     delay?: number | undefined;
-    messageType?: "info" | "warning" | "error" | "success" | undefined;
+    messageType?: "error" | "success" | "info" | "warning" | undefined;
     duration?: number | undefined;
     position?: "above" | "below" | "inline" | "popup" | undefined;
 }>;

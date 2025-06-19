@@ -9,16 +9,16 @@ export declare const TeamMemberSchema: z.ZodObject<{
     joinedAt: z.ZodString;
     permissions: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
 }, "strip", z.ZodTypeAny, {
-    email: string;
     id: string;
+    email: string;
     role: "member" | "team_lead" | "contributor";
     joinedAt: string;
     userId: string;
     permissions: string[];
     name?: string | undefined;
 }, {
-    email: string;
     id: string;
+    email: string;
     role: "member" | "team_lead" | "contributor";
     joinedAt: string;
     userId: string;
@@ -40,16 +40,16 @@ export declare const TeamSchema: z.ZodObject<{
         joinedAt: z.ZodString;
         permissions: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
     }, "strip", z.ZodTypeAny, {
-        email: string;
         id: string;
+        email: string;
         role: "member" | "team_lead" | "contributor";
         joinedAt: string;
         userId: string;
         permissions: string[];
         name?: string | undefined;
     }, {
-        email: string;
         id: string;
+        email: string;
         role: "member" | "team_lead" | "contributor";
         joinedAt: string;
         userId: string;
@@ -90,13 +90,13 @@ export declare const TeamSchema: z.ZodObject<{
     updatedAt: z.ZodString;
     createdBy: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    id: string;
     name: string;
+    id: string;
     createdAt: string;
     updatedAt: string;
     members: {
-        email: string;
         id: string;
+        email: string;
         role: "member" | "team_lead" | "contributor";
         joinedAt: string;
         userId: string;
@@ -120,16 +120,16 @@ export declare const TeamSchema: z.ZodObject<{
     description?: string | undefined;
     parentTeamId?: string | undefined;
 }, {
-    id: string;
     name: string;
+    id: string;
     createdAt: string;
     updatedAt: string;
     workspaceId: string;
     createdBy: string;
     description?: string | undefined;
     members?: {
-        email: string;
         id: string;
+        email: string;
         role: "member" | "team_lead" | "contributor";
         joinedAt: string;
         userId: string;
@@ -166,16 +166,16 @@ export declare const TeamHierarchyNodeSchema: z.ZodObject<{
             joinedAt: z.ZodString;
             permissions: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
         }, "strip", z.ZodTypeAny, {
-            email: string;
             id: string;
+            email: string;
             role: "member" | "team_lead" | "contributor";
             joinedAt: string;
             userId: string;
             permissions: string[];
             name?: string | undefined;
         }, {
-            email: string;
             id: string;
+            email: string;
             role: "member" | "team_lead" | "contributor";
             joinedAt: string;
             userId: string;
@@ -216,13 +216,13 @@ export declare const TeamHierarchyNodeSchema: z.ZodObject<{
         updatedAt: z.ZodString;
         createdBy: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        id: string;
         name: string;
+        id: string;
         createdAt: string;
         updatedAt: string;
         members: {
-            email: string;
             id: string;
+            email: string;
             role: "member" | "team_lead" | "contributor";
             joinedAt: string;
             userId: string;
@@ -246,16 +246,16 @@ export declare const TeamHierarchyNodeSchema: z.ZodObject<{
         description?: string | undefined;
         parentTeamId?: string | undefined;
     }, {
-        id: string;
         name: string;
+        id: string;
         createdAt: string;
         updatedAt: string;
         workspaceId: string;
         createdBy: string;
         description?: string | undefined;
         members?: {
-            email: string;
             id: string;
+            email: string;
             role: "member" | "team_lead" | "contributor";
             joinedAt: string;
             userId: string;
@@ -283,13 +283,13 @@ export declare const TeamHierarchyNodeSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     path: string[];
     team: {
-        id: string;
         name: string;
+        id: string;
         createdAt: string;
         updatedAt: string;
         members: {
-            email: string;
             id: string;
+            email: string;
             role: "member" | "team_lead" | "contributor";
             joinedAt: string;
             userId: string;
@@ -319,16 +319,16 @@ export declare const TeamHierarchyNodeSchema: z.ZodObject<{
 }, {
     path: string[];
     team: {
-        id: string;
         name: string;
+        id: string;
         createdAt: string;
         updatedAt: string;
         workspaceId: string;
         createdBy: string;
         description?: string | undefined;
         members?: {
-            email: string;
             id: string;
+            email: string;
             role: "member" | "team_lead" | "contributor";
             joinedAt: string;
             userId: string;
@@ -371,16 +371,16 @@ export declare const OrganizationStructureSchema: z.ZodObject<{
                 joinedAt: z.ZodString;
                 permissions: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
             }, "strip", z.ZodTypeAny, {
-                email: string;
                 id: string;
+                email: string;
                 role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
                 userId: string;
                 permissions: string[];
                 name?: string | undefined;
             }, {
-                email: string;
                 id: string;
+                email: string;
                 role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
                 userId: string;
@@ -421,13 +421,13 @@ export declare const OrganizationStructureSchema: z.ZodObject<{
             updatedAt: z.ZodString;
             createdBy: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            id: string;
             name: string;
+            id: string;
             createdAt: string;
             updatedAt: string;
             members: {
-                email: string;
                 id: string;
+                email: string;
                 role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
                 userId: string;
@@ -451,16 +451,16 @@ export declare const OrganizationStructureSchema: z.ZodObject<{
             description?: string | undefined;
             parentTeamId?: string | undefined;
         }, {
-            id: string;
             name: string;
+            id: string;
             createdAt: string;
             updatedAt: string;
             workspaceId: string;
             createdBy: string;
             description?: string | undefined;
             members?: {
-                email: string;
                 id: string;
+                email: string;
                 role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
                 userId: string;
@@ -488,13 +488,13 @@ export declare const OrganizationStructureSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         path: string[];
         team: {
-            id: string;
             name: string;
+            id: string;
             createdAt: string;
             updatedAt: string;
             members: {
-                email: string;
                 id: string;
+                email: string;
                 role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
                 userId: string;
@@ -524,16 +524,16 @@ export declare const OrganizationStructureSchema: z.ZodObject<{
     }, {
         path: string[];
         team: {
-            id: string;
             name: string;
+            id: string;
             createdAt: string;
             updatedAt: string;
             workspaceId: string;
             createdBy: string;
             description?: string | undefined;
             members?: {
-                email: string;
                 id: string;
+                email: string;
                 role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
                 userId: string;
@@ -567,13 +567,13 @@ export declare const OrganizationStructureSchema: z.ZodObject<{
     teams: {
         path: string[];
         team: {
-            id: string;
             name: string;
+            id: string;
             createdAt: string;
             updatedAt: string;
             members: {
-                email: string;
                 id: string;
+                email: string;
                 role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
                 userId: string;
@@ -610,16 +610,16 @@ export declare const OrganizationStructureSchema: z.ZodObject<{
     teams: {
         path: string[];
         team: {
-            id: string;
             name: string;
+            id: string;
             createdAt: string;
             updatedAt: string;
             workspaceId: string;
             createdBy: string;
             description?: string | undefined;
             members?: {
-                email: string;
                 id: string;
+                email: string;
                 role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
                 userId: string;
@@ -773,8 +773,8 @@ export declare const UpdateTeamRequestSchema: z.ZodObject<{
         icon?: string | undefined;
     }>>;
 }, "strip", z.ZodTypeAny, {
-    description?: string | undefined;
     name?: string | undefined;
+    description?: string | undefined;
     settings?: {
         isPrivate?: boolean | undefined;
         allowSelfJoin?: boolean | undefined;
@@ -788,8 +788,8 @@ export declare const UpdateTeamRequestSchema: z.ZodObject<{
     } | undefined;
     parentTeamId?: string | undefined;
 }, {
-    description?: string | undefined;
     name?: string | undefined;
+    description?: string | undefined;
     settings?: {
         isPrivate?: boolean | undefined;
         allowSelfJoin?: boolean | undefined;
@@ -1058,16 +1058,16 @@ export declare const TeamResponseSchema: z.ZodObject<{
             joinedAt: z.ZodString;
             permissions: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
         }, "strip", z.ZodTypeAny, {
-            email: string;
             id: string;
+            email: string;
             role: "member" | "team_lead" | "contributor";
             joinedAt: string;
             userId: string;
             permissions: string[];
             name?: string | undefined;
         }, {
-            email: string;
             id: string;
+            email: string;
             role: "member" | "team_lead" | "contributor";
             joinedAt: string;
             userId: string;
@@ -1108,13 +1108,13 @@ export declare const TeamResponseSchema: z.ZodObject<{
         updatedAt: z.ZodString;
         createdBy: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        id: string;
         name: string;
+        id: string;
         createdAt: string;
         updatedAt: string;
         members: {
-            email: string;
             id: string;
+            email: string;
             role: "member" | "team_lead" | "contributor";
             joinedAt: string;
             userId: string;
@@ -1138,16 +1138,16 @@ export declare const TeamResponseSchema: z.ZodObject<{
         description?: string | undefined;
         parentTeamId?: string | undefined;
     }, {
-        id: string;
         name: string;
+        id: string;
         createdAt: string;
         updatedAt: string;
         workspaceId: string;
         createdBy: string;
         description?: string | undefined;
         members?: {
-            email: string;
             id: string;
+            email: string;
             role: "member" | "team_lead" | "contributor";
             joinedAt: string;
             userId: string;
@@ -1172,13 +1172,13 @@ export declare const TeamResponseSchema: z.ZodObject<{
     childTeamCount: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
     team: {
-        id: string;
         name: string;
+        id: string;
         createdAt: string;
         updatedAt: string;
         members: {
-            email: string;
             id: string;
+            email: string;
             role: "member" | "team_lead" | "contributor";
             joinedAt: string;
             userId: string;
@@ -1206,16 +1206,16 @@ export declare const TeamResponseSchema: z.ZodObject<{
     childTeamCount: number;
 }, {
     team: {
-        id: string;
         name: string;
+        id: string;
         createdAt: string;
         updatedAt: string;
         workspaceId: string;
         createdBy: string;
         description?: string | undefined;
         members?: {
-            email: string;
             id: string;
+            email: string;
             role: "member" | "team_lead" | "contributor";
             joinedAt: string;
             userId: string;
@@ -1256,16 +1256,16 @@ export declare const TeamListResponseSchema: z.ZodObject<{
                 joinedAt: z.ZodString;
                 permissions: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
             }, "strip", z.ZodTypeAny, {
-                email: string;
                 id: string;
+                email: string;
                 role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
                 userId: string;
                 permissions: string[];
                 name?: string | undefined;
             }, {
-                email: string;
                 id: string;
+                email: string;
                 role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
                 userId: string;
@@ -1306,13 +1306,13 @@ export declare const TeamListResponseSchema: z.ZodObject<{
             updatedAt: z.ZodString;
             createdBy: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            id: string;
             name: string;
+            id: string;
             createdAt: string;
             updatedAt: string;
             members: {
-                email: string;
                 id: string;
+                email: string;
                 role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
                 userId: string;
@@ -1336,16 +1336,16 @@ export declare const TeamListResponseSchema: z.ZodObject<{
             description?: string | undefined;
             parentTeamId?: string | undefined;
         }, {
-            id: string;
             name: string;
+            id: string;
             createdAt: string;
             updatedAt: string;
             workspaceId: string;
             createdBy: string;
             description?: string | undefined;
             members?: {
-                email: string;
                 id: string;
+                email: string;
                 role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
                 userId: string;
@@ -1370,13 +1370,13 @@ export declare const TeamListResponseSchema: z.ZodObject<{
         childTeamCount: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
         team: {
-            id: string;
             name: string;
+            id: string;
             createdAt: string;
             updatedAt: string;
             members: {
-                email: string;
                 id: string;
+                email: string;
                 role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
                 userId: string;
@@ -1404,16 +1404,16 @@ export declare const TeamListResponseSchema: z.ZodObject<{
         childTeamCount: number;
     }, {
         team: {
-            id: string;
             name: string;
+            id: string;
             createdAt: string;
             updatedAt: string;
             workspaceId: string;
             createdBy: string;
             description?: string | undefined;
             members?: {
-                email: string;
                 id: string;
+                email: string;
                 role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
                 userId: string;
@@ -1444,13 +1444,13 @@ export declare const TeamListResponseSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     teams: {
         team: {
-            id: string;
             name: string;
+            id: string;
             createdAt: string;
             updatedAt: string;
             members: {
-                email: string;
                 id: string;
+                email: string;
                 role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
                 userId: string;
@@ -1484,16 +1484,16 @@ export declare const TeamListResponseSchema: z.ZodObject<{
 }, {
     teams: {
         team: {
-            id: string;
             name: string;
+            id: string;
             createdAt: string;
             updatedAt: string;
             workspaceId: string;
             createdBy: string;
             description?: string | undefined;
             members?: {
-                email: string;
                 id: string;
+                email: string;
                 role: "member" | "team_lead" | "contributor";
                 joinedAt: string;
                 userId: string;

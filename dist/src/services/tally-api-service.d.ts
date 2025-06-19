@@ -1,5 +1,5 @@
 import { TallyApiClientConfig } from './TallyApiClient';
-import { FormConfig } from '../models';
+import { FormConfig } from '../models/form-config';
 import { TallyForm, TallyFormsResponse } from '../models/tally-schemas';
 export declare class TallyApiService {
     private apiClient;
@@ -13,7 +13,7 @@ export declare class TallyApiService {
     }): Promise<TallyFormsResponse>;
     updateForm(formId: string, formConfig: Partial<FormConfig>): Promise<TallyForm>;
     patchForm(formId: string, updates: Record<string, any>): Promise<TallyForm>;
-    private mapToTallyPayload;
+    private mapFormConfigToPayload;
     private mapToTallyUpdatePayload;
 }
 //# sourceMappingURL=tally-api-service.d.ts.map

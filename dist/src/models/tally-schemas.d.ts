@@ -50,15 +50,15 @@ export declare const TallyFileUploadSchema: z.ZodObject<{
     mimeType: z.ZodString;
     size: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
-    url: string;
-    id: string;
     name: string;
+    id: string;
+    url: string;
     mimeType: string;
     size: number;
 }, {
-    url: string;
-    id: string;
     name: string;
+    id: string;
+    url: string;
     mimeType: string;
     size: number;
 }>;
@@ -66,50 +66,50 @@ export declare const TallyOptionSchema: z.ZodObject<{
     id: z.ZodString;
     text: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    text: string;
     id: string;
+    text: string;
 }, {
-    text: string;
     id: string;
+    text: string;
 }>;
 export declare const TallyMatrixSchema: z.ZodObject<{
     rows: z.ZodArray<z.ZodObject<{
         id: z.ZodString;
         text: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        text: string;
         id: string;
+        text: string;
     }, {
-        text: string;
         id: string;
+        text: string;
     }>, "many">;
     columns: z.ZodArray<z.ZodObject<{
         id: z.ZodString;
         text: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        text: string;
         id: string;
+        text: string;
     }, {
-        text: string;
         id: string;
+        text: string;
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
     rows: {
-        text: string;
         id: string;
+        text: string;
     }[];
     columns: {
-        text: string;
         id: string;
+        text: string;
     }[];
 }, {
     rows: {
-        text: string;
         id: string;
+        text: string;
     }[];
     columns: {
-        text: string;
         id: string;
+        text: string;
     }[];
 }>;
 export declare const TallyFormFieldSchema: z.ZodSchema<any>;
@@ -156,32 +156,32 @@ export declare const TallyFormResponseSchema: z.ZodObject<{
         mimeType: z.ZodString;
         size: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
-        url: string;
-        id: string;
         name: string;
+        id: string;
+        url: string;
         mimeType: string;
         size: number;
     }, {
-        url: string;
-        id: string;
         name: string;
+        id: string;
+        url: string;
         mimeType: string;
         size: number;
     }>, "many">, z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>, z.ZodNull]>;
 }, "strip", z.ZodTypeAny, {
     value: string | number | boolean | string[] | {
-        url: string;
-        id: string;
         name: string;
+        id: string;
+        url: string;
         mimeType: string;
         size: number;
     }[] | Record<string, string[]> | null;
     questionId: string;
 }, {
     value: string | number | boolean | string[] | {
-        url: string;
-        id: string;
         name: string;
+        id: string;
+        url: string;
         mimeType: string;
         size: number;
     }[] | Record<string, string[]> | null;
@@ -202,32 +202,32 @@ export declare const TallySubmissionSchema: z.ZodObject<{
             mimeType: z.ZodString;
             size: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
-            url: string;
-            id: string;
             name: string;
+            id: string;
+            url: string;
             mimeType: string;
             size: number;
         }, {
-            url: string;
-            id: string;
             name: string;
+            id: string;
+            url: string;
             mimeType: string;
             size: number;
         }>, "many">, z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>, z.ZodNull]>;
     }, "strip", z.ZodTypeAny, {
         value: string | number | boolean | string[] | {
-            url: string;
-            id: string;
             name: string;
+            id: string;
+            url: string;
             mimeType: string;
             size: number;
         }[] | Record<string, string[]> | null;
         questionId: string;
     }, {
         value: string | number | boolean | string[] | {
-            url: string;
-            id: string;
             name: string;
+            id: string;
+            url: string;
             mimeType: string;
             size: number;
         }[] | Record<string, string[]> | null;
@@ -241,9 +241,9 @@ export declare const TallySubmissionSchema: z.ZodObject<{
     submittedAt: string;
     responses: {
         value: string | number | boolean | string[] | {
-            url: string;
-            id: string;
             name: string;
+            id: string;
+            url: string;
             mimeType: string;
             size: number;
         }[] | Record<string, string[]> | null;
@@ -257,9 +257,9 @@ export declare const TallySubmissionSchema: z.ZodObject<{
     submittedAt: string;
     responses: {
         value: string | number | boolean | string[] | {
-            url: string;
-            id: string;
             name: string;
+            id: string;
+            url: string;
             mimeType: string;
             size: number;
         }[] | Record<string, string[]> | null;
@@ -332,32 +332,32 @@ export declare const TallySubmissionsResponseSchema: z.ZodObject<{
                 mimeType: z.ZodString;
                 size: z.ZodNumber;
             }, "strip", z.ZodTypeAny, {
-                url: string;
-                id: string;
                 name: string;
+                id: string;
+                url: string;
                 mimeType: string;
                 size: number;
             }, {
-                url: string;
-                id: string;
                 name: string;
+                id: string;
+                url: string;
                 mimeType: string;
                 size: number;
             }>, "many">, z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>, z.ZodNull]>;
         }, "strip", z.ZodTypeAny, {
             value: string | number | boolean | string[] | {
-                url: string;
-                id: string;
                 name: string;
+                id: string;
+                url: string;
                 mimeType: string;
                 size: number;
             }[] | Record<string, string[]> | null;
             questionId: string;
         }, {
             value: string | number | boolean | string[] | {
-                url: string;
-                id: string;
                 name: string;
+                id: string;
+                url: string;
                 mimeType: string;
                 size: number;
             }[] | Record<string, string[]> | null;
@@ -371,9 +371,9 @@ export declare const TallySubmissionsResponseSchema: z.ZodObject<{
         submittedAt: string;
         responses: {
             value: string | number | boolean | string[] | {
-                url: string;
-                id: string;
                 name: string;
+                id: string;
+                url: string;
                 mimeType: string;
                 size: number;
             }[] | Record<string, string[]> | null;
@@ -387,9 +387,9 @@ export declare const TallySubmissionsResponseSchema: z.ZodObject<{
         submittedAt: string;
         responses: {
             value: string | number | boolean | string[] | {
-                url: string;
-                id: string;
                 name: string;
+                id: string;
+                url: string;
                 mimeType: string;
                 size: number;
             }[] | Record<string, string[]> | null;
@@ -425,9 +425,9 @@ export declare const TallySubmissionsResponseSchema: z.ZodObject<{
         submittedAt: string;
         responses: {
             value: string | number | boolean | string[] | {
-                url: string;
-                id: string;
                 name: string;
+                id: string;
+                url: string;
                 mimeType: string;
                 size: number;
             }[] | Record<string, string[]> | null;
@@ -463,9 +463,9 @@ export declare const TallySubmissionsResponseSchema: z.ZodObject<{
         submittedAt: string;
         responses: {
             value: string | number | boolean | string[] | {
-                url: string;
-                id: string;
                 name: string;
+                id: string;
+                url: string;
                 mimeType: string;
                 size: number;
             }[] | Record<string, string[]> | null;
@@ -491,15 +491,15 @@ export declare const TallyWebhookFieldSchema: z.ZodObject<{
         mimeType: z.ZodString;
         size: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
-        url: string;
-        id: string;
         name: string;
+        id: string;
+        url: string;
         mimeType: string;
         size: number;
     }, {
-        url: string;
-        id: string;
         name: string;
+        id: string;
+        url: string;
         mimeType: string;
         size: number;
     }>, "many">, z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>]>;
@@ -507,77 +507,77 @@ export declare const TallyWebhookFieldSchema: z.ZodObject<{
         id: z.ZodString;
         text: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        text: string;
         id: string;
+        text: string;
     }, {
-        text: string;
         id: string;
+        text: string;
     }>, "many">>;
     rows: z.ZodOptional<z.ZodArray<z.ZodObject<{
         id: z.ZodString;
         text: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        text: string;
         id: string;
+        text: string;
     }, {
-        text: string;
         id: string;
+        text: string;
     }>, "many">>;
     columns: z.ZodOptional<z.ZodArray<z.ZodObject<{
         id: z.ZodString;
         text: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        text: string;
         id: string;
+        text: string;
     }, {
-        text: string;
         id: string;
+        text: string;
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
-    type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
-    label: string;
     value: string | number | boolean | string[] | {
-        url: string;
-        id: string;
         name: string;
+        id: string;
+        url: string;
         mimeType: string;
         size: number;
     }[] | Record<string, string[]>;
+    type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
     key: string;
-    rows?: {
-        text: string;
-        id: string;
-    }[] | undefined;
+    label: string;
     options?: {
-        text: string;
         id: string;
+        text: string;
+    }[] | undefined;
+    rows?: {
+        id: string;
+        text: string;
     }[] | undefined;
     columns?: {
-        text: string;
         id: string;
+        text: string;
     }[] | undefined;
 }, {
-    type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
-    label: string;
     value: string | number | boolean | string[] | {
-        url: string;
-        id: string;
         name: string;
+        id: string;
+        url: string;
         mimeType: string;
         size: number;
     }[] | Record<string, string[]>;
+    type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
     key: string;
-    rows?: {
-        text: string;
-        id: string;
-    }[] | undefined;
+    label: string;
     options?: {
-        text: string;
         id: string;
+        text: string;
+    }[] | undefined;
+    rows?: {
+        id: string;
+        text: string;
     }[] | undefined;
     columns?: {
-        text: string;
         id: string;
+        text: string;
     }[] | undefined;
 }>;
 export declare const TallyWebhookDataSchema: z.ZodObject<{
@@ -598,15 +598,15 @@ export declare const TallyWebhookDataSchema: z.ZodObject<{
             mimeType: z.ZodString;
             size: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
-            url: string;
-            id: string;
             name: string;
+            id: string;
+            url: string;
             mimeType: string;
             size: number;
         }, {
-            url: string;
-            id: string;
             name: string;
+            id: string;
+            url: string;
             mimeType: string;
             size: number;
         }>, "many">, z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>]>;
@@ -614,104 +614,104 @@ export declare const TallyWebhookDataSchema: z.ZodObject<{
             id: z.ZodString;
             text: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            text: string;
             id: string;
+            text: string;
         }, {
-            text: string;
             id: string;
+            text: string;
         }>, "many">>;
         rows: z.ZodOptional<z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             text: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            text: string;
             id: string;
+            text: string;
         }, {
-            text: string;
             id: string;
+            text: string;
         }>, "many">>;
         columns: z.ZodOptional<z.ZodArray<z.ZodObject<{
             id: z.ZodString;
             text: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            text: string;
             id: string;
+            text: string;
         }, {
-            text: string;
             id: string;
+            text: string;
         }>, "many">>;
     }, "strip", z.ZodTypeAny, {
-        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
-        label: string;
         value: string | number | boolean | string[] | {
-            url: string;
-            id: string;
             name: string;
+            id: string;
+            url: string;
             mimeType: string;
             size: number;
         }[] | Record<string, string[]>;
+        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
         key: string;
-        rows?: {
-            text: string;
-            id: string;
-        }[] | undefined;
+        label: string;
         options?: {
-            text: string;
             id: string;
+            text: string;
+        }[] | undefined;
+        rows?: {
+            id: string;
+            text: string;
         }[] | undefined;
         columns?: {
-            text: string;
             id: string;
+            text: string;
         }[] | undefined;
     }, {
-        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
-        label: string;
         value: string | number | boolean | string[] | {
-            url: string;
-            id: string;
             name: string;
+            id: string;
+            url: string;
             mimeType: string;
             size: number;
         }[] | Record<string, string[]>;
+        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
         key: string;
-        rows?: {
-            text: string;
-            id: string;
-        }[] | undefined;
+        label: string;
         options?: {
-            text: string;
             id: string;
+            text: string;
+        }[] | undefined;
+        rows?: {
+            id: string;
+            text: string;
         }[] | undefined;
         columns?: {
-            text: string;
             id: string;
+            text: string;
         }[] | undefined;
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
     formId: string;
     createdAt: string;
     fields: {
-        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
-        label: string;
         value: string | number | boolean | string[] | {
-            url: string;
-            id: string;
             name: string;
+            id: string;
+            url: string;
             mimeType: string;
             size: number;
         }[] | Record<string, string[]>;
+        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
         key: string;
-        rows?: {
-            text: string;
-            id: string;
-        }[] | undefined;
+        label: string;
         options?: {
-            text: string;
             id: string;
+            text: string;
+        }[] | undefined;
+        rows?: {
+            id: string;
+            text: string;
         }[] | undefined;
         columns?: {
-            text: string;
             id: string;
+            text: string;
         }[] | undefined;
     }[];
     respondentId: string;
@@ -722,27 +722,27 @@ export declare const TallyWebhookDataSchema: z.ZodObject<{
     formId: string;
     createdAt: string;
     fields: {
-        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
-        label: string;
         value: string | number | boolean | string[] | {
-            url: string;
-            id: string;
             name: string;
+            id: string;
+            url: string;
             mimeType: string;
             size: number;
         }[] | Record<string, string[]>;
+        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
         key: string;
-        rows?: {
-            text: string;
-            id: string;
-        }[] | undefined;
+        label: string;
         options?: {
-            text: string;
             id: string;
+            text: string;
+        }[] | undefined;
+        rows?: {
+            id: string;
+            text: string;
         }[] | undefined;
         columns?: {
-            text: string;
             id: string;
+            text: string;
         }[] | undefined;
     }[];
     respondentId: string;
@@ -772,15 +772,15 @@ export declare const TallyWebhookPayloadSchema: z.ZodObject<{
                 mimeType: z.ZodString;
                 size: z.ZodNumber;
             }, "strip", z.ZodTypeAny, {
-                url: string;
-                id: string;
                 name: string;
+                id: string;
+                url: string;
                 mimeType: string;
                 size: number;
             }, {
-                url: string;
-                id: string;
                 name: string;
+                id: string;
+                url: string;
                 mimeType: string;
                 size: number;
             }>, "many">, z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>]>;
@@ -788,104 +788,104 @@ export declare const TallyWebhookPayloadSchema: z.ZodObject<{
                 id: z.ZodString;
                 text: z.ZodString;
             }, "strip", z.ZodTypeAny, {
-                text: string;
                 id: string;
+                text: string;
             }, {
-                text: string;
                 id: string;
+                text: string;
             }>, "many">>;
             rows: z.ZodOptional<z.ZodArray<z.ZodObject<{
                 id: z.ZodString;
                 text: z.ZodString;
             }, "strip", z.ZodTypeAny, {
-                text: string;
                 id: string;
+                text: string;
             }, {
-                text: string;
                 id: string;
+                text: string;
             }>, "many">>;
             columns: z.ZodOptional<z.ZodArray<z.ZodObject<{
                 id: z.ZodString;
                 text: z.ZodString;
             }, "strip", z.ZodTypeAny, {
-                text: string;
                 id: string;
+                text: string;
             }, {
-                text: string;
                 id: string;
+                text: string;
             }>, "many">>;
         }, "strip", z.ZodTypeAny, {
-            type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
-            label: string;
             value: string | number | boolean | string[] | {
-                url: string;
-                id: string;
                 name: string;
+                id: string;
+                url: string;
                 mimeType: string;
                 size: number;
             }[] | Record<string, string[]>;
+            type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
             key: string;
-            rows?: {
-                text: string;
-                id: string;
-            }[] | undefined;
+            label: string;
             options?: {
-                text: string;
                 id: string;
+                text: string;
+            }[] | undefined;
+            rows?: {
+                id: string;
+                text: string;
             }[] | undefined;
             columns?: {
-                text: string;
                 id: string;
+                text: string;
             }[] | undefined;
         }, {
-            type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
-            label: string;
             value: string | number | boolean | string[] | {
-                url: string;
-                id: string;
                 name: string;
+                id: string;
+                url: string;
                 mimeType: string;
                 size: number;
             }[] | Record<string, string[]>;
+            type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
             key: string;
-            rows?: {
-                text: string;
-                id: string;
-            }[] | undefined;
+            label: string;
             options?: {
-                text: string;
                 id: string;
+                text: string;
+            }[] | undefined;
+            rows?: {
+                id: string;
+                text: string;
             }[] | undefined;
             columns?: {
-                text: string;
                 id: string;
+                text: string;
             }[] | undefined;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
         formId: string;
         createdAt: string;
         fields: {
-            type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
-            label: string;
             value: string | number | boolean | string[] | {
-                url: string;
-                id: string;
                 name: string;
+                id: string;
+                url: string;
                 mimeType: string;
                 size: number;
             }[] | Record<string, string[]>;
+            type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
             key: string;
-            rows?: {
-                text: string;
-                id: string;
-            }[] | undefined;
+            label: string;
             options?: {
-                text: string;
                 id: string;
+                text: string;
+            }[] | undefined;
+            rows?: {
+                id: string;
+                text: string;
             }[] | undefined;
             columns?: {
-                text: string;
                 id: string;
+                text: string;
             }[] | undefined;
         }[];
         respondentId: string;
@@ -896,27 +896,27 @@ export declare const TallyWebhookPayloadSchema: z.ZodObject<{
         formId: string;
         createdAt: string;
         fields: {
-            type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
-            label: string;
             value: string | number | boolean | string[] | {
-                url: string;
-                id: string;
                 name: string;
+                id: string;
+                url: string;
                 mimeType: string;
                 size: number;
             }[] | Record<string, string[]>;
+            type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
             key: string;
-            rows?: {
-                text: string;
-                id: string;
-            }[] | undefined;
+            label: string;
             options?: {
-                text: string;
                 id: string;
+                text: string;
+            }[] | undefined;
+            rows?: {
+                id: string;
+                text: string;
             }[] | undefined;
             columns?: {
-                text: string;
                 id: string;
+                text: string;
             }[] | undefined;
         }[];
         respondentId: string;
@@ -929,27 +929,27 @@ export declare const TallyWebhookPayloadSchema: z.ZodObject<{
         formId: string;
         createdAt: string;
         fields: {
-            type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
-            label: string;
             value: string | number | boolean | string[] | {
-                url: string;
-                id: string;
                 name: string;
+                id: string;
+                url: string;
                 mimeType: string;
                 size: number;
             }[] | Record<string, string[]>;
+            type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
             key: string;
-            rows?: {
-                text: string;
-                id: string;
-            }[] | undefined;
+            label: string;
             options?: {
-                text: string;
                 id: string;
+                text: string;
+            }[] | undefined;
+            rows?: {
+                id: string;
+                text: string;
             }[] | undefined;
             columns?: {
-                text: string;
                 id: string;
+                text: string;
             }[] | undefined;
         }[];
         respondentId: string;
@@ -965,27 +965,27 @@ export declare const TallyWebhookPayloadSchema: z.ZodObject<{
         formId: string;
         createdAt: string;
         fields: {
-            type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
-            label: string;
             value: string | number | boolean | string[] | {
-                url: string;
-                id: string;
                 name: string;
+                id: string;
+                url: string;
                 mimeType: string;
                 size: number;
             }[] | Record<string, string[]>;
+            type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE";
             key: string;
-            rows?: {
-                text: string;
-                id: string;
-            }[] | undefined;
+            label: string;
             options?: {
-                text: string;
                 id: string;
+                text: string;
+            }[] | undefined;
+            rows?: {
+                id: string;
+                text: string;
             }[] | undefined;
             columns?: {
-                text: string;
                 id: string;
+                text: string;
             }[] | undefined;
         }[];
         respondentId: string;
@@ -1143,14 +1143,14 @@ export declare const TallyWorkspaceMemberSchema: z.ZodObject<{
     role: z.ZodEnum<["owner", "admin", "member"]>;
     joinedAt: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    email: string;
     id: string;
+    email: string;
     role: "owner" | "admin" | "member";
     joinedAt: string;
     name?: string | undefined;
 }, {
-    email: string;
     id: string;
+    email: string;
     role: "owner" | "admin" | "member";
     joinedAt: string;
     name?: string | undefined;
@@ -1169,44 +1169,44 @@ export declare const TallyWorkspaceSchema: z.ZodObject<{
         role: z.ZodEnum<["owner", "admin", "member"]>;
         joinedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        email: string;
         id: string;
+        email: string;
         role: "owner" | "admin" | "member";
         joinedAt: string;
         name?: string | undefined;
     }, {
-        email: string;
         id: string;
+        email: string;
         role: "owner" | "admin" | "member";
         joinedAt: string;
         name?: string | undefined;
     }>, "many">>;
     formsCount: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
-    id: string;
     name: string;
+    id: string;
     createdAt: string;
     updatedAt: string;
     description?: string | undefined;
     slug?: string | undefined;
     members?: {
-        email: string;
         id: string;
+        email: string;
         role: "owner" | "admin" | "member";
         joinedAt: string;
         name?: string | undefined;
     }[] | undefined;
     formsCount?: number | undefined;
 }, {
-    id: string;
     name: string;
+    id: string;
     createdAt: string;
     updatedAt: string;
     description?: string | undefined;
     slug?: string | undefined;
     members?: {
-        email: string;
         id: string;
+        email: string;
         role: "owner" | "admin" | "member";
         joinedAt: string;
         name?: string | undefined;
@@ -1228,44 +1228,44 @@ export declare const TallyWorkspacesResponseSchema: z.ZodObject<{
             role: z.ZodEnum<["owner", "admin", "member"]>;
             joinedAt: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            email: string;
             id: string;
+            email: string;
             role: "owner" | "admin" | "member";
             joinedAt: string;
             name?: string | undefined;
         }, {
-            email: string;
             id: string;
+            email: string;
             role: "owner" | "admin" | "member";
             joinedAt: string;
             name?: string | undefined;
         }>, "many">>;
         formsCount: z.ZodOptional<z.ZodNumber>;
     }, "strip", z.ZodTypeAny, {
-        id: string;
         name: string;
+        id: string;
         createdAt: string;
         updatedAt: string;
         description?: string | undefined;
         slug?: string | undefined;
         members?: {
-            email: string;
             id: string;
+            email: string;
             role: "owner" | "admin" | "member";
             joinedAt: string;
             name?: string | undefined;
         }[] | undefined;
         formsCount?: number | undefined;
     }, {
-        id: string;
         name: string;
+        id: string;
         createdAt: string;
         updatedAt: string;
         description?: string | undefined;
         slug?: string | undefined;
         members?: {
-            email: string;
             id: string;
+            email: string;
             role: "owner" | "admin" | "member";
             joinedAt: string;
             name?: string | undefined;
@@ -1277,15 +1277,15 @@ export declare const TallyWorkspacesResponseSchema: z.ZodObject<{
     hasMore: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
     workspaces: {
-        id: string;
         name: string;
+        id: string;
         createdAt: string;
         updatedAt: string;
         description?: string | undefined;
         slug?: string | undefined;
         members?: {
-            email: string;
             id: string;
+            email: string;
             role: "owner" | "admin" | "member";
             joinedAt: string;
             name?: string | undefined;
@@ -1297,15 +1297,15 @@ export declare const TallyWorkspacesResponseSchema: z.ZodObject<{
     hasMore?: boolean | undefined;
 }, {
     workspaces: {
-        id: string;
         name: string;
+        id: string;
         createdAt: string;
         updatedAt: string;
         description?: string | undefined;
         slug?: string | undefined;
         members?: {
-            email: string;
             id: string;
+            email: string;
             role: "owner" | "admin" | "member";
             joinedAt: string;
             name?: string | undefined;
@@ -1787,27 +1787,27 @@ export declare const TallyBlockBasePayloadSchema: z.ZodObject<{
     isRequired: z.ZodOptional<z.ZodBoolean>;
     placeholder: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    placeholder?: string | undefined;
     title?: string | undefined;
     html?: string | undefined;
     isRequired?: boolean | undefined;
+    placeholder?: string | undefined;
 }, {
-    placeholder?: string | undefined;
     title?: string | undefined;
     html?: string | undefined;
     isRequired?: boolean | undefined;
+    placeholder?: string | undefined;
 }>;
 export declare const TallyBlockOptionSchema: z.ZodObject<{
     id: z.ZodString;
     text: z.ZodString;
     index: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
-    text: string;
     id: string;
+    text: string;
     index?: number | undefined;
 }, {
-    text: string;
     id: string;
+    text: string;
     index?: number | undefined;
 }>;
 export declare const TallyChoiceOptionPayloadSchema: z.ZodObject<{
@@ -1821,17 +1821,17 @@ export declare const TallyChoiceOptionPayloadSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     text: string;
     index: number;
-    placeholder?: string | undefined;
     title?: string | undefined;
     html?: string | undefined;
     isRequired?: boolean | undefined;
+    placeholder?: string | undefined;
 }, {
     text: string;
     index: number;
-    placeholder?: string | undefined;
     title?: string | undefined;
     html?: string | undefined;
     isRequired?: boolean | undefined;
+    placeholder?: string | undefined;
 }>;
 export declare const TallyInputPayloadSchema: z.ZodObject<{
     html: z.ZodOptional<z.ZodString>;
@@ -1844,30 +1844,30 @@ export declare const TallyInputPayloadSchema: z.ZodObject<{
         text: z.ZodString;
         index: z.ZodOptional<z.ZodNumber>;
     }, "strip", z.ZodTypeAny, {
-        text: string;
         id: string;
+        text: string;
         index?: number | undefined;
     }, {
-        text: string;
         id: string;
+        text: string;
         index?: number | undefined;
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
-    placeholder: string;
     isRequired: boolean;
+    placeholder: string;
     options?: {
-        text: string;
         id: string;
+        text: string;
         index?: number | undefined;
     }[] | undefined;
     title?: string | undefined;
     html?: string | undefined;
 }, {
-    placeholder: string;
     isRequired: boolean;
+    placeholder: string;
     options?: {
-        text: string;
         id: string;
+        text: string;
         index?: number | undefined;
     }[] | undefined;
     title?: string | undefined;
@@ -1903,30 +1903,30 @@ export declare const TallyBlockPayloadSchema: z.ZodUnion<[z.ZodObject<{
         text: z.ZodString;
         index: z.ZodOptional<z.ZodNumber>;
     }, "strip", z.ZodTypeAny, {
-        text: string;
         id: string;
+        text: string;
         index?: number | undefined;
     }, {
-        text: string;
         id: string;
+        text: string;
         index?: number | undefined;
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
-    placeholder: string;
     isRequired: boolean;
+    placeholder: string;
     options?: {
-        text: string;
         id: string;
+        text: string;
         index?: number | undefined;
     }[] | undefined;
     title?: string | undefined;
     html?: string | undefined;
 }, {
-    placeholder: string;
     isRequired: boolean;
+    placeholder: string;
     options?: {
-        text: string;
         id: string;
+        text: string;
         index?: number | undefined;
     }[] | undefined;
     title?: string | undefined;
@@ -1942,32 +1942,32 @@ export declare const TallyBlockPayloadSchema: z.ZodUnion<[z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     text: string;
     index: number;
-    placeholder?: string | undefined;
     title?: string | undefined;
     html?: string | undefined;
     isRequired?: boolean | undefined;
+    placeholder?: string | undefined;
 }, {
     text: string;
     index: number;
-    placeholder?: string | undefined;
     title?: string | undefined;
     html?: string | undefined;
     isRequired?: boolean | undefined;
+    placeholder?: string | undefined;
 }>, z.ZodObject<{
     html: z.ZodOptional<z.ZodString>;
     title: z.ZodOptional<z.ZodString>;
     isRequired: z.ZodOptional<z.ZodBoolean>;
     placeholder: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    placeholder?: string | undefined;
     title?: string | undefined;
     html?: string | undefined;
     isRequired?: boolean | undefined;
+    placeholder?: string | undefined;
 }, {
-    placeholder?: string | undefined;
     title?: string | undefined;
     html?: string | undefined;
     isRequired?: boolean | undefined;
+    placeholder?: string | undefined;
 }>]>;
 export declare const TallyBlockSchema: z.ZodObject<{
     uuid: z.ZodString;
@@ -1995,30 +1995,30 @@ export declare const TallyBlockSchema: z.ZodObject<{
             text: z.ZodString;
             index: z.ZodOptional<z.ZodNumber>;
         }, "strip", z.ZodTypeAny, {
-            text: string;
             id: string;
+            text: string;
             index?: number | undefined;
         }, {
-            text: string;
             id: string;
+            text: string;
             index?: number | undefined;
         }>, "many">>;
     }, "strip", z.ZodTypeAny, {
-        placeholder: string;
         isRequired: boolean;
+        placeholder: string;
         options?: {
-            text: string;
             id: string;
+            text: string;
             index?: number | undefined;
         }[] | undefined;
         title?: string | undefined;
         html?: string | undefined;
     }, {
-        placeholder: string;
         isRequired: boolean;
+        placeholder: string;
         options?: {
-            text: string;
             id: string;
+            text: string;
             index?: number | undefined;
         }[] | undefined;
         title?: string | undefined;
@@ -2034,32 +2034,32 @@ export declare const TallyBlockSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         text: string;
         index: number;
-        placeholder?: string | undefined;
         title?: string | undefined;
         html?: string | undefined;
         isRequired?: boolean | undefined;
+        placeholder?: string | undefined;
     }, {
         text: string;
         index: number;
-        placeholder?: string | undefined;
         title?: string | undefined;
         html?: string | undefined;
         isRequired?: boolean | undefined;
+        placeholder?: string | undefined;
     }>, z.ZodObject<{
         html: z.ZodOptional<z.ZodString>;
         title: z.ZodOptional<z.ZodString>;
         isRequired: z.ZodOptional<z.ZodBoolean>;
         placeholder: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        placeholder?: string | undefined;
         title?: string | undefined;
         html?: string | undefined;
         isRequired?: boolean | undefined;
+        placeholder?: string | undefined;
     }, {
-        placeholder?: string | undefined;
         title?: string | undefined;
         html?: string | undefined;
         isRequired?: boolean | undefined;
+        placeholder?: string | undefined;
     }>]>;
 }, "strip", z.ZodTypeAny, {
     type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE" | "TITLE" | "DROPDOWN_OPTION" | "CHECKBOX" | "MULTIPLE_CHOICE_OPTION";
@@ -2068,23 +2068,23 @@ export declare const TallyBlockSchema: z.ZodObject<{
     groupUuid: string;
     groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
     payload: {
-        placeholder?: string | undefined;
         title?: string | undefined;
         html?: string | undefined;
         isRequired?: boolean | undefined;
+        placeholder?: string | undefined;
     } | {
         text: string;
         index: number;
-        placeholder?: string | undefined;
         title?: string | undefined;
         html?: string | undefined;
         isRequired?: boolean | undefined;
+        placeholder?: string | undefined;
     } | {
-        placeholder: string;
         isRequired: boolean;
+        placeholder: string;
         options?: {
-            text: string;
             id: string;
+            text: string;
             index?: number | undefined;
         }[] | undefined;
         title?: string | undefined;
@@ -2100,23 +2100,23 @@ export declare const TallyBlockSchema: z.ZodObject<{
     groupUuid: string;
     groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
     payload: {
-        placeholder?: string | undefined;
         title?: string | undefined;
         html?: string | undefined;
         isRequired?: boolean | undefined;
+        placeholder?: string | undefined;
     } | {
         text: string;
         index: number;
-        placeholder?: string | undefined;
         title?: string | undefined;
         html?: string | undefined;
         isRequired?: boolean | undefined;
+        placeholder?: string | undefined;
     } | {
-        placeholder: string;
         isRequired: boolean;
+        placeholder: string;
         options?: {
-            text: string;
             id: string;
+            text: string;
             index?: number | undefined;
         }[] | undefined;
         title?: string | undefined;
@@ -2129,7 +2129,7 @@ export declare const TallyBlockSchema: z.ZodObject<{
 export declare const TallyFormCreatePayloadSchema: z.ZodObject<{
     status: z.ZodDefault<z.ZodEnum<["PUBLISHED", "DRAFT"]>>;
     name: z.ZodString;
-    blocks: z.ZodArray<z.ZodObject<{
+    blocks: z.ZodOptional<z.ZodArray<z.ZodObject<{
         uuid: z.ZodString;
         type: z.ZodEnum<["FORM_TITLE", "TITLE", "INPUT_TEXT", "INPUT_EMAIL", "INPUT_NUMBER", "INPUT_PHONE_NUMBER", "INPUT_LINK", "INPUT_DATE", "INPUT_TIME", "TEXTAREA", "DROPDOWN", "DROPDOWN_OPTION", "CHECKBOXES", "CHECKBOX", "MULTIPLE_CHOICE", "MULTIPLE_CHOICE_OPTION", "LINEAR_SCALE", "RATING", "FILE_UPLOAD", "SIGNATURE", "HIDDEN_FIELDS", "CALCULATED_FIELDS", "MULTI_SELECT", "MATRIX", "RANKING", "PAYMENT"]>;
         groupUuid: z.ZodString;
@@ -2155,30 +2155,30 @@ export declare const TallyFormCreatePayloadSchema: z.ZodObject<{
                 text: z.ZodString;
                 index: z.ZodOptional<z.ZodNumber>;
             }, "strip", z.ZodTypeAny, {
-                text: string;
                 id: string;
+                text: string;
                 index?: number | undefined;
             }, {
-                text: string;
                 id: string;
+                text: string;
                 index?: number | undefined;
             }>, "many">>;
         }, "strip", z.ZodTypeAny, {
-            placeholder: string;
             isRequired: boolean;
+            placeholder: string;
             options?: {
-                text: string;
                 id: string;
+                text: string;
                 index?: number | undefined;
             }[] | undefined;
             title?: string | undefined;
             html?: string | undefined;
         }, {
-            placeholder: string;
             isRequired: boolean;
+            placeholder: string;
             options?: {
-                text: string;
                 id: string;
+                text: string;
                 index?: number | undefined;
             }[] | undefined;
             title?: string | undefined;
@@ -2194,32 +2194,32 @@ export declare const TallyFormCreatePayloadSchema: z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             text: string;
             index: number;
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         }, {
             text: string;
             index: number;
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         }>, z.ZodObject<{
             html: z.ZodOptional<z.ZodString>;
             title: z.ZodOptional<z.ZodString>;
             isRequired: z.ZodOptional<z.ZodBoolean>;
             placeholder: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         }, {
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         }>]>;
     }, "strip", z.ZodTypeAny, {
         type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE" | "TITLE" | "DROPDOWN_OPTION" | "CHECKBOX" | "MULTIPLE_CHOICE_OPTION";
@@ -2228,23 +2228,23 @@ export declare const TallyFormCreatePayloadSchema: z.ZodObject<{
         groupUuid: string;
         groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
         payload: {
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         } | {
             text: string;
             index: number;
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         } | {
-            placeholder: string;
             isRequired: boolean;
+            placeholder: string;
             options?: {
-                text: string;
                 id: string;
+                text: string;
                 index?: number | undefined;
             }[] | undefined;
             title?: string | undefined;
@@ -2260,23 +2260,23 @@ export declare const TallyFormCreatePayloadSchema: z.ZodObject<{
         groupUuid: string;
         groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
         payload: {
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         } | {
             text: string;
             index: number;
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         } | {
-            placeholder: string;
             isRequired: boolean;
+            placeholder: string;
             options?: {
-                text: string;
                 id: string;
+                text: string;
                 index?: number | undefined;
             }[] | undefined;
             title?: string | undefined;
@@ -2285,7 +2285,7 @@ export declare const TallyFormCreatePayloadSchema: z.ZodObject<{
             html: string;
             title?: string | undefined;
         };
-    }>, "many">;
+    }>, "many">>;
     settings: z.ZodOptional<z.ZodObject<{
         language: z.ZodOptional<z.ZodString>;
         closeDate: z.ZodOptional<z.ZodString>;
@@ -2407,39 +2407,6 @@ export declare const TallyFormCreatePayloadSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     name: string;
     status: "PUBLISHED" | "DRAFT";
-    blocks: {
-        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE" | "TITLE" | "DROPDOWN_OPTION" | "CHECKBOX" | "MULTIPLE_CHOICE_OPTION";
-        uuid: string;
-        title: string;
-        groupUuid: string;
-        groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
-        payload: {
-            placeholder?: string | undefined;
-            title?: string | undefined;
-            html?: string | undefined;
-            isRequired?: boolean | undefined;
-        } | {
-            text: string;
-            index: number;
-            placeholder?: string | undefined;
-            title?: string | undefined;
-            html?: string | undefined;
-            isRequired?: boolean | undefined;
-        } | {
-            placeholder: string;
-            isRequired: boolean;
-            options?: {
-                text: string;
-                id: string;
-                index?: number | undefined;
-            }[] | undefined;
-            title?: string | undefined;
-            html?: string | undefined;
-        } | {
-            html: string;
-            title?: string | undefined;
-        };
-    }[];
     settings?: {
         language?: string | undefined;
         closeDate?: string | undefined;
@@ -2470,32 +2437,30 @@ export declare const TallyFormCreatePayloadSchema: z.ZodObject<{
             mentions?: any[] | undefined;
         } | undefined;
     } | undefined;
-}, {
-    name: string;
-    blocks: {
+    blocks?: {
         type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE" | "TITLE" | "DROPDOWN_OPTION" | "CHECKBOX" | "MULTIPLE_CHOICE_OPTION";
         uuid: string;
         title: string;
         groupUuid: string;
         groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
         payload: {
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         } | {
             text: string;
             index: number;
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         } | {
-            placeholder: string;
             isRequired: boolean;
+            placeholder: string;
             options?: {
-                text: string;
                 id: string;
+                text: string;
                 index?: number | undefined;
             }[] | undefined;
             title?: string | undefined;
@@ -2504,7 +2469,9 @@ export declare const TallyFormCreatePayloadSchema: z.ZodObject<{
             html: string;
             title?: string | undefined;
         };
-    }[];
+    }[] | undefined;
+}, {
+    name: string;
     status?: "PUBLISHED" | "DRAFT" | undefined;
     settings?: {
         language?: string | undefined;
@@ -2536,6 +2503,39 @@ export declare const TallyFormCreatePayloadSchema: z.ZodObject<{
             mentions?: any[] | undefined;
         } | undefined;
     } | undefined;
+    blocks?: {
+        type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE" | "TITLE" | "DROPDOWN_OPTION" | "CHECKBOX" | "MULTIPLE_CHOICE_OPTION";
+        uuid: string;
+        title: string;
+        groupUuid: string;
+        groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
+        payload: {
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
+        } | {
+            text: string;
+            index: number;
+            title?: string | undefined;
+            html?: string | undefined;
+            isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
+        } | {
+            isRequired: boolean;
+            placeholder: string;
+            options?: {
+                id: string;
+                text: string;
+                index?: number | undefined;
+            }[] | undefined;
+            title?: string | undefined;
+            html?: string | undefined;
+        } | {
+            html: string;
+            title?: string | undefined;
+        };
+    }[] | undefined;
 }>;
 export declare const TallyFormUpdatePayloadSchema: z.ZodObject<{
     name: z.ZodOptional<z.ZodString>;
@@ -2566,30 +2566,30 @@ export declare const TallyFormUpdatePayloadSchema: z.ZodObject<{
                 text: z.ZodString;
                 index: z.ZodOptional<z.ZodNumber>;
             }, "strip", z.ZodTypeAny, {
-                text: string;
                 id: string;
+                text: string;
                 index?: number | undefined;
             }, {
-                text: string;
                 id: string;
+                text: string;
                 index?: number | undefined;
             }>, "many">>;
         }, "strip", z.ZodTypeAny, {
-            placeholder: string;
             isRequired: boolean;
+            placeholder: string;
             options?: {
-                text: string;
                 id: string;
+                text: string;
                 index?: number | undefined;
             }[] | undefined;
             title?: string | undefined;
             html?: string | undefined;
         }, {
-            placeholder: string;
             isRequired: boolean;
+            placeholder: string;
             options?: {
-                text: string;
                 id: string;
+                text: string;
                 index?: number | undefined;
             }[] | undefined;
             title?: string | undefined;
@@ -2605,32 +2605,32 @@ export declare const TallyFormUpdatePayloadSchema: z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             text: string;
             index: number;
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         }, {
             text: string;
             index: number;
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         }>, z.ZodObject<{
             html: z.ZodOptional<z.ZodString>;
             title: z.ZodOptional<z.ZodString>;
             isRequired: z.ZodOptional<z.ZodBoolean>;
             placeholder: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         }, {
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         }>]>;
     }, "strip", z.ZodTypeAny, {
         type: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "HIDDEN_FIELDS" | "CALCULATED_FIELDS" | "RATING" | "MULTI_SELECT" | "MATRIX" | "RANKING" | "SIGNATURE" | "PAYMENT" | "FORM_TITLE" | "TITLE" | "DROPDOWN_OPTION" | "CHECKBOX" | "MULTIPLE_CHOICE_OPTION";
@@ -2639,23 +2639,23 @@ export declare const TallyFormUpdatePayloadSchema: z.ZodObject<{
         groupUuid: string;
         groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
         payload: {
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         } | {
             text: string;
             index: number;
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         } | {
-            placeholder: string;
             isRequired: boolean;
+            placeholder: string;
             options?: {
-                text: string;
                 id: string;
+                text: string;
                 index?: number | undefined;
             }[] | undefined;
             title?: string | undefined;
@@ -2671,23 +2671,23 @@ export declare const TallyFormUpdatePayloadSchema: z.ZodObject<{
         groupUuid: string;
         groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
         payload: {
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         } | {
             text: string;
             index: number;
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         } | {
-            placeholder: string;
             isRequired: boolean;
+            placeholder: string;
             options?: {
-                text: string;
                 id: string;
+                text: string;
                 index?: number | undefined;
             }[] | undefined;
             title?: string | undefined;
@@ -2855,23 +2855,23 @@ export declare const TallyFormUpdatePayloadSchema: z.ZodObject<{
         groupUuid: string;
         groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
         payload: {
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         } | {
             text: string;
             index: number;
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         } | {
-            placeholder: string;
             isRequired: boolean;
+            placeholder: string;
             options?: {
-                text: string;
                 id: string;
+                text: string;
                 index?: number | undefined;
             }[] | undefined;
             title?: string | undefined;
@@ -2921,23 +2921,23 @@ export declare const TallyFormUpdatePayloadSchema: z.ZodObject<{
         groupUuid: string;
         groupType: "INPUT_TEXT" | "INPUT_NUMBER" | "INPUT_EMAIL" | "INPUT_PHONE_NUMBER" | "INPUT_LINK" | "INPUT_DATE" | "INPUT_TIME" | "TEXTAREA" | "MULTIPLE_CHOICE" | "DROPDOWN" | "CHECKBOXES" | "LINEAR_SCALE" | "FILE_UPLOAD" | "RATING" | "SIGNATURE" | "TEXT" | "QUESTION";
         payload: {
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         } | {
             text: string;
             index: number;
-            placeholder?: string | undefined;
             title?: string | undefined;
             html?: string | undefined;
             isRequired?: boolean | undefined;
+            placeholder?: string | undefined;
         } | {
-            placeholder: string;
             isRequired: boolean;
+            placeholder: string;
             options?: {
-                text: string;
                 id: string;
+                text: string;
                 index?: number | undefined;
             }[] | undefined;
             title?: string | undefined;

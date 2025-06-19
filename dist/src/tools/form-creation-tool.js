@@ -31,20 +31,21 @@ export class FormCreationTool {
         if (!formConfig) {
             throw new Error('One of formConfig, naturalLanguagePrompt, or templateId must be provided.');
         }
-        const createdTallyForm = await this.tallyApiService.createForm(formConfig);
+        let createdTallyForm;
+        try {
+            createdTallyForm = await this.tallyApiService.createForm(formConfig);
+        }
+        catch (err) {
+            console.error('[FormCreationTool] createForm error', err?.response?.data || err?.message || err);
+            throw err;
+        }
         console.log('[FormCreationTool] Created form response:', JSON.stringify(createdTallyForm, null, 2));
         let formUrl = createdTallyForm.url ||
             createdTallyForm.shareUrl ||
             createdTallyForm.share_url ||
             createdTallyForm.publicUrl;
         if (!formUrl && createdTallyForm.id) {
-            try {
-                const fetched = await this.tallyApiService.getForm(createdTallyForm.id);
-                formUrl = fetched.url;
-            }
-            catch (err) {
-                console.warn('Unable to retrieve form URL from getForm:', err.message);
-            }
+            formUrl = `https://tally.so/forms/${createdTallyForm.id}/edit`;
         }
         return {
             formUrl,

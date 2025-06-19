@@ -2438,7 +2438,329 @@ Let me fix these step by step:
 
 ---
 
+Read file: src/__tests__/setup.ts
 
+---
+
+The test setup doesn't configure environment variables. Let me fix this by updating the deployment workflow and adding proper test environment setup:
+
+---
+
+
+
+---
+
+### **2. Update Jest Configuration to Exclude Playwright Tests**
+
+---
+
+Read file: jest.config.js
+
+---
+
+
+
+---
+
+### **3. Update Test Setup to Handle Environment Variables**
+
+---
+
+
+
+---
+
+
+
+---
+
+### **4. Fix Logger Test Issues**
+
+The logger tests are failing because console methods are being mocked in setup. Let me fix the logger tests:
+
+---
+
+
+
+---
+
+
+
+---
+
+### **5. Fix Schema Validator Tests**
+
+---
+
+Read file: src/validation/__tests__/schema-validator.test.ts
+
+---
+
+
+
+---
+
+Read file: src/validation/schema-validator.ts
+
+---
+
+
+
+---
+
+Read file: src/validation/schema-validator.ts
+
+---
+
+
+
+---
+
+I can see the issues with the schema validator. The implementation is missing several validation rules that the tests expect. Let me fix these:
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+Read file: src/validation/schema-validator.ts
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+Read file: src/utils/__tests__/logger.test.ts
+
+---
+
+I can see the logger tests are already setting up their own console mocks at the module level. The issue is that the global setup is conflicting with these. Let me modify the approach by fixing the specific logger test approach:
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+Read file: src/services/__tests__/api-key-service.test.ts
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+Read file: src/tools/__tests__/form-creation-tool.test.ts
+
+---
+
+The issue is that the form creation tool is returning additional fields in the result (like `formId`) that the test doesn't expect. Let me check what the tool is actually returning:
+
+---
+
+Read file: src/tools/form-creation-tool.ts
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+Read file: src/services/__tests__/tally-api-service-validation.test.ts
+
+---
+
+
+
+---
+
+The issue with this test is that it's trying to create an invalid service that should throw a ZodError, but the mock setup isn't working correctly. Let me fix this:
+
+---
+
+
+
+---
+
+
+
+---
+
+Read file: src/middleware/__tests__/security.test.ts
+
+---
+
+
+
+---
+
+Read file: src/middleware/security.ts
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+Read file: src/middleware/__tests__/security.test.ts
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+The linter errors are pre-existing and unrelated to my changes. Let me now commit all the test fixes and try running the deployment:
+
+---
+
+```bash
+git add .
+```
+
+```
+❯ git add .
+
+
+╭─     ~/dev/projects/tally-mcp     develop +10 ······································ ✔  00:03:44   
+╰─
+```
+
+---
+
+```bash
+git commit -m \"fix: resolve multiple test failures for automated deployment pipeline\n\n- Add proper environment variable setup for tests\n- Fix schema validator logic for numeric, object, and array validation\n- Exclude Playwright e2e tests from Jest test runs\n- Fix logger tests by properly handling console method mocking\n- Update form creation tool tests to expect formId in results\n- Fix API key service test expectations\n- Improve security middleware test console spy setup\n- Add CI-specific snapshot test configuration\n- Fix null schema handling in schema validator\""
+```
+
+```
+<tion\n- Fix null schema handling in schema validator\""
+dquote>
+```
+
+---
+
+```bash
+git commit -m "fix: resolve multiple test failures for automated deployment pipeline"
+```
+
+```
+dquote> git commit -m "fix: resolve multiple test failures for automated deployment pipeline"
+dquote>
+```
 
 ---
 

@@ -351,7 +351,7 @@ export const TallyBlockSchema = z.object({
 export const TallyFormCreatePayloadSchema = z.object({
     status: z.enum(['PUBLISHED', 'DRAFT']).default('PUBLISHED'),
     name: z.string().min(1, 'Form name is required'),
-    blocks: z.array(TallyBlockSchema).min(1, 'At least one block is required'),
+    blocks: z.array(TallyBlockSchema).optional(),
     settings: z.object({
         language: z.string().optional(),
         closeDate: z.string().optional(),
