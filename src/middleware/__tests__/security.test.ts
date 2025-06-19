@@ -9,10 +9,16 @@ import {
   applySecurityMiddleware,
 } from '../security';
 
-const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+// Store the original console.warn function
+const originalConsoleWarn = console.warn;
+const consoleWarnSpy = jest.spyOn(console, 'warn');
 
 beforeEach(() => {
+  // Restore console.warn to its original implementation for security tests
+  console.warn = originalConsoleWarn;
   consoleWarnSpy.mockClear();
+  // Then set up the spy
+  consoleWarnSpy.mockImplementation(originalConsoleWarn);
 });
 
 describe('Security Middleware', () => {

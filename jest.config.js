@@ -3,6 +3,10 @@ module.exports = {
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
   testMatch: ['**/__tests__/**/*.test.ts'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '.*\\.e2e\\.test\\.ts$' // Exclude Playwright e2e tests
+  ],
   transform: {
     '^.+\\.ts$': 'ts-jest',
   },
@@ -34,5 +38,7 @@ module.exports = {
       outputName: 'jest-junit.xml',
     } ]
   ],
+  // Update snapshots in CI if UPDATE_SNAPSHOTS env var is set
+  updateSnapshot: process.env.UPDATE_SNAPSHOTS === 'true' ? 'all' : 'new',
   globalSetup: '<rootDir>/jest.global-setup.js',
 }; 

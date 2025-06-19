@@ -26,6 +26,11 @@ jobs:
       run: npm test
       env:
         USE_MOCK_API: true
+        TALLY_API_KEY: test_api_key
+        TALLY_BASE_URL: https://api.tally.so
+        NODE_ENV: test
+        CI: true
+        UPDATE_SNAPSHOTS: false
 
     - name: Build project
       run: npm run build

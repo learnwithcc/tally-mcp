@@ -1400,3 +1400,1049 @@ _**Assistant**_
 
 ---
 
+Great idea! Let's set up automated deployment using GitHub Actions. This will automatically redeploy your Cloudflare Worker whenever you push to the develop branch.
+
+---
+
+Read file: .github/workflows/ci.yml
+
+---
+
+Perfect! I can see you already have a CI workflow. Now let's create a separate deployment workflow that will automatically deploy to Cloudflare Workers when you push to the develop branch. Let me also check if you have any existing deployment scripts:
+
+---
+
+<details>
+            <summary>Grep search for "deploy" • **1** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///Users/cryophobic/dev/projects/tally-mcp/package.json` | L32 | `"deploy:cloudflare": "wrangler deploy",` |
+
+</details>
+
+---
+
+Great! You already have a deployment script. Now let's create an automated deployment workflow:
+
+---
+
+```diff
+- 
++ name: Deploy to Cloudflare Workers
++ 
++ on:
++   push:
++     branches: [ develop ]
++   workflow_dispatch: # Allow manual triggering
++ 
++ jobs:
++   deploy:
++     runs-on: ubuntu-latest
++     
++     steps:
++     - name: Checkout code
++       uses: actions/checkout@v4
++ 
++     - name: Setup Node.js
++       uses: actions/setup-node@v4
++       with:
++         node-version: '20'
++         cache: 'npm'
++ 
++     - name: Install dependencies
++       run: npm ci
++ 
++     - name: Run tests
++       run: npm test
++       env:
++         USE_MOCK_API: true
++ 
++     - name: Build project
++       run: npm run build
++ 
++     - name: Deploy to Cloudflare Workers
++       uses: cloudflare/wrangler-action@v3
++       with:
++         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
++         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
++         command: deploy
++         workingDirectory: '.'
++         secrets: |
++           TALLY_API_KEY
++           AUTH_TOKEN
++       env:
++         TALLY_API_KEY: ${{ secrets.TALLY_API_KEY }}
++         AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
++ 
++     - name: Deployment notification
++       if: success()
++       run: |
++         echo "🚀 Deployment successful!"
++         echo "Your Tally MCP server has been deployed to Cloudflare Workers"
++         echo "Check your Cloudflare dashboard for the deployed worker URL"
++ 
++     - name: Deployment failure notification
++       if: failure()
++       run: |
++         echo "❌ Deployment failed!"
++         echo "Check the logs above for details" 
+```
+
+---
+
+Now you need to set up GitHub repository secrets. Let me also create a documentation file to guide you through the setup process:
+
+---
+
+```diff
+- 
++ # Automated Deployment Setup
++ 
++ This guide shows you how to set up automated deployment to Cloudflare Workers using GitHub Actions.
++ 
++ ## Overview
++ 
++ The automated deployment workflow:
++ - ✅ Triggers on every push to the `develop` branch
++ - ✅ Runs tests to ensure code quality
++ - ✅ Builds the project
++ - ✅ Deploys to Cloudflare Workers
++ - ✅ Can be manually triggered if needed
++ 
++ ## Setup Steps
++ 
++ ### 1. Configure GitHub Repository Secrets
++ 
++ You need to add these secrets to your GitHub repository:
++ 
++ 1. Go to your repository on GitHub
++ 2. Navigate to **Settings** → **Secrets and variables** → **Actions**
++ 3. Click **New repository secret** and add each of these:
++ 
++ | Secret Name | Description | Where to Find |
++ |-------------|-------------|---------------|
++ | `CLOUDFLARE_API_TOKEN` | Cloudflare API token with Workers:Edit permissions | Cloudflare Dashboard → My Profile → API Tokens |
++ | `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare account ID | Cloudflare Dashboard → Right sidebar |
++ | `TALLY_API_KEY` | Your Tally API key | Tally Dashboard → Settings → API |
++ | `AUTH_TOKEN` | Optional: Custom auth token for your MCP server | Generate your own secure token |
++ 
++ ### 2. Creating Cloudflare API Token
++ 
++ 1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/profile/api-tokens)
++ 2. Click **Create Token**
++ 3. Use **Custom token** template
++ 4. Configure:
++    - **Token name**: `GitHub Actions - Tally MCP`
++    - **Permissions**: 
++      - Account: `Cloudflare Workers:Edit`
++      - Zone Resources: `Include - All zones` (if using custom domains)
++    - **Account Resources**: Include your account
++ 5. Click **Continue to summary** → **Create Token**
++ 6. Copy the token immediately (you won't see it again!)
++ 
++ ### 3. Finding Your Cloudflare Account ID
++ 
++ 1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/)
++ 2. In the right sidebar, you'll see **Account ID**
++ 3. Copy this value
++ 
++ ### 4. Test the Workflow
++ 
++ Once you've added all secrets:
++ 
++ 1. Push a commit to the `develop` branch:
++    ```bash
++    git checkout develop
++    git add .
++    git commit -m "test: trigger automated deployment"
++    git push origin develop
++    ```
++ 
++ 2. Watch the deployment:
++    - Go to your repository on GitHub
++    - Click **Actions tab**
++    - You should see "Deploy to Cloudflare Workers" running
++ 
++ ### 5. Manual Deployment (Optional)
++ 
++ You can also trigger deployment manually:
++ 
++ 1. Go to **Actions tab** in your GitHub repository
++ 2. Click **Deploy to Cloudflare Workers**
++ 3. Click **Run workflow** → **Run workflow**
++ 
++ ## Workflow Features
++ 
++ ### ✅ **Quality Checks**
++ - Runs full test suite before deployment
++ - Only deploys if all tests pass
++ - Uses mock API during testing
++ 
++ ### ✅ **Security**
++ - Uses GitHub repository secrets for sensitive data
++ - Secrets are encrypted and not visible in logs
++ - Secrets are automatically injected into Cloudflare Workers
++ 
++ ### ✅ **Notifications**
++ - Success/failure notifications in workflow logs
++ - Easy to see deployment status in GitHub Actions tab
++ 
++ ### ✅ **Flexibility**
++ - Triggers on `develop` branch pushes
++ - Can be manually triggered when needed
++ - Separate from your main CI workflow
++ 
++ ## Troubleshooting
++ 
++ ### Common Issues
++ 
++ **❌ "Invalid API token"**
++ - Check that your `CLOUDFLARE_API_TOKEN` has correct permissions
++ - Ensure the token hasn't expired
++ 
++ **❌ "Account ID not found"** 
++ - Verify `CLOUDFLARE_ACCOUNT_ID` is correct
++ - Make sure the API token can access this account
++ 
++ **❌ "Tests failing"**
++ - Check that `USE_MOCK_API=true` is set in test environment
++ - Ensure all dependencies are installed correctly
++ 
++ **❌ "Deployment timeout"**
++ - Large builds may take longer
++ - Check Cloudflare Workers limits for your plan
++ 
++ ### Getting Help
++ 
++ 1. Check the **Actions tab** for detailed logs
++ 2. Verify all secrets are correctly set
++ 3. Test deployment manually first: `npm run deploy:cloudflare`
++ 4. Check Cloudflare Workers dashboard for deployment status
++ 
++ ## Next Steps
++ 
++ After successful setup:
++ - Every push to `develop` automatically deploys
++ - Your production `main` branch remains stable
++ - You can continue developing with confidence
++ - Monitor deployments in GitHub Actions and Cloudflare dashboard 
+```
+
+---
+
+Now let's commit these changes and test the workflow:
+
+---
+
+```bash
+git add .
+```
+
+```
+❯ git add .
+
+╭─     ~/dev/projects/tally-mcp     develop +4 ······································· ✔  23:31:45   
+╰─
+```
+
+---
+
+Model provided invalid arguments to terminal tool.
+
+---
+
+
+
+---
+
+```bash
+git commit -m "feat: add automated deployment workflow for develop branch with quality checks and documentation"
+```
+
+```
+╰─ git commit -m "feat: add automated deployment workflow for develop branch with quality checks and documentation
+"  git commit -m "feat: add automated deployment workflow for develop branch with quality checks and documentation
+<r develop branch with quality checks and documentation"
+[develop 8707e07] feat: add automated deployment workflow for develop branch with quality checks and documentation
+ 4 files changed, 1590 insertions(+), 16 deletions(-)
+ create mode 100644 .github/workflows/deploy.yml
+ create mode 100644 .specstory/history/2025-06-19_03-17-merging-branch-and-protecting-sensitive-files.md
+ delete mode 100644 .specstory/history/2025-06-19_03-17-untitled.md
+ create mode 100644 docs/deployment/automated-deployment.md
+
+╭─     ~/dev/projects/tally-mcp     develop ⇡1 ······································· ✔  23:32:00   
+╰─
+```
+
+---
+
+```bash
+git push origin develop
+```
+
+```
+❯ git push origin develop
+Enumerating objects: 18, done.
+Counting objects: 100% (18/18), done.
+Delta compression using up to 10 threads
+Compressing objects: 100% (10/10), done.
+Writing objects: 100% (11/11), 12.34 KiB | 12.34 MiB/s, done.
+Total 11 (delta 3), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (3/3), completed with 3 local objects.
+To https://github.com/learnwithcc/tally-mcp.git
+   d55bd14..8707e07  develop -> develop
+
+╭─     ~/dev/projects/tally-mcp     develop ·········································· ✔  23:32:06   
+╰─
+```
+
+---
+
+
+
+---
+
+Perfect! 🚀 **Your automated deployment workflow is now set up!** Here's what you need to do next:
+
+## 🔧 **Immediate Setup Required**
+
+### **Step 1: Add GitHub Repository Secrets** 
+You need to configure these secrets in your GitHub repository:
+
+1. **Go to your GitHub repository**: https://github.com/learnwithcc/tally-mcp
+2. **Navigate to**: Settings → Secrets and variables → Actions  
+3. **Add these secrets** (click "New repository secret" for each):
+
+| Secret Name | Value | Where to Find |
+|-------------|--------|---------------|
+| `CLOUDFLARE_API_TOKEN` | Your Cloudflare API token | [Create here](https://dash.cloudflare.com/profile/api-tokens) |
+| `CLOUDFLARE_ACCOUNT_ID` | Your account ID | Cloudflare Dashboard (right sidebar) |
+| `TALLY_API_KEY` | Your Tally API key | Same as your local `.env` file |
+| `AUTH_TOKEN` | Custom auth token (optional) | Generate a secure random string |
+
+### **Step 2: Create Cloudflare API Token**
+1. Go to [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens)
+2. Click **"Create Token"**
+3. Use **"Custom token"** template
+4. Set permissions: **Account → Cloudflare Workers:Edit**
+5. **Copy the token immediately** (you won't see it again!)
+
+## 🎯 **What Happens Now**
+
+### **✅ Automatic Deployment**
+- **Every push to `develop`** → Automatic deployment
+- **Quality checks first** → Only deploys if tests pass  
+- **Secure secrets** → API keys safely stored in GitHub
+- **Manual trigger** → Can deploy manually when needed
+
+### **✅ Your Current Status**
+- **Workflow created** ✅ `.github/workflows/deploy.yml`
+- **Documentation added** ✅ `docs/deployment/automated-deployment.md`
+- **First deployment** → **Will trigger once you add the secrets**
+
+## 🔍 **Testing the Setup**
+
+After adding the secrets:
+
+1. **Watch it work**: Go to your repository → **Actions tab**
+2. **See the deployment**: You should see "Deploy to Cloudflare Workers" running
+3. **Check results**: Green ✅ = success, Red ❌ = check logs
+
+## 📖 **Complete Documentation**
+
+I've created comprehensive setup instructions at:
+- **`docs/deployment/automated-deployment.md`**
+- Includes troubleshooting, manual deployment options, and security best practices
+
+## 🎉 **Benefits You Now Have**
+
+✅ **Continuous Deployment**: Push to develop → Auto-deploy  
+✅ **Quality Gates**: Tests must pass before deployment  
+✅ **Zero Downtime**: Cloudflare Workers handle seamless updates  
+✅ **Secure**: All secrets encrypted in GitHub  
+✅ **Monitoring**: Full deployment logs and notifications  
+✅ **Flexibility**: Manual deployment when needed  
+
+**Ready to test?** Add those GitHub secrets and push another commit to `develop` - your deployment will automatically trigger! 🚀
+
+---
+
+_**User**_
+
+I tried it. There are numerous errors that must be addressed:
+
+      467 |
+    > 468 |         expect(result.valid).toBe(false);
+          |                              ^
+      469 |         expect(result.errors.some(e => e.code === 'NUMERIC_EXCLUSIVE_RANGE_CONFLICT')).toBe(true);
+      470 |       });
+      471 |
+      at Object.<anonymous> (src/validation/__tests__/schema-validator.test.ts:468:30)
+  ● SchemaValidator › type-specific validation › numeric schema validation › should error for negative multipleOf
+    expect(received).toBe(expected) // Object.is equality
+    Expected: true
+    Received: false
+      479 |
+      480 |         expect(result.valid).toBe(false);
+    > 481 |         expect(result.errors.some(e => e.code === 'MULTIPLE_OF_NOT_POSITIVE')).toBe(true);
+          |                                                                                ^
+      482 |       });
+      483 |
+      484 |       it('should validate valid numeric constraints', () => {
+      at Object.<anonymous> (src/validation/__tests__/schema-validator.test.ts:481:80)
+  ● SchemaValidator › type-specific validation › object schema validation › should error for negative minProperties
+    expect(received).toBe(expected) // Object.is equality
+    Expected: false
+    Received: true
+      505 |         const result = validator.validateSchema(schema);
+      506 |
+    > 507 |         expect(result.valid).toBe(false);
+          |                              ^
+      508 |         expect(result.errors.some(e => e.code === 'OBJECT_MIN_PROPERTIES_NEGATIVE')).toBe(true);
+      509 |       });
+      510 |
+      at Object.<anonymous> (src/validation/__tests__/schema-validator.test.ts:507:30)
+  ● SchemaValidator › type-specific validation › object schema validation › should error for negative maxProperties
+    expect(received).toBe(expected) // Object.is equality
+    Expected: false
+    Received: true
+      517 |         const result = validator.validateSchema(schema);
+      518 |
+    > 519 |         expect(result.valid).toBe(false);
+          |                              ^
+      520 |         expect(result.errors.some(e => e.code === 'OBJECT_MAX_PROPERTIES_NEGATIVE')).toBe(true);
+      521 |       });
+      522 |
+      at Object.<anonymous> (src/validation/__tests__/schema-validator.test.ts:519:30)
+  ● SchemaValidator › type-specific validation › array schema validation › should error for negative minItems
+    expect(received).toBe(expected) // Object.is equality
+    Expected: false
+    Received: true
+      544 |         const result = validator.validateSchema(schema);
+      545 |
+    > 546 |         expect(result.valid).toBe(false);
+          |                              ^
+      547 |         expect(result.errors.some(e => e.code === 'ARRAY_MIN_ITEMS_NEGATIVE')).toBe(true);
+      548 |       });
+      549 |
+      at Object.<anonymous> (src/validation/__tests__/schema-validator.test.ts:546:30)
+  ● SchemaValidator › type-specific validation › array schema validation › should error for negative maxItems
+    expect(received).toBe(expected) // Object.is equality
+    Expected: false
+    Received: true
+      556 |         const result = validator.validateSchema(schema);
+      557 |
+    > 558 |         expect(result.valid).toBe(false);
+          |                              ^
+      559 |         expect(result.errors.some(e => e.code === 'ARRAY_MAX_ITEMS_NEGATIVE')).toBe(true);
+      560 |       });
+      561 |
+      at Object.<anonymous> (src/validation/__tests__/schema-validator.test.ts:558:30)
+  ● SchemaValidator › edge cases › should handle null schema
+    TypeError: Cannot read properties of null (reading 'type')
+      78 |   ): void {
+      79 |     // Check if type is specified
+    > 80 |     if (!schema.type && this.config.strict) {
+         |                 ^
+      81 |       errors.push({
+      82 |         code: 'SCHEMA_TYPE_MISSING',
+      83 |         message: 'Schema must specify a type property',
+      at SchemaValidator.validateBasicStructure (src/validation/schema-validator.ts:80:17)
+      at SchemaValidator.validateSchema (src/validation/schema-validator.ts:43:10)
+      at Object.<anonymous> (src/validation/__tests__/schema-validator.test.ts:589:32)
+FAIL src/services/__tests__/api-key-service.test.ts
+  ● CryptoUtils › generateApiKey › should generate API key with custom options
+    expect(received).not.toMatch(expected)
+    Expected pattern: not /_[A-Za-z0-9_-]{8}$/
+    Received string:      "custom_922e38586109a2e3d4f622f8008ec0da_34d63912"
+      513 |       
+      514 |       expect(key).toMatch(/^custom_/);
+    > 515 |       expect(key).not.toMatch(/_[A-Za-z0-9_-]{8}$/); // No checksum
+          |                       ^
+      516 |     });
+      517 |
+      518 |     it('should throw error for invalid length', () => {
+      at Object.<anonymous> (src/services/__tests__/api-key-service.test.ts:515:23)
+FAIL src/__tests__/e2e/form-creation.e2e.test.ts
+  ● Test suite failed to run
+    Playwright Test needs to be invoked via 'npx playwright test' and excluded from Jest test runs.
+    Creating one directory for Playwright tests and one for Jest is the recommended way of doing it.
+    See https://playwright.dev/docs/intro for more information about Playwright Test.
+      17 |
+      18 | // Test group: Minimal Forms (Basic Functionality)
+    > 19 | test.describe('Minimal Forms - Basic Functionality', () => {
+         |      ^
+      20 |   
+      21 |   test('should create and render a title-only form', async ({ page }) => {
+      22 |     // Arrange
+      at throwIfRunningInsideJest (node_modules/playwright/lib/common/testType.js:272:11)
+      at TestTypeImpl._describe (node_modules/playwright/lib/common/testType.js:113:5)
+      at Function.describe (node_modules/playwright/lib/transform/transform.js:275:12)
+      at Object.<anonymous> (src/__tests__/e2e/form-creation.e2e.test.ts:19:6)
+FAIL src/middleware/__tests__/error-handler.test.ts
+  ● Test suite failed to run
+    ZodError: [
+      {
+        "code": "invalid_type",
+        "expected": "string",
+        "received": "undefined",
+        "path": [
+          "TALLY_API_KEY"
+        ],
+        "message": "Required"
+      }
+    ]
+      44 |  * in production.
+      45 |  */
+    > 46 | export const env = refinedEnvSchema.parse(process.env); 
+         |                                     ^
+      at Object.get error [as error] (node_modules/zod/dist/cjs/v3/types.js:45:31)
+      at ZodEffects.parse (node_modules/zod/dist/cjs/v3/types.js:120:22)
+      at Object.<anonymous> (src/config/env.ts:46:37)
+      at Object.<anonymous> (src/diagnostics/tools/EnvironmentValidator.ts:3:1)
+      at Object.<anonymous> (src/diagnostics/DiagnosticToolSuite.ts:5:1)
+      at Object.<anonymous> (src/tools/diagnostic-tool.ts:2:1)
+      at Object.<anonymous> (src/tools/index.ts:17:1)
+      at Object.<anonymous> (src/server.ts:12:1)
+      at Object.<anonymous> (src/middleware/error-handler.ts:9:1)
+      at Object.<anonymous> (src/middleware/__tests__/error-handler.test.ts:6:1)
+    Errors contained in AggregateError:
+     Required
+            "code": "invalid_type",
+            "expected": "string",
+            "message": "Required",
+            "path": Array [
+              "TALLY_API_KEY",
+            ],
+            "received": "undefined",
+          }
+FAIL src/__tests__/message-delivery-formatting.test.ts
+  ● Test suite failed to run
+    ZodError: [
+      {
+        "code": "invalid_type",
+        "expected": "string",
+        "received": "undefined",
+        "path": [
+          "TALLY_API_KEY"
+        ],
+        "message": "Required"
+      }
+    ]
+      44 |  * in production.
+      45 |  */
+    > 46 | export const env = refinedEnvSchema.parse(process.env); 
+         |                                     ^
+      at Object.get error [as error] (node_modules/zod/dist/cjs/v3/types.js:45:31)
+      at ZodEffects.parse (node_modules/zod/dist/cjs/v3/types.js:120:22)
+      at Object.<anonymous> (src/config/env.ts:46:37)
+      at Object.<anonymous> (src/diagnostics/tools/EnvironmentValidator.ts:3:1)
+      at Object.<anonymous> (src/diagnostics/DiagnosticToolSuite.ts:5:1)
+      at Object.<anonymous> (src/tools/diagnostic-tool.ts:2:1)
+      at Object.<anonymous> (src/tools/index.ts:17:1)
+      at Object.<anonymous> (src/server.ts:12:1)
+      at Object.<anonymous> (src/__tests__/message-delivery-formatting.test.ts:1:1)
+    Errors contained in AggregateError:
+     Required
+            "code": "invalid_type",
+            "expected": "string",
+            "message": "Required",
+            "path": Array [
+              "TALLY_API_KEY",
+            ],
+            "received": "undefined",
+          }
+FAIL src/utils/__tests__/logger.test.ts
+  ● Logger › Log Level Filtering › should respect log level configuration
+    expect(jest.fn()).toHaveBeenCalled()
+    Expected number of calls: >= 1
+    Received number of calls:    0
+      120 |       
+      121 |       // Warn and error should be logged
+    > 122 |       expect(mockConsoleWarn).toHaveBeenCalled();
+          |                               ^
+      123 |       expect(mockConsoleError).toHaveBeenCalled();
+      124 |     });
+      125 |   });
+      at Object.<anonymous> (src/utils/__tests__/logger.test.ts:122:31)
+  ● Logger › Logging Methods › should log fatal messages
+    expect(jest.fn()).toHaveBeenCalled()
+    Expected number of calls: >= 1
+    Received number of calls:    0
+      135 |       testLogger.fatal('Fatal error occurred');
+      136 |       
+    > 137 |       expect(mockConsoleError).toHaveBeenCalled();
+          |                                ^
+      138 |     });
+      139 |
+      140 |     test('should log error messages', () => {
+      at Object.<anonymous> (src/utils/__tests__/logger.test.ts:137:32)
+  ● Logger › Logging Methods › should log error messages
+    expect(jest.fn()).toHaveBeenCalled()
+    Expected number of calls: >= 1
+    Received number of calls:    0
+      146 |       testLogger.error('Error occurred');
+      147 |       
+    > 148 |       expect(mockConsoleError).toHaveBeenCalled();
+          |                                ^
+      149 |     });
+      150 |
+      151 |     test('should log warning messages', () => {
+      at Object.<anonymous> (src/utils/__tests__/logger.test.ts:148:32)
+  ● Logger › Logging Methods › should log warning messages
+    expect(jest.fn()).toHaveBeenCalled()
+    Expected number of calls: >= 1
+    Received number of calls:    0
+      157 |       testLogger.warn('Warning occurred');
+      158 |       
+    > 159 |       expect(mockConsoleWarn).toHaveBeenCalled();
+          |                               ^
+      160 |     });
+      161 |
+      162 |     test('should log info messages', () => {
+      at Object.<anonymous> (src/utils/__tests__/logger.test.ts:159:31)
+  ● Logger › Logging Methods › should log info messages
+    expect(jest.fn()).toHaveBeenCalled()
+    Expected number of calls: >= 1
+    Received number of calls:    0
+      168 |       testLogger.info('Info message');
+      169 |       
+    > 170 |       expect(mockConsoleLog).toHaveBeenCalled();
+          |                              ^
+      171 |     });
+      172 |
+      173 |     test('should log debug messages', () => {
+      at Object.<anonymous> (src/utils/__tests__/logger.test.ts:170:30)
+  ● Logger › Structured Logging › should output structured JSON when enabled
+    expect(jest.fn()).toHaveBeenCalled()
+    Expected number of calls: >= 1
+    Received number of calls:    0
+      206 |       testLogger.info('Test message', { key: 'value' });
+      207 |
+    > 208 |       expect(mockConsoleLog).toHaveBeenCalled();
+          |                              ^
+      209 |       const loggedData = mockConsoleLog.mock.calls[0][0];
+      210 |       const parsed = JSON.parse(loggedData);
+      211 |
+      at Object.<anonymous> (src/utils/__tests__/logger.test.ts:208:30)
+  ● Logger › Structured Logging › should include trace ID in structured logs when tracing enabled
+    TypeError: Cannot read properties of undefined (reading '0')
+      227 |       testLogger.info('Test message');
+      228 |
+    > 229 |       const loggedData = mockConsoleLog.mock.calls[0][0];
+          |                                                      ^
+      230 |       const parsed = JSON.parse(loggedData);
+      231 |
+      232 |       expect(parsed.traceId).toBeDefined();
+      at Object.<anonymous> (src/utils/__tests__/logger.test.ts:229:54)
+  ● Logger › Sensitive Data Redaction › should redact sensitive fields from context
+    TypeError: Cannot read properties of undefined (reading '0')
+      253 |       testLogger.info('Test message', sensitiveContext);
+      254 |
+    > 255 |       const loggedData = mockConsoleLog.mock.calls[0][0];
+          |                                                      ^
+      256 |       const parsed = JSON.parse(loggedData);
+      257 |
+      258 |       expect(parsed.context.username).toBe('john');
+      at Object.<anonymous> (src/utils/__tests__/logger.test.ts:255:54)
+  ● Logger › Sensitive Data Redaction › should handle nested objects in redaction
+    TypeError: Cannot read properties of undefined (reading '0')
+      283 |       testLogger.info('Test message', nestedContext);
+      284 |
+    > 285 |       const loggedData = mockConsoleLog.mock.calls[0][0];
+          |                                                      ^
+      286 |       const parsed = JSON.parse(loggedData);
+      287 |
+      288 |       expect(parsed.context.user.name).toBe('john');
+      at Object.<anonymous> (src/utils/__tests__/logger.test.ts:285:54)
+  ● Logger › Sensitive Data Redaction › should not redact when redaction is disabled
+    TypeError: Cannot read properties of undefined (reading '0')
+      306 |       testLogger.info('Test message', sensitiveContext);
+      307 |
+    > 308 |       const loggedData = mockConsoleLog.mock.calls[0][0];
+          |                                                      ^
+      309 |       const parsed = JSON.parse(loggedData);
+      310 |
+      311 |       expect(parsed.context.password).toBe('secret123');
+      at Object.<anonymous> (src/utils/__tests__/logger.test.ts:308:54)
+  ● Logger › Error Logging › should include error details in log entry
+    TypeError: Cannot read properties of undefined (reading '0')
+      327 |       testLogger.error('Error occurred', undefined, testError);
+      328 |
+    > 329 |       const loggedData = mockConsoleLog.mock.calls[0][0];
+          |                                                      ^
+      330 |       const parsed = JSON.parse(loggedData);
+      331 |
+      332 |       expect(parsed.error.name).toBe('Error');
+      at Object.<anonymous> (src/utils/__tests__/logger.test.ts:329:54)
+  ● Logger › Console Output Formatting › should format console output with all components
+    expect(jest.fn()).toHaveBeenCalled()
+    Expected number of calls: >= 1
+    Received number of calls:    0
+      364 |       testLogger.info('Test message', { key: 'value' }, undefined, 'req-456', 'test-op');
+      365 |
+    > 366 |       expect(mockConsoleLog).toHaveBeenCalled();
+          |                              ^
+      367 |       const logMessage = mockConsoleLog.mock.calls[0]?.[0];
+      368 |       expect(logMessage).toBeDefined();
+      369 |
+      at Object.<anonymous> (src/utils/__tests__/logger.test.ts:366:30)
+  ● Logger › Edge Cases › should handle null and undefined context values
+    expect(jest.fn()).toHaveBeenCalled()
+    Expected number of calls: >= 1
+    Received number of calls:    0
+      404 |       });
+      405 |
+    > 406 |       expect(mockConsoleLog).toHaveBeenCalled();
+          |                              ^
+      407 |       const loggedData = mockConsoleLog.mock.calls[0][0];
+      408 |       const parsed = JSON.parse(loggedData);
+      409 |
+      at Object.<anonymous> (src/utils/__tests__/logger.test.ts:406:30)
+  ● Logger › Edge Cases › should handle arrays in context
+    TypeError: Cannot read properties of undefined (reading '0')
+      427 |       });
+      428 |
+    > 429 |       const loggedData = mockConsoleLog.mock.calls[0][0];
+          |                                                      ^
+      430 |       const parsed = JSON.parse(loggedData);
+      431 |
+      432 |       expect(parsed.context.items).toEqual(['item1', 'item2']);
+      at Object.<anonymous> (src/utils/__tests__/logger.test.ts:429:54)
+FAIL src/__tests__/workflow-success-scenarios.test.ts
+  ● Test suite failed to run
+    ZodError: [
+      {
+        "code": "invalid_type",
+        "expected": "string",
+        "received": "undefined",
+        "path": [
+          "TALLY_API_KEY"
+        ],
+        "message": "Required"
+      }
+    ]
+      44 |  * in production.
+      45 |  */
+    > 46 | export const env = refinedEnvSchema.parse(process.env); 
+         |                                     ^
+      at Object.get error [as error] (node_modules/zod/dist/cjs/v3/types.js:45:31)
+      at ZodEffects.parse (node_modules/zod/dist/cjs/v3/types.js:120:22)
+      at Object.<anonymous> (src/config/env.ts:46:37)
+      at Object.<anonymous> (src/diagnostics/tools/EnvironmentValidator.ts:3:1)
+      at Object.<anonymous> (src/diagnostics/DiagnosticToolSuite.ts:5:1)
+      at Object.<anonymous> (src/tools/diagnostic-tool.ts:2:1)
+      at Object.<anonymous> (src/tools/index.ts:17:1)
+      at Object.<anonymous> (src/server.ts:12:1)
+      at Object.<anonymous> (src/__tests__/WorkflowIntegrationTestSuite.ts:8:1)
+      at Object.<anonymous> (src/__tests__/workflow-success-scenarios.test.ts:6:1)
+    Errors contained in AggregateError:
+     Required
+            "code": "invalid_type",
+            "expected": "string",
+            "message": "Required",
+            "path": Array [
+              "TALLY_API_KEY",
+            ],
+            "received": "undefined",
+          }
+FAIL src/__tests__/capability-negotiation.test.ts
+  ● Test suite failed to run
+    ZodError: [
+      {
+        "code": "invalid_type",
+        "expected": "string",
+        "received": "undefined",
+        "path": [
+          "TALLY_API_KEY"
+        ],
+        "message": "Required"
+      }
+    ]
+      44 |  * in production.
+      45 |  */
+    > 46 | export const env = refinedEnvSchema.parse(process.env); 
+         |                                     ^
+      at Object.get error [as error] (node_modules/zod/dist/cjs/v3/types.js:45:31)
+      at ZodEffects.parse (node_modules/zod/dist/cjs/v3/types.js:120:22)
+      at Object.<anonymous> (src/config/env.ts:46:37)
+      at Object.<anonymous> (src/diagnostics/tools/EnvironmentValidator.ts:3:1)
+      at Object.<anonymous> (src/diagnostics/DiagnosticToolSuite.ts:5:1)
+      at Object.<anonymous> (src/tools/diagnostic-tool.ts:2:1)
+      at Object.<anonymous> (src/tools/index.ts:17:1)
+      at Object.<anonymous> (src/server.ts:12:1)
+      at Object.<anonymous> (src/__tests__/capability-negotiation.test.ts:1:1)
+    Errors contained in AggregateError:
+     Required
+            "code": "invalid_type",
+            "expected": "string",
+            "message": "Required",
+            "path": Array [
+              "TALLY_API_KEY",
+            ],
+            "received": "undefined",
+          }
+FAIL src/__tests__/json-rpc-message-validation.test.ts
+  ● Test suite failed to run
+    ZodError: [
+      {
+        "code": "invalid_type",
+        "expected": "string",
+        "received": "undefined",
+        "path": [
+          "TALLY_API_KEY"
+        ],
+        "message": "Required"
+      }
+    ]
+      44 |  * in production.
+      45 |  */
+    > 46 | export const env = refinedEnvSchema.parse(process.env); 
+         |                                     ^
+      at Object.get error [as error] (node_modules/zod/dist/cjs/v3/types.js:45:31)
+      at ZodEffects.parse (node_modules/zod/dist/cjs/v3/types.js:120:22)
+      at Object.<anonymous> (src/config/env.ts:46:37)
+      at Object.<anonymous> (src/diagnostics/tools/EnvironmentValidator.ts:3:1)
+      at Object.<anonymous> (src/diagnostics/DiagnosticToolSuite.ts:5:1)
+      at Object.<anonymous> (src/tools/diagnostic-tool.ts:2:1)
+      at Object.<anonymous> (src/tools/index.ts:17:1)
+      at Object.<anonymous> (src/server.ts:12:1)
+      at Object.<anonymous> (src/__tests__/json-rpc-message-validation.test.ts:1:1)
+    Errors contained in AggregateError:
+     Required
+            "code": "invalid_type",
+            "expected": "string",
+            "message": "Required",
+            "path": Array [
+              "TALLY_API_KEY",
+            ],
+            "received": "undefined",
+          }
+FAIL src/services/__tests__/tally-api-service-validation.test.ts
+  ● TallyApiService - Schema Validation › error handling for malformed blocks › catches validation errors before API submission
+    expect(received).rejects.toThrow()
+    Received promise resolved instead of rejected
+    Resolved to value: undefined
+      261 |
+      262 |       // Should throw validation error before making API call
+    > 263 |       await expect(invalidService.createForm(formConfig)).rejects.toThrow(ZodError);
+          |             ^
+      264 |     });
+      265 |   });
+      266 |
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (src/services/__tests__/tally-api-service-validation.test.ts:263:13)
+FAIL src/middleware/__tests__/security.test.ts
+  ● Security Middleware › Security Validation › should warn about invalid User-Agent headers
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+    Expected: "Security Warning: Missing or empty User-Agent header."
+    Number of calls: 0
+      256 |       console.log('Console warn calls:', consoleWarnSpy.mock.calls);
+      257 |       
+    > 258 |       expect(consoleWarnSpy).toHaveBeenCalledWith('Security Warning: Missing or empty User-Agent header.');
+          |                              ^
+      259 |     });
+      260 |
+      261 |     it('should warn about oversized User-Agent headers', async () => {
+      at Object.<anonymous> (src/middleware/__tests__/security.test.ts:258:30)
+  ● Security Middleware › Security Validation › should warn about oversized User-Agent headers
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+    Expected: "Security Warning: Oversized User-Agent header: 300 chars"
+    Number of calls: 0
+      285 |       console.log('Console warn calls:', consoleWarnSpy.mock.calls);
+      286 |       
+    > 287 |       expect(consoleWarnSpy).toHaveBeenCalledWith('Security Warning: Oversized User-Agent header: 300 chars');
+          |                              ^
+      288 |     });
+      289 |   });
+      290 |
+      at Object.<anonymous> (src/middleware/__tests__/security.test.ts:287:30)
+FAIL src/tools/__tests__/form-creation-tool.test.ts
+  ● FormCreationTool › execute - template creation › should create form from template successfully
+    expect(received).toEqual(expected) // deep equality
+    - Expected  - 0
+    + Received  + 1
+    @@ -12,7 +12,8 @@
+          "settings": Object {
+            "submissionBehavior": "message",
+          },
+          "title": "Test Form",
+        },
+    +   "formId": "form123",
+        "formUrl": "https://tally.so/forms/form123/edit",
+      }
+      94 |       );
+      95 |       expect(mockTallyApiService.createForm).toHaveBeenCalledWith(mockFormConfig);
+    > 96 |       expect(result).toEqual({
+         |                      ^
+      97 |         formUrl: 'https://tally.so/forms/form123/edit',
+      98 |         formConfig: mockFormConfig
+      99 |       });
+      at Object.<anonymous> (src/tools/__tests__/form-creation-tool.test.ts:96:22)
+  ● FormCreationTool › execute - natural language creation › should create form from natural language prompt successfully
+    expect(received).toEqual(expected) // deep equality
+    - Expected  - 0
+    + Received  + 1
+    @@ -12,7 +12,8 @@
+          "settings": Object {
+            "submissionBehavior": "message",
+          },
+          "title": "Contact Form",
+        },
+        "received": "undefined",
+        "path": [
+          "TALLY_API_KEY"
+        ],
+        "message": "Required"
+      }
+    ]
+      44 |  * in production.
+      45 |  */
+    > 46 | export const env = refinedEnvSchema.parse(process.env); 
+         |                                     ^
+      at Object.get error [as error] (node_modules/zod/dist/cjs/v3/types.js:45:31)
+      at ZodEffects.parse (node_modules/zod/dist/cjs/v3/types.js:120:22)
+      at Object.<anonymous> (src/config/env.ts:46:37)
+      at Object.<anonymous> (src/__tests__/api/TallyApiClient.test.ts:2:1)
+    Errors contained in AggregateError:
+     Required
+            "code": "invalid_type",
+            "expected": "string",
+            "message": "Required",
+            "path": Array [
+              "TALLY_API_KEY",
+            ],
+            "received": "undefined",
+          }
+FAIL src/__tests__/server.test.ts
+  ● Test suite failed to run
+    ZodError: [
+      {
+        "code": "invalid_type",
+        "expected": "string",
+        "received": "undefined",
+        "path": [
+          "TALLY_API_KEY"
+        ],
+        "message": "Required"
+      }
+    ]
+      44 |  * in production.
+      45 |  */
+    > 46 | export const env = refinedEnvSchema.parse(process.env); 
+         |                                     ^
+      at Object.get error [as error] (node_modules/zod/dist/cjs/v3/types.js:45:31)
+      at ZodEffects.parse (node_modules/zod/dist/cjs/v3/types.js:120:22)
+      at Object.<anonymous> (src/config/env.ts:46:37)
+      at Object.<anonymous> (src/diagnostics/tools/EnvironmentValidator.ts:3:1)
+      at Object.<anonymous> (src/diagnostics/DiagnosticToolSuite.ts:5:1)
+      at Object.<anonymous> (src/tools/diagnostic-tool.ts:2:1)
+      at Object.<anonymous> (src/tools/index.ts:17:1)
+      at Object.<anonymous> (src/server.ts:12:1)
+      at Object.<anonymous> (src/__tests__/server.test.ts:6:1)
+    Errors contained in AggregateError:
+     Required
+            "code": "invalid_type",
+            "expected": "string",
+            "message": "Required",
+            "path": Array [
+              "TALLY_API_KEY",
+            ],
+            "received": "undefined",
+          }
+FAIL src/utils/__tests__/input-sanitizer.test.ts
+  ● Input Sanitization › sanitizeString › should remove or neutralize dangerous string: scriptTag
+    expect(received).toMatchSnapshot()
+    Snapshot name: `Input Sanitization sanitizeString should remove or neutralize dangerous string: scriptTag 1`
+    New snapshot was not written. The update flag must be explicitly passed to write a new snapshot.
+    This is likely because this test is run in a continuous integration (CI) environment in which snapshots are not written by default.
+    Received: ""
+      12 |         expect(sanitized).not.toContain('onclick');
+      13 |         expect(sanitized).not.toContain('onerror');
+    > 14 |         expect(sanitized).toMatchSnapshot();
+         |                           ^
+      15 |       },
+      16 |     );
+      17 |
+      at src/utils/__tests__/input-sanitizer.test.ts:14:27
+  ● Input Sanitization › sanitizeString › should remove or neutralize dangerous string: javascriptProtocol
+    expect(received).toMatchSnapshot()
+    Snapshot name: `Input Sanitization sanitizeString should remove or neutralize dangerous string: javascriptProtocol 1`
+    New snapshot was not written. The update flag must be explicitly passed to write a new snapshot.
+    This is likely because this test is run in a continuous integration (CI) environment in which snapshots are not written by default.
+    Received: "Click me"
+      12 |         expect(sanitized).not.toContain('onclick');
+      13 |         expect(sanitized).not.toContain('onerror');
+    > 14 |         expect(sanitized).toMatchSnapshot();
+         |                           ^
+      15 |       },
+      16 |     );
+      17 |
+      at src/utils/__tests__/input-sanitizer.test.ts:14:27
+  ● Input Sanitization › sanitizeString › should remove or neutralize dangerous string: eventHandler
+    expect(received).toMatchSnapshot()
+    Snapshot name: `Input Sanitization sanitizeString should remove or neutralize dangerous string: eventHandler 1`
+    New snapshot was not written. The update flag must be explicitly passed to write a new snapshot.
+    This is likely because this test is run in a continuous integration (CI) environment in which snapshots are not written by default.
+    Received: ""
+      12 |         expect(sanitized).not.toContain('onclick');
+      13 |         expect(sanitized).not.toContain('onerror');
+    > 14 |         expect(sanitized).toMatchSnapshot();
+         |                           ^
+      15 |       },
+      16 |     );
+      17 |
+      at src/utils/__tests__/input-sanitizer.test.ts:14:27
+  ● Input Sanitization › sanitizeString › should remove or neutralize dangerous string: iframeTag
+    expect(received).toMatchSnapshot()
+    Snapshot name: `Input Sanitization sanitizeString should remove or neutralize dangerous string: iframeTag 1`
+    New snapshot was not written. The update flag must be explicitly passed to write a new snapshot.
+    This is likely because this test is run in a continuous integration (CI) environment in which snapshots are not written by default.
+    Received: ""
+      12 |         expect(sanitized).not.toContain('onclick');
+      13 |         expect(sanitized).not.toContain('onerror');
+    > 14 |         expect(sanitized).toMatchSnapshot();
+         |                           ^
+      15 |       },
+      16 |     );
+      17 |
+      at src/utils/__tests__/input-sanitizer.test.ts:14:27
+  ● Input Sanitization › sanitizeString › should remove or neutralize dangerous string: unclosedTag
+    expect(received).toMatchSnapshot()
+    Snapshot name: `Input Sanitization sanitizeString should remove or neutralize dangerous string: unclosedTag 1`
+    New snapshot was not written. The update flag must be explicitly passed to write a new snapshot.
+    This is likely because this test is run in a continuous integration (CI) environment in which snapshots are not written by default.
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+I can see multiple test failures that need to be addressed before the automated deployment can work properly. Let me fix these systematically:
+
+## **Main Issues Identified:**
+
+1. **Environment variables missing during tests** (most critical)
+2. **Playwright tests running in Jest** (configuration issue)
+3. **Schema validator logic errors**
+4. **Logger test failures**
+5. **Snapshot test failures in CI**
+
+Let me fix these step by step:
+
+### **1. Fix Test Environment Configuration**
+
+---
+
+
+
+---
+
+
+
+---
+

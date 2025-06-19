@@ -6,13 +6,33 @@
 
 import { Logger, LogLevel, LoggerConfig, createLogger, logger } from '../logger';
 
-// Mock console methods
-const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation();
-const mockConsoleError = jest.spyOn(console, 'error').mockImplementation();
-const mockConsoleWarn = jest.spyOn(console, 'warn').mockImplementation();
-const mockConsoleDebug = jest.spyOn(console, 'debug').mockImplementation();
+// Mock console methods - restore original implementations first if they exist
+const mockConsoleLog = jest.spyOn(console, 'log');
+const mockConsoleError = jest.spyOn(console, 'error');
+const mockConsoleWarn = jest.spyOn(console, 'warn');
+const mockConsoleDebug = jest.spyOn(console, 'debug');
+
+// Store original implementations
+const originalConsoleLog = console.log;
+const originalConsoleError = console.error;
+const originalConsoleWarn = console.warn;
+const originalConsoleDebug = console.debug;
 
 describe('Logger', () => {
+  beforeAll(() => {
+    // Restore original console methods first, then mock them
+    console.log = originalConsoleLog;
+    console.error = originalConsoleError;
+    console.warn = originalConsoleWarn;
+    console.debug = originalConsoleDebug;
+    
+    // Now mock them for our tests
+    mockConsoleLog.mockImplementation(() => {});
+    mockConsoleError.mockImplementation(() => {});
+    mockConsoleWarn.mockImplementation(() => {});
+    mockConsoleDebug.mockImplementation(() => {});
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
