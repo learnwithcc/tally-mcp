@@ -26,4 +26,5 @@ export { FormSharingTool } from './form-sharing-tool';
 export { TemplateTool } from './template-tool';
 export { SubmissionAnalysisTool } from './submission-tool';
 export { WorkspaceManagementTool } from './workspace-tool';
-export { DiagnosticTool } from './diagnostic-tool'; 
+export { DiagnosticTool } from './diagnostic-tool';
+export { BulkFormDuplicationTool } from './bulk-form-duplication-tool'; 

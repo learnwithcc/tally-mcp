@@ -1,10 +1,14 @@
 import {
   BulkFormDuplicationInputSchema,
   BulkDuplicationValidator,
+  FormRetrievalService,
+  FormRelationshipTracker,
   type BulkFormDuplicationInput,
   type NamingPattern,
-  type BulkModifications
+  type BulkModifications,
+  type FormRelationship
 } from '../bulk-form-duplication-tool';
+import { TallyApiService } from '../../services';
 
 describe('BulkFormDuplicationTool - Input Validation', () => {
   describe('BulkFormDuplicationInputSchema', () => {
@@ -473,6 +477,530 @@ describe('BulkFormDuplicationTool - Input Validation', () => {
 
       const result = BulkFormDuplicationInputSchema.safeParse(input);
       expect(result.success).toBe(false);
+    });
+  });
+});
+
+describe('FormRetrievalService', () => {
+  let formRetrievalService: FormRetrievalService;
+  let mockTallyApiService: jest.Mocked<TallyApiService>;
+
+  beforeEach(() => {
+    // Mock TallyApiService
+    mockTallyApiService = {
+      getForm: jest.fn(),
+    } as any;
+
+    // Create service with mock config
+    const mockConfig = {
+      accessToken: 'test-access-token',
+      baseURL: 'https://api.tally.so'
+    };
+    
+    formRetrievalService = new FormRetrievalService(mockConfig);
+    // Replace the internal service with our mock
+    (formRetrievalService as any).tallyApiService = mockTallyApiService;
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('retrieveAndValidateForms', () => {
+    it('should successfully retrieve and validate forms', async () => {
+      const mockForm = {
+        id: 'form123',
+        name: 'Test Form',
+        title: 'Test Form Title',
+        status: 'published',
+        isPublished: true,
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-02T00:00:00Z',
+        submissionsCount: 100
+      };
+
+      mockTallyApiService.getForm.mockResolvedValue(mockForm);
+
+      const result = await formRetrievalService.retrieveAndValidateForms(['form123']);
+
+      expect(result.totalValidForms).toBe(1);
+      expect(result.totalErrors).toBe(0);
+      expect(result.validatedForms).toHaveLength(1);
+      expect(result.validatedForms[0].formId).toBe('form123');
+      expect(result.validatedForms[0].isValid).toBe(true);
+      expect(result.accessibilityResults).toHaveLength(1);
+      expect(result.accessibilityResults[0].accessible).toBe(true);
+    });
+
+    it('should handle forms that are not accessible', async () => {
+      mockTallyApiService.getForm.mockRejectedValue(new Error('Form not found'));
+
+      const result = await formRetrievalService.retrieveAndValidateForms(['invalidform']);
+
+      expect(result.totalValidForms).toBe(0);
+      expect(result.totalErrors).toBe(1);
+      expect(result.errors[0]).toContain('Failed to retrieve form invalidform');
+      expect(result.accessibilityResults).toHaveLength(1);
+      expect(result.accessibilityResults[0].accessible).toBe(false);
+    });
+
+    it('should handle deleted forms', async () => {
+      const mockForm = {
+        id: 'form123',
+        name: 'Deleted Form',
+        status: 'deleted',
+        isPublished: false,
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-02T00:00:00Z'
+      };
+
+      mockTallyApiService.getForm.mockResolvedValue(mockForm);
+
+      const result = await formRetrievalService.retrieveAndValidateForms(['form123']);
+
+      expect(result.totalValidForms).toBe(0);
+      expect(result.validatedForms[0].isValid).toBe(false);
+      expect(result.validatedForms[0].validationErrors).toContain('Cannot duplicate deleted forms');
+    });
+
+    it('should process multiple forms in parallel', async () => {
+      const mockForm1 = {
+        id: 'form1',
+        name: 'Form 1',
+        status: 'published',
+        isPublished: true,
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-02T00:00:00Z'
+      };
+
+      const mockForm2 = {
+        id: 'form2',
+        name: 'Form 2',
+        status: 'published',
+        isPublished: true,
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-02T00:00:00Z'
+      };
+
+      mockTallyApiService.getForm
+        .mockResolvedValueOnce(mockForm1)
+        .mockResolvedValueOnce(mockForm2);
+
+      const result = await formRetrievalService.retrieveAndValidateForms(['form1', 'form2']);
+
+      expect(result.totalValidForms).toBe(2);
+      expect(result.validatedForms).toHaveLength(2);
+      expect(mockTallyApiService.getForm).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('checkFormAccessibility', () => {
+    it('should return accessible for valid published form', async () => {
+      const mockForm = {
+        id: 'form123',
+        name: 'Test Form',
+        status: 'published',
+        isPublished: true,
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-02T00:00:00Z'
+      };
+
+      mockTallyApiService.getForm.mockResolvedValue(mockForm);
+
+      const result = await formRetrievalService.checkFormAccessibility('form123');
+
+      expect(result.accessible).toBe(true);
+      expect(result.permissions).toContain('read');
+      expect(result.permissions).toContain('duplicate');
+    });
+
+    it('should return accessible with warning for draft form', async () => {
+      const mockForm = {
+        id: 'form123',
+        name: 'Draft Form',
+        status: 'draft',
+        isPublished: false
+      };
+
+      mockTallyApiService.getForm.mockResolvedValue(mockForm);
+
+      const result = await formRetrievalService.checkFormAccessibility('form123');
+
+      expect(result.accessible).toBe(true);
+      expect(result.reason).toContain('draft status');
+    });
+
+    it('should reject invalid form ID', async () => {
+      const result = await formRetrievalService.checkFormAccessibility('');
+
+      expect(result.accessible).toBe(false);
+      expect(result.reason).toBe('Invalid form ID format');
+    });
+
+    it('should handle API errors gracefully', async () => {
+      mockTallyApiService.getForm.mockRejectedValue(new Error('Network error'));
+
+      const result = await formRetrievalService.checkFormAccessibility('form123');
+
+      expect(result.accessible).toBe(false);
+      expect(result.reason).toBe('Network error');
+    });
+  });
+
+  describe('validateFormStructure', () => {
+    it('should validate a complete form structure', async () => {
+      const mockForm = {
+        id: 'form123',
+        name: 'Complete Form',
+        title: 'Complete Form Title',
+        status: 'published',
+        isPublished: true,
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-02T00:00:00Z',
+        submissionsCount: 500,
+        url: 'https://tally.so/form123',
+        description: 'A comprehensive form for testing'
+      };
+
+      const result = await formRetrievalService.validateFormStructure(mockForm);
+
+      expect(result.isValid).toBe(true);
+      expect(result.formId).toBe('form123');
+      expect(result.complexityScore).toBeGreaterThan(1);
+      expect(result.estimatedDuplicationTime).toBeGreaterThan(2000);
+      expect(result.validationErrors).toHaveLength(0);
+    });
+
+    it('should reject form without ID', async () => {
+      const mockForm = {
+        name: 'No ID Form',
+        status: 'published'
+      } as any;
+
+      const result = await formRetrievalService.validateFormStructure(mockForm);
+
+      expect(result.isValid).toBe(false);
+      expect(result.validationErrors).toContain('Form ID is missing');
+    });
+
+    it('should reject form without name or title', async () => {
+      const mockForm = {
+        id: 'form123',
+        status: 'published'
+      } as any;
+
+      const result = await formRetrievalService.validateFormStructure(mockForm);
+
+      expect(result.isValid).toBe(false);
+      expect(result.validationErrors).toContain('Form must have a name or title');
+    });
+
+    it('should calculate complexity correctly for complex forms', async () => {
+      const mockForm = {
+        id: 'form123',
+        name: 'Complex Form',
+        status: 'published',
+        isPublished: true,
+        submissionsCount: 2000,
+        url: 'https://tally.so/form123',
+        embedUrl: 'https://tally.so/embed/form123',
+        description: 'A very long description that exceeds 500 characters. '.repeat(20),
+        updatedAt: new Date().toISOString() // Recently updated
+      };
+
+      const result = await formRetrievalService.validateFormStructure(mockForm);
+
+      expect(result.complexityScore).toBeGreaterThan(3);
+      expect(result.estimatedDuplicationTime).toBeGreaterThan(3000);
+    });
+  });
+});
+
+describe('FormRelationshipTracker', () => {
+  let tracker: FormRelationshipTracker;
+
+  beforeEach(() => {
+    tracker = new FormRelationshipTracker();
+  });
+
+  describe('addRelationship', () => {
+    it('should add a new relationship', () => {
+      const relationship: FormRelationship = {
+        originalFormId: 'form1',
+        duplicatedFormId: 'form1-copy',
+        duplicatedFormName: 'Form 1 Copy',
+        relationshipType: 'duplicate',
+        createdAt: '2023-01-01T00:00:00Z',
+        createdBy: 'user123'
+      };
+
+      tracker.addRelationship(relationship);
+
+      const relationships = tracker.getRelationships('form1');
+      expect(relationships).toHaveLength(1);
+      expect(relationships[0]).toEqual(relationship);
+    });
+
+    it('should add multiple relationships for the same form', () => {
+      const relationship1: FormRelationship = {
+        originalFormId: 'form1',
+        duplicatedFormId: 'form1-copy1',
+        duplicatedFormName: 'Form 1 Copy 1',
+        relationshipType: 'duplicate',
+        createdAt: '2023-01-01T00:00:00Z',
+        createdBy: 'user123'
+      };
+
+      const relationship2: FormRelationship = {
+        originalFormId: 'form1',
+        duplicatedFormId: 'form1-copy2',
+        duplicatedFormName: 'Form 1 Copy 2',
+        relationshipType: 'variant',
+        createdAt: '2023-01-02T00:00:00Z',
+        createdBy: 'user456'
+      };
+
+      tracker.addRelationship(relationship1);
+      tracker.addRelationship(relationship2);
+
+      const relationships = tracker.getRelationships('form1');
+      expect(relationships).toHaveLength(2);
+    });
+  });
+
+  describe('getRelationships', () => {
+    it('should return empty array for form with no relationships', () => {
+      const relationships = tracker.getRelationships('nonexistent');
+      expect(relationships).toEqual([]);
+    });
+
+    it('should return all relationships for a form', () => {
+      const relationship: FormRelationship = {
+        originalFormId: 'form1',
+        duplicatedFormId: 'form1-copy',
+        duplicatedFormName: 'Form 1 Copy',
+        relationshipType: 'duplicate',
+        createdAt: '2023-01-01T00:00:00Z',
+        createdBy: 'user123'
+      };
+
+      tracker.addRelationship(relationship);
+
+      const relationships = tracker.getRelationships('form1');
+      expect(relationships).toEqual([relationship]);
+    });
+  });
+
+  describe('findDuplicates', () => {
+    it('should return only duplicate relationships', () => {
+      const duplicate: FormRelationship = {
+        originalFormId: 'form1',
+        duplicatedFormId: 'form1-copy',
+        duplicatedFormName: 'Form 1 Copy',
+        relationshipType: 'duplicate',
+        createdAt: '2023-01-01T00:00:00Z',
+        createdBy: 'user123'
+      };
+
+      const variant: FormRelationship = {
+        originalFormId: 'form1',
+        duplicatedFormId: 'form1-variant',
+        duplicatedFormName: 'Form 1 Variant',
+        relationshipType: 'variant',
+        createdAt: '2023-01-02T00:00:00Z',
+        createdBy: 'user456'
+      };
+
+      tracker.addRelationship(duplicate);
+      tracker.addRelationship(variant);
+
+      const duplicates = tracker.findDuplicates('form1');
+      expect(duplicates).toHaveLength(1);
+      expect(duplicates[0].relationshipType).toBe('duplicate');
+    });
+  });
+
+  describe('trackBulkDuplication', () => {
+    it('should track multiple bulk duplication relationships', () => {
+      const createdForms = [
+        {
+          originalFormId: 'form1',
+          duplicatedFormId: 'form1-copy1',
+          duplicatedFormName: 'Form 1 Copy 1',
+          modifications: [{
+            field: 'title',
+            originalValue: 'Original Title',
+            newValue: 'Copy 1 Title',
+            reason: 'Bulk naming pattern'
+          }]
+        },
+        {
+          originalFormId: 'form1',
+          duplicatedFormId: 'form1-copy2',
+          duplicatedFormName: 'Form 1 Copy 2'
+        }
+      ];
+
+      tracker.trackBulkDuplication(
+        ['form1'],
+        createdForms,
+        'user123',
+        ['test-operation']
+      );
+
+      const relationships = tracker.getRelationships('form1');
+      expect(relationships).toHaveLength(2);
+      expect(relationships[0].tags).toContain('bulk-operation');
+      expect(relationships[0].tags).toContain('test-operation');
+      expect(relationships[0].modifications).toHaveLength(1);
+    });
+  });
+
+  describe('exportRelationships', () => {
+    it('should export all relationships as a record', () => {
+      const relationship: FormRelationship = {
+        originalFormId: 'form1',
+        duplicatedFormId: 'form1-copy',
+        duplicatedFormName: 'Form 1 Copy',
+        relationshipType: 'duplicate',
+        createdAt: '2023-01-01T00:00:00Z',
+        createdBy: 'user123'
+      };
+
+      tracker.addRelationship(relationship);
+
+      const exported = tracker.exportRelationships();
+      expect(exported).toEqual({
+        'form1': [relationship]
+      });
+    });
+  });
+
+  describe('importRelationships', () => {
+    it('should import relationships from a record', () => {
+      const relationship: FormRelationship = {
+        originalFormId: 'form1',
+        duplicatedFormId: 'form1-copy',
+        duplicatedFormName: 'Form 1 Copy',
+        relationshipType: 'duplicate',
+        createdAt: '2023-01-01T00:00:00Z',
+        createdBy: 'user123'
+      };
+
+      const data = {
+        'form1': [relationship]
+      };
+
+      tracker.importRelationships(data);
+
+      const relationships = tracker.getRelationships('form1');
+      expect(relationships).toEqual([relationship]);
+    });
+
+    it('should clear existing relationships before importing', () => {
+      // Add an existing relationship
+      const existing: FormRelationship = {
+        originalFormId: 'form2',
+        duplicatedFormId: 'form2-copy',
+        duplicatedFormName: 'Form 2 Copy',
+        relationshipType: 'duplicate',
+        createdAt: '2023-01-01T00:00:00Z',
+        createdBy: 'user123'
+      };
+
+      tracker.addRelationship(existing);
+
+      // Import new data
+      const importData = {
+        'form1': [{
+          originalFormId: 'form1',
+          duplicatedFormId: 'form1-copy',
+          duplicatedFormName: 'Form 1 Copy',
+          relationshipType: 'duplicate',
+          createdAt: '2023-01-01T00:00:00Z',
+          createdBy: 'user456'
+        }]
+      };
+
+      tracker.importRelationships(importData);
+
+      expect(tracker.getRelationships('form2')).toEqual([]);
+      expect(tracker.getRelationships('form1')).toHaveLength(1);
+    });
+  });
+
+  describe('getStatistics', () => {
+    it('should return correct statistics', () => {
+      const duplicateRelationship: FormRelationship = {
+        originalFormId: 'form1',
+        duplicatedFormId: 'form1-copy',
+        duplicatedFormName: 'Form 1 Copy',
+        relationshipType: 'duplicate',
+        createdAt: '2023-01-01T00:00:00Z',
+        createdBy: 'user123'
+      };
+
+      const variantRelationship: FormRelationship = {
+        originalFormId: 'form1',
+        duplicatedFormId: 'form1-variant',
+        duplicatedFormName: 'Form 1 Variant',
+        relationshipType: 'variant',
+        createdAt: '2023-01-02T00:00:00Z',
+        createdBy: 'user456'
+      };
+
+      const templateRelationship: FormRelationship = {
+        originalFormId: 'form2',
+        duplicatedFormId: 'form2-instance',
+        duplicatedFormName: 'Form 2 Instance',
+        relationshipType: 'template_instance',
+        createdAt: '2023-01-03T00:00:00Z',
+        createdBy: 'user789'
+      };
+
+      tracker.addRelationship(duplicateRelationship);
+      tracker.addRelationship(variantRelationship);
+      tracker.addRelationship(templateRelationship);
+
+      const stats = tracker.getStatistics();
+
+      expect(stats.totalOriginalForms).toBe(2);
+      expect(stats.totalDuplicates).toBe(3);
+      expect(stats.averageDuplicatesPerForm).toBe(1.5);
+      expect(stats.relationshipTypes).toEqual({
+        'duplicate': 1,
+        'variant': 1,
+        'template_instance': 1
+      });
+    });
+
+    it('should return zero statistics for empty tracker', () => {
+      const stats = tracker.getStatistics();
+
+      expect(stats.totalOriginalForms).toBe(0);
+      expect(stats.totalDuplicates).toBe(0);
+      expect(stats.averageDuplicatesPerForm).toBe(0);
+      expect(stats.relationshipTypes).toEqual({});
+    });
+  });
+
+  describe('clearRelationships', () => {
+    it('should clear all relationships', () => {
+      const relationship: FormRelationship = {
+        originalFormId: 'form1',
+        duplicatedFormId: 'form1-copy',
+        duplicatedFormName: 'Form 1 Copy',
+        relationshipType: 'duplicate',
+        createdAt: '2023-01-01T00:00:00Z',
+        createdBy: 'user123'
+      };
+
+      tracker.addRelationship(relationship);
+      expect(tracker.getRelationships('form1')).toHaveLength(1);
+
+      tracker.clearRelationships();
+      expect(tracker.getRelationships('form1')).toEqual([]);
+      expect(tracker.getAllRelationships().size).toBe(0);
     });
   });
 }); 

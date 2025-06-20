@@ -1268,4 +1268,47 @@ export class BulkDuplicationEngine {
   private async delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
+}
+
+// ===========================
+// MCP Tool Wrapper
+// ===========================
+
+/**
+ * MCP-compatible Tool that exposes the bulk duplication engine
+ * to the wider TaskMaster / MCP ecosystem. The execute method is
+ * intentionally thin – validation, retrieval and duplication work
+ * is all delegated to the underlying services.
+ */
+export class BulkFormDuplicationTool implements Tool<unknown, BulkFormDuplicationResult> {
+  public readonly name = 'bulk_duplicate_forms';
+  public readonly description = 'Duplicate one or more Tally forms in bulk, applying naming patterns and optional modifications.';
+
+  private relationshipTracker = new FormRelationshipTracker();
+
+  async execute(args: unknown): Promise<BulkFormDuplicationResult> {
+    // Validate input first -------------------------------------------------
+    const validation = BulkDuplicationValidator.validateInput(args);
+    if (!validation.success) {
+      throw new Error(`Invalid input: ${validation.error}`);
+    }
+
+    const input = validation.data!;
+
+    // Construct engine with simple console progress callback --------------
+    const engine = new BulkDuplicationEngine({}, this.relationshipTracker, (progress) => {
+      if (input.progressTracking?.enableProgressUpdates) {
+        // For now we just output to console; the surrounding MCP server can
+        // intercept console logs or adapt this callback for SSE broadcast.
+        const msg = progress.message ? ` | ${progress.message}` : '';
+        // eslint-disable-next-line no-console
+        console.log(`[BulkDuplicateProgress] ${progress.completed}/${progress.total}${msg}`);
+      }
+    });
+
+    // Run duplication ------------------------------------------------------
+    const result = await engine.duplicateForms(input, 'system');
+
+    return result;
+  }
 } 
