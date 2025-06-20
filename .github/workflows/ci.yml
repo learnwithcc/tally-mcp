@@ -1,5 +1,11 @@
 name: CI
 
+# Added explicit permissions so dorny/test-reporter can create check runs / annotations
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
 on:
   push:
     branches: [ main ]
