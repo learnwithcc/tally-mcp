@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { 
   FormConfig, 
   QuestionConfig, 
@@ -697,17 +698,19 @@ export class FormModificationOperations {
   }
 
   /**
-   * Generate the next available field ID
+   * Generate a unique field ID using UUID
+   * This ensures stable, unique identifiers across all form fields
    */
   private generateNextFieldId(formConfig: FormConfig): string {
     const existingIds = new Set(formConfig.questions.map(q => q.id).filter(id => id));
-    let nextId = `question_${existingIds.size + 1}`;
-    while (existingIds.has(nextId)) {
-      const parts = nextId.split('_');
-      const currentNumber = parseInt(parts[1] || '1');
-      nextId = `question_${currentNumber + 1}`;
+    
+    // Generate a new UUID and ensure it's unique (extremely unlikely collision)
+    let newId = randomUUID();
+    while (existingIds.has(newId)) {
+      newId = randomUUID();
     }
-    return nextId;
+    
+    return newId;
   }
 
   /**
