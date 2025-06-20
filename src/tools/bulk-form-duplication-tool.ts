@@ -1172,17 +1172,97 @@ export class BulkDuplicationEngine {
     newTitle: string,
     modifications?: BulkModifications
   ): Partial<FormConfig> {
-    // For now we only copy the title & metadata. Field-level modifications will be added later.
+    // Start with a shallow clone from the source form where possible
     const baseConfig: Partial<FormConfig> = {
       title: newTitle,
-      questions: [],
+      description: source.originalForm.description,
+      metadata: {
+        ...(source.originalForm as any).metadata,
+      },
+      questions: [], // TODO: mapping blocks ➜ questions (out-of-scope for minimal support)
       settings: {
-        submissionBehavior: SubmissionBehavior.MESSAGE
-      }
-    } as any;
+        submissionBehavior: SubmissionBehavior.MESSAGE,
+      },
+    };
 
-    // TODO: Apply modifications (handled in task 39.4)
+    if (modifications) {
+      this.applyBulkModifications(baseConfig, modifications);
+    }
+
     return baseConfig;
+  }
+
+  /**
+   * Apply bulk modifications (title, fields, metadata) to a FormConfig instance.
+   * This intentionally supports only a subset of all possible operations – enough
+   * for functional testing of Task 39.4. More advanced logic (e.g. full field
+   * mapping from Tally blocks) can be layered on later without breaking the API.
+   */
+  private applyBulkModifications(
+    config: Partial<FormConfig>,
+    mods: BulkModifications
+  ): void {
+    // Title modifications --------------------------------------------------
+    if (mods.titleModifications) {
+      let title = config.title ?? '';
+
+      const { prepend, append, replace } = mods.titleModifications;
+
+      if (prepend) {
+        title = `${prepend}${title}`;
+      }
+
+      if (append) {
+        title = `${title}${append}`;
+      }
+
+      if (replace) {
+        const { search, replacement } = replace;
+        title = title.split(search).join(replacement);
+      }
+
+      config.title = title;
+    }
+
+    // Metadata changes -----------------------------------------------------
+    if (mods.metadataChanges) {
+      config.metadata = {
+        ...(config.metadata || {}),
+        ...mods.metadataChanges,
+      };
+    }
+
+    // Field modifications --------------------------------------------------
+    // This minimal implementation only works if questions[] is populated.
+    if (mods.fieldModifications && mods.fieldModifications.length > 0 && Array.isArray(config.questions)) {
+      mods.fieldModifications.forEach((fm) => {
+        switch (fm.action) {
+          case 'add':
+            if (fm.newValue) {
+              const index = fm.targetIndex !== undefined ? fm.targetIndex : config.questions!.length;
+              (config.questions as any[]).splice(index, 0, fm.newValue);
+            }
+            break;
+          case 'remove':
+            (config.questions as any[]).splice(
+              (config.questions as any[]).findIndex((q: any) => q.id === fm.fieldId),
+              1
+            );
+            break;
+          case 'modify':
+            const idx = (config.questions as any[]).findIndex((q: any) => q.id === fm.fieldId);
+            if (idx >= 0 && fm.newValue) {
+              (config.questions as any[])[idx] = {
+                ...(config.questions as any[])[idx],
+                ...fm.newValue,
+              };
+            }
+            break;
+          default:
+            break;
+        }
+      });
+    }
   }
 
   private async delay(ms: number): Promise<void> {
