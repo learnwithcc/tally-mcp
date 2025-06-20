@@ -5,6 +5,10 @@
  */
 
 import { MCPServer, ServerState, LogLevel, ErrorCategory, LoggerConfig } from '../server';
+import { FormCreationTool } from '../tools';
+import { TallyApiClientConfig } from '../services/TallyApiClient';
+
+jest.mock('../tools');
 
 describe('Error Handling and Logging Infrastructure', () => {
   let server: MCPServer;
@@ -23,10 +27,17 @@ describe('Error Handling and Logging Infrastructure', () => {
       sensitiveFields: ['password', 'token', 'key', 'secret', 'authorization', 'cookie'],
     };
     
+    const dummyClientConfig: TallyApiClientConfig = {
+      accessToken: 'test-key',
+    };
+
     server = new MCPServer({ 
       port: testPort, 
       debug: true,
       logger: loggerConfig,
+      tools: {
+        form_creation_tool: new FormCreationTool(dummyClientConfig),
+      },
     });
   });
 
@@ -37,11 +48,11 @@ describe('Error Handling and Logging Infrastructure', () => {
   });
 
   describe('Structured Logging', () => {
-    test('should support different log levels', () => {
+    test('should support different log levels', async () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       
       // The log method is private but we can test through initialization
-      server.initialize();
+      await server.initialize();
       
       // Verify console.log was called (indicates logging is working)
       expect(consoleSpy).toHaveBeenCalled();

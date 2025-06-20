@@ -139,6 +139,12 @@ export interface MCPServerConfig {
   logger?: Partial<LoggerConfig>;
   /** Server capabilities */
   capabilities?: ServerCapabilities;
+  /** Tools available on the server */
+  tools?: any;
+  /** Tally API Key */
+  tallyApiKey?: string;
+  /** Enable Real Tally API */
+  enableRealTallyAPI?: boolean;
 }
 
 /**

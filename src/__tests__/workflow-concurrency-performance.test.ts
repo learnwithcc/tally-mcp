@@ -4,6 +4,9 @@
  */
 
 import { WorkflowIntegrationTestSuite } from './WorkflowIntegrationTestSuite';
+import axios from 'axios';
+
+jest.mock('axios');
 
 describe('Concurrency and Performance Integration Tests', () => {
   let testSuite: WorkflowIntegrationTestSuite;
@@ -192,7 +195,8 @@ describe('Concurrency and Performance Integration Tests', () => {
       const request = testData.formCreationRequest('Rollback Test');
 
       // Simulate a failure after the first step (e.g., NLP service fails)
-      (testSuite as any).mockedAxios.post.mockImplementationOnce(async () => {
+      const mockedAxios = axios as jest.Mocked<typeof axios>;
+      mockedAxios.post.mockImplementationOnce(async () => {
         // Simulate a successful first part of a multi-step process
         return { status: 200, data: { step1: 'complete' } };
       }).mockImplementationOnce(async () => {
