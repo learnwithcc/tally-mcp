@@ -1,247 +1,204 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="96" failures="6" errors="0" time="18.015">
-  <testsuite name="MCP Capability Negotiation" errors="0" failures="6" skipped="0" timestamp="2025-06-20T23:08:47" time="16.048" tests="12">
-    <testcase classname="MCP Capability Negotiation Protocol Version Negotiation should accept matching protocol version" name="MCP Capability Negotiation Protocol Version Negotiation should accept matching protocol version" time="0.04">
+<testsuites name="jest tests" tests="92" failures="0" errors="0" time="1.584">
+  <testsuite name="Message Delivery and Formatting Verification" errors="0" failures="0" skipped="14" timestamp="2025-06-20T23:29:11" time="0.706" tests="14">
+    <testcase classname="Message Delivery and Formatting Verification SSE Message Format Validation should establish SSE connection successfully" name="Message Delivery and Formatting Verification SSE Message Format Validation should establish SSE connection successfully" time="0">
+      <skipped/>
     </testcase>
-    <testcase classname="MCP Capability Negotiation Protocol Version Negotiation should reject unsupported protocol version" name="MCP Capability Negotiation Protocol Version Negotiation should reject unsupported protocol version" time="0.011">
+    <testcase classname="Message Delivery and Formatting Verification SSE Message Format Validation should format MCP response messages correctly" name="Message Delivery and Formatting Verification SSE Message Format Validation should format MCP response messages correctly" time="0">
+      <skipped/>
     </testcase>
-    <testcase classname="MCP Capability Negotiation Protocol Version Negotiation should handle missing protocol version" name="MCP Capability Negotiation Protocol Version Negotiation should handle missing protocol version" time="0.007">
+    <testcase classname="Message Delivery and Formatting Verification SSE Message Format Validation should handle various MCP method calls" name="Message Delivery and Formatting Verification SSE Message Format Validation should handle various MCP method calls" time="0">
+      <skipped/>
     </testcase>
-    <testcase classname="MCP Capability Negotiation Capability Discovery should advertise supported capabilities in SSE connection" name="MCP Capability Negotiation Capability Discovery should advertise supported capabilities in SSE connection" time="5.012">
-      <failure>Error: Timeout waiting for event connection
-    at Timeout._onTimeout (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/capability-negotiation.test.ts:95:16)
-    at listOnTimeout (node:internal/timers:581:17)
-    at processTimers (node:internal/timers:519:7)</failure>
+    <testcase classname="Message Delivery and Formatting Verification SSE Message Format Validation should format error messages properly" name="Message Delivery and Formatting Verification SSE Message Format Validation should format error messages properly" time="0">
+      <skipped/>
     </testcase>
-    <testcase classname="MCP Capability Negotiation Capability Discovery should include full capability details in initialization response" name="MCP Capability Negotiation Capability Discovery should include full capability details in initialization response" time="0.013">
-      <failure>Error: Unhandled error. (Error: SSE connection error
-    at EventSource.eventSource.onerror (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/capability-negotiation.test.ts:49:23)
-    at EventSource.emit (node:events:524:28)
-    at _emit (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:287:17)
-    at onConnectionClosed (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:58:5)
-    at IncomingMessage.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:187:9)
-    at IncomingMessage.emit (node:events:536:35)
-    at endReadableNT (node:internal/streams/readable:1698:12)
-    at processTicksAndRejections (node:internal/process/task_queues:82:21) {
-  event: Event { type: &apos;error&apos;, message: undefined }
-})
-    at EventEmitter.emit (node:events:513:17)
-    at EventSource.eventSource.onerror (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/capability-negotiation.test.ts:52:27)
-    at EventSource.emit (node:events:524:28)
-    at _emit (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:287:17)
-    at onConnectionClosed (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:58:5)
-    at IncomingMessage.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:187:9)
-    at IncomingMessage.emit (node:events:536:35)
-    at endReadableNT (node:internal/streams/readable:1698:12)
-    at processTicksAndRejections (node:internal/process/task_queues:82:21)</failure>
+    <testcase classname="Message Delivery and Formatting Verification Message Timing and Delivery should deliver messages within acceptable timeframe" name="Message Delivery and Formatting Verification Message Timing and Delivery should deliver messages within acceptable timeframe" time="0">
+      <skipped/>
     </testcase>
-    <testcase classname="MCP Capability Negotiation Capability Negotiation should handle client requesting unsupported capability" name="MCP Capability Negotiation Capability Negotiation should handle client requesting unsupported capability" time="0.008">
+    <testcase classname="Message Delivery and Formatting Verification Message Timing and Delivery should maintain message order for sequential requests" name="Message Delivery and Formatting Verification Message Timing and Delivery should maintain message order for sequential requests" time="0">
+      <skipped/>
     </testcase>
-    <testcase classname="MCP Capability Negotiation Capability Negotiation should respect client capability preferences" name="MCP Capability Negotiation Capability Negotiation should respect client capability preferences" time="0.009">
+    <testcase classname="Message Delivery and Formatting Verification Message Timing and Delivery should handle concurrent message delivery" name="Message Delivery and Formatting Verification Message Timing and Delivery should handle concurrent message delivery" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="Message Delivery and Formatting Verification Connection Stability should maintain connection stability over time" name="Message Delivery and Formatting Verification Connection Stability should maintain connection stability over time" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="Message Delivery and Formatting Verification Error Handling and Edge Cases should handle malformed JSON in requests gracefully" name="Message Delivery and Formatting Verification Error Handling and Edge Cases should handle malformed JSON in requests gracefully" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="Message Delivery and Formatting Verification Error Handling and Edge Cases should handle malformed JSON in responses" name="Message Delivery and Formatting Verification Error Handling and Edge Cases should handle malformed JSON in responses" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="Message Delivery and Formatting Verification Error Handling and Edge Cases should handle requests without required fields" name="Message Delivery and Formatting Verification Error Handling and Edge Cases should handle requests without required fields" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="Message Delivery and Formatting Verification Error Handling and Edge Cases should handle non-existent methods" name="Message Delivery and Formatting Verification Error Handling and Edge Cases should handle non-existent methods" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="Message Delivery and Formatting Verification Message Content Validation should handle special characters and encoding" name="Message Delivery and Formatting Verification Message Content Validation should handle special characters and encoding" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="Message Delivery and Formatting Verification Message Content Validation should validate JSON-RPC message structure compliance" name="Message Delivery and Formatting Verification Message Content Validation should validate JSON-RPC message structure compliance" time="0">
+      <skipped/>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCP Capability Negotiation" errors="0" failures="0" skipped="5" timestamp="2025-06-20T23:29:12" time="0.44" tests="12">
+    <testcase classname="MCP Capability Negotiation Protocol Version Negotiation should accept matching protocol version" name="MCP Capability Negotiation Protocol Version Negotiation should accept matching protocol version" time="0.039">
+    </testcase>
+    <testcase classname="MCP Capability Negotiation Protocol Version Negotiation should reject unsupported protocol version" name="MCP Capability Negotiation Protocol Version Negotiation should reject unsupported protocol version" time="0.008">
+    </testcase>
+    <testcase classname="MCP Capability Negotiation Protocol Version Negotiation should handle missing protocol version" name="MCP Capability Negotiation Protocol Version Negotiation should handle missing protocol version" time="0.011">
+    </testcase>
+    <testcase classname="MCP Capability Negotiation Capability Discovery should advertise supported capabilities in SSE connection" name="MCP Capability Negotiation Capability Discovery should advertise supported capabilities in SSE connection" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="MCP Capability Negotiation Capability Discovery should include full capability details in initialization response" name="MCP Capability Negotiation Capability Discovery should include full capability details in initialization response" time="0.009">
+    </testcase>
+    <testcase classname="MCP Capability Negotiation Capability Negotiation should handle client requesting unsupported capability" name="MCP Capability Negotiation Capability Negotiation should handle client requesting unsupported capability" time="0.007">
+    </testcase>
+    <testcase classname="MCP Capability Negotiation Capability Negotiation should respect client capability preferences" name="MCP Capability Negotiation Capability Negotiation should respect client capability preferences" time="0.008">
     </testcase>
     <testcase classname="MCP Capability Negotiation Capability Negotiation should handle missing client capabilities gracefully" name="MCP Capability Negotiation Capability Negotiation should handle missing client capabilities gracefully" time="0.006">
     </testcase>
-    <testcase classname="MCP Capability Negotiation Capability Updates should notify clients when tool list changes" name="MCP Capability Negotiation Capability Updates should notify clients when tool list changes" time="5.011">
-      <failure>Error: Timeout waiting for event mcp-response
-    at Timeout._onTimeout (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/capability-negotiation.test.ts:95:16)
-    at listOnTimeout (node:internal/timers:581:17)
-    at processTimers (node:internal/timers:519:7)</failure>
+    <testcase classname="MCP Capability Negotiation Capability Updates should notify clients when tool list changes" name="MCP Capability Negotiation Capability Updates should notify clients when tool list changes" time="0">
+      <skipped/>
     </testcase>
-    <testcase classname="MCP Capability Negotiation Capability Updates should maintain capability state across reconnections" name="MCP Capability Negotiation Capability Updates should maintain capability state across reconnections" time="5.02">
-      <failure>Error: Unhandled error. (Error: SSE connection error
-    at EventSource.eventSource.onerror (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/capability-negotiation.test.ts:49:23)
-    at EventSource.emit (node:events:524:28)
-    at _emit (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:287:17)
-    at onConnectionClosed (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:58:5)
-    at IncomingMessage.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:187:9)
-    at IncomingMessage.emit (node:events:536:35)
-    at endReadableNT (node:internal/streams/readable:1698:12)
-    at processTicksAndRejections (node:internal/process/task_queues:82:21) {
-  event: Event { type: &apos;error&apos;, message: undefined }
-})
-    at EventEmitter.emit (node:events:513:17)
-    at EventSource.eventSource.onerror (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/capability-negotiation.test.ts:52:27)
-    at EventSource.emit (node:events:524:28)
-    at _emit (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:287:17)
-    at onConnectionClosed (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:58:5)
-    at IncomingMessage.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:187:9)
-    at IncomingMessage.emit (node:events:536:35)
-    at endReadableNT (node:internal/streams/readable:1698:12)
-    at processTicksAndRejections (node:internal/process/task_queues:82:21)</failure>
-      <failure>Error: Timeout waiting for event connection
-    at Timeout._onTimeout (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/capability-negotiation.test.ts:95:16)
-    at listOnTimeout (node:internal/timers:581:17)
-    at processTimers (node:internal/timers:519:7)</failure>
+    <testcase classname="MCP Capability Negotiation Capability Updates should maintain capability state across reconnections" name="MCP Capability Negotiation Capability Updates should maintain capability state across reconnections" time="0">
+      <skipped/>
     </testcase>
-    <testcase classname="MCP Capability Negotiation Error Handling should handle malformed capability objects" name="MCP Capability Negotiation Error Handling should handle malformed capability objects" time="0.023">
-      <failure>Error: Unhandled error. (Error: SSE connection error
-    at EventSource.eventSource.onerror (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/capability-negotiation.test.ts:49:23)
-    at EventSource.emit (node:events:524:28)
-    at _emit (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:287:17)
-    at onConnectionClosed (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:58:5)
-    at IncomingMessage.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:187:9)
-    at IncomingMessage.emit (node:events:536:35)
-    at endReadableNT (node:internal/streams/readable:1698:12)
-    at processTicksAndRejections (node:internal/process/task_queues:82:21) {
-  event: Event { type: &apos;error&apos;, message: undefined }
-})
-    at EventEmitter.emit (node:events:513:17)
-    at EventSource.eventSource.onerror (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/capability-negotiation.test.ts:52:27)
-    at EventSource.emit (node:events:524:28)
-    at _emit (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:287:17)
-    at onConnectionClosed (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:58:5)
-    at IncomingMessage.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/node_modules/eventsource/lib/eventsource.js:187:9)
-    at IncomingMessage.emit (node:events:536:35)
-    at endReadableNT (node:internal/streams/readable:1698:12)
-    at processTicksAndRejections (node:internal/process/task_queues:82:21)</failure>
-      <failure>Error: expect(received).toBeDefined()
-
-Received: undefined
-    at Object.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/capability-negotiation.test.ts:319:30)
-    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    <testcase classname="MCP Capability Negotiation Error Handling should handle malformed capability objects" name="MCP Capability Negotiation Error Handling should handle malformed capability objects" time="0">
+      <skipped/>
     </testcase>
-    <testcase classname="MCP Capability Negotiation Error Handling should handle invalid capability values" name="MCP Capability Negotiation Error Handling should handle invalid capability values" time="0.01">
-      <failure>Error: expect(received).toBeDefined()
-
-Received: undefined
-    at Object.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/capability-negotiation.test.ts:341:30)
-    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    <testcase classname="MCP Capability Negotiation Error Handling should handle invalid capability values" name="MCP Capability Negotiation Error Handling should handle invalid capability values" time="0">
+      <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="Health Check Endpoint and Monitoring" errors="0" failures="0" skipped="0" timestamp="2025-06-20T23:09:03" time="0.573" tests="13">
-    <testcase classname="Health Check Endpoint and Monitoring Health Metrics Collection should collect comprehensive health metrics" name="Health Check Endpoint and Monitoring Health Metrics Collection should collect comprehensive health metrics" time="0.006">
+  <testsuite name="SchemaValidator" errors="0" failures="0" skipped="0" timestamp="2025-06-20T23:29:12" time="0.15" tests="43">
+    <testcase classname="SchemaValidator constructor should create instance with default config" name="SchemaValidator constructor should create instance with default config" time="0.001">
     </testcase>
-    <testcase classname="Health Check Endpoint and Monitoring Health Metrics Collection should track uptime correctly" name="Health Check Endpoint and Monitoring Health Metrics Collection should track uptime correctly" time="0.103">
+    <testcase classname="SchemaValidator constructor should create instance with custom config" name="SchemaValidator constructor should create instance with custom config" time="0.001">
     </testcase>
-    <testcase classname="Health Check Endpoint and Monitoring Health Metrics Collection should report healthy status for running server" name="Health Check Endpoint and Monitoring Health Metrics Collection should report healthy status for running server" time="0.003">
+    <testcase classname="SchemaValidator validateSchema should validate a simple valid schema" name="SchemaValidator validateSchema should validate a simple valid schema" time="0.001">
     </testcase>
-    <testcase classname="Health Check Endpoint and Monitoring Health Check Endpoint should respond to /health endpoint with basic health status" name="Health Check Endpoint and Monitoring Health Check Endpoint should respond to /health endpoint with basic health status" time="0.012">
+    <testcase classname="SchemaValidator validateSchema should validate a complex valid object schema" name="SchemaValidator validateSchema should validate a complex valid object schema" time="0.001">
     </testcase>
-    <testcase classname="Health Check Endpoint and Monitoring Health Check Endpoint should provide comprehensive health metrics via getHealthMetrics method" name="Health Check Endpoint and Monitoring Health Check Endpoint should provide comprehensive health metrics via getHealthMetrics method" time="0.003">
+    <testcase classname="SchemaValidator validateSchema should validate array schema" name="SchemaValidator validateSchema should validate array schema" time="0">
     </testcase>
-    <testcase classname="Health Check Endpoint and Monitoring Health Check Endpoint should return 503 status when server is unhealthy" name="Health Check Endpoint and Monitoring Health Check Endpoint should return 503 status when server is unhealthy" time="0.009">
+    <testcase classname="SchemaValidator validateSchema should return validation summary" name="SchemaValidator validateSchema should return validation summary" time="0.001">
     </testcase>
-    <testcase classname="Health Check Endpoint and Monitoring Health Check Endpoint should handle health check errors gracefully" name="Health Check Endpoint and Monitoring Health Check Endpoint should handle health check errors gracefully" time="0.006">
+    <testcase classname="SchemaValidator basic structure validation should error when type is missing in strict mode" name="SchemaValidator basic structure validation should error when type is missing in strict mode" time="0.001">
     </testcase>
-    <testcase classname="Health Check Endpoint and Monitoring Request Statistics Tracking should track request counts" name="Health Check Endpoint and Monitoring Request Statistics Tracking should track request counts" time="0.011">
+    <testcase classname="SchemaValidator basic structure validation should not error when type is missing in non-strict mode" name="SchemaValidator basic structure validation should not error when type is missing in non-strict mode" time="0.001">
     </testcase>
-    <testcase classname="Health Check Endpoint and Monitoring Request Statistics Tracking should track error counts" name="Health Check Endpoint and Monitoring Request Statistics Tracking should track error counts" time="0.113">
+    <testcase classname="SchemaValidator basic structure validation should error for invalid schema type" name="SchemaValidator basic structure validation should error for invalid schema type" time="0">
     </testcase>
-    <testcase classname="Health Check Endpoint and Monitoring Backward Compatibility should maintain basic info endpoint at /" name="Health Check Endpoint and Monitoring Backward Compatibility should maintain basic info endpoint at /" time="0.008">
+    <testcase classname="SchemaValidator basic structure validation should accept all valid JSON Schema types" name="SchemaValidator basic structure validation should accept all valid JSON Schema types" time="0.001">
     </testcase>
-    <testcase classname="Health Check Endpoint and Monitoring System Resource Monitoring should provide valid memory statistics" name="Health Check Endpoint and Monitoring System Resource Monitoring should provide valid memory statistics" time="0.002">
+    <testcase classname="SchemaValidator object schema validation should warn when object schema has no properties in strict mode" name="SchemaValidator object schema validation should warn when object schema has no properties in strict mode" time="0">
     </testcase>
-    <testcase classname="Health Check Endpoint and Monitoring System Resource Monitoring should provide valid CPU statistics" name="Health Check Endpoint and Monitoring System Resource Monitoring should provide valid CPU statistics" time="0.003">
+    <testcase classname="SchemaValidator object schema validation should not warn when object schema has no properties in non-strict mode" name="SchemaValidator object schema validation should not warn when object schema has no properties in non-strict mode" time="0.001">
     </testcase>
-    <testcase classname="Health Check Endpoint and Monitoring System Resource Monitoring should provide valid system information" name="Health Check Endpoint and Monitoring System Resource Monitoring should provide valid system information" time="0.003">
+    <testcase classname="SchemaValidator object schema validation should error when required is not an array" name="SchemaValidator object schema validation should error when required is not an array" time="0">
     </testcase>
-  </testsuite>
-  <testsuite name="Error Scenario Integration Tests" errors="0" failures="0" skipped="0" timestamp="2025-06-20T23:09:03" time="0.518" tests="25">
-    <testcase classname="Error Scenario Integration Tests Tally API Error Responses (4xx/5xx) should handle 400 Bad Request from Tally API" name="Error Scenario Integration Tests Tally API Error Responses (4xx/5xx) should handle 400 Bad Request from Tally API" time="0.016">
+    <testcase classname="SchemaValidator object schema validation should error when required item is not a string" name="SchemaValidator object schema validation should error when required item is not a string" time="0.002">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Tally API Error Responses (4xx/5xx) should handle 401 Unauthorized from Tally API" name="Error Scenario Integration Tests Tally API Error Responses (4xx/5xx) should handle 401 Unauthorized from Tally API" time="0.011">
+    <testcase classname="SchemaValidator object schema validation should validate valid required array" name="SchemaValidator object schema validation should validate valid required array" time="0.001">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Tally API Error Responses (4xx/5xx) should handle 403 Forbidden from Tally API" name="Error Scenario Integration Tests Tally API Error Responses (4xx/5xx) should handle 403 Forbidden from Tally API" time="0.006">
+    <testcase classname="SchemaValidator array schema validation should warn when array schema has no items in strict mode" name="SchemaValidator array schema validation should warn when array schema has no items in strict mode" time="0">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Tally API Error Responses (4xx/5xx) should handle 404 Not Found from Tally API" name="Error Scenario Integration Tests Tally API Error Responses (4xx/5xx) should handle 404 Not Found from Tally API" time="0.008">
+    <testcase classname="SchemaValidator array schema validation should not warn when array schema has no items in non-strict mode" name="SchemaValidator array schema validation should not warn when array schema has no items in non-strict mode" time="0.001">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Tally API Error Responses (4xx/5xx) should handle 429 Rate Limit from Tally API" name="Error Scenario Integration Tests Tally API Error Responses (4xx/5xx) should handle 429 Rate Limit from Tally API" time="0.007">
+    <testcase classname="SchemaValidator array schema validation should validate array schema with items" name="SchemaValidator array schema validation should validate array schema with items" time="0">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Tally API Error Responses (4xx/5xx) should handle 500 Internal Server Error from Tally API" name="Error Scenario Integration Tests Tally API Error Responses (4xx/5xx) should handle 500 Internal Server Error from Tally API" time="0.007">
+    <testcase classname="SchemaValidator JSON Schema draft validation should warn for unsupported schema version" name="SchemaValidator JSON Schema draft validation should warn for unsupported schema version" time="0.001">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Tally API Error Responses (4xx/5xx) should handle 503 Service Unavailable from Tally API" name="Error Scenario Integration Tests Tally API Error Responses (4xx/5xx) should handle 503 Service Unavailable from Tally API" time="0.006">
+    <testcase classname="SchemaValidator JSON Schema draft validation should not warn for supported schema version" name="SchemaValidator JSON Schema draft validation should not warn for supported schema version" time="0">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Network Timeout Scenarios should handle network timeout during form creation" name="Error Scenario Integration Tests Network Timeout Scenarios should handle network timeout during form creation" time="0.007">
+    <testcase classname="SchemaValidator JSON Schema draft validation should warn for deprecated keywords" name="SchemaValidator JSON Schema draft validation should warn for deprecated keywords" time="0">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Network Timeout Scenarios should handle timeout during form modification" name="Error Scenario Integration Tests Network Timeout Scenarios should handle timeout during form modification" time="0.005">
+    <testcase classname="SchemaValidator JSON Schema draft validation should skip draft validation when disabled" name="SchemaValidator JSON Schema draft validation should skip draft validation when disabled" time="0.001">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Network Timeout Scenarios should handle timeout during submission retrieval" name="Error Scenario Integration Tests Network Timeout Scenarios should handle timeout during submission retrieval" time="0.003">
+    <testcase classname="SchemaValidator schema depth validation should error when schema exceeds max depth" name="SchemaValidator schema depth validation should error when schema exceeds max depth" time="0">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Authentication Failure Scenarios should handle expired API key" name="Error Scenario Integration Tests Authentication Failure Scenarios should handle expired API key" time="0.008">
+    <testcase classname="SchemaValidator schema depth validation should allow custom max depth" name="SchemaValidator schema depth validation should allow custom max depth" time="0">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Authentication Failure Scenarios should handle invalid API key format" name="Error Scenario Integration Tests Authentication Failure Scenarios should handle invalid API key format" time="0.006">
+    <testcase classname="SchemaValidator schema depth validation should skip depth validation when maxSchemaDepth is undefined" name="SchemaValidator schema depth validation should skip depth validation when maxSchemaDepth is undefined" time="0.001">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Authentication Failure Scenarios should handle missing API key" name="Error Scenario Integration Tests Authentication Failure Scenarios should handle missing API key" time="0.007">
+    <testcase classname="SchemaValidator type-specific validation string schema validation should error for negative minLength" name="SchemaValidator type-specific validation string schema validation should error for negative minLength" time="0">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Malformed Request Scenarios should handle invalid JSON-RPC format" name="Error Scenario Integration Tests Malformed Request Scenarios should handle invalid JSON-RPC format" time="0.007">
+    <testcase classname="SchemaValidator type-specific validation string schema validation should error for negative maxLength" name="SchemaValidator type-specific validation string schema validation should error for negative maxLength" time="0">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Malformed Request Scenarios should handle missing required parameters" name="Error Scenario Integration Tests Malformed Request Scenarios should handle missing required parameters" time="0.007">
+    <testcase classname="SchemaValidator type-specific validation string schema validation should error when minLength &gt; maxLength" name="SchemaValidator type-specific validation string schema validation should error when minLength &gt; maxLength" time="0.001">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Malformed Request Scenarios should handle invalid tool name" name="Error Scenario Integration Tests Malformed Request Scenarios should handle invalid tool name" time="0.006">
+    <testcase classname="SchemaValidator type-specific validation string schema validation should validate valid string constraints" name="SchemaValidator type-specific validation string schema validation should validate valid string constraints" time="0">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Malformed Request Scenarios should handle invalid method name" name="Error Scenario Integration Tests Malformed Request Scenarios should handle invalid method name" time="0.007">
+    <testcase classname="SchemaValidator type-specific validation numeric schema validation should error when minimum &gt; maximum" name="SchemaValidator type-specific validation numeric schema validation should error when minimum &gt; maximum" time="0.001">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Malformed Request Scenarios should handle corrupted data payload" name="Error Scenario Integration Tests Malformed Request Scenarios should handle corrupted data payload" time="0.006">
+    <testcase classname="SchemaValidator type-specific validation numeric schema validation should error when exclusiveMinimum &gt;= exclusiveMaximum" name="SchemaValidator type-specific validation numeric schema validation should error when exclusiveMinimum &gt;= exclusiveMaximum" time="0">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Error Propagation and Transformation should properly transform Tally API errors to MCP format" name="Error Scenario Integration Tests Error Propagation and Transformation should properly transform Tally API errors to MCP format" time="0.008">
+    <testcase classname="SchemaValidator type-specific validation numeric schema validation should error for negative multipleOf" name="SchemaValidator type-specific validation numeric schema validation should error for negative multipleOf" time="0">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Error Propagation and Transformation should include proper error codes and messages" name="Error Scenario Integration Tests Error Propagation and Transformation should include proper error codes and messages" time="0.005">
+    <testcase classname="SchemaValidator type-specific validation numeric schema validation should validate valid numeric constraints" name="SchemaValidator type-specific validation numeric schema validation should validate valid numeric constraints" time="0.001">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Error Propagation and Transformation should preserve error context and details" name="Error Scenario Integration Tests Error Propagation and Transformation should preserve error context and details" time="0.007">
+    <testcase classname="SchemaValidator type-specific validation object schema validation should error for negative minProperties" name="SchemaValidator type-specific validation object schema validation should error for negative minProperties" time="0">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Error Logging and Monitoring should log errors with sufficient detail for debugging" name="Error Scenario Integration Tests Error Logging and Monitoring should log errors with sufficient detail for debugging" time="0.003">
+    <testcase classname="SchemaValidator type-specific validation object schema validation should error for negative maxProperties" name="SchemaValidator type-specific validation object schema validation should error for negative maxProperties" time="0.002">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Error Logging and Monitoring should capture error timing and performance metrics" name="Error Scenario Integration Tests Error Logging and Monitoring should capture error timing and performance metrics" time="0.007">
+    <testcase classname="SchemaValidator type-specific validation object schema validation should error when minProperties &gt; maxProperties" name="SchemaValidator type-specific validation object schema validation should error when minProperties &gt; maxProperties" time="0">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Fallback and Recovery Mechanisms should handle graceful degradation when possible" name="Error Scenario Integration Tests Fallback and Recovery Mechanisms should handle graceful degradation when possible" time="0.006">
+    <testcase classname="SchemaValidator type-specific validation array schema validation should error for negative minItems" name="SchemaValidator type-specific validation array schema validation should error for negative minItems" time="0.001">
     </testcase>
-    <testcase classname="Error Scenario Integration Tests Fallback and Recovery Mechanisms should provide meaningful error messages to users" name="Error Scenario Integration Tests Fallback and Recovery Mechanisms should provide meaningful error messages to users" time="0.006">
+    <testcase classname="SchemaValidator type-specific validation array schema validation should error for negative maxItems" name="SchemaValidator type-specific validation array schema validation should error for negative maxItems" time="0">
     </testcase>
-  </testsuite>
-  <testsuite name="Logging and Monitoring Integration Tests" errors="0" failures="0" skipped="0" timestamp="2025-06-20T23:09:04" time="0.403" tests="10">
-    <testcase classname="Logging and Monitoring Integration Tests Workflow Execution Logging should produce detailed logs for successful workflow execution" name="Logging and Monitoring Integration Tests Workflow Execution Logging should produce detailed logs for successful workflow execution" time="0.012">
+    <testcase classname="SchemaValidator type-specific validation array schema validation should error when minItems &gt; maxItems" name="SchemaValidator type-specific validation array schema validation should error when minItems &gt; maxItems" time="0">
     </testcase>
-    <testcase classname="Logging and Monitoring Integration Tests Workflow Execution Logging should produce detailed logs for failed workflow execution" name="Logging and Monitoring Integration Tests Workflow Execution Logging should produce detailed logs for failed workflow execution" time="0.009">
+    <testcase classname="SchemaValidator edge cases should handle empty schema object" name="SchemaValidator edge cases should handle empty schema object" time="0">
     </testcase>
-    <testcase classname="Logging and Monitoring Integration Tests Workflow Execution Logging should log data transformation stages correctly" name="Logging and Monitoring Integration Tests Workflow Execution Logging should log data transformation stages correctly" time="0.006">
+    <testcase classname="SchemaValidator edge cases should handle null schema" name="SchemaValidator edge cases should handle null schema" time="0">
     </testcase>
-    <testcase classname="Logging and Monitoring Integration Tests Workflow Execution Logging should log performance metrics for each workflow" name="Logging and Monitoring Integration Tests Workflow Execution Logging should log performance metrics for each workflow" time="0.008">
+    <testcase classname="SchemaValidator edge cases should handle schema with circular references" name="SchemaValidator edge cases should handle schema with circular references" time="0.001">
     </testcase>
-    <testcase classname="Logging and Monitoring Integration Tests Monitoring Outputs Validation should capture and output execution logs when debug is enabled" name="Logging and Monitoring Integration Tests Monitoring Outputs Validation should capture and output execution logs when debug is enabled" time="0.007">
-    </testcase>
-    <testcase classname="Logging and Monitoring Integration Tests Monitoring Outputs Validation should not output execution logs when debug is disabled" name="Logging and Monitoring Integration Tests Monitoring Outputs Validation should not output execution logs when debug is disabled" time="0.01">
-    </testcase>
-    <testcase classname="Logging and Monitoring Integration Tests Monitoring Outputs Validation should provide comprehensive execution statistics" name="Logging and Monitoring Integration Tests Monitoring Outputs Validation should provide comprehensive execution statistics" time="0.012">
-    </testcase>
-    <testcase classname="Logging and Monitoring Integration Tests Log Content and Formatting should format logs with consistent ISO timestamps" name="Logging and Monitoring Integration Tests Log Content and Formatting should format logs with consistent ISO timestamps" time="0.006">
-    </testcase>
-    <testcase classname="Logging and Monitoring Integration Tests Log Content and Formatting should include request and response data in logs where appropriate" name="Logging and Monitoring Integration Tests Log Content and Formatting should include request and response data in logs where appropriate" time="0.007">
-    </testcase>
-    <testcase classname="Logging and Monitoring Integration Tests Log Content and Formatting should serialize error objects correctly in logs" name="Logging and Monitoring Integration Tests Log Content and Formatting should serialize error objects correctly in logs" time="0.006">
+    <testcase classname="SchemaValidator edge cases should handle very large schema" name="SchemaValidator edge cases should handle very large schema" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="FormCreationTool" errors="0" failures="0" skipped="0" timestamp="2025-06-20T23:09:04" time="0.177" tests="13">
-    <testcase classname="FormCreationTool constructor should create an instance with correct name and description" name="FormCreationTool constructor should create an instance with correct name and description" time="0">
+  <testsuite name="Capability Negotiation" errors="0" failures="0" skipped="0" timestamp="2025-06-20T23:29:12" time="0.135" tests="15">
+    <testcase classname="Capability Negotiation negotiateCapabilities should return server defaults when no client capabilities are provided" name="Capability Negotiation negotiateCapabilities should return server defaults when no client capabilities are provided" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool constructor should initialize all required services" name="FormCreationTool constructor should initialize all required services" time="0">
+    <testcase classname="Capability Negotiation negotiateCapabilities should throw an error for incompatible protocol versions" name="Capability Negotiation negotiateCapabilities should throw an error for incompatible protocol versions" time="0.008">
     </testcase>
-    <testcase classname="FormCreationTool execute - template creation should create form from template successfully" name="FormCreationTool execute - template creation should create form from template successfully" time="0.001">
+    <testcase classname="Capability Negotiation negotiateCapabilities should accept client with exact same capabilities" name="Capability Negotiation negotiateCapabilities should accept client with exact same capabilities" time="0">
     </testcase>
-    <testcase classname="FormCreationTool execute - template creation should create form from template without custom title" name="FormCreationTool execute - template creation should create form from template without custom title" time="0">
+    <testcase classname="Capability Negotiation negotiateCapabilities should reject client with unsupported auth" name="Capability Negotiation negotiateCapabilities should reject client with unsupported auth" time="0">
     </testcase>
-    <testcase classname="FormCreationTool execute - template creation should throw error when template not found" name="FormCreationTool execute - template creation should throw error when template not found" time="0.009">
+    <testcase classname="Capability Negotiation negotiateCapabilities should select highest common tool version" name="Capability Negotiation negotiateCapabilities should select highest common tool version" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool execute - natural language creation should create form from natural language prompt successfully" name="FormCreationTool execute - natural language creation should create form from natural language prompt successfully" time="0.001">
+    <testcase classname="Capability Negotiation negotiateCapabilities should use server default when a client capability is not specified" name="Capability Negotiation negotiateCapabilities should use server default when a client capability is not specified" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool execute - natural language creation should create form without custom title override" name="FormCreationTool execute - natural language creation should create form without custom title override" time="0">
+    <testcase classname="Capability Negotiation validateClientCapabilities should return true for valid capabilities: full capabilities" name="Capability Negotiation validateClientCapabilities should return true for valid capabilities: full capabilities" time="0">
     </testcase>
-    <testcase classname="FormCreationTool execute - error scenarios should throw error when neither templateId nor naturalLanguagePrompt provided" name="FormCreationTool execute - error scenarios should throw error when neither templateId nor naturalLanguagePrompt provided" time="0.001">
+    <testcase classname="Capability Negotiation validateClientCapabilities should return true for valid capabilities: partial capabilities" name="Capability Negotiation validateClientCapabilities should return true for valid capabilities: partial capabilities" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool execute - error scenarios should propagate API errors from createForm" name="FormCreationTool execute - error scenarios should propagate API errors from createForm" time="0.01">
+    <testcase classname="Capability Negotiation validateClientCapabilities should return true for valid capabilities: empty capabilities" name="Capability Negotiation validateClientCapabilities should return true for valid capabilities: empty capabilities" time="0">
     </testcase>
-    <testcase classname="FormCreationTool execute - error scenarios should handle both templateId and naturalLanguagePrompt (prioritize template)" name="FormCreationTool execute - error scenarios should handle both templateId and naturalLanguagePrompt (prioritize template)" time="0.001">
+    <testcase classname="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: null" name="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: null" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool execute - edge cases should handle empty string values gracefully" name="FormCreationTool execute - edge cases should handle empty string values gracefully" time="0.001">
+    <testcase classname="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: string" name="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: string" time="0">
     </testcase>
-    <testcase classname="FormCreationTool execute - edge cases should handle null/undefined form URL from API" name="FormCreationTool execute - edge cases should handle null/undefined form URL from API" time="0">
+    <testcase classname="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: number" name="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: number" time="0">
     </testcase>
-    <testcase classname="FormCreationTool logging should log execution arguments" name="FormCreationTool logging should log execution arguments" time="0.001">
+    <testcase classname="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: unknown category" name="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: unknown category" time="0">
+    </testcase>
+    <testcase classname="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: category not an object" name="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: category not an object" time="0.001">
+    </testcase>
+    <testcase classname="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: invalid logging level" name="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: invalid logging level" time="0">
     </testcase>
   </testsuite>
-  <testsuite name="capability-negotiation" errors="0" failures="0" skipped="0" timestamp="2025-06-20T23:09:04" time="0.126" tests="8">
-    <testcase classname="capability-negotiation negotiateCapabilities should return server defaults when no client capabilities provided" name="capability-negotiation negotiateCapabilities should return server defaults when no client capabilities provided" time="0.001">
+  <testsuite name="capability-negotiation" errors="0" failures="0" skipped="0" timestamp="2025-06-20T23:29:12" time="0.126" tests="8">
+    <testcase classname="capability-negotiation negotiateCapabilities should return server defaults when no client capabilities provided" name="capability-negotiation negotiateCapabilities should return server defaults when no client capabilities provided" time="0">
     </testcase>
-    <testcase classname="capability-negotiation negotiateCapabilities should throw StructuredError on protocol version mismatch" name="capability-negotiation negotiateCapabilities should throw StructuredError on protocol version mismatch" time="0.004">
+    <testcase classname="capability-negotiation negotiateCapabilities should throw StructuredError on protocol version mismatch" name="capability-negotiation negotiateCapabilities should throw StructuredError on protocol version mismatch" time="0.005">
     </testcase>
     <testcase classname="capability-negotiation negotiateCapabilities should negotiate tools capabilities correctly" name="capability-negotiation negotiateCapabilities should negotiate tools capabilities correctly" time="0.001">
     </testcase>
@@ -254,38 +211,6 @@ Received: undefined
     <testcase classname="capability-negotiation negotiateCapabilities should handle partial client capabilities" name="capability-negotiation negotiateCapabilities should handle partial client capabilities" time="0">
     </testcase>
     <testcase classname="capability-negotiation negotiateCapabilities should handle all capabilities disabled by client" name="capability-negotiation negotiateCapabilities should handle all capabilities disabled by client" time="0.001">
-    </testcase>
-  </testsuite>
-  <testsuite name="Capability Negotiation" errors="0" failures="0" skipped="0" timestamp="2025-06-20T23:09:05" time="0.132" tests="15">
-    <testcase classname="Capability Negotiation negotiateCapabilities should return server defaults when no client capabilities are provided" name="Capability Negotiation negotiateCapabilities should return server defaults when no client capabilities are provided" time="0">
-    </testcase>
-    <testcase classname="Capability Negotiation negotiateCapabilities should throw an error for incompatible protocol versions" name="Capability Negotiation negotiateCapabilities should throw an error for incompatible protocol versions" time="0.005">
-    </testcase>
-    <testcase classname="Capability Negotiation negotiateCapabilities should accept client with exact same capabilities" name="Capability Negotiation negotiateCapabilities should accept client with exact same capabilities" time="0">
-    </testcase>
-    <testcase classname="Capability Negotiation negotiateCapabilities should reject client with unsupported auth" name="Capability Negotiation negotiateCapabilities should reject client with unsupported auth" time="0.001">
-    </testcase>
-    <testcase classname="Capability Negotiation negotiateCapabilities should select highest common tool version" name="Capability Negotiation negotiateCapabilities should select highest common tool version" time="0">
-    </testcase>
-    <testcase classname="Capability Negotiation negotiateCapabilities should use server default when a client capability is not specified" name="Capability Negotiation negotiateCapabilities should use server default when a client capability is not specified" time="0.001">
-    </testcase>
-    <testcase classname="Capability Negotiation validateClientCapabilities should return true for valid capabilities: full capabilities" name="Capability Negotiation validateClientCapabilities should return true for valid capabilities: full capabilities" time="0">
-    </testcase>
-    <testcase classname="Capability Negotiation validateClientCapabilities should return true for valid capabilities: partial capabilities" name="Capability Negotiation validateClientCapabilities should return true for valid capabilities: partial capabilities" time="0">
-    </testcase>
-    <testcase classname="Capability Negotiation validateClientCapabilities should return true for valid capabilities: empty capabilities" name="Capability Negotiation validateClientCapabilities should return true for valid capabilities: empty capabilities" time="0">
-    </testcase>
-    <testcase classname="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: null" name="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: null" time="0.002">
-    </testcase>
-    <testcase classname="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: string" name="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: string" time="0.001">
-    </testcase>
-    <testcase classname="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: number" name="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: number" time="0">
-    </testcase>
-    <testcase classname="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: unknown category" name="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: unknown category" time="0">
-    </testcase>
-    <testcase classname="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: category not an object" name="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: category not an object" time="0.001">
-    </testcase>
-    <testcase classname="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: invalid logging level" name="Capability Negotiation validateClientCapabilities should return false for invalid capabilities: invalid logging level" time="0">
     </testcase>
   </testsuite>
 </testsuites>
