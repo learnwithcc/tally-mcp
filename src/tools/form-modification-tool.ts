@@ -5,6 +5,7 @@ import {
 import { TallyApiClientConfig } from '../services/TallyApiClient';
 import { TallyForm, TallyFormsResponse } from '../models/tally-schemas';
 import { FormConfig } from '../models';
+import { EnrichedFieldConfiguration, FieldIdMapping } from '../types';
 
 export interface FormModificationArgs {
   /**
@@ -51,6 +52,23 @@ export interface FormModificationResult {
     message: string;
     suggestions: string[];
   };
+  
+  /**
+   * Array of generated field IDs after modification
+   * Maps to the questions in finalFormConfig by array index
+   */
+  generatedFieldIds?: string[];
+  
+  /**
+   * Detailed field configuration objects with enriched properties
+   * including validation rules, options, and type-specific settings
+   */
+  enrichedFieldConfigurations?: EnrichedFieldConfiguration[];
+  
+  /**
+   * Mapping between old field IDs and new field IDs for modifications
+   */
+  fieldIdMappings?: FieldIdMapping[];
 }
 
 export class FormModificationTool implements Tool<FormModificationArgs, FormModificationResult> {
