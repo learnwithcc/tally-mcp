@@ -1,4 +1,18 @@
 import { z } from 'zod';
+import { 
+  ValidationRule, 
+  QuestionOption, 
+  ConditionalLogic,
+  QuestionSettings,
+  MatrixRow,
+  MatrixColumn,
+  MatrixResponseType,
+  PhoneFormat,
+  TimeFormat,
+  PaymentMethod,
+  RatingStyle,
+  QuestionLayout
+} from './form-config';
 
 /**
  * Tally.so API Response Schemas
@@ -96,22 +110,179 @@ export const TallyMatrixSchema = z.object({
 // ===============================
 
 /**
- * Form field/question structure (using lazy evaluation for recursive reference)
+ * Enhanced form field/question structure with comprehensive configuration details
+ * (using lazy evaluation for recursive reference)
  */
 export const TallyFormFieldSchema: z.ZodSchema<any> = z.lazy(() => z.object({
+  // Core field properties
   uuid: z.string(),
   type: TallyFieldTypeSchema,
   blockGroupUuid: z.string().optional(),
   title: z.string().optional(),
   id: z.string().optional(),
+  label: z.string().optional(), // Display label for the question
+  description: z.string().optional(), // Help text or description
   isTitleModifiedByUser: z.boolean().optional(),
   formId: z.string().optional(),
   isDeleted: z.boolean().optional(),
   numberOfResponses: z.number().optional(),
   createdAt: z.string().datetime().optional(),
   updatedAt: z.string().datetime().optional(),
+  
+  // Field configuration properties
+  required: z.boolean().optional(),
+  placeholder: z.string().optional(),
+  order: z.number().optional(),
+  
+  // Validation configuration
+  validation: ValidationRulesSchema.optional(),
+  
+  // Conditional logic
+  logic: ConditionalLogicSchema.optional(),
+  
+  // Choice-based field options (for select, radio, checkbox types)
+  options: z.array(QuestionOptionSchema).optional(),
+  allowOther: z.boolean().optional(),
+  randomizeOptions: z.boolean().optional(),
+  layout: z.enum(['vertical', 'horizontal', 'grid']).optional(),
+  
+  // Text field specific properties
+  minLength: z.number().optional(),
+  maxLength: z.number().optional(),
+  format: z.string().optional(),
+  textRows: z.number().optional(), // For textarea - renamed to avoid conflict with matrix rows
+  autoResize: z.boolean().optional(), // For textarea
+  
+  // Number field specific properties
+  min: z.number().optional(),
+  max: z.number().optional(),
+  step: z.number().optional(),
+  decimalPlaces: z.number().optional(),
+  useThousandSeparator: z.boolean().optional(),
+  numberCurrency: z.string().optional(), // Renamed to avoid conflict with payment currency
+  
+  // Date/Time field specific properties
+  minDate: z.string().optional(),
+  maxDate: z.string().optional(),
+  dateFormat: z.string().optional(),
+  includeTime: z.boolean().optional(),
+  defaultDate: z.string().optional(),
+  timeFormat: z.enum(['12', '24']).optional(),
+  minuteStep: z.number().optional(),
+  defaultTime: z.string().optional(),
+  
+  // Rating field specific properties
+  minRating: z.number().optional(),
+  maxRating: z.number().optional(),
+  ratingLabels: z.array(z.string()).optional(),
+  ratingStyle: z.enum(['stars', 'numbers', 'thumbs', 'hearts', 'faces']).optional(),
+  showNumbers: z.boolean().optional(),
+  lowLabel: z.string().optional(),
+  highLabel: z.string().optional(),
+  
+  // Linear scale field specific properties
+  minValue: z.number().optional(),
+  maxValue: z.number().optional(),
+  
+  // File upload field specific properties
+  allowedTypes: z.array(z.string()).optional(),
+  maxFileSize: z.number().optional(),
+  maxFiles: z.number().optional(),
+  multiple: z.boolean().optional(),
+  uploadText: z.string().optional(),
+  enableDragDrop: z.boolean().optional(),
+  dragDropHint: z.string().optional(),
+  showProgress: z.boolean().optional(),
+  showPreview: z.boolean().optional(),
+  fileRestrictions: z.object({
+    allowedExtensions: z.array(z.string()).optional(),
+    blockedExtensions: z.array(z.string()).optional(),
+    allowedMimeTypes: z.array(z.string()).optional(),
+    blockedMimeTypes: z.array(z.string()).optional(),
+  }).optional(),
+  sizeConstraints: z.object({
+    minFileSize: z.number().optional(),
+    maxTotalSize: z.number().optional(),
+  }).optional(),
+  
+  // Dropdown field specific properties
+  searchable: z.boolean().optional(),
+  dropdownPlaceholder: z.string().optional(),
+  multiSelect: z.boolean().optional(),
+  maxSelections: z.number().optional(),
+  minSelections: z.number().optional(),
+  imageOptions: z.boolean().optional(),
+  searchConfig: z.object({
+    minSearchLength: z.number().optional(),
+    searchPlaceholder: z.string().optional(),
+    highlightMatches: z.boolean().optional(),
+    fuzzySearch: z.boolean().optional(),
+  }).optional(),
+  
+  // Checkbox field specific properties
+  selectionConstraints: z.object({
+    forbiddenCombinations: z.array(z.array(z.string())).optional(),
+    requiredCombinations: z.array(z.array(z.string())).optional(),
+    mutuallyExclusive: z.array(z.array(z.string())).optional(),
+  }).optional(),
+  searchOptions: z.object({
+    enableSearch: z.boolean().optional(),
+    searchPlaceholder: z.string().optional(),
+    minSearchLength: z.number().optional(),
+  }).optional(),
+  
+  // Email field specific properties
+  validateFormat: z.boolean().optional(),
+  suggestDomains: z.boolean().optional(),
+  
+  // Phone field specific properties
+  phoneFormat: z.enum(['US', 'INTERNATIONAL', 'CUSTOM']).optional(),
+  customPattern: z.string().optional(),
+  autoFormat: z.boolean().optional(),
+  
+  // URL field specific properties
+  allowedSchemes: z.array(z.string()).optional(),
+  
+  // Signature field specific properties
+  canvasWidth: z.number().optional(),
+  canvasHeight: z.number().optional(),
+  penColor: z.string().optional(),
+  backgroundColor: z.string().optional(),
+  
+  // Matrix field specific properties
+  rows: z.array(MatrixRowSchema).optional(),
+  columns: z.array(MatrixColumnSchema).optional(),
+  defaultResponseType: z.enum(['single_select', 'multi_select', 'text_input', 'rating']).optional(),
+  allowMultiplePerRow: z.boolean().optional(),
+  requireAllRows: z.boolean().optional(),
+  randomizeRows: z.boolean().optional(),
+  randomizeColumns: z.boolean().optional(),
+  mobileLayout: z.enum(['stacked', 'scrollable', 'accordion']).optional(),
+  showHeadersOnMobile: z.boolean().optional(),
+  defaultCellValidation: MatrixCellValidationSchema.optional(),
+  customClasses: z.object({
+    table: z.string().optional(),
+    row: z.string().optional(),
+    column: z.string().optional(),
+    cell: z.string().optional(),
+  }).optional(),
+  
+  // Payment field specific properties
+  amount: z.number().optional(),
+  currency: z.string().optional(),
+  fixedAmount: z.boolean().optional(),
+  minAmount: z.number().optional(),
+  maxAmount: z.number().optional(),
+  paymentDescription: z.string().optional(),
+  acceptedMethods: z.array(z.enum(['card', 'paypal', 'apple_pay', 'google_pay'])).optional(),
+  
+  // Custom properties for extensibility
+  customProperties: z.record(z.any()).optional(),
+  metadata: z.record(z.any()).optional(),
+  
+  // Recursive fields (for nested structures)
   fields: z.array(TallyFormFieldSchema).optional(),
-}));
+}).passthrough());
 
 /**
  * Form question with extended properties
@@ -741,4 +912,196 @@ export type TallyTitlePayload = z.infer<typeof TallyTitlePayloadSchema>;
 export type TallyBlockPayload = z.infer<typeof TallyBlockPayloadSchema>;
 export type TallyBlock = z.infer<typeof TallyBlockSchema>;
 export type TallyFormCreatePayload = z.infer<typeof TallyFormCreatePayloadSchema>;
-export type TallyFormUpdatePayload = z.infer<typeof TallyFormUpdatePayloadSchema>; 
+export type TallyFormUpdatePayload = z.infer<typeof TallyFormUpdatePayloadSchema>;
+
+// Enhanced validation rule schemas
+const ValidationRuleSchema = z.object({
+  type: z.enum(['required', 'length', 'numeric', 'pattern', 'email', 'url', 'phone', 'date', 'time', 'file', 'choice', 'rating', 'custom']),
+  errorMessage: z.string().optional(),
+  enabled: z.boolean().optional(),
+  // Type-specific properties
+  required: z.boolean().optional(),
+  minLength: z.number().optional(),
+  maxLength: z.number().optional(),
+  min: z.number().optional(),
+  max: z.number().optional(),
+  step: z.number().optional(),
+  decimalPlaces: z.number().optional(),
+  pattern: z.string().optional(),
+  flags: z.string().optional(),
+  caseSensitive: z.boolean().optional(),
+  allowedDomains: z.array(z.string()).optional(),
+  blockedDomains: z.array(z.string()).optional(),
+  requireTLD: z.boolean().optional(),
+  allowedSchemes: z.array(z.string()).optional(),
+  requireScheme: z.boolean().optional(),
+  format: z.string().optional(),
+  country: z.string().optional(),
+  allowInternational: z.boolean().optional(),
+  minDate: z.string().optional(),
+  maxDate: z.string().optional(),
+  allowPast: z.boolean().optional(),
+  allowFuture: z.boolean().optional(),
+  excludeDates: z.array(z.string()).optional(),
+  excludeWeekends: z.boolean().optional(),
+  minTime: z.string().optional(),
+  maxTime: z.string().optional(),
+  allowedTimeSlots: z.array(z.object({ start: z.string(), end: z.string() })).optional(),
+  excludeTimeSlots: z.array(z.object({ start: z.string(), end: z.string() })).optional(),
+  allowedTypes: z.array(z.string()).optional(),
+  blockedTypes: z.array(z.string()).optional(),
+  maxFileSize: z.number().optional(),
+  minFileSize: z.number().optional(),
+  maxFiles: z.number().optional(),
+  minFiles: z.number().optional(),
+  allowedExtensions: z.array(z.string()).optional(),
+  blockedExtensions: z.array(z.string()).optional(),
+  minSelections: z.number().optional(),
+  maxSelections: z.number().optional(),
+  requiredOptions: z.array(z.string()).optional(),
+  forbiddenCombinations: z.array(z.array(z.string())).optional(),
+  minRating: z.number().optional(),
+  maxRating: z.number().optional(),
+  requiredRating: z.boolean().optional(),
+  validator: z.union([z.string(), z.function()]).optional(),
+  async: z.boolean().optional(),
+  dependencies: z.array(z.string()).optional(),
+}).passthrough();
+
+const ValidationRulesSchema = z.object({
+  rules: z.array(ValidationRuleSchema).optional(),
+  validateOnChange: z.boolean().optional(),
+  validateOnBlur: z.boolean().optional(),
+  stopOnFirstError: z.boolean().optional(),
+  customMessages: z.record(z.string()).optional(),
+  dependencies: z.array(z.string()).optional(),
+  // Legacy properties for backward compatibility
+  required: z.boolean().optional(),
+  minLength: z.number().optional(),
+  maxLength: z.number().optional(),
+  minValue: z.number().optional(),
+  maxValue: z.number().optional(),
+  pattern: z.string().optional(),
+  errorMessage: z.string().optional(),
+  emailFormat: z.boolean().optional(),
+  urlFormat: z.boolean().optional(),
+  phoneFormat: z.boolean().optional(),
+  dateRange: z.object({
+    min: z.string().optional(),
+    max: z.string().optional(),
+  }).optional(),
+  fileType: z.object({
+    allowed: z.array(z.string()).optional(),
+    blocked: z.array(z.string()).optional(),
+  }).optional(),
+  fileSize: z.object({
+    min: z.number().optional(),
+    max: z.number().optional(),
+  }).optional(),
+  customValidation: z.string().optional(),
+  additionalRules: z.record(z.any()).optional(),
+}).passthrough();
+
+// Enhanced question option schema
+const QuestionOptionSchema = z.object({
+  id: z.string().optional(),
+  text: z.string(),
+  value: z.string().optional(),
+  isDefault: z.boolean().optional(),
+  imageUrl: z.string().optional(),
+  metadata: z.record(z.any()).optional(),
+}).passthrough();
+
+// Matrix-specific schemas
+const MatrixCellValidationSchema = z.object({
+  required: z.boolean().optional(),
+  minLength: z.number().optional(),
+  maxLength: z.number().optional(),
+  minRating: z.number().optional(),
+  maxRating: z.number().optional(),
+  pattern: z.string().optional(),
+  errorMessage: z.string().optional(),
+}).passthrough();
+
+const MatrixRowSchema = z.object({
+  id: z.string().optional(),
+  text: z.string(),
+  value: z.string().optional(),
+  required: z.boolean().optional(),
+  cellValidation: MatrixCellValidationSchema.optional(),
+}).passthrough();
+
+const MatrixColumnSchema = z.object({
+  id: z.string().optional(),
+  text: z.string(),
+  value: z.string().optional(),
+  responseType: z.enum(['single_select', 'multi_select', 'text_input', 'rating']).optional(),
+  options: z.array(QuestionOptionSchema).optional(),
+  width: z.string().optional(),
+}).passthrough();
+
+// Conditional logic schemas
+const LogicConditionSchema = z.object({
+  id: z.string().optional(),
+  questionId: z.string(),
+  operator: z.enum(['equals', 'not_equals', 'contains', 'not_contains', 'greater_than', 'less_than', 'greater_equal', 'less_equal', 'is_empty', 'is_not_empty']),
+  value: z.any(),
+  caseSensitive: z.boolean().optional(),
+  negate: z.boolean().optional(),
+  errorMessage: z.string().optional(),
+}).passthrough();
+
+const LogicConditionGroupSchema: z.ZodSchema<any> = z.lazy(() => z.object({
+  id: z.string().optional(),
+  combinator: z.enum(['and', 'or', 'xor', 'nand', 'nor']),
+  conditions: z.array(LogicConditionSchema),
+  groups: z.array(LogicConditionGroupSchema).optional(),
+  negate: z.boolean().optional(),
+}).passthrough());
+
+const ConditionalActionSchema = z.object({
+  action: z.enum(['show', 'hide', 'require', 'make_optional', 'skip', 'jump_to', 'jump_to_page', 'submit_form', 'set_value', 'clear_value', 'disable', 'enable', 'show_message', 'redirect']),
+  enabled: z.boolean().optional(),
+  delay: z.number().optional(),
+  // Action-specific properties
+  animation: z.enum(['fade', 'slide', 'none']).optional(),
+  animationDuration: z.number().optional(),
+  validationMessage: z.string().optional(),
+  targetQuestionId: z.string().optional(),
+  skipValidation: z.boolean().optional(),
+  targetPage: z.union([z.string(), z.number()]).optional(),
+  value: z.any().optional(),
+  triggerValidation: z.boolean().optional(),
+  disabledStyle: z.enum(['grayed_out', 'hidden', 'readonly']).optional(),
+  message: z.string().optional(),
+  messageType: z.enum(['info', 'warning', 'error', 'success']).optional(),
+  duration: z.number().optional(),
+  position: z.enum(['above', 'below', 'inline', 'popup']).optional(),
+  url: z.string().optional(),
+  newWindow: z.boolean().optional(),
+  confirmationMessage: z.string().optional(),
+  validateBeforeSubmit: z.boolean().optional(),
+  customEndpoint: z.string().optional(),
+  skipCount: z.number().optional(),
+}).passthrough();
+
+const ConditionalLogicSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  enabled: z.boolean().optional(),
+  priority: z.number().optional(),
+  conditionGroup: LogicConditionGroupSchema,
+  actions: z.array(ConditionalActionSchema),
+  elseActions: z.array(ConditionalActionSchema).optional(),
+  reEvaluateOnChange: z.boolean().optional(),
+  triggerQuestions: z.array(z.string()).optional(),
+  runOnce: z.boolean().optional(),
+  metadata: z.object({
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+    createdBy: z.string().optional(),
+    version: z.number().optional(),
+    tags: z.array(z.string()).optional(),
+  }).optional(),
+}).passthrough(); 

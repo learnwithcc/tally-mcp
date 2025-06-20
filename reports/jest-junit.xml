@@ -1,38 +1,393 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="13" failures="2" errors="0" time="0.336">
-  <testsuite name="FormCreationTool" errors="0" failures="2" skipped="0" timestamp="2025-06-20T00:25:27" time="0.318" tests="13">
-    <testcase classname="FormCreationTool constructor should create an instance with correct name and description" name="FormCreationTool constructor should create an instance with correct name and description" time="0.003">
+<testsuites name="jest tests" tests="52" failures="6" errors="0" time="1.085">
+  <testsuite name="TallyApiClient" errors="0" failures="4" skipped="0" timestamp="2025-06-20T00:32:55" time="0.745" tests="30">
+    <testcase classname="TallyApiClient Constructor and Configuration should create a client with default configuration" name="TallyApiClient Constructor and Configuration should create a client with default configuration" time="0.002">
     </testcase>
-    <testcase classname="FormCreationTool constructor should initialize all required services" name="FormCreationTool constructor should initialize all required services" time="0.001">
+    <testcase classname="TallyApiClient Constructor and Configuration should create a client with custom configuration" name="TallyApiClient Constructor and Configuration should create a client with custom configuration" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool execute - template creation should create form from template successfully" name="FormCreationTool execute - template creation should create form from template successfully" time="0.001">
+    <testcase classname="TallyApiClient Constructor and Configuration should not set Authorization header if no access token is provided" name="TallyApiClient Constructor and Configuration should not set Authorization header if no access token is provided" time="0.003">
     </testcase>
-    <testcase classname="FormCreationTool execute - template creation should create form from template without custom title" name="FormCreationTool execute - template creation should create form from template without custom title" time="0.001">
+    <testcase classname="TallyApiClient Access Token Management should set access token and update Authorization header" name="TallyApiClient Access Token Management should set access token and update Authorization header" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool execute - template creation should throw error when template not found" name="FormCreationTool execute - template creation should throw error when template not found" time="0.007">
+    <testcase classname="TallyApiClient Access Token Management should remove Authorization header when setting empty token" name="TallyApiClient Access Token Management should remove Authorization header when setting empty token" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool execute - natural language creation should create form from natural language prompt successfully" name="FormCreationTool execute - natural language creation should create form from natural language prompt successfully" time="0.004">
+    <testcase classname="TallyApiClient Access Token Management should return current access token" name="TallyApiClient Access Token Management should return current access token" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool execute - natural language creation should create form without custom title override" name="FormCreationTool execute - natural language creation should create form without custom title override" time="0.003">
+    <testcase classname="TallyApiClient HTTP Methods should make a GET request" name="TallyApiClient HTTP Methods should make a GET request" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool execute - error scenarios should throw error when neither templateId nor naturalLanguagePrompt provided" name="FormCreationTool execute - error scenarios should throw error when neither templateId nor naturalLanguagePrompt provided" time="0.016">
+    <testcase classname="TallyApiClient HTTP Methods should make a GET request with custom config" name="TallyApiClient HTTP Methods should make a GET request with custom config" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient HTTP Methods should make a POST request with data" name="TallyApiClient HTTP Methods should make a POST request with data" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient HTTP Methods should make a PUT request with data" name="TallyApiClient HTTP Methods should make a PUT request with data" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient HTTP Methods should make a DELETE request" name="TallyApiClient HTTP Methods should make a DELETE request" time="0.001">
+    </testcase>
+    <testcase classname="TallyApiClient HTTP Methods should make a PATCH request with data" name="TallyApiClient HTTP Methods should make a PATCH request with data" time="0.001">
+    </testcase>
+    <testcase classname="TallyApiClient Error Handling should propagate axios errors" name="TallyApiClient Error Handling should propagate axios errors" time="0.012">
+    </testcase>
+    <testcase classname="TallyApiClient Error Handling should propagate HTTP error responses" name="TallyApiClient Error Handling should propagate HTTP error responses" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient Utility Methods should return the axios instance" name="TallyApiClient Utility Methods should return the axios instance" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient Utility Methods should return readonly configuration" name="TallyApiClient Utility Methods should return readonly configuration" time="0.001">
+    </testcase>
+    <testcase classname="TallyApiClient Interceptors should always setup interceptors for authentication and error handling" name="TallyApiClient Interceptors should always setup interceptors for authentication and error handling" time="0.001">
+    </testcase>
+    <testcase classname="TallyApiClient Interceptors should setup interceptors with debug logging when debug is enabled" name="TallyApiClient Interceptors should setup interceptors with debug logging when debug is enabled" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient Type Safety should maintain type safety with generic responses" name="TallyApiClient Type Safety should maintain type safety with generic responses" time="0.001">
+    </testcase>
+    <testcase classname="TallyApiClient Rate Limiting and Retry Logic should have retry configuration set correctly" name="TallyApiClient Rate Limiting and Retry Logic should have retry configuration set correctly" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient Rate Limiting and Retry Logic should setup interceptors for retry logic" name="TallyApiClient Rate Limiting and Retry Logic should setup interceptors for retry logic" time="0.001">
+    </testcase>
+    <testcase classname="TallyApiClient Rate Limiting and Retry Logic should handle custom retry configuration" name="TallyApiClient Rate Limiting and Retry Logic should handle custom retry configuration" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient Type-Safe API Methods with Zod Validation getSubmissions should validate and return submissions response" name="TallyApiClient Type-Safe API Methods with Zod Validation getSubmissions should validate and return submissions response" time="0.119">
+      <failure>Error: expect(received).toEqual(expected) // deep equality
+
+- Expected  -   7
++ Received  + 204
+
+@@ -3,24 +3,221 @@
+    &quot;limit&quot;: 10,
+    &quot;page&quot;: 1,
+    &quot;questions&quot;: Array [],
+    &quot;submissions&quot;: Array [
+      Object {
+-       &quot;formId&quot;: &quot;form_123&quot;,
+-       &quot;id&quot;: &quot;sub_1&quot;,
++       &quot;formId&quot;: &quot;form_123456789&quot;,
++       &quot;id&quot;: &quot;sub_000000001&quot;,
++       &quot;isCompleted&quot;: true,
++       &quot;respondentId&quot;: &quot;resp_000000001&quot;,
++       &quot;responses&quot;: Array [
++         Object {
++           &quot;questionId&quot;: &quot;q1&quot;,
++           &quot;value&quot;: &quot;User 1&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q2&quot;,
++           &quot;value&quot;: &quot;user1@example.com&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q3&quot;,
++           &quot;value&quot;: &quot;This is message 1 from a test user.&quot;,
++         },
++       ],
++       &quot;submittedAt&quot;: &quot;2025-06-19T00:32:55.784Z&quot;,
++     },
++     Object {
++       &quot;formId&quot;: &quot;form_123456789&quot;,
++       &quot;id&quot;: &quot;sub_000000002&quot;,
++       &quot;isCompleted&quot;: true,
++       &quot;respondentId&quot;: &quot;resp_000000002&quot;,
++       &quot;responses&quot;: Array [
++         Object {
++           &quot;questionId&quot;: &quot;q1&quot;,
++           &quot;value&quot;: &quot;User 2&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q2&quot;,
++           &quot;value&quot;: &quot;user2@example.com&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q3&quot;,
++           &quot;value&quot;: &quot;This is message 2 from a test user.&quot;,
++         },
++       ],
++       &quot;submittedAt&quot;: &quot;2025-06-18T00:32:55.784Z&quot;,
++     },
++     Object {
++       &quot;formId&quot;: &quot;form_123456789&quot;,
++       &quot;id&quot;: &quot;sub_000000003&quot;,
++       &quot;isCompleted&quot;: true,
++       &quot;respondentId&quot;: &quot;resp_000000003&quot;,
++       &quot;responses&quot;: Array [
++         Object {
++           &quot;questionId&quot;: &quot;q1&quot;,
++           &quot;value&quot;: &quot;User 3&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q2&quot;,
++           &quot;value&quot;: &quot;user3@example.com&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q3&quot;,
++           &quot;value&quot;: &quot;This is message 3 from a test user.&quot;,
++         },
++       ],
++       &quot;submittedAt&quot;: &quot;2025-06-17T00:32:55.784Z&quot;,
++     },
++     Object {
++       &quot;formId&quot;: &quot;form_123456789&quot;,
++       &quot;id&quot;: &quot;sub_000000004&quot;,
++       &quot;isCompleted&quot;: true,
++       &quot;respondentId&quot;: &quot;resp_000000004&quot;,
++       &quot;responses&quot;: Array [
++         Object {
++           &quot;questionId&quot;: &quot;q1&quot;,
++           &quot;value&quot;: &quot;User 4&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q2&quot;,
++           &quot;value&quot;: &quot;user4@example.com&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q3&quot;,
++           &quot;value&quot;: &quot;This is message 4 from a test user.&quot;,
++         },
++       ],
++       &quot;submittedAt&quot;: &quot;2025-06-16T00:32:55.784Z&quot;,
++     },
++     Object {
++       &quot;formId&quot;: &quot;form_123456789&quot;,
++       &quot;id&quot;: &quot;sub_000000005&quot;,
++       &quot;isCompleted&quot;: true,
++       &quot;respondentId&quot;: &quot;resp_000000005&quot;,
++       &quot;responses&quot;: Array [
++         Object {
++           &quot;questionId&quot;: &quot;q1&quot;,
++           &quot;value&quot;: &quot;User 5&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q2&quot;,
++           &quot;value&quot;: &quot;user5@example.com&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q3&quot;,
++           &quot;value&quot;: &quot;This is message 5 from a test user.&quot;,
++         },
++       ],
++       &quot;submittedAt&quot;: &quot;2025-06-15T00:32:55.784Z&quot;,
++     },
++     Object {
++       &quot;formId&quot;: &quot;form_123456789&quot;,
++       &quot;id&quot;: &quot;sub_000000006&quot;,
++       &quot;isCompleted&quot;: true,
++       &quot;respondentId&quot;: &quot;resp_000000006&quot;,
++       &quot;responses&quot;: Array [
++         Object {
++           &quot;questionId&quot;: &quot;q1&quot;,
++           &quot;value&quot;: &quot;User 6&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q2&quot;,
++           &quot;value&quot;: &quot;user6@example.com&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q3&quot;,
++           &quot;value&quot;: &quot;This is message 6 from a test user.&quot;,
++         },
++       ],
++       &quot;submittedAt&quot;: &quot;2025-06-14T00:32:55.784Z&quot;,
++     },
++     Object {
++       &quot;formId&quot;: &quot;form_123456789&quot;,
++       &quot;id&quot;: &quot;sub_000000007&quot;,
++       &quot;isCompleted&quot;: true,
++       &quot;respondentId&quot;: &quot;resp_000000007&quot;,
++       &quot;responses&quot;: Array [
++         Object {
++           &quot;questionId&quot;: &quot;q1&quot;,
++           &quot;value&quot;: &quot;User 7&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q2&quot;,
++           &quot;value&quot;: &quot;user7@example.com&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q3&quot;,
++           &quot;value&quot;: &quot;This is message 7 from a test user.&quot;,
++         },
++       ],
++       &quot;submittedAt&quot;: &quot;2025-06-13T00:32:55.784Z&quot;,
++     },
++     Object {
++       &quot;formId&quot;: &quot;form_123456789&quot;,
++       &quot;id&quot;: &quot;sub_000000008&quot;,
++       &quot;isCompleted&quot;: true,
++       &quot;respondentId&quot;: &quot;resp_000000008&quot;,
++       &quot;responses&quot;: Array [
++         Object {
++           &quot;questionId&quot;: &quot;q1&quot;,
++           &quot;value&quot;: &quot;User 8&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q2&quot;,
++           &quot;value&quot;: &quot;user8@example.com&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q3&quot;,
++           &quot;value&quot;: &quot;This is message 8 from a test user.&quot;,
++         },
++       ],
++       &quot;submittedAt&quot;: &quot;2025-06-12T00:32:55.784Z&quot;,
++     },
++     Object {
++       &quot;formId&quot;: &quot;form_123456789&quot;,
++       &quot;id&quot;: &quot;sub_000000009&quot;,
+        &quot;isCompleted&quot;: true,
+-       &quot;respondentId&quot;: &quot;resp_1&quot;,
++       &quot;respondentId&quot;: &quot;resp_000000009&quot;,
+        &quot;responses&quot;: Array [
+          Object {
+            &quot;questionId&quot;: &quot;q1&quot;,
+-           &quot;value&quot;: &quot;Test User&quot;,
++           &quot;value&quot;: &quot;User 9&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q2&quot;,
++           &quot;value&quot;: &quot;user9@example.com&quot;,
+          },
++         Object {
++           &quot;questionId&quot;: &quot;q3&quot;,
++           &quot;value&quot;: &quot;This is message 9 from a test user.&quot;,
++         },
+        ],
+-       &quot;submittedAt&quot;: &quot;2025-06-20T00:32:55.672Z&quot;,
++       &quot;submittedAt&quot;: &quot;2025-06-11T00:32:55.784Z&quot;,
+      },
++     Object {
++       &quot;formId&quot;: &quot;form_123456789&quot;,
++       &quot;id&quot;: &quot;sub_000000010&quot;,
++       &quot;isCompleted&quot;: true,
++       &quot;respondentId&quot;: &quot;resp_000000010&quot;,
++       &quot;responses&quot;: Array [
++         Object {
++           &quot;questionId&quot;: &quot;q1&quot;,
++           &quot;value&quot;: &quot;User 10&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q2&quot;,
++           &quot;value&quot;: &quot;user10@example.com&quot;,
++         },
++         Object {
++           &quot;questionId&quot;: &quot;q3&quot;,
++           &quot;value&quot;: &quot;This is message 10 from a test user.&quot;,
++         },
++       ],
++       &quot;submittedAt&quot;: &quot;2025-06-10T00:32:55.784Z&quot;,
++     },
+    ],
+    &quot;totalNumberOfSubmissionsPerFilter&quot;: Object {
+-     &quot;all&quot;: 1,
+-     &quot;completed&quot;: 1,
++     &quot;all&quot;: 10,
++     &quot;completed&quot;: 10,
+      &quot;partial&quot;: 0,
+    },
+  }
+    at Object.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/TallyApiClient.test.ts:481:24)</failure>
+    </testcase>
+    <testcase classname="TallyApiClient Type-Safe API Methods with Zod Validation getSubmissions should throw validation error for invalid submissions response" name="TallyApiClient Type-Safe API Methods with Zod Validation getSubmissions should throw validation error for invalid submissions response" time="0.103">
+      <failure>Error: expect(received).rejects.toThrow()
+
+Received promise resolved instead of rejected
+Resolved to value: {&quot;hasMore&quot;: false, &quot;limit&quot;: 10, &quot;page&quot;: 1, &quot;questions&quot;: [], &quot;submissions&quot;: [{&quot;formId&quot;: &quot;form_123456789&quot;, &quot;id&quot;: &quot;sub_000000001&quot;, &quot;isCompleted&quot;: true, &quot;respondentId&quot;: &quot;resp_000000001&quot;, &quot;responses&quot;: [{&quot;questionId&quot;: &quot;q1&quot;, &quot;value&quot;: &quot;User 1&quot;}, {&quot;questionId&quot;: &quot;q2&quot;, &quot;value&quot;: &quot;user1@example.com&quot;}, {&quot;questionId&quot;: &quot;q3&quot;, &quot;value&quot;: &quot;This is message 1 from a test user.&quot;}], &quot;submittedAt&quot;: &quot;2025-06-19T00:32:55.892Z&quot;}, {&quot;formId&quot;: &quot;form_123456789&quot;, &quot;id&quot;: &quot;sub_000000002&quot;, &quot;isCompleted&quot;: true, &quot;respondentId&quot;: &quot;resp_000000002&quot;, &quot;responses&quot;: [{&quot;questionId&quot;: &quot;q1&quot;, &quot;value&quot;: &quot;User 2&quot;}, {&quot;questionId&quot;: &quot;q2&quot;, &quot;value&quot;: &quot;user2@example.com&quot;}, {&quot;questionId&quot;: &quot;q3&quot;, &quot;value&quot;: &quot;This is message 2 from a test user.&quot;}], &quot;submittedAt&quot;: &quot;2025-06-18T00:32:55.893Z&quot;}, {&quot;formId&quot;: &quot;form_123456789&quot;, &quot;id&quot;: &quot;sub_000000003&quot;, &quot;isCompleted&quot;: true, &quot;respondentId&quot;: &quot;resp_000000003&quot;, &quot;responses&quot;: [{&quot;questionId&quot;: &quot;q1&quot;, &quot;value&quot;: &quot;User 3&quot;}, {&quot;questionId&quot;: &quot;q2&quot;, &quot;value&quot;: &quot;user3@example.com&quot;}, {&quot;questionId&quot;: &quot;q3&quot;, &quot;value&quot;: &quot;This is message 3 from a test user.&quot;}], &quot;submittedAt&quot;: &quot;2025-06-17T00:32:55.893Z&quot;}, {&quot;formId&quot;: &quot;form_123456789&quot;, &quot;id&quot;: &quot;sub_000000004&quot;, &quot;isCompleted&quot;: true, &quot;respondentId&quot;: &quot;resp_000000004&quot;, &quot;responses&quot;: [{&quot;questionId&quot;: &quot;q1&quot;, &quot;value&quot;: &quot;User 4&quot;}, {&quot;questionId&quot;: &quot;q2&quot;, &quot;value&quot;: &quot;user4@example.com&quot;}, {&quot;questionId&quot;: &quot;q3&quot;, &quot;value&quot;: &quot;This is message 4 from a test user.&quot;}], &quot;submittedAt&quot;: &quot;2025-06-16T00:32:55.893Z&quot;}, {&quot;formId&quot;: &quot;form_123456789&quot;, &quot;id&quot;: &quot;sub_000000005&quot;, &quot;isCompleted&quot;: true, &quot;respondentId&quot;: &quot;resp_000000005&quot;, &quot;responses&quot;: [{&quot;questionId&quot;: &quot;q1&quot;, &quot;value&quot;: &quot;User 5&quot;}, {&quot;questionId&quot;: &quot;q2&quot;, &quot;value&quot;: &quot;user5@example.com&quot;}, {&quot;questionId&quot;: &quot;q3&quot;, &quot;value&quot;: &quot;This is message 5 from a test user.&quot;}], &quot;submittedAt&quot;: &quot;2025-06-15T00:32:55.893Z&quot;}, {&quot;formId&quot;: &quot;form_123456789&quot;, &quot;id&quot;: &quot;sub_000000006&quot;, &quot;isCompleted&quot;: true, &quot;respondentId&quot;: &quot;resp_000000006&quot;, &quot;responses&quot;: [{&quot;questionId&quot;: &quot;q1&quot;, &quot;value&quot;: &quot;User 6&quot;}, {&quot;questionId&quot;: &quot;q2&quot;, &quot;value&quot;: &quot;user6@example.com&quot;}, {&quot;questionId&quot;: &quot;q3&quot;, &quot;value&quot;: &quot;This is message 6 from a test user.&quot;}], &quot;submittedAt&quot;: &quot;2025-06-14T00:32:55.893Z&quot;}, {&quot;formId&quot;: &quot;form_123456789&quot;, &quot;id&quot;: &quot;sub_000000007&quot;, &quot;isCompleted&quot;: true, &quot;respondentId&quot;: &quot;resp_000000007&quot;, &quot;responses&quot;: [{&quot;questionId&quot;: &quot;q1&quot;, &quot;value&quot;: &quot;User 7&quot;}, {&quot;questionId&quot;: &quot;q2&quot;, &quot;value&quot;: &quot;user7@example.com&quot;}, {&quot;questionId&quot;: &quot;q3&quot;, &quot;value&quot;: &quot;This is message 7 from a test user.&quot;}], &quot;submittedAt&quot;: &quot;2025-06-13T00:32:55.893Z&quot;}, {&quot;formId&quot;: &quot;form_123456789&quot;, &quot;id&quot;: &quot;sub_000000008&quot;, &quot;isCompleted&quot;: true, &quot;respondentId&quot;: &quot;resp_000000008&quot;, &quot;responses&quot;: [{&quot;questionId&quot;: &quot;q1&quot;, &quot;value&quot;: &quot;User 8&quot;}, {&quot;questionId&quot;: &quot;q2&quot;, &quot;value&quot;: &quot;user8@example.com&quot;}, {&quot;questionId&quot;: &quot;q3&quot;, &quot;value&quot;: &quot;This is message 8 from a test user.&quot;}], &quot;submittedAt&quot;: &quot;2025-06-12T00:32:55.893Z&quot;}, {&quot;formId&quot;: &quot;form_123456789&quot;, &quot;id&quot;: &quot;sub_000000009&quot;, &quot;isCompleted&quot;: true, &quot;respondentId&quot;: &quot;resp_000000009&quot;, &quot;responses&quot;: [{&quot;questionId&quot;: &quot;q1&quot;, &quot;value&quot;: &quot;User 9&quot;}, {&quot;questionId&quot;: &quot;q2&quot;, &quot;value&quot;: &quot;user9@example.com&quot;}, {&quot;questionId&quot;: &quot;q3&quot;, &quot;value&quot;: &quot;This is message 9 from a test user.&quot;}], &quot;submittedAt&quot;: &quot;2025-06-11T00:32:55.893Z&quot;}, {&quot;formId&quot;: &quot;form_123456789&quot;, &quot;id&quot;: &quot;sub_000000010&quot;, &quot;isCompleted&quot;: true, &quot;respondentId&quot;: &quot;resp_000000010&quot;, &quot;responses&quot;: [{&quot;questionId&quot;: &quot;q1&quot;, &quot;value&quot;: &quot;User 10&quot;}, {&quot;questionId&quot;: &quot;q2&quot;, &quot;value&quot;: &quot;user10@example.com&quot;}, {&quot;questionId&quot;: &quot;q3&quot;, &quot;value&quot;: &quot;This is message 10 from a test user.&quot;}], &quot;submittedAt&quot;: &quot;2025-06-10T00:32:55.893Z&quot;}], &quot;totalNumberOfSubmissionsPerFilter&quot;: {&quot;all&quot;: 10, &quot;completed&quot;: 10, &quot;partial&quot;: 0}}
+    at expect (/Users/cryophobic/dev/projects/tally-mcp/node_modules/expect/build/index.js:113:15)
+    at Object.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/TallyApiClient.test.ts:504:15)
+    at Promise.then.completed (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:316:40)
+    at _runTest (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="TallyApiClient Type-Safe API Methods with Zod Validation getForm should validate and return form data" name="TallyApiClient Type-Safe API Methods with Zod Validation getForm should validate and return form data" time="0.102">
+      <failure>Error: expect(received).toEqual(expected) // deep equality
+
+- Expected  - 2
++ Received  + 2
+
+  Object {
+-   &quot;createdAt&quot;: &quot;2025-06-20T00:32:55.895Z&quot;,
++   &quot;createdAt&quot;: &quot;2024-01-01T00:00:00Z&quot;,
+    &quot;description&quot;: &quot;Get in touch with our team&quot;,
+    &quot;embedUrl&quot;: &quot;https://tally.so/embed/form_123456789&quot;,
+    &quot;id&quot;: &quot;form123&quot;,
+    &quot;isPublished&quot;: true,
+    &quot;status&quot;: &quot;published&quot;,
+    &quot;submissionsCount&quot;: 42,
+    &quot;title&quot;: &quot;Contact Us&quot;,
+-   &quot;updatedAt&quot;: &quot;2025-06-20T00:32:55.895Z&quot;,
++   &quot;updatedAt&quot;: &quot;2024-01-01T00:00:00Z&quot;,
+    &quot;url&quot;: &quot;https://tally.so/r/form_123456789&quot;,
+  }
+    at Object.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/TallyApiClient.test.ts:539:24)</failure>
+    </testcase>
+    <testcase classname="TallyApiClient Type-Safe API Methods with Zod Validation getForm should throw validation error for invalid form response" name="TallyApiClient Type-Safe API Methods with Zod Validation getForm should throw validation error for invalid form response" time="0.104">
+      <failure>Error: expect(received).rejects.toThrow()
+
+Received promise resolved instead of rejected
+Resolved to value: {&quot;createdAt&quot;: &quot;2024-01-01T00:00:00Z&quot;, &quot;description&quot;: &quot;Get in touch with our team&quot;, &quot;embedUrl&quot;: &quot;https://tally.so/embed/form_123456789&quot;, &quot;id&quot;: &quot;form123&quot;, &quot;isPublished&quot;: true, &quot;status&quot;: &quot;published&quot;, &quot;submissionsCount&quot;: 42, &quot;title&quot;: &quot;Contact Us&quot;, &quot;updatedAt&quot;: &quot;2024-01-01T00:00:00Z&quot;, &quot;url&quot;: &quot;https://tally.so/r/form_123456789&quot;}
+    at expect (/Users/cryophobic/dev/projects/tally-mcp/node_modules/expect/build/index.js:113:15)
+    at Object.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/TallyApiClient.test.ts:562:15)
+    at Promise.then.completed (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:316:40)
+    at _runTest (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="TallyApiClient Type-Safe API Methods with Zod Validation validateResponse should return success result for valid data" name="TallyApiClient Type-Safe API Methods with Zod Validation validateResponse should return success result for valid data" time="0.001">
+    </testcase>
+    <testcase classname="TallyApiClient Type-Safe API Methods with Zod Validation validateResponse should return error result for invalid data" name="TallyApiClient Type-Safe API Methods with Zod Validation validateResponse should return error result for invalid data" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient Type-Safe API Methods with Zod Validation requestWithValidation should make request and validate response with schema" name="TallyApiClient Type-Safe API Methods with Zod Validation requestWithValidation should make request and validate response with schema" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient Type-Safe API Methods with Zod Validation requestWithValidation should throw validation error for invalid response data" name="TallyApiClient Type-Safe API Methods with Zod Validation requestWithValidation should throw validation error for invalid response data" time="0.015">
+    </testcase>
+  </testsuite>
+  <testsuite name="TallyApiClient" errors="0" failures="2" skipped="0" timestamp="2025-06-20T00:32:56" time="0.176" tests="13">
+    <testcase classname="TallyApiClient should be defined" name="TallyApiClient should be defined" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient Authentication should throw an error when getting authorization URL without OAuth2 config" name="TallyApiClient Authentication should throw an error when getting authorization URL without OAuth2 config" time="0.009">
+    </testcase>
+    <testcase classname="TallyApiClient Authentication should throw an error when exchanging code for token without OAuth2 config" name="TallyApiClient Authentication should throw an error when exchanging code for token without OAuth2 config" time="0.001">
+    </testcase>
+    <testcase classname="TallyApiClient Authentication should be authenticated if access token is provided" name="TallyApiClient Authentication should be authenticated if access token is provided" time="0.001">
+    </testcase>
+    <testcase classname="TallyApiClient Authentication should not be authenticated if access token is not provided" name="TallyApiClient Authentication should not be authenticated if access token is not provided" time="0.001">
+    </testcase>
+    <testcase classname="TallyApiClient Authentication should throw an error when refreshing token without OAuth2 config" name="TallyApiClient Authentication should throw an error when refreshing token without OAuth2 config" time="0.006">
+    </testcase>
+    <testcase classname="TallyApiClient Authentication should clear the access token" name="TallyApiClient Authentication should clear the access token" time="0.001">
+    </testcase>
+    <testcase classname="TallyApiClient Authentication should set the access token" name="TallyApiClient Authentication should set the access token" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient Authentication should get the access token" name="TallyApiClient Authentication should get the access token" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient Authentication should get the current token" name="TallyApiClient Authentication should get the current token" time="0.001">
+    </testcase>
+    <testcase classname="TallyApiClient Request Handling should handle a successful GET request" name="TallyApiClient Request Handling should handle a successful GET request" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient Request Handling should handle a 404 Not Found error" name="TallyApiClient Request Handling should handle a 404 Not Found error" time="0.001">
       <failure>Error: expect(received).rejects.toThrow(expected)
 
-Expected substring: &quot;Either naturalLanguagePrompt or templateId must be provided.&quot;
-Received message:   &quot;One of formConfig, naturalLanguagePrompt, or templateId must be provided.&quot;
+Expected substring: &quot;Not Found&quot;
 
-      78 |
-      79 |     if (!formConfig) {
-    &gt; 80 |       throw new Error(&apos;One of formConfig, naturalLanguagePrompt, or templateId must be provided.&apos;);
-         |             ^
-      81 |     }
-      82 |
-      83 |     let createdTallyForm;
-
-      at FormCreationTool.execute (src/tools/form-creation-tool.ts:80:13)
-      at Object.&lt;anonymous&gt; (src/tools/__tests__/form-creation-tool.test.ts:191:25)
+Received function did not throw
     at Object.toThrow (/Users/cryophobic/dev/projects/tally-mcp/node_modules/expect/build/index.js:218:22)
-    at Object.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/src/tools/__tests__/form-creation-tool.test.ts:191:53)
+    at Object.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/api/TallyApiClient.test.ts:90:66)
     at Promise.then.completed (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/utils.js:298:28)
     at new Promise (&lt;anonymous&gt;)
     at callAsyncCircusFn (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/utils.js:231:10)
@@ -47,19 +402,61 @@ Received message:   &quot;One of formConfig, naturalLanguagePrompt, or templateI
     at runTestInternal (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-runner/build/runTest.js:367:16)
     at runTest (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-runner/build/runTest.js:444:34)</failure>
     </testcase>
-    <testcase classname="FormCreationTool execute - error scenarios should propagate API errors from createForm" name="FormCreationTool execute - error scenarios should propagate API errors from createForm" time="0.015">
-    </testcase>
-    <testcase classname="FormCreationTool execute - error scenarios should handle both templateId and naturalLanguagePrompt (prioritize template)" name="FormCreationTool execute - error scenarios should handle both templateId and naturalLanguagePrompt (prioritize template)" time="0.001">
-    </testcase>
-    <testcase classname="FormCreationTool execute - edge cases should handle empty string values gracefully" name="FormCreationTool execute - edge cases should handle empty string values gracefully" time="0">
-    </testcase>
-    <testcase classname="FormCreationTool execute - edge cases should handle null/undefined form URL from API" name="FormCreationTool execute - edge cases should handle null/undefined form URL from API" time="0">
-      <failure>Error: expect(received).toBeUndefined()
+    <testcase classname="TallyApiClient Request Handling should handle a 401 Unauthorized error" name="TallyApiClient Request Handling should handle a 401 Unauthorized error" time="0.018">
+      <failure>Error: expect(received).rejects.toThrow(expected)
 
-Received: &quot;https://tally.so/forms/form123/edit&quot;
-    at Object.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/src/tools/__tests__/form-creation-tool.test.ts:269:30)</failure>
+Expected substring: &quot;No valid authentication found. Please authenticate first.&quot;
+Received message:   &quot;this.axiosInstance.request is not a function&quot;
+
+      586 |
+      587 |     // The interceptors will handle authentication and error handling
+    &gt; 588 |     const response: AxiosResponse&lt;T&gt; = await this.axiosInstance.request(requestConfig);
+          |                                                                 ^
+      589 |
+      590 |     return {
+      591 |       data: response.data,
+
+      at TallyApiClient.request (src/services/TallyApiClient.ts:588:65)
+      at TallyApiClient.get (src/services/TallyApiClient.ts:348:17)
+      at Object.&lt;anonymous&gt; (src/__tests__/api/TallyApiClient.test.ts:96:27)
+    at Object.toThrow (/Users/cryophobic/dev/projects/tally-mcp/node_modules/expect/build/index.js:218:22)
+    at Object.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/api/TallyApiClient.test.ts:96:47)
+    at Promise.then.completed (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:316:40)
+    at _runTest (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-runner/build/runTest.js:444:34)</failure>
     </testcase>
-    <testcase classname="FormCreationTool logging should log execution arguments" name="FormCreationTool logging should log execution arguments" time="0.001">
+    <testcase classname=" Test execution failure: could be caused by test hooks like &apos;afterAll&apos;." name=" Test execution failure: could be caused by test hooks like &apos;afterAll&apos;." time="0">
+      <failure>{&quot;message&quot;:&quot;&quot;,&quot;stack&quot;:&quot;Error: thrown: Object {\n  \&quot;isAxiosError\&quot;: true,\n  \&quot;response\&quot;: Object {\n    \&quot;data\&quot;: Object {\n      \&quot;message\&quot;: \&quot;Not Found\&quot;,\n    },\n    \&quot;status\&quot;: 404,\n  },\n}\n    at _getError (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/utils.js:432:18)\n    at Array.map (&lt;anonymous&gt;)\n    at makeRunResult (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/utils.js:346:36)\n    at run (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:75:35)\n    at runAndTransformResultsToJestFormat (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)\n    at jestAdapter (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)\n    at runTestInternal (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-runner/build/runTest.js:367:16)\n    at runTest (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-runner/build/runTest.js:444:34)\nNotFoundError: Not Found\n    at createErrorFromResponse (/Users/cryophobic/dev/projects/tally-mcp/src/models/errors.ts:291:14)\n    at TallyApiClient.handleResponseError (/Users/cryophobic/dev/projects/tally-mcp/src/services/TallyApiClient.ts:876:54)\n    at /Users/cryophobic/dev/projects/tally-mcp/src/services/TallyApiClient.ts:999:21\n    at Object.mockInterceptor [as use] (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/api/TallyApiClient.test.ts:85:57)\n    at TallyApiClient.setupInterceptors (/Users/cryophobic/dev/projects/tally-mcp/src/services/TallyApiClient.ts:987:46)\n    at new TallyApiClient (/Users/cryophobic/dev/projects/tally-mcp/src/services/TallyApiClient.ts:220:10)\n    at Object.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/src/__tests__/api/TallyApiClient.test.ts:88:16)\n    at Promise.then.completed (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/utils.js:298:28)\n    at new Promise (&lt;anonymous&gt;)\n    at callAsyncCircusFn (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/utils.js:231:10)\n    at _callCircusTest (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:316:40)\n    at _runTest (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:252:3)\n    at _runTestsForDescribeBlock (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:126:9)\n    at _runTestsForDescribeBlock (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:121:9)\n    at _runTestsForDescribeBlock (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:121:9)\n    at run (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:71:3)\n    at runAndTransformResultsToJestFormat (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)\n    at jestAdapter (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)\n    at runTestInternal (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-runner/build/runTest.js:367:16)\n    at runTest (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-runner/build/runTest.js:444:34)&quot;}</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="TallyApiClient Integration Tests" errors="0" failures="0" skipped="0" timestamp="2025-06-20T00:32:56" time="0.13" tests="9">
+    <testcase classname="TallyApiClient Integration Tests Retry Configuration Integration should initialize with default retry configuration" name="TallyApiClient Integration Tests Retry Configuration Integration should initialize with default retry configuration" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient Integration Tests Retry Configuration Integration should accept custom retry configuration" name="TallyApiClient Integration Tests Retry Configuration Integration should accept custom retry configuration" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient Integration Tests Retry Configuration Integration should merge partial retry configuration with defaults" name="TallyApiClient Integration Tests Retry Configuration Integration should merge partial retry configuration with defaults" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient Integration Tests Retry Configuration Integration should have interceptors set up when retry config is provided" name="TallyApiClient Integration Tests Retry Configuration Integration should have interceptors set up when retry config is provided" time="0.001">
+    </testcase>
+    <testcase classname="TallyApiClient Integration Tests Retry Configuration Integration should maintain backward compatibility when no retry config is provided" name="TallyApiClient Integration Tests Retry Configuration Integration should maintain backward compatibility when no retry config is provided" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient Integration Tests Error Handling Configuration should have proper error types available for retry logic" name="TallyApiClient Integration Tests Error Handling Configuration should have proper error types available for retry logic" time="0.001">
+    </testcase>
+    <testcase classname="TallyApiClient Integration Tests Error Handling Configuration should create client with debug logging enabled" name="TallyApiClient Integration Tests Error Handling Configuration should create client with debug logging enabled" time="0">
+    </testcase>
+    <testcase classname="TallyApiClient Integration Tests Circuit Breaker Configuration should configure circuit breaker with custom settings" name="TallyApiClient Integration Tests Circuit Breaker Configuration should configure circuit breaker with custom settings" time="0.001">
+    </testcase>
+    <testcase classname="TallyApiClient Integration Tests Circuit Breaker Configuration should allow disabling circuit breaker" name="TallyApiClient Integration Tests Circuit Breaker Configuration should allow disabling circuit breaker" time="0">
     </testcase>
   </testsuite>
 </testsuites>
