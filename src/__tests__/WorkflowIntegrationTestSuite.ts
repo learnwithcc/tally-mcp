@@ -189,9 +189,25 @@ export class WorkflowIntegrationTestSuite {
     this.mockedAxios.post.mockImplementation(async (url: string, data?: any) => {
       await this.simulateNetworkDelay();
       if (url.includes('/message')) {
-        return responses['mcp-success'];
+        // Return unique ID for each MCP request to support concurrency tests
+        const uniqueMcpResponse = {
+          ...responses['mcp-success'],
+          data: {
+            ...responses['mcp-success'].data,
+            id: `test-id-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+          }
+        };
+        return uniqueMcpResponse;
       }
-      return responses['tally-api-success'];
+      // Return unique ID for each API call to support concurrency tests
+      const uniqueResponse = {
+        ...responses['tally-api-success'],
+        data: {
+          ...responses['tally-api-success'].data,
+          id: `mock-id-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        }
+      };
+      return uniqueResponse;
     });
 
     this.log('setup', 'mocks', 'Mock responses configured', { responses: Object.keys(responses) });

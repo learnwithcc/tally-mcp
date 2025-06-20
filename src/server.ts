@@ -6,7 +6,7 @@
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { ListToolsRequestSchema, CallToolRequestSchema, ServerCapabilities as MCPServerCapabilities } from '@modelcontextprotocol/sdk/types.js';
 import express, { Express, Request, Response } from 'express';
 import * as os from 'os';
 import { 
@@ -138,7 +138,7 @@ export interface MCPServerConfig {
   /** Logger configuration */
   logger?: Partial<LoggerConfig>;
   /** Server capabilities */
-  capabilities?: ServerCapabilities;
+  capabilities?: MCPServerCapabilities;
   /** Tools available on the server */
   tools?: any;
   /** Tally API Key */
@@ -244,13 +244,8 @@ export const DEFAULT_HEALTH_THRESHOLDS: HealthThresholds = {
 /**
  * Server capabilities configuration
  */
-export const SERVER_CAPABILITIES: ServerCapabilities = {
-  protocolVersion: '2024-11-05',
-  tools: {
-    call: true,
-    list: true,
-    listChanged: true
-  },
+export const SERVER_CAPABILITIES: MCPServerCapabilities = {
+  tools: {},
   resources: {
     subscribe: false,
     listChanged: false
@@ -395,7 +390,6 @@ export class MCPServer extends Server {
     SentryService.initialize();
     this.setupMiddleware();
     this.setupRoutes();
-    this.setupMCPHandlers();
     this.setupSignalHandlers();
   }
 
@@ -1715,15 +1709,23 @@ export class MCPServer extends Server {
    * Setup MCP tool request handlers
    */
   private setupMCPHandlers(): void {
-    // Handle list tools requests
-    this.setRequestHandler(ListToolsRequestSchema, async () => {
-      return this._handleToolsList();
-    });
+    // Only set up tool handlers if tools are configured
+    if (this.tools || this.config.tools) {
+      // Explicitly register capabilities to ensure the SDK knows about tools support
+      this.registerCapabilities({
+        tools: {},
+      });
+      
+      // Handle list tools requests
+      this.setRequestHandler(ListToolsRequestSchema, async () => {
+        return this._handleToolsList();
+      });
 
-    // Handle call tool requests
-    this.setRequestHandler(CallToolRequestSchema, async (request) => {
-      return this._handleToolsCall(request);
-    });
+      // Handle call tool requests
+      this.setRequestHandler(CallToolRequestSchema, async (request) => {
+        return this._handleToolsCall(request);
+      });
+    }
   }
 
   public on(event: string, listener: (...args: any[]) => void): this {
