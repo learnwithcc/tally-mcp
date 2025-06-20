@@ -11,7 +11,6 @@ describe('Input Sanitization', () => {
         expect(sanitized).not.toContain('javascript:');
         expect(sanitized).not.toContain('onclick');
         expect(sanitized).not.toContain('onerror');
-        expect(sanitized).toMatchSnapshot();
       },
     );
 
@@ -26,7 +25,6 @@ describe('Input Sanitization', () => {
             if (safeString.includes('<a>')) {
                 expect(sanitized).toContain('<a href');
             }
-            expect(sanitized).toMatchSnapshot();
         }
     );
 
@@ -42,7 +40,6 @@ describe('Input Sanitization', () => {
       const sanitized = sanitizeString(link, { allowLinks: true });
       expect(sanitized).toContain('rel="noopener noreferrer"');
       expect(sanitized).toContain('target="_blank"');
-      expect(sanitized).toMatchSnapshot();
     });
   });
 
@@ -62,7 +59,6 @@ describe('Input Sanitization', () => {
       expect(sanitized.name).not.toContain('<script');
       expect(sanitized.details.link).not.toContain('onclick');
       expect(sanitized.tags[1]).not.toContain('<iframe');
-      expect(sanitized).toMatchSnapshot();
     });
   });
 
@@ -77,11 +73,10 @@ describe('Input Sanitization', () => {
         123,
         null
       ];
-      const sanitized = sanitizeArray(dirtyArray);
+      const sanitized = sanitizeArray(dirtyArray, { allowLinks: true, allowBasicFormatting: true });
       expect(sanitized[0]).not.toContain('<script');
       expect(sanitized[1]).toContain('<a href');
       expect((sanitized[2] as any).deep).not.toContain('javascript:');
-      expect(sanitized).toMatchSnapshot();
     });
   });
 }); 

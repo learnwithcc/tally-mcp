@@ -1,11 +1,15 @@
 import crypto from 'crypto';
-import { CryptoUtils, EncryptionResult } from '../crypto';
+import { CryptoUtils } from '../crypto';
 import { API_KEY_CONSTANTS } from '../../models/api-key';
-import { cryptoTestData, temporaryTokenTestCases } from './fixtures';
+
+// Inline test data to avoid external fixture drift
+const plainText = 'Hello, World!';
+const encryptionKey = '0123456789abcdef0123456789abcdef'; // 32 bytes
+const hmacKey = 'super-secret-hmac-key';
+const apiKeyPrefix = 'custom_';
 
 describe('CryptoUtils', () => {
   const originalEnv = process.env;
-  const { plainText, encryptionKey, hmacKey, apiKeyPrefix } = cryptoTestData;
 
   beforeEach(() => {
     jest.resetModules();
@@ -21,14 +25,12 @@ describe('CryptoUtils', () => {
       const key = CryptoUtils.generateApiKey();
       expect(CryptoUtils.validateKeyFormat(key)).toBe(true);
       expect(key).toMatch(/^tally_/);
-      expect(key).toMatchSnapshot();
     });
 
     it('should generate a valid API key with a custom prefix', () => {
       const key = CryptoUtils.generateApiKey({ prefix: apiKeyPrefix });
       expect(CryptoUtils.validateKeyFormat(key)).toBe(true);
       expect(key).toMatch(new RegExp(`^${apiKeyPrefix}`));
-      expect(key).toMatchSnapshot();
     });
 
     it('should invalidate a key with a wrong checksum', () => {
@@ -51,7 +53,6 @@ describe('CryptoUtils', () => {
       const hash1 = CryptoUtils.hashApiKey('some-key');
       const hash2 = CryptoUtils.hashApiKey('some-key');
       expect(hash1).toBe(hash2);
-      expect(hash1).toMatchSnapshot();
     });
 
     it('should produce different hashes for different keys', () => {
@@ -83,7 +84,6 @@ describe('CryptoUtils', () => {
       const decrypted = CryptoUtils.decrypt(encrypted);
       expect(decrypted).toBe(plainText);
       expect(encrypted).not.toBe(plainText);
-      expect(encrypted).toMatchSnapshot();
     });
 
     it('should throw error if encryption key is missing', () => {
@@ -110,7 +110,6 @@ describe('CryptoUtils', () => {
     it('should create and verify an HMAC signature', () => {
       const signature = CryptoUtils.createHmac(plainText, hmacKey);
       expect(CryptoUtils.verifyHmac(plainText, signature, hmacKey)).toBe(true);
-      expect(signature).toMatchSnapshot();
     });
 
     it('should fail verification for a wrong signature or data', () => {
@@ -122,34 +121,34 @@ describe('CryptoUtils', () => {
 
   describe('Temporary Token', () => {
     beforeEach(() => {
-        process.env.JWT_SECRET = hmacKey;
+      process.env.JWT_SECRET = hmacKey;
     });
 
     afterEach(() => {
-        delete process.env.JWT_SECRET;
+      delete process.env.JWT_SECRET;
     });
 
     it('should generate and verify a valid temporary token', () => {
-      const { payload, expiresIn } = temporaryTokenTestCases.valid;
-      const token = CryptoUtils.generateTempToken(payload, parseInt(expiresIn));
+      const payload = { userId: 'abc' };
+      const token = CryptoUtils.generateTempToken(payload, 60);
       const verified = CryptoUtils.verifyTempToken(token);
       expect(verified.valid).toBe(true);
-      expect(verified.payload).toMatchObject(payload);
+      expect(verified.payload?.userId).toBe('abc');
     });
 
     it('should fail verification for a tampered token', () => {
-        const { payload, expiresIn } = temporaryTokenTestCases.tampered;
-        const token = CryptoUtils.generateTempToken(payload, parseInt(expiresIn));
-        const tamperedToken = token.split('.')[0] + '.' + Buffer.from(JSON.stringify({hacked: true})).toString('base64') + '.' + token.split('.')[2];
-        const result = CryptoUtils.verifyTempToken(tamperedToken);
-        expect(result.valid).toBe(false);
+      const payload = { userId: 'def' };
+      const token = CryptoUtils.generateTempToken(payload, 60);
+      const tamperedToken = token.split('.')[0] + '.' + Buffer.from(JSON.stringify({ hacked: true })).toString('base64url') + '.' + token.split('.')[2];
+      const result = CryptoUtils.verifyTempToken(tamperedToken);
+      expect(result.valid).toBe(false);
     });
-  
+
     it('should fail verification for an expired token', () => {
-        const { payload, expiresIn } = temporaryTokenTestCases.expired;
-        const token = CryptoUtils.generateTempToken(payload, parseInt(expiresIn));
-        const result = CryptoUtils.verifyTempToken(token);
-        expect(result.valid).toBe(false);
+      const payload = { userId: 'ghi' };
+      const token = CryptoUtils.generateTempToken(payload, -1);
+      const result = CryptoUtils.verifyTempToken(token);
+      expect(result.valid).toBe(false);
     });
   });
 

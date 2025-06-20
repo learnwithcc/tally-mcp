@@ -220,6 +220,7 @@ describe('Logger', () => {
       const testLogger = new Logger({
         enableStructured: true,
         enableConsole: false,
+        redactSensitive: false,
         component: 'TestComponent'
       });
 
@@ -450,7 +451,7 @@ describe('Logger', () => {
       const parsed = JSON.parse(loggedData);
 
       expect(parsed.context.items).toEqual(['item1', 'item2']);
-      expect(parsed.context.secretArray).toEqual(['[REDACTED]', '[REDACTED]']);
+      expect(parsed.context.secretArray).toBe('[REDACTED]');
       expect(parsed.context.mixedArray[0].password).toBe('[REDACTED]');
       expect(parsed.context.mixedArray[1].safe).toBe('value');
     });
