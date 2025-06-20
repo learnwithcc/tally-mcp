@@ -1089,15 +1089,18 @@ export class FormModificationOperations {
         sendConfirmationEmail: tallyForm.settings?.sendConfirmationEmail,
         allowMultipleSubmissions: tallyForm.settings?.allowMultipleSubmissions
       },
-      metadata: {
-        createdAt: tallyForm.createdAt,
-        updatedAt: tallyForm.updatedAt,
-        version: 1, // Initial version
-        isPublished: tallyForm.isPublished,
-        ...(tallyForm.metadata?.tags && { tags: tallyForm.metadata.tags }),
-        ...(tallyForm.metadata?.category && { category: tallyForm.metadata.category }),
-        ...(tallyForm.metadata?.workspaceId && { workspaceId: tallyForm.metadata.workspaceId })
-      }
+      metadata: (() => {
+        const meta: any = tallyForm.metadata || {};
+        return {
+          createdAt: tallyForm.createdAt,
+          updatedAt: tallyForm.updatedAt,
+          version: 1, // Initial version
+          isPublished: tallyForm.isPublished,
+          ...(meta.tags && { tags: meta.tags }),
+          ...(meta.category && { category: meta.category }),
+          ...(meta.workspaceId && { workspaceId: meta.workspaceId })
+        };
+      })()
     };
   }
 
