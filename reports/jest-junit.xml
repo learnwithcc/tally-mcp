@@ -1,143 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="13" failures="4" errors="0" time="0.487">
-  <testsuite name="FormCreationTool" errors="0" failures="4" skipped="0" timestamp="2025-06-20T00:40:09" time="0.452" tests="13">
-    <testcase classname="FormCreationTool constructor should create an instance with correct name and description" name="FormCreationTool constructor should create an instance with correct name and description" time="0.004">
+<testsuites name="jest tests" tests="26" failures="0" errors="0" time="0.249">
+  <testsuite name="FormModificationOperations" errors="0" failures="0" skipped="0" timestamp="2025-06-20T00:47:17" time="0.232" tests="26">
+    <testcase classname="FormModificationOperations executeOperation should handle unknown operation types" name="FormModificationOperations executeOperation should handle unknown operation types" time="0.002">
     </testcase>
-    <testcase classname="FormCreationTool constructor should initialize all required services" name="FormCreationTool constructor should initialize all required services" time="0.002">
+    <testcase classname="FormModificationOperations executeOperation should handle errors gracefully" name="FormModificationOperations executeOperation should handle errors gracefully" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool execute - template creation should create form from template successfully" name="FormCreationTool execute - template creation should create form from template successfully" time="0.004">
-      <failure>Error: expect(received).toEqual(expected) // deep equality
-
-- Expected  -  0
-+ Received  + 19
-
-@@ -1,6 +1,22 @@
-  Object {
-+   &quot;enrichedFieldConfigurations&quot;: Array [
-+     Object {
-+       &quot;description&quot;: undefined,
-+       &quot;id&quot;: &quot;q1&quot;,
-+       &quot;label&quot;: &quot;Name&quot;,
-+       &quot;metadata&quot;: Object {
-+         &quot;createdAt&quot;: &quot;2025-06-20T00:40:09.773Z&quot;,
-+         &quot;originalIndex&quot;: 0,
-+         &quot;version&quot;: 1,
-+       },
-+       &quot;order&quot;: 1,
-+       &quot;placeholder&quot;: undefined,
-+       &quot;required&quot;: true,
-+       &quot;type&quot;: &quot;text&quot;,
-+     },
-+   ],
-    &quot;formConfig&quot;: Object {
-      &quot;description&quot;: &quot;A test form&quot;,
-      &quot;questions&quot;: Array [
-        Object {
-          &quot;id&quot;: &quot;q1&quot;,
-@@ -14,6 +30,9 @@
-      },
-      &quot;title&quot;: &quot;Test Form&quot;,
-    },
-    &quot;formId&quot;: &quot;form123&quot;,
-    &quot;formUrl&quot;: &quot;https://tally.so/forms/form123/edit&quot;,
-+   &quot;generatedFieldIds&quot;: Array [
-+     &quot;q1&quot;,
-+   ],
-  }
-    at Object.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/src/tools/__tests__/form-creation-tool.test.ts:96:22)</failure>
+    <testcase classname="FormModificationOperations ADD_FIELD operation should add a text field successfully" name="FormModificationOperations ADD_FIELD operation should add a text field successfully" time="0.004">
     </testcase>
-    <testcase classname="FormCreationTool execute - template creation should create form from template without custom title" name="FormCreationTool execute - template creation should create form from template without custom title" time="0.001">
+    <testcase classname="FormModificationOperations ADD_FIELD operation should add a choice field with options" name="FormModificationOperations ADD_FIELD operation should add a choice field with options" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool execute - template creation should throw error when template not found" name="FormCreationTool execute - template creation should throw error when template not found" time="0.006">
+    <testcase classname="FormModificationOperations ADD_FIELD operation should generate default label when not provided" name="FormModificationOperations ADD_FIELD operation should generate default label when not provided" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool execute - natural language creation should create form from natural language prompt successfully" name="FormCreationTool execute - natural language creation should create form from natural language prompt successfully" time="0.003">
-      <failure>Error: expect(received).toEqual(expected) // deep equality
-
-- Expected  -  0
-+ Received  + 19
-
-@@ -1,6 +1,22 @@
-  Object {
-+   &quot;enrichedFieldConfigurations&quot;: Array [
-+     Object {
-+       &quot;description&quot;: undefined,
-+       &quot;id&quot;: &quot;q1&quot;,
-+       &quot;label&quot;: &quot;Name&quot;,
-+       &quot;metadata&quot;: Object {
-+         &quot;createdAt&quot;: &quot;2025-06-20T00:40:09.790Z&quot;,
-+         &quot;originalIndex&quot;: 0,
-+         &quot;version&quot;: 1,
-+       },
-+       &quot;order&quot;: 1,
-+       &quot;placeholder&quot;: undefined,
-+       &quot;required&quot;: true,
-+       &quot;type&quot;: &quot;text&quot;,
-+     },
-+   ],
-    &quot;formConfig&quot;: Object {
-      &quot;description&quot;: &quot;A test form&quot;,
-      &quot;questions&quot;: Array [
-        Object {
-          &quot;id&quot;: &quot;q1&quot;,
-@@ -14,6 +30,9 @@
-      },
-      &quot;title&quot;: &quot;Contact Form&quot;,
-    },
-    &quot;formId&quot;: &quot;form123&quot;,
-    &quot;formUrl&quot;: &quot;https://tally.so/forms/form123/edit&quot;,
-+   &quot;generatedFieldIds&quot;: Array [
-+     &quot;q1&quot;,
-+   ],
-  }
-    at Object.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/src/tools/__tests__/form-creation-tool.test.ts:154:22)</failure>
+    <testcase classname="FormModificationOperations ADD_FIELD operation should fail when field type is missing" name="FormModificationOperations ADD_FIELD operation should fail when field type is missing" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool execute - natural language creation should create form without custom title override" name="FormCreationTool execute - natural language creation should create form without custom title override" time="0.001">
+    <testcase classname="FormModificationOperations REMOVE_FIELD operation should remove field by number" name="FormModificationOperations REMOVE_FIELD operation should remove field by number" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool execute - error scenarios should throw error when neither templateId nor naturalLanguagePrompt provided" name="FormCreationTool execute - error scenarios should throw error when neither templateId nor naturalLanguagePrompt provided" time="0.013">
-      <failure>Error: expect(received).rejects.toThrow(expected)
-
-Expected substring: &quot;Either naturalLanguagePrompt or templateId must be provided.&quot;
-Received message:   &quot;One of formConfig, naturalLanguagePrompt, or templateId must be provided.&quot;
-
-      91 |
-      92 |     if (!formConfig) {
-    &gt; 93 |       throw new Error(&apos;One of formConfig, naturalLanguagePrompt, or templateId must be provided.&apos;);
-         |             ^
-      94 |     }
-      95 |
-      96 |     let createdTallyForm;
-
-      at FormCreationTool.execute (src/tools/form-creation-tool.ts:93:13)
-      at Object.&lt;anonymous&gt; (src/tools/__tests__/form-creation-tool.test.ts:191:25)
-    at Object.toThrow (/Users/cryophobic/dev/projects/tally-mcp/node_modules/expect/build/index.js:218:22)
-    at Object.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/src/tools/__tests__/form-creation-tool.test.ts:191:53)
-    at Promise.then.completed (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/utils.js:298:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/utils.js:231:10)
-    at _callCircusTest (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:316:40)
-    at _runTest (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:252:3)
-    at _runTestsForDescribeBlock (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:126:9)
-    at _runTestsForDescribeBlock (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:121:9)
-    at _runTestsForDescribeBlock (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:121:9)
-    at run (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/run.js:71:3)
-    at runAndTransformResultsToJestFormat (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
-    at jestAdapter (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
-    at runTestInternal (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-runner/build/runTest.js:367:16)
-    at runTest (/Users/cryophobic/dev/projects/tally-mcp/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    <testcase classname="FormModificationOperations REMOVE_FIELD operation should remove field by label" name="FormModificationOperations REMOVE_FIELD operation should remove field by label" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool execute - error scenarios should propagate API errors from createForm" name="FormCreationTool execute - error scenarios should propagate API errors from createForm" time="0.017">
+    <testcase classname="FormModificationOperations REMOVE_FIELD operation should fail when field is not found" name="FormModificationOperations REMOVE_FIELD operation should fail when field is not found" time="0">
     </testcase>
-    <testcase classname="FormCreationTool execute - error scenarios should handle both templateId and naturalLanguagePrompt (prioritize template)" name="FormCreationTool execute - error scenarios should handle both templateId and naturalLanguagePrompt (prioritize template)" time="0.001">
+    <testcase classname="FormModificationOperations MAKE_REQUIRED/MAKE_OPTIONAL operations should make field required" name="FormModificationOperations MAKE_REQUIRED/MAKE_OPTIONAL operations should make field required" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool execute - edge cases should handle empty string values gracefully" name="FormCreationTool execute - edge cases should handle empty string values gracefully" time="0.001">
+    <testcase classname="FormModificationOperations MAKE_REQUIRED/MAKE_OPTIONAL operations should make field optional" name="FormModificationOperations MAKE_REQUIRED/MAKE_OPTIONAL operations should make field optional" time="0">
     </testcase>
-    <testcase classname="FormCreationTool execute - edge cases should handle null/undefined form URL from API" name="FormCreationTool execute - edge cases should handle null/undefined form URL from API" time="0.001">
-      <failure>Error: expect(received).toBeUndefined()
-
-Received: &quot;https://tally.so/forms/form123/edit&quot;
-    at Object.&lt;anonymous&gt; (/Users/cryophobic/dev/projects/tally-mcp/src/tools/__tests__/form-creation-tool.test.ts:269:30)</failure>
+    <testcase classname="FormModificationOperations UPDATE_TITLE operation should update form title" name="FormModificationOperations UPDATE_TITLE operation should update form title" time="0.001">
     </testcase>
-    <testcase classname="FormCreationTool logging should log execution arguments" name="FormCreationTool logging should log execution arguments" time="0.001">
+    <testcase classname="FormModificationOperations UPDATE_TITLE operation should fail when new title is missing" name="FormModificationOperations UPDATE_TITLE operation should fail when new title is missing" time="0.001">
+    </testcase>
+    <testcase classname="FormModificationOperations UPDATE_DESCRIPTION operation should update form description" name="FormModificationOperations UPDATE_DESCRIPTION operation should update form description" time="0">
+    </testcase>
+    <testcase classname="FormModificationOperations REORDER_FIELD operation should reorder field successfully" name="FormModificationOperations REORDER_FIELD operation should reorder field successfully" time="0.001">
+    </testcase>
+    <testcase classname="FormModificationOperations REORDER_FIELD operation should fail with invalid source position" name="FormModificationOperations REORDER_FIELD operation should fail with invalid source position" time="0.003">
+    </testcase>
+    <testcase classname="FormModificationOperations ADD_OPTION operation should add option to choice field" name="FormModificationOperations ADD_OPTION operation should add option to choice field" time="0.001">
+    </testcase>
+    <testcase classname="FormModificationOperations ADD_OPTION operation should fail when adding option to non-choice field" name="FormModificationOperations ADD_OPTION operation should fail when adding option to non-choice field" time="0">
+    </testcase>
+    <testcase classname="FormModificationOperations ADD_OPTION operation should fail when option text is missing" name="FormModificationOperations ADD_OPTION operation should fail when option text is missing" time="0.001">
+    </testcase>
+    <testcase classname="FormModificationOperations MODIFY_FIELD operation should modify field label" name="FormModificationOperations MODIFY_FIELD operation should modify field label" time="0">
+    </testcase>
+    <testcase classname="FormModificationOperations MODIFY_FIELD operation should modify multiple field properties" name="FormModificationOperations MODIFY_FIELD operation should modify multiple field properties" time="0.001">
+    </testcase>
+    <testcase classname="FormModificationOperations MODIFY_FIELD operation should fail when no modifications are specified" name="FormModificationOperations MODIFY_FIELD operation should fail when no modifications are specified" time="0">
+    </testcase>
+    <testcase classname="FormModificationOperations validateFormConfig should validate valid form configuration" name="FormModificationOperations validateFormConfig should validate valid form configuration" time="0.001">
+    </testcase>
+    <testcase classname="FormModificationOperations validateFormConfig should detect duplicate field IDs" name="FormModificationOperations validateFormConfig should detect duplicate field IDs" time="0">
+    </testcase>
+    <testcase classname="FormModificationOperations validateFormConfig should detect empty field labels" name="FormModificationOperations validateFormConfig should detect empty field labels" time="0.001">
+    </testcase>
+    <testcase classname="FormModificationOperations validateFormConfig should detect choice fields without options" name="FormModificationOperations validateFormConfig should detect choice fields without options" time="0">
     </testcase>
   </testsuite>
 </testsuites>

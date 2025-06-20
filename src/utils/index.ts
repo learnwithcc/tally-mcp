@@ -23,6 +23,16 @@ export {
 } from './input-sanitizer';
 
 // Export block builder functions
-export { createFormTitleBlock, createQuestionBlocks, buildBlocksForForm, type TallyBlock, type TallyBlockType } from './block-builder';
+export { 
+  createFormTitleBlock, 
+  createQuestionBlocks, 
+  createQuestionBlocksWithMapping,
+  buildBlocksForForm, 
+  buildBlocksForFormWithMapping,
+  generateEnrichedFieldConfigurations,
+  type TallyBlock, 
+  type TallyBlockType,
+  type BlockBuilderResult
+} from './block-builder';
 
 // Additional utility implementations will be added in subsequent tasks 
