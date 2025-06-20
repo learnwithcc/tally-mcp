@@ -61,7 +61,7 @@ describe('Logging and Monitoring Integration Tests', () => {
       expect(stats.errors).toBeGreaterThan(0);
 
       const logs = (testSuite as any).executionLogs;
-      expect(logs.some((log: any) => log.stage === 'error')).toBe(true);
+      expect(logs.some((log: any) => log.stage === 'error' || log.stage === 'error-captured')).toBe(true);
       expect(logs.some((log: any) => log.workflow === 'logging-test-failure')).toBe(true);
       expect(logs.some((log: any) => log.data && log.data.error)).toBe(true);
     });

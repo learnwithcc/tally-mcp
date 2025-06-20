@@ -2,11 +2,18 @@ import { FormCreationTool, FormCreationArgs, FormCreationResult } from '../form-
 import { NlpService, TallyApiService, TemplateService } from '../../services';
 import { FormConfig, QuestionType } from '../../models/form-config';
 import { TallyApiClientConfig } from '../../services/TallyApiClient';
+import { buildBlocksForFormWithMapping, generateEnrichedFieldConfigurations } from '../../utils';
 
 // Mock the services
 jest.mock('../../services/nlp-service');
 jest.mock('../../services/tally-api-service');
 jest.mock('../../services/template-service');
+
+// Mock the utility functions
+jest.mock('../../utils', () => ({
+  buildBlocksForFormWithMapping: jest.fn(),
+  generateEnrichedFieldConfigurations: jest.fn(),
+}));
 
 describe('FormCreationTool', () => {
   let tool: FormCreationTool;
@@ -39,6 +46,15 @@ describe('FormCreationTool', () => {
     updatedAt: '2023-01-01T00:00:00Z'
   };
 
+  const mockBlockResult = {
+    fieldIds: ['field1', 'field2'],
+    fieldBlockMapping: { q1: 'field1' }
+  };
+
+  const mockEnrichedFieldConfigurations = [
+    { fieldId: 'field1', type: 'text', validation: {} }
+  ];
+
   beforeEach(() => {
     mockApiClientConfig = {
       accessToken: 'test-token',
@@ -50,6 +66,10 @@ describe('FormCreationTool', () => {
 
     // Reset mockFormConfig to original state to prevent test interference
     mockFormConfig.title = 'Test Form';
+
+    // Setup utility function mocks
+    (buildBlocksForFormWithMapping as jest.Mock).mockReturnValue(mockBlockResult);
+    (generateEnrichedFieldConfigurations as jest.Mock).mockReturnValue(mockEnrichedFieldConfigurations);
 
     // Create tool instance
     tool = new FormCreationTool(mockApiClientConfig);
@@ -96,7 +116,9 @@ describe('FormCreationTool', () => {
       expect(result).toEqual({
         formUrl: 'https://tally.so/forms/form123/edit',
         formId: 'form123',
-        formConfig: mockFormConfig
+        formConfig: mockFormConfig,
+        generatedFieldIds: ['field1', 'field2'],
+        enrichedFieldConfigurations: [{ fieldId: 'field1', type: 'text', validation: {} }]
       });
     });
 
@@ -157,7 +179,9 @@ describe('FormCreationTool', () => {
         formConfig: {
           ...mockFormConfig,
           title: 'Contact Form'
-        }
+        },
+        generatedFieldIds: ['field1', 'field2'],
+        enrichedFieldConfigurations: [{ fieldId: 'field1', type: 'text', validation: {} }]
       });
     });
 
@@ -189,7 +213,7 @@ describe('FormCreationTool', () => {
 
       // Act & Assert
       await expect(tool.execute(emptyArgs)).rejects.toThrow(
-        'Either naturalLanguagePrompt or templateId must be provided.'
+        'One of formConfig, naturalLanguagePrompt, or templateId must be provided.'
       );
       expect(mockTemplateService.instantiateTemplate).not.toHaveBeenCalled();
       expect(mockNlpService.generateFormConfig).not.toHaveBeenCalled();
@@ -258,7 +282,7 @@ describe('FormCreationTool', () => {
     it('should handle null/undefined form URL from API', async () => {
       // Arrange
       const nlpArgs = { naturalLanguagePrompt: 'Test prompt' };
-      const formWithoutUrl = { ...mockCreatedForm, url: undefined };
+      const formWithoutUrl = { title: 'Test Form', createdAt: '2023-01-01T00:00:00Z', updatedAt: '2023-01-01T00:00:00Z' };
       mockNlpService.generateFormConfig.mockReturnValue(mockFormConfig);
       mockTallyApiService.createForm.mockResolvedValue(formWithoutUrl);
 
@@ -267,6 +291,7 @@ describe('FormCreationTool', () => {
 
       // Assert
       expect(result.formUrl).toBeUndefined();
+      expect(result.formId).toBeUndefined();
       expect(result.formConfig).toEqual(mockFormConfig);
     });
   });

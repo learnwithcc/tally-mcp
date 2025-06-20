@@ -418,6 +418,13 @@ export class MCPServer extends Server {
   }
 
   /**
+   * Get Express app instance for testing
+   */
+  public getApp(): Express {
+    return this.app;
+  }
+
+  /**
    * Get comprehensive health metrics
    */
   public getHealthMetrics(): HealthMetrics {
