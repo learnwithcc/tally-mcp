@@ -116,8 +116,8 @@ describe('Sanitization Middleware', () => {
         mockRequest.body = { article: '<b>Bold</b> <a href="http://example.com">link</a>' };
         SanitizationMiddleware.richText(mockRequest as Request, mockResponse as Response, nextFunction);
         
-        // DOMPurify doesn't automatically add rel attributes - that's expected behavior
-        expect(mockRequest.body.article).toBe('<b>Bold</b> <a href="http://example.com">link</a>');
+        // DOMPurify adds security attributes to external links for safety
+        expect(mockRequest.body.article).toBe('<b>Bold</b> <a href="http://example.com" rel="noopener noreferrer" target="_blank">link</a>');
     });
   });
 

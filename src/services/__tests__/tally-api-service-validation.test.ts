@@ -237,7 +237,7 @@ describe('TallyApiService - Schema Validation', () => {
       const invalidService = new TallyApiService(mockApiClientConfig);
       
       // Mock the internal method that generates the payload to return invalid data
-      jest.spyOn(invalidService as any, 'mapToTallyPayload').mockImplementation(() => {
+      jest.spyOn(invalidService as any, 'mapFormConfigToPayload').mockImplementation(() => {
         // Return a payload that will fail Zod validation due to invalid UUID format
         return {
           status: 'PUBLISHED',

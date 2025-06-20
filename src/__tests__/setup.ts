@@ -9,6 +9,12 @@ process.env.USE_MOCK_API = 'true';
 process.env.TALLY_API_KEY = process.env.TALLY_API_KEY || 'test_api_key';
 process.env.TALLY_BASE_URL = process.env.TALLY_BASE_URL || 'https://api.tally.so';
 
+// Additional required environment variables for configuration validation
+process.env.TALLY_OAUTH_CLIENT_ID = process.env.TALLY_OAUTH_CLIENT_ID || 'test_oauth_client_id';
+process.env.TALLY_OAUTH_CLIENT_SECRET = process.env.TALLY_OAUTH_CLIENT_SECRET || 'test_oauth_client_secret';
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test_jwt_secret';
+process.env.SESSION_SECRET = process.env.SESSION_SECRET || 'test_session_secret';
+
 // Increase timeout for async operations
 jest.setTimeout(10000);
 

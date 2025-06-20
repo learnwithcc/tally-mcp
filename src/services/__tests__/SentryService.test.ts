@@ -12,7 +12,7 @@ jest.mock('@sentry/node', () => {
 });
 
 jest.mock('@sentry/profiling-node', () => ({
-  ProfilingIntegration: jest.fn(),
+  nodeProfilingIntegration: jest.fn(() => ({ name: 'ProfilingIntegration' })),
 }));
 
 describe('SentryService', () => {
