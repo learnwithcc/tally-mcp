@@ -3,6 +3,8 @@ import { Tool } from './tool';
 import { TallyApiService } from '../services';
 import { TallyApiClientConfig } from '../services/TallyApiClient';
 import { FormConfig } from '../models/form-config';
+import { TallyForm, TallyFormSchema, TallyFormsResponse } from '../models/tally-schemas';
+import { SubmissionBehavior } from '../models/form-config';
 
 // ===========================
 // Input Validation Schemas
@@ -384,5 +386,806 @@ export class BulkDuplicationValidator {
     const totalBatchDelays = (numberOfBatches - 1) * delayBetweenBatches;
     
     return estimatedFormCreationTime + totalBatchDelays;
+  }
+}
+
+// ===========================
+// Form Retrieval and Validation
+// ===========================
+
+/**
+ * Schema for form accessibility result
+ */
+export const FormAccessibilitySchema = z.object({
+  formId: z.string().describe('ID of the form'),
+  accessible: z.boolean().describe('Whether the form is accessible'),
+  reason: z.string().optional().describe('Reason if form is not accessible'),
+  permissions: z.array(z.string()).optional().describe('Available permissions for the form')
+});
+
+export type FormAccessibility = z.infer<typeof FormAccessibilitySchema>;
+
+/**
+ * Schema for validated form structure
+ */
+export const ValidatedFormStructureSchema = z.object({
+  formId: z.string().describe('ID of the form'),
+  originalForm: TallyFormSchema.describe('Original form data from Tally API'),
+  isValid: z.boolean().describe('Whether the form structure is valid for duplication'),
+  validationErrors: z.array(z.string()).describe('List of validation errors if any'),
+  complexityScore: z.number().min(1).max(10).describe('Complexity score for the form (1-10)'),
+  estimatedDuplicationTime: z.number().describe('Estimated time to duplicate this form in milliseconds'),
+  dependencies: z.array(z.string()).optional().describe('IDs of other forms this form depends on'),
+  metadata: z.record(z.any()).optional().describe('Additional metadata about the form')
+});
+
+export type ValidatedFormStructure = z.infer<typeof ValidatedFormStructureSchema>;
+
+/**
+ * Schema for form relationship tracking
+ */
+export const FormRelationshipSchema = z.object({
+  originalFormId: z.string().describe('ID of the original form'),
+  duplicatedFormId: z.string().describe('ID of the duplicated form'),
+  duplicatedFormName: z.string().describe('Name of the duplicated form'),
+  relationshipType: z.enum(['duplicate', 'template_instance', 'variant']).describe('Type of relationship'),
+  createdAt: z.string().datetime().describe('When the relationship was created'),
+  createdBy: z.string().describe('Who created the duplicate'),
+  modifications: z.array(z.object({
+    field: z.string().describe('Field that was modified'),
+    originalValue: z.any().describe('Original value'),
+    newValue: z.any().describe('New value'),
+    reason: z.string().optional().describe('Reason for the modification')
+  })).optional().describe('List of modifications made during duplication'),
+  tags: z.array(z.string()).optional().describe('Tags associated with this relationship')
+});
+
+export type FormRelationship = z.infer<typeof FormRelationshipSchema>;
+
+/**
+ * Form retrieval and validation service for bulk duplication
+ */
+export class FormRetrievalService {
+  private tallyApiService: TallyApiService;
+
+  constructor(apiClientConfig: TallyApiClientConfig) {
+    this.tallyApiService = new TallyApiService(apiClientConfig);
+  }
+
+  /**
+   * Retrieve and validate source forms for duplication
+   */
+  async retrieveAndValidateForms(
+    sourceFormIds: string[],
+    workspaceSettings?: WorkspacePermission
+  ): Promise<{
+    validatedForms: ValidatedFormStructure[];
+    accessibilityResults: FormAccessibility[];
+    totalValidForms: number;
+    totalErrors: number;
+    errors: string[];
+  }> {
+    const validatedForms: ValidatedFormStructure[] = [];
+    const accessibilityResults: FormAccessibility[] = [];
+    const errors: string[] = [];
+
+    // Retrieve forms in parallel for better performance
+    const formRetrievalPromises = sourceFormIds.map(async (formId) => {
+      try {
+        // Check form accessibility first
+        const accessibility = await this.checkFormAccessibility(formId, workspaceSettings);
+        accessibilityResults.push(accessibility);
+
+        if (!accessibility.accessible) {
+          errors.push(`Form ${formId} is not accessible: ${accessibility.reason}`);
+          return null;
+        }
+
+        // Retrieve form structure
+        const form = await this.tallyApiService.getForm(formId);
+        
+        // Validate form structure
+        const validatedStructure = await this.validateFormStructure(form);
+        
+        if (!validatedStructure.isValid) {
+          errors.push(...validatedStructure.validationErrors.map(err => `Form ${formId}: ${err}`));
+          return null;
+        }
+
+        validatedForms.push(validatedStructure);
+        return validatedStructure;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        errors.push(`Failed to retrieve form ${formId}: ${errorMessage}`);
+        accessibilityResults.push({
+          formId,
+          accessible: false,
+          reason: `API Error: ${errorMessage}`
+        });
+        return null;
+      }
+    });
+
+    await Promise.all(formRetrievalPromises);
+
+    return {
+      validatedForms,
+      accessibilityResults,
+      totalValidForms: validatedForms.length,
+      totalErrors: errors.length,
+      errors
+    };
+  }
+
+  /**
+   * Check if a form is accessible for duplication
+   */
+  async checkFormAccessibility(
+    formId: string,
+    workspaceSettings?: WorkspacePermission
+  ): Promise<FormAccessibility> {
+    try {
+      // Basic validation
+      if (!BulkDuplicationValidator.isValidFormId(formId)) {
+        return {
+          formId,
+          accessible: false,
+          reason: 'Invalid form ID format'
+        };
+      }
+
+      // Try to retrieve basic form info
+      const form = await this.tallyApiService.getForm(formId);
+      
+      if (!form) {
+        return {
+          formId,
+          accessible: false,
+          reason: 'Form not found'
+        };
+      }
+
+      // Check workspace permissions if specified
+      if (workspaceSettings?.workspaceId) {
+        const hasWorkspaceAccess = await this.checkWorkspacePermissions(
+          form,
+          workspaceSettings.workspaceId
+        );
+        
+        if (!hasWorkspaceAccess) {
+          return {
+            formId,
+            accessible: false,
+            reason: 'Insufficient workspace permissions'
+          };
+        }
+      }
+
+      // Check form status - drafts may not be suitable for duplication
+      if (form.status === 'draft' || form.status === 'archived') {
+        return {
+          formId,
+          accessible: true,
+          reason: `Form is in ${form.status} status - duplication may be limited`,
+          permissions: ['read', 'duplicate']
+        };
+      }
+
+      return {
+        formId,
+        accessible: true,
+        permissions: ['read', 'duplicate', 'modify']
+      };
+    } catch (error) {
+      return {
+        formId,
+        accessible: false,
+        reason: error instanceof Error ? error.message : 'Access check failed'
+      };
+    }
+  }
+
+  /**
+   * Validate form structure for duplication compatibility
+   */
+  async validateFormStructure(form: TallyForm): Promise<ValidatedFormStructure> {
+    const validationErrors: string[] = [];
+    let complexityScore = 1;
+    let estimatedDuplicationTime = 2000; // Base 2 seconds
+
+    // Basic required fields validation
+    if (!form.id) {
+      validationErrors.push('Form ID is missing');
+    }
+
+    if (!form.name && !form.title) {
+      validationErrors.push('Form must have a name or title');
+    }
+
+    // Analyze form complexity
+    const complexityAnalysis = this.analyzeFormComplexity(form);
+    complexityScore = complexityAnalysis.score;
+    estimatedDuplicationTime = complexityAnalysis.estimatedTime;
+
+    // Validate form structure for duplication
+    if (form.status === 'deleted') {
+      validationErrors.push('Cannot duplicate deleted forms');
+    }
+
+    // Check for unsupported field types or configurations
+    const unsupportedFeatures = this.checkForUnsupportedFeatures(form);
+    if (unsupportedFeatures.length > 0) {
+      validationErrors.push(...unsupportedFeatures.map(feature => 
+        `Unsupported feature: ${feature}`
+      ));
+    }
+
+    // Extract dependencies
+    const dependencies = this.extractFormDependencies(form);
+
+    return {
+      formId: form.id,
+      originalForm: form,
+      isValid: validationErrors.length === 0,
+      validationErrors,
+      complexityScore,
+      estimatedDuplicationTime,
+      dependencies,
+      metadata: {
+        createdAt: form.createdAt,
+        updatedAt: form.updatedAt,
+        submissionsCount: form.submissionsCount || 0,
+        hasEmbedUrl: !!form.embedUrl,
+        hasPublicUrl: !!form.url || !!form.shareUrl || !!form.publicUrl
+      }
+    };
+  }
+
+  /**
+   * Analyze form complexity to determine duplication difficulty
+   */
+  private analyzeFormComplexity(form: TallyForm): { score: number; estimatedTime: number } {
+    let score = 1;
+    let timeMultiplier = 1;
+
+    // Base complexity factors
+    if (form.submissionsCount && form.submissionsCount > 1000) {
+      score += 1;
+      timeMultiplier += 0.2;
+    }
+
+    if (form.description && form.description.length > 500) {
+      score += 0.5;
+    }
+
+    // Form has public/share URLs - may have complex sharing settings
+    if (form.url || form.shareUrl || form.publicUrl || form.embedUrl) {
+      score += 1;
+      timeMultiplier += 0.3;
+    }
+
+    // Recent updates might indicate active development
+    if (form.updatedAt) {
+      const daysSinceUpdate = (Date.now() - new Date(form.updatedAt).getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSinceUpdate < 7) {
+        score += 0.5;
+      }
+    }
+
+    // Published forms are generally more complex
+    if (form.isPublished) {
+      score += 1;
+      timeMultiplier += 0.2;
+    }
+
+    // Ensure score is within bounds
+    score = Math.min(Math.max(score, 1), 10);
+    
+    // Calculate estimated time (base 2 seconds + complexity factors)
+    const estimatedTime = Math.round(2000 * timeMultiplier * (score / 5));
+
+    return { score, estimatedTime };
+  }
+
+  /**
+   * Check for features that may not be supported in duplication
+   */
+  private checkForUnsupportedFeatures(form: TallyForm): string[] {
+    const unsupported: string[] = [];
+
+    // Add checks for specific features that are difficult to duplicate
+    // This is extensible based on actual API limitations discovered during testing
+
+    return unsupported;
+  }
+
+  /**
+   * Extract form dependencies (e.g., references to other forms)
+   */
+  private extractFormDependencies(form: TallyForm): string[] {
+    const dependencies: string[] = [];
+
+    // Check for form references in description or other fields
+    // This would be based on actual form structure analysis
+    
+    return dependencies;
+  }
+
+  /**
+   * Check workspace permissions for form access
+   */
+  private async checkWorkspacePermissions(
+    form: TallyForm,
+    workspaceId: string
+  ): Promise<boolean> {
+    try {
+      // Basic workspace ID validation
+      if (!BulkDuplicationValidator.isValidWorkspaceId(workspaceId)) {
+        return false;
+      }
+
+      // This would integrate with actual workspace permission checking
+      // For now, we'll assume access is granted if the workspace ID is valid
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+}
+
+/**
+ * Form relationship tracking service
+ */
+export class FormRelationshipTracker {
+  private relationships: Map<string, FormRelationship[]> = new Map();
+
+  /**
+   * Track a new form relationship
+   */
+  addRelationship(relationship: FormRelationship): void {
+    const { originalFormId } = relationship;
+    
+    if (!this.relationships.has(originalFormId)) {
+      this.relationships.set(originalFormId, []);
+    }
+    
+    this.relationships.get(originalFormId)!.push(relationship);
+  }
+
+  /**
+   * Get all relationships for a source form
+   */
+  getRelationships(originalFormId: string): FormRelationship[] {
+    return this.relationships.get(originalFormId) || [];
+  }
+
+  /**
+   * Get all tracked relationships
+   */
+  getAllRelationships(): Map<string, FormRelationship[]> {
+    return new Map(this.relationships);
+  }
+
+  /**
+   * Find duplicates of a specific form
+   */
+  findDuplicates(originalFormId: string): FormRelationship[] {
+    return this.getRelationships(originalFormId).filter(
+      rel => rel.relationshipType === 'duplicate'
+    );
+  }
+
+  /**
+   * Track bulk duplication operation relationships
+   */
+  trackBulkDuplication(
+    sourceFormIds: string[],
+    createdForms: Array<{
+      originalFormId: string;
+      duplicatedFormId: string;
+      duplicatedFormName: string;
+      modifications?: Array<{
+        field: string;
+        originalValue: any;
+        newValue: any;
+        reason?: string;
+      }>;
+    }>,
+    createdBy: string,
+    operationTags?: string[]
+  ): void {
+    const now = new Date().toISOString();
+
+    createdForms.forEach(form => {
+      const relationship: FormRelationship = {
+        originalFormId: form.originalFormId,
+        duplicatedFormId: form.duplicatedFormId,
+        duplicatedFormName: form.duplicatedFormName,
+        relationshipType: 'duplicate',
+        createdAt: now,
+        createdBy,
+        modifications: form.modifications,
+        tags: [
+          'bulk-operation',
+          ...(operationTags || [])
+        ]
+      };
+
+      this.addRelationship(relationship);
+    });
+  }
+
+  /**
+   * Export relationships for persistence
+   */
+  exportRelationships(): Record<string, FormRelationship[]> {
+    const exported: Record<string, FormRelationship[]> = {};
+    
+    this.relationships.forEach((relationships, formId) => {
+      exported[formId] = relationships;
+    });
+    
+    return exported;
+  }
+
+  /**
+   * Import relationships from persistence
+   */
+  importRelationships(data: Record<string, FormRelationship[]>): void {
+    this.relationships.clear();
+    
+    Object.entries(data).forEach(([formId, relationships]) => {
+      this.relationships.set(formId, relationships);
+    });
+  }
+
+  /**
+   * Clear all relationships
+   */
+  clearRelationships(): void {
+    this.relationships.clear();
+  }
+
+  /**
+   * Get relationship statistics
+   */
+  getStatistics(): {
+    totalOriginalForms: number;
+    totalDuplicates: number;
+    averageDuplicatesPerForm: number;
+    relationshipTypes: Record<string, number>;
+  } {
+    let totalDuplicates = 0;
+    const relationshipTypes: Record<string, number> = {};
+
+    this.relationships.forEach(relationships => {
+      totalDuplicates += relationships.length;
+      
+      relationships.forEach(rel => {
+        relationshipTypes[rel.relationshipType] = 
+          (relationshipTypes[rel.relationshipType] || 0) + 1;
+      });
+    });
+
+    return {
+      totalOriginalForms: this.relationships.size,
+      totalDuplicates,
+      averageDuplicatesPerForm: this.relationships.size > 0 
+        ? totalDuplicates / this.relationships.size 
+        : 0,
+      relationshipTypes
+    };
+  }
+}
+
+// ===========================
+// Bulk Duplication Engine
+// ===========================
+
+/**
+ * Core engine responsible for performing the actual duplication work in batches while
+ * respecting rate-limits, retry logic and progress callbacks. This is deliberately
+ * implemented with a very defensive approach – all external API interactions are wrapped
+ * in try/catch blocks so the engine can continue processing when `continueOnError` is set.
+ *
+ * NOTE: The implementation focuses on architectural correctness and unit-testability. It
+ * does not attempt to clone every nuance of the source form – that will be addressed in
+ * later subtasks (39.4 & 39.5). For now we create an extremely basic `FormConfig` based on
+ * the original form title so we have an end-to-end working pipeline that can be expanded
+ * incrementally.
+ */
+export class BulkDuplicationEngine {
+  private tallyApiService: TallyApiService;
+  private formRetrievalService: FormRetrievalService;
+  private relationshipTracker: FormRelationshipTracker;
+
+  private progressCallback?: (progress: {
+    completed: number;
+    total: number;
+    message?: string;
+    currentBatch?: number;
+    totalBatches?: number;
+  }) => void;
+
+  constructor(
+    apiConfig: TallyApiClientConfig,
+    relationshipTracker: FormRelationshipTracker,
+    progressCallback?: (progress: {
+      completed: number;
+      total: number;
+      message?: string;
+      currentBatch?: number;
+      totalBatches?: number;
+    }) => void
+  ) {
+    this.tallyApiService = new TallyApiService(apiConfig);
+    this.formRetrievalService = new FormRetrievalService(apiConfig);
+    this.relationshipTracker = relationshipTracker;
+    this.progressCallback = progressCallback;
+  }
+
+  /**
+   * Perform bulk duplication.
+   */
+  async duplicateForms(
+    rawInput: unknown,
+    userId: string = 'system'
+  ): Promise<BulkFormDuplicationResult> {
+    // 1. Validate input -----------------------------------------------------
+    const validation = BulkDuplicationValidator.validateInput(rawInput);
+    if (!validation.success || !validation.data) {
+      throw new Error(validation.error || 'Invalid input');
+    }
+    const input = validation.data;
+
+    const startTime = Date.now();
+
+    // 2. Retrieve & validate source forms -----------------------------------
+    const retrievalResult = await this.formRetrievalService.retrieveAndValidateForms(
+      input.sourceFormIds,
+      input.workspaceSettings
+    );
+
+    const errors: Array<{ formId: string; error: string; timestamp: string }> = [];
+    const creationResults: Array<{
+      sourceFormId: string;
+      sourceFormName?: string;
+      duplicates: Array<{
+        formId: string;
+        formName: string;
+        formUrl?: string;
+        status: 'success' | 'failed' | 'skipped';
+        error?: string;
+      }>;
+    }> = [];
+
+    // Map accessibility errors
+    retrievalResult.accessibilityResults.forEach(acc => {
+      if (!acc.accessible) {
+        errors.push({ formId: acc.formId, error: acc.reason || 'Inaccessible form', timestamp: new Date().toISOString() });
+      }
+    });
+
+    // Filter out invalid forms before we continue
+    const validForms = retrievalResult.validatedForms.filter(v => v.isValid);
+
+    const totalOperations = validForms.length * input.duplicateCount;
+
+    let completedOperations = 0;
+
+    const { batchSize, delayBetweenBatches, maxRetries, continueOnError } = input.batchProcessing;
+
+    const batches: ValidatedFormStructure[][] = [];
+    for (let i = 0; i < validForms.length; i += batchSize) {
+      batches.push(validForms.slice(i, i + batchSize));
+    }
+
+    // Helper to send progress updates
+    const updateProgress = (msg?: string, batchIdx?: number) => {
+      if (this.progressCallback && input.progressTracking.enableProgressUpdates) {
+        this.progressCallback({
+          completed: completedOperations,
+          total: totalOperations,
+          message: msg,
+          currentBatch: batchIdx !== undefined ? batchIdx + 1 : undefined,
+          totalBatches: batches.length,
+        });
+      }
+    };
+
+    updateProgress('Starting duplication operation');
+
+    // 3. Process batches -----------------------------------------------------
+    for (let batchIdx = 0; batchIdx < batches.length; batchIdx++) {
+      const batch = batches[batchIdx] || [];
+
+      // eslint-disable-next-line no-loop-func
+      await Promise.all(
+        batch.map(async (validatedForm) => {
+          const originalName = (validatedForm.originalForm.name || validatedForm.originalForm.title || 'Duplicate');
+          const duplicatesForForm: Array<{
+            formId: string;
+            formName: string;
+            formUrl?: string;
+            status: 'success' | 'failed' | 'skipped';
+            error?: string;
+          }> = [];
+
+          for (let dupIdx = 0; dupIdx < input.duplicateCount; dupIdx++) {
+            const sequenceNumber = input.namingPattern.startIndex + dupIdx;
+            const formName = this.generateDuplicateName(
+              originalName,
+              input.namingPattern,
+              sequenceNumber
+            );
+
+            if (input.dryRun) {
+              // Dry-run – we do not call the API
+              duplicatesForForm.push({
+                formId: 'dry-run',
+                formName,
+                status: 'skipped'
+              });
+              completedOperations++;
+              continue;
+            }
+
+            // Retry logic ---------------------------------------------------
+            let attempt = 0;
+            let success = false;
+            let createdFormId = '';
+            let createdFormUrl: string | undefined;
+            let lastError: any;
+            while (attempt <= maxRetries && !success) {
+              try {
+                const formConfig = this.buildFormConfigFromSource(validatedForm, formName, input.bulkModifications);
+                const createdForm = await this.tallyApiService.createForm(formConfig as any);
+                createdFormId = createdForm.id;
+                createdFormUrl = (createdForm as any).url;
+                success = true;
+              } catch (err) {
+                lastError = err;
+                attempt++;
+                if (attempt > maxRetries) break;
+              }
+            }
+
+            if (success) {
+              duplicatesForForm.push({
+                formId: createdFormId,
+                formName,
+                formUrl: createdFormUrl,
+                status: 'success'
+              });
+            } else {
+              duplicatesForForm.push({
+                formId: 'unknown',
+                formName,
+                status: 'failed',
+                error: (lastError as Error)?.message || 'Unknown error'
+              });
+              errors.push({
+                formId: validatedForm.formId,
+                error: (lastError as Error)?.message || 'Unknown error',
+                timestamp: new Date().toISOString()
+              });
+              if (!continueOnError) {
+                throw lastError;
+              }
+            }
+
+            completedOperations++;
+            updateProgress(`Processed ${completedOperations}/${totalOperations}`);
+          }
+
+          creationResults.push({
+            sourceFormId: validatedForm.formId,
+            sourceFormName: originalName,
+            duplicates: duplicatesForForm
+          });
+        })
+      );
+
+      // Send batch completion progress
+      updateProgress('Completed batch', batchIdx);
+
+      // Delay between batches
+      if (batchIdx < batches.length - 1 && delayBetweenBatches > 0) {
+        await this.delay(delayBetweenBatches);
+      }
+    }
+
+    // 4. Track relationships -----------------------------------------------
+    const allCreatedFormsFlat: Array<{
+      originalFormId: string;
+      duplicatedFormId: string;
+      duplicatedFormName: string;
+    }> = [];
+    creationResults.forEach(cr => {
+      cr.duplicates.forEach(d => {
+        if (d.status === 'success') {
+          allCreatedFormsFlat.push({
+            originalFormId: cr.sourceFormId,
+            duplicatedFormId: d.formId,
+            duplicatedFormName: d.formName
+          });
+        }
+      });
+    });
+
+    this.relationshipTracker.trackBulkDuplication(
+      validForms.map(v => v.formId),
+      allCreatedFormsFlat,
+      userId,
+      ['bulk-duplication']
+    );
+
+    // 5. Compile summary ----------------------------------------------------
+    const endTime = Date.now();
+
+    const result: BulkFormDuplicationResult = {
+      success: errors.length === 0,
+      summary: {
+        totalSourceForms: input.sourceFormIds.length,
+        totalDuplicatesRequested: input.sourceFormIds.length * input.duplicateCount,
+        totalDuplicatesCreated: allCreatedFormsFlat.length,
+        totalErrors: errors.length,
+        operationDuration: endTime - startTime
+      },
+      results: creationResults,
+      errors
+    };
+
+    updateProgress('Duplication operation completed');
+
+    return result;
+  }
+
+  /**
+   * Generates a duplicate name based on the naming pattern
+   */
+  private generateDuplicateName(
+    originalName: string,
+    pattern: NamingPattern,
+    sequenceNumber: number
+  ): string {
+    let name = pattern.template
+      .replace('{n}', sequenceNumber.toString())
+      .replace('{original}', originalName);
+
+    if (pattern.prefix) {
+      name = `${pattern.prefix} ${name}`;
+    }
+
+    if (pattern.suffix) {
+      name = `${name} ${pattern.suffix}`;
+    }
+
+    return name.trim();
+  }
+
+  /**
+   * Builds a minimal FormConfig from the source form. Later subtasks will enrich this.
+   */
+  private buildFormConfigFromSource(
+    source: ValidatedFormStructure,
+    newTitle: string,
+    modifications?: BulkModifications
+  ): Partial<FormConfig> {
+    // For now we only copy the title & metadata. Field-level modifications will be added later.
+    const baseConfig: Partial<FormConfig> = {
+      title: newTitle,
+      questions: [],
+      settings: {
+        submissionBehavior: SubmissionBehavior.MESSAGE
+      }
+    } as any;
+
+    // TODO: Apply modifications (handled in task 39.4)
+    return baseConfig;
+  }
+
+  private async delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 } 
