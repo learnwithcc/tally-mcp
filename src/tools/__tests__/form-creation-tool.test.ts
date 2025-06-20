@@ -95,6 +95,7 @@ describe('FormCreationTool', () => {
       expect(mockTallyApiService.createForm).toHaveBeenCalledWith(mockFormConfig);
       expect(result).toEqual({
         formUrl: 'https://tally.so/forms/form123/edit',
+        formId: 'form123',
         formConfig: mockFormConfig
       });
     });
@@ -152,6 +153,7 @@ describe('FormCreationTool', () => {
       });
       expect(result).toEqual({
         formUrl: 'https://tally.so/forms/form123/edit',
+        formId: 'form123',
         formConfig: {
           ...mockFormConfig,
           title: 'Contact Form'

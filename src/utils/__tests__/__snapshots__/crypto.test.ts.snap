@@ -2,7 +2,7 @@
 
 exports[`CryptoUtils API Key Generation and Validation should generate a valid API key with a custom prefix 1`] = `"testcf82da1a8437d38fb461a1482a1319c5a823a0715dec412ef85cefe7ea501f51_b07a9f69"`;
 
-exports[`CryptoUtils API Key Generation and Validation should generate a valid API key with default options 1`] = `"tally_aa7ebee615f8c4a5b4e900664b0a269358315b12990007c0027165d5fe08589b_5505eb03"`;
+exports[`CryptoUtils API Key Generation and Validation should generate a valid API key with default options 1`] = `"tally_1401c0ca6a7c405a66811a6243236e06c748614a434524b9eb019b8d9a6a9cf4_f15c4314"`;
 
 exports[`CryptoUtils Encryption and Decryption should encrypt and decrypt data successfully 1`] = `
 {

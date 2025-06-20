@@ -1,14 +1,11 @@
 name = "tally-mcp"
-main = "dist/worker.js"
+main = "src/worker.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 account_id = "f1f5e285b7f9bcfc4efb9eb8904cc7e8"
 
-[build]
-command = "npm run build:worker"
-
-# Environment variables for production
-[env.production.vars]
+# Environment variables for production  
+[vars]
 NODE_ENV = "production"
 TALLY_BASE_URL = "https://api.tally.so"
 PORT = "8787"
@@ -25,4 +22,5 @@ LOG_ENABLE_STRUCTURED = "true"
 LOG_REDACT_SENSITIVE = "true"
 RATE_LIMIT_WINDOW_MS = "900000"
 RATE_LIMIT_MAX_REQUESTS = "100"
-SECURITY_HELMET_ENABLED = "true" 
+SECURITY_HELMET_ENABLED = "true"
+ 

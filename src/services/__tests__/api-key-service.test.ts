@@ -512,7 +512,8 @@ describe('CryptoUtils', () => {
       });
       
       expect(key).toMatch(/^custom_/);
-      expect(key).not.toMatch(/_[A-Za-z0-9_-]{8}$/); // No checksum
+      expect(key).toMatch(/^custom_[A-Za-z0-9_-]{16}$/); // Exact length without checksum
+      expect(key.split('_')).toHaveLength(2); // Only prefix and main part
     });
 
     it('should throw error for invalid length', () => {

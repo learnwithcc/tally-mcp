@@ -15,6 +15,7 @@ export * from './team-manager';
 export * from './template-tool';
 export * from './workspace-tool';
 export * from './diagnostic-tool';
+export * from './bulk-form-duplication-tool';
 export * from './tool';
 
 export type { FormCreationArgs, FormCreationResult } from './form-creation-tool';
@@ -25,4 +26,5 @@ export { FormSharingTool } from './form-sharing-tool';
 export { TemplateTool } from './template-tool';
 export { SubmissionAnalysisTool } from './submission-tool';
 export { WorkspaceManagementTool } from './workspace-tool';
-export { DiagnosticTool } from './diagnostic-tool'; 
+export { DiagnosticTool } from './diagnostic-tool';
+export { BulkFormDuplicationTool } from './bulk-form-duplication-tool'; 

@@ -35,11 +35,77 @@ Additional optional fields inherited from `FormConfig` (e.g., `description`, `se
 
 ```ts
 interface FormCreationResult {
-  formUrl:  string | undefined; // "https://tally.so/r/<id>" if available
-  formId:   string;            // Tally form ID returned by the API
-  formConfig: FormConfig;      // The final config that was sent (after NLP/template processing)
+  formUrl:  string | undefined;                      // "https://tally.so/r/<id>" if available
+  formId:   string;                                  // Tally form ID returned by the API
+  formConfig: FormConfig;                            // The final config that was sent (after NLP/template processing)
+  
+  // ✨ NEW: Enhanced API Response Features (Added 2025-06-20)
+  generatedFieldIds?: string[];                      // Array of field IDs created during form creation
+  enrichedFieldConfigurations?: EnrichedFieldConfiguration[]; // Detailed field configurations with metadata
 }
 ```
+
+### Enhanced Response Details
+
+The `create_form` tool now returns additional information to provide better visibility into the generated form structure:
+
+#### `generatedFieldIds` (Array)
+Contains the unique field IDs for each question/field in the form, in the same order as they appear in the form. These IDs are generated using RFC 4122 v4 UUIDs and can be used for:
+- Tracking specific fields for analytics
+- Referencing fields in subsequent form modifications
+- Building field-specific validation or conditional logic
+
+#### `enrichedFieldConfigurations` (Array) 
+Provides detailed configuration objects for each field, including:
+
+```ts
+interface EnrichedFieldConfiguration {
+  id: string;                                        // Unique field identifier (UUID)
+  type: QuestionType;                               // Field type (text, email, dropdown, etc.)
+  label: string;                                    // Display label for the field
+  description?: string;                             // Optional field description/help text
+  required: boolean;                                // Whether field is required
+  placeholder?: string;                             // Placeholder text for input fields
+  order: number;                                    // Position in form (1-based index)
+  
+  // Advanced Configuration
+  validationRules?: {                               // Validation rules applied to field
+    rules: Array<{
+      type: string;                                 // Rule type (minLength, maxLength, pattern, etc.)
+      value?: any;                                  // Rule value/constraint
+      errorMessage?: string;                        // Custom error message
+      enabled: boolean;                             // Whether rule is active
+    }>;
+  };
+  
+  options?: Array<{                                 // For choice-based fields (dropdown, radio, etc.)
+    id: string;                                     // Option identifier
+    label: string;                                  // Display text
+    value: string;                                  // Option value
+  }>;
+  
+  conditionalLogic?: {                              // Conditional visibility/requirements
+    showIf?: any;                                   // Conditions to show field
+    hideIf?: any;                                   // Conditions to hide field
+    requireIf?: any;                                // Conditions to require field
+  };
+  
+  typeSpecificProperties?: {                        // Field-type specific settings
+    [key: string]: any;                             // e.g., min/max for numbers, currency for payment
+  };
+  
+  metadata: {                                       // System metadata
+    originalIndex: number;                          // Original position in form config
+    createdAt: string;                              // ISO timestamp
+    blockUuid?: string;                             // Corresponding Tally block UUID
+    blockType?: string;                             // Tally block type
+  };
+}
+```
+
+### Backward Compatibility
+
+The enhanced response structure is **fully backward compatible**. Existing integrations will continue to work unchanged, as the new fields (`generatedFieldIds` and `enrichedFieldConfigurations`) are optional and only add information without modifying existing response properties.
 
 ---
 
@@ -113,7 +179,7 @@ The tool automatically converts high-level `QuestionType` values into Tally bloc
 }
 ```
 
-All three flows produce an immediate response similar to:
+All three flows now produce an enhanced response similar to:
 
 ```jsonc
 {
@@ -122,7 +188,71 @@ All three flows produce an immediate response similar to:
   "formConfig": {
     "title": "Bug Report",
     "fields": [/* … */]
-  }
+  },
+  // ✨ NEW: Enhanced response fields
+  "generatedFieldIds": [
+    "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    "6ba7b810-9dad-11d1-80b4-00c04fd430c8", 
+    "6ba7b811-9dad-11d1-80b4-00c04fd430c9"
+  ],
+  "enrichedFieldConfigurations": [
+    {
+      "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "type": "text",
+      "label": "Summary of the bug",
+      "required": true,
+      "order": 1,
+      "validationRules": {
+        "rules": [
+          {
+            "type": "minLength",
+            "value": 5,
+            "errorMessage": "Please provide at least 5 characters",
+            "enabled": true
+          }
+        ]
+      },
+      "metadata": {
+        "originalIndex": 0,
+        "createdAt": "2025-06-20T00:48:30.123Z",
+        "blockUuid": "550e8400-e29b-41d4-a716-446655440000",
+        "blockType": "INPUT_TEXT"
+      }
+    },
+    {
+      "id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+      "type": "textarea", 
+      "label": "Steps to reproduce",
+      "required": true,
+      "order": 2,
+      "typeSpecificProperties": {
+        "rows": 4
+      },
+      "metadata": {
+        "originalIndex": 1,
+        "createdAt": "2025-06-20T00:48:30.124Z",
+        "blockUuid": "550e8400-e29b-41d4-a716-446655440001",
+        "blockType": "TEXTAREA"
+      }
+    },
+    {
+      "id": "6ba7b811-9dad-11d1-80b4-00c04fd430c9",
+      "type": "file",
+      "label": "Attach screenshot",
+      "required": false,
+      "order": 3,
+      "typeSpecificProperties": {
+        "allowedTypes": ["image/png", "image/jpeg"],
+        "maxSize": "5MB"
+      },
+      "metadata": {
+        "originalIndex": 2,
+        "createdAt": "2025-06-20T00:48:30.125Z",
+        "blockUuid": "550e8400-e29b-41d4-a716-446655440002", 
+        "blockType": "FILE_UPLOAD"
+      }
+    }
+  ]
 }
 ```
 
@@ -157,5 +287,6 @@ All three flows produce an immediate response similar to:
 
 | Date | Version | Notes |
 | ---- | ------- | ----- |
+| 2025-06-20 | v2.1 | **Enhanced API Response** – Added `generatedFieldIds` and `enrichedFieldConfigurations` to provide detailed field information, UUIDs, validation rules, and metadata. Maintains full backward compatibility. |
 | 2025-06-18 | v2 | Major rewrite – reflects block-based implementation, new input schema, mapping table, troubleshooting, and developer guide. |
 | 2025-04-30 | v1 | Initial version describing two-step flow. | 

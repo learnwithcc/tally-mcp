@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { 
   FormConfig, 
   QuestionConfig, 
@@ -697,17 +698,19 @@ export class FormModificationOperations {
   }
 
   /**
-   * Generate the next available field ID
+   * Generate a unique field ID using UUID
+   * This ensures stable, unique identifiers across all form fields
    */
   private generateNextFieldId(formConfig: FormConfig): string {
     const existingIds = new Set(formConfig.questions.map(q => q.id).filter(id => id));
-    let nextId = `question_${existingIds.size + 1}`;
-    while (existingIds.has(nextId)) {
-      const parts = nextId.split('_');
-      const currentNumber = parseInt(parts[1] || '1');
-      nextId = `question_${currentNumber + 1}`;
+    
+    // Generate a new UUID and ensure it's unique (extremely unlikely collision)
+    let newId = randomUUID();
+    while (existingIds.has(newId)) {
+      newId = randomUUID();
     }
-    return nextId;
+    
+    return newId;
   }
 
   /**
@@ -1032,33 +1035,222 @@ export class FormModificationOperations {
   }
 
   /**
-   * Convert a TallyForm API response to a FormConfig object
+   * Convert a TallyForm API response to a FormConfig object with comprehensive field details
    */
   public convertTallyFormToFormConfig(tallyForm: TallyForm & { questions?: any[], settings?: any }): FormConfig {
     return {
-      title: tallyForm.title,
+      title: tallyForm.title || 'Untitled Form',
       description: tallyForm.description || undefined,
       questions: (tallyForm.questions || []).map((field: any) => {
-        return {
-          id: field.id,
+        // Base question configuration
+        const baseConfig: any = {
+          id: field.id || field.uuid,
           type: field.type as QuestionType,
-          label: field.title,
-          required: field.validations?.some((r: any) => r.type === 'required') || false,
-          ...field.settings
+          label: field.label || field.title || 'Untitled Question',
+          description: field.description,
+          required: field.required || field.validations?.some((r: any) => r.type === 'required') || false,
+          placeholder: field.placeholder,
+          order: field.order,
+        };
+
+        // Map validation rules if present
+        if (field.validation || field.validations) {
+          baseConfig.validation = this.mapValidationRules(field.validation || field.validations);
+        }
+
+        // Map conditional logic if present
+        if (field.logic) {
+          baseConfig.logic = field.logic;
+        }
+
+        // Type-specific configurations
+        const typeSpecificConfig = this.mapTypeSpecificProperties(field);
+
+        return {
+          ...baseConfig,
+          ...typeSpecificConfig
         };
       }),
       settings: {
         submissionBehavior: tallyForm.settings?.redirectOnCompletion 
           ? SubmissionBehavior.REDIRECT 
           : SubmissionBehavior.MESSAGE,
-        redirectUrl: tallyForm.settings?.redirectOnCompletionUrl || undefined
+        redirectUrl: tallyForm.settings?.redirectOnCompletionUrl || undefined,
+        showProgressBar: tallyForm.settings?.showProgressBar,
+        allowDrafts: tallyForm.settings?.allowDrafts,
+        showQuestionNumbers: tallyForm.settings?.showQuestionNumbers,
+        shuffleQuestions: tallyForm.settings?.shuffleQuestions,
+        maxSubmissions: tallyForm.settings?.maxSubmissions,
+        requireAuth: tallyForm.settings?.requireAuth,
+        collectEmail: tallyForm.settings?.collectEmail,
+        closeDate: tallyForm.settings?.closeDate,
+        openDate: tallyForm.settings?.openDate,
+        submissionMessage: tallyForm.settings?.submissionMessage,
+        sendConfirmationEmail: tallyForm.settings?.sendConfirmationEmail,
+        allowMultipleSubmissions: tallyForm.settings?.allowMultipleSubmissions
       },
       metadata: {
         createdAt: tallyForm.createdAt,
         updatedAt: tallyForm.updatedAt,
-        version: 1 // Initial version
+        version: 1, // Initial version
+        isPublished: tallyForm.isPublished,
+        ...(tallyForm.metadata?.tags && { tags: tallyForm.metadata.tags }),
+        ...(tallyForm.metadata?.category && { category: tallyForm.metadata.category }),
+        ...(tallyForm.metadata?.workspaceId && { workspaceId: tallyForm.metadata.workspaceId })
       }
     };
+  }
+
+  /**
+   * Map validation rules from API response format to FormConfig format
+   */
+  private mapValidationRules(validations: any): any {
+    if (!validations) return undefined;
+    
+    if (Array.isArray(validations)) {
+      return {
+        rules: validations.map((rule: any) => ({
+          type: rule.type,
+          errorMessage: rule.errorMessage,
+          enabled: rule.enabled,
+          ...rule // Include all other properties
+        }))
+      };
+    }
+    
+    return validations;
+  }
+
+  /**
+   * Map type-specific properties from API field to FormConfig question
+   */
+  private mapTypeSpecificProperties(field: any): any {
+    const config: any = {};
+
+    // Choice-based field properties
+    if (field.options) {
+      config.options = field.options.map((opt: any) => ({
+        id: opt.id,
+        text: opt.text || opt.label,
+        value: opt.value,
+        isDefault: opt.isDefault,
+        imageUrl: opt.imageUrl,
+        metadata: opt.metadata
+      }));
+    }
+    if (field.allowOther !== undefined) config.allowOther = field.allowOther;
+    if (field.randomizeOptions !== undefined) config.randomizeOptions = field.randomizeOptions;
+    if (field.layout) config.layout = field.layout;
+
+    // Text field properties
+    if (field.minLength !== undefined) config.minLength = field.minLength;
+    if (field.maxLength !== undefined) config.maxLength = field.maxLength;
+    if (field.format) config.format = field.format;
+    if (field.textRows !== undefined) config.rows = field.textRows; // Map back to rows for FormConfig
+    if (field.autoResize !== undefined) config.autoResize = field.autoResize;
+
+    // Number field properties
+    if (field.min !== undefined) config.min = field.min;
+    if (field.max !== undefined) config.max = field.max;
+    if (field.step !== undefined) config.step = field.step;
+    if (field.decimalPlaces !== undefined) config.decimalPlaces = field.decimalPlaces;
+    if (field.useThousandSeparator !== undefined) config.useThousandSeparator = field.useThousandSeparator;
+    if (field.numberCurrency) config.currency = field.numberCurrency; // Map back to currency for FormConfig
+
+    // Date/Time field properties
+    if (field.minDate) config.minDate = field.minDate;
+    if (field.maxDate) config.maxDate = field.maxDate;
+    if (field.dateFormat) config.dateFormat = field.dateFormat;
+    if (field.includeTime !== undefined) config.includeTime = field.includeTime;
+    if (field.defaultDate) config.defaultDate = field.defaultDate;
+    if (field.timeFormat) config.format = field.timeFormat; // Time format goes to format field
+    if (field.minuteStep !== undefined) config.minuteStep = field.minuteStep;
+    if (field.defaultTime) config.defaultTime = field.defaultTime;
+
+    // Rating field properties
+    if (field.minRating !== undefined) config.minRating = field.minRating;
+    if (field.maxRating !== undefined) config.maxRating = field.maxRating;
+    if (field.ratingLabels) config.ratingLabels = field.ratingLabels;
+    if (field.ratingStyle) config.style = field.ratingStyle;
+    if (field.showNumbers !== undefined) config.showNumbers = field.showNumbers;
+    if (field.lowLabel) config.lowLabel = field.lowLabel;
+    if (field.highLabel) config.highLabel = field.highLabel;
+
+    // Linear scale properties
+    if (field.minValue !== undefined) config.minValue = field.minValue;
+    if (field.maxValue !== undefined) config.maxValue = field.maxValue;
+
+    // File upload properties
+    if (field.allowedTypes) config.allowedTypes = field.allowedTypes;
+    if (field.maxFileSize !== undefined) config.maxFileSize = field.maxFileSize;
+    if (field.maxFiles !== undefined) config.maxFiles = field.maxFiles;
+    if (field.multiple !== undefined) config.multiple = field.multiple;
+    if (field.uploadText) config.uploadText = field.uploadText;
+    if (field.enableDragDrop !== undefined) config.enableDragDrop = field.enableDragDrop;
+    if (field.dragDropHint) config.dragDropHint = field.dragDropHint;
+    if (field.showProgress !== undefined) config.showProgress = field.showProgress;
+    if (field.showPreview !== undefined) config.showPreview = field.showPreview;
+    if (field.fileRestrictions) config.fileRestrictions = field.fileRestrictions;
+    if (field.sizeConstraints) config.sizeConstraints = field.sizeConstraints;
+
+    // Dropdown properties
+    if (field.searchable !== undefined) config.searchable = field.searchable;
+    if (field.dropdownPlaceholder) config.dropdownPlaceholder = field.dropdownPlaceholder;
+    if (field.multiSelect !== undefined) config.multiSelect = field.multiSelect;
+    if (field.maxSelections !== undefined) config.maxSelections = field.maxSelections;
+    if (field.minSelections !== undefined) config.minSelections = field.minSelections;
+    if (field.imageOptions !== undefined) config.imageOptions = field.imageOptions;
+    if (field.searchConfig) config.searchConfig = field.searchConfig;
+
+    // Checkbox properties
+    if (field.selectionConstraints) config.selectionConstraints = field.selectionConstraints;
+    if (field.searchOptions) config.searchOptions = field.searchOptions;
+
+    // Email field properties
+    if (field.validateFormat !== undefined) config.validateFormat = field.validateFormat;
+    if (field.suggestDomains !== undefined) config.suggestDomains = field.suggestDomains;
+
+    // Phone field properties
+    if (field.phoneFormat) config.format = field.phoneFormat;
+    if (field.customPattern) config.customPattern = field.customPattern;
+    if (field.autoFormat !== undefined) config.autoFormat = field.autoFormat;
+
+    // URL field properties
+    if (field.allowedSchemes) config.allowedSchemes = field.allowedSchemes;
+
+    // Signature field properties
+    if (field.canvasWidth !== undefined) config.canvasWidth = field.canvasWidth;
+    if (field.canvasHeight !== undefined) config.canvasHeight = field.canvasHeight;
+    if (field.penColor) config.penColor = field.penColor;
+    if (field.backgroundColor) config.backgroundColor = field.backgroundColor;
+
+    // Matrix field properties
+    if (field.rows && Array.isArray(field.rows)) config.rows = field.rows; // Matrix rows, not text rows
+    if (field.columns) config.columns = field.columns;
+    if (field.defaultResponseType) config.defaultResponseType = field.defaultResponseType;
+    if (field.allowMultiplePerRow !== undefined) config.allowMultiplePerRow = field.allowMultiplePerRow;
+    if (field.requireAllRows !== undefined) config.requireAllRows = field.requireAllRows;
+    if (field.randomizeRows !== undefined) config.randomizeRows = field.randomizeRows;
+    if (field.randomizeColumns !== undefined) config.randomizeColumns = field.randomizeColumns;
+    if (field.mobileLayout) config.mobileLayout = field.mobileLayout;
+    if (field.showHeadersOnMobile !== undefined) config.showHeadersOnMobile = field.showHeadersOnMobile;
+    if (field.defaultCellValidation) config.defaultCellValidation = field.defaultCellValidation;
+    if (field.customClasses) config.customClasses = field.customClasses;
+
+    // Payment field properties
+    if (field.amount !== undefined) config.amount = field.amount;
+    if (field.currency) config.currency = field.currency; // Payment currency
+    if (field.fixedAmount !== undefined) config.fixedAmount = field.fixedAmount;
+    if (field.minAmount !== undefined) config.minAmount = field.minAmount;
+    if (field.maxAmount !== undefined) config.maxAmount = field.maxAmount;
+    if (field.paymentDescription) config.paymentDescription = field.paymentDescription;
+    if (field.acceptedMethods) config.acceptedMethods = field.acceptedMethods;
+
+    // Custom properties
+    if (field.customProperties) config.customProperties = field.customProperties;
+    if (field.metadata) config.metadata = field.metadata;
+
+    return config;
   }
 
   /**

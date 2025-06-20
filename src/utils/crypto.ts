@@ -54,17 +54,22 @@ export class CryptoUtils {
     const {
       length = API_KEY_CONSTANTS.DEFAULT_KEY_LENGTH,
       prefix = API_KEY_CONSTANTS.DEFAULT_PREFIX,
+      includeChecksum = true
     } = options;
 
     if (length < API_KEY_CONSTANTS.MIN_KEY_LENGTH || length > API_KEY_CONSTANTS.MAX_KEY_LENGTH) {
       throw new Error(`Key length must be between ${API_KEY_CONSTANTS.MIN_KEY_LENGTH} and ${API_KEY_CONSTANTS.MAX_KEY_LENGTH}`);
     }
 
-    const randomPart = crypto.randomBytes(length).toString('hex');
+    const randomPart = crypto.randomBytes(Math.ceil(length / 2)).toString('hex').slice(0, length);
     const key = `${prefix}${randomPart}`;
-    const checksum = this.calculateChecksum(key);
     
-    return `${key}_${checksum}`;
+    if (includeChecksum) {
+      const checksum = this.calculateChecksum(key);
+      return `${key}_${checksum}`;
+    }
+    
+    return key;
   }
 
   /**

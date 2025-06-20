@@ -2,6 +2,8 @@ import { Tool } from './tool';
 import { NlpService, TallyApiService, TemplateService } from '../services';
 import { FormConfig } from '../models/form-config';
 import { TallyApiClientConfig } from '../services/TallyApiClient';
+import { EnrichedFieldConfiguration } from '../types';
+import { buildBlocksForFormWithMapping, generateEnrichedFieldConfigurations } from '../utils';
 
 export interface FormCreationArgs {
   /**
@@ -31,6 +33,18 @@ export interface FormCreationResult {
   formUrl: string | undefined;
   formId: string;
   formConfig: FormConfig;
+  
+  /**
+   * Array of generated field IDs created during form creation
+   * Maps to the questions in formConfig by array index
+   */
+  generatedFieldIds?: string[];
+  
+  /**
+   * Detailed field configuration objects with enriched properties
+   * including validation rules, options, and type-specific settings
+   */
+  enrichedFieldConfigurations?: EnrichedFieldConfiguration[];
 }
 
 export class FormCreationTool implements Tool<FormCreationArgs, FormCreationResult> {
@@ -101,10 +115,16 @@ export class FormCreationTool implements Tool<FormCreationArgs, FormCreationResu
       formUrl = `https://tally.so/forms/${createdTallyForm.id}/edit`;
     }
 
+    // Generate enriched field configurations using enhanced BlockBuilder
+    const blockResult = buildBlocksForFormWithMapping(formConfig);
+    const enrichedFieldConfigurations = generateEnrichedFieldConfigurations(formConfig, blockResult.fieldBlockMapping);
+
     return {
       formUrl,
       formId: createdTallyForm.id,
       formConfig,
+      generatedFieldIds: blockResult.fieldIds,
+      enrichedFieldConfigurations,
     };
   }
 } 

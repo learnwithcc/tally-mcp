@@ -1,5 +1,5 @@
+import { randomUUID } from 'crypto';
 import { FormConfig, QuestionConfig, SubmissionBehavior, FormTheme, QuestionType, ValidationRules, ConditionalLogic, LogicOperator, LogicCombinator, ConditionalAction } from '../models';
-import { v4 as uuidv4 } from 'uuid';
 
 export interface NlpServiceConfig {
   // Configuration for the NLP service will be defined in future tasks.
@@ -123,7 +123,7 @@ export class NlpService {
   public generateFormConfig(prompt: string): FormConfig {
     const parsed = this.parse(prompt);
     const questions: QuestionConfig[] = parsed.questions.map((q) => ({
-      id: uuidv4(),
+      id: randomUUID(),
       type: q.type || QuestionType.TEXT,
       label: q.title || 'Untitled Question',
       required: q.validation?.required || false,
@@ -168,7 +168,7 @@ export class NlpService {
           action: 'add',
           entity: 'question',
           payload: {
-            id: uuidv4(),
+            id: randomUUID(),
             type: extractedQuestion.type || QuestionType.TEXT,
             label: extractedQuestion.title || 'Untitled Question',
             required: extractedQuestion.validation?.required || false,
