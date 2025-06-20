@@ -250,7 +250,7 @@ export class WorkflowIntegrationTestSuite {
       const duration = Date.now() - workflowStart;
       this.log(workflowName, 'complete', 'Workflow execution completed', {
         status: response.status,
-        duration,
+        duration: duration || 0, // Ensure duration is never undefined
         responseBody: response.body
       });
 
@@ -263,7 +263,7 @@ export class WorkflowIntegrationTestSuite {
       );
     } catch (error) {
       const duration = Date.now() - workflowStart;
-      this.log(workflowName, 'error', 'Workflow execution failed', { error, duration });
+      this.log(workflowName, 'error', 'Workflow execution failed', { error, duration: duration || 0 });
       throw error;
     }
   }
@@ -357,7 +357,7 @@ export class WorkflowIntegrationTestSuite {
     workflowName: string,
     mcpRequest: any
   ): Promise<any> {
-    this.log(scenarioName, 'start', `Simulating ${errorType} scenario`);
+    // Note: Using scenarioName as workflow identifier for this simulation
 
     try {
       let result;
@@ -548,7 +548,7 @@ export class WorkflowIntegrationTestSuite {
       workflow,
       stage,
       action,
-      data
+      data: data ? { ...data } : undefined // Ensure data is properly copied
     };
 
     this.executionLogs.push(logEntry);

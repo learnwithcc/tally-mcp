@@ -12,6 +12,7 @@
 import { MCPServer, MCPServerConfig, ServerState } from '../server';
 import axios from 'axios';
 import EventSource from 'eventsource';
+import request from 'supertest';
 
 jest.mock('axios', () => ({
   ...jest.requireActual('axios'),
@@ -155,14 +156,15 @@ class MockMCPClient {
  * HTTP-based MCP client for testing POST endpoints
  */
 class HttpMCPClient {
-  constructor(private baseUrl: string) {}
+  constructor(private server: MCPServer) {}
 
   async sendMessage(message: any, timeout: number = 3000): Promise<any> {
-    const response = await axios.post(`${this.baseUrl}/message`, message, {
-      timeout,
-      headers: { 'Content-Type': 'application/json' }
-    });
-    return response.data;
+    const response = await request(this.server.getApp())
+      .post('/message')
+      .send(message)
+      .timeout(timeout)
+      .set('Content-Type', 'application/json');
+    return response.body;
   }
 
   async initialize(clientInfo: any = {}): Promise<any> {
@@ -305,7 +307,7 @@ describe.skip('SSE Connection Establishment and MCP Handshake Testing', () => {
 
   describe('MCP Protocol Handshake', () => {
     test('should complete proper MCP initialization handshake', async () => {
-      const httpClient = new HttpMCPClient(baseUrl);
+      const httpClient = new HttpMCPClient(server);
       
       mockedAxios.post.mockResolvedValue({
         status: 200,
@@ -329,7 +331,7 @@ describe.skip('SSE Connection Establishment and MCP Handshake Testing', () => {
     });
 
     test('should support capability negotiation', async () => {
-      const httpClient = new HttpMCPClient(baseUrl);
+      const httpClient = new HttpMCPClient(server);
 
       mockedAxios.post.mockResolvedValue({
         status: 200,
@@ -352,7 +354,7 @@ describe.skip('SSE Connection Establishment and MCP Handshake Testing', () => {
     });
 
     test('should handle invalid handshake messages gracefully', async () => {
-      const httpClient = new HttpMCPClient(baseUrl);
+      const httpClient = new HttpMCPClient(server);
 
       mockedAxios.post.mockResolvedValue({
         status: 400,
@@ -375,7 +377,7 @@ describe.skip('SSE Connection Establishment and MCP Handshake Testing', () => {
     });
 
     test('should validate JSON-RPC 2.0 compliance', async () => {
-      const httpClient = new HttpMCPClient(baseUrl);
+      const httpClient = new HttpMCPClient(server);
       
       mockedAxios.post.mockResolvedValue({
         status: 400,
@@ -397,7 +399,7 @@ describe.skip('SSE Connection Establishment and MCP Handshake Testing', () => {
     test('should list available tools correctly', async () => {
       const client = new MockMCPClient(`${baseUrl}/sse`, 'tools-client');
       await client.connect();
-      const httpClient = new HttpMCPClient(baseUrl);
+      const httpClient = new HttpMCPClient(server);
       
       mockedAxios.post.mockResolvedValue({
         status: 200,
@@ -422,7 +424,7 @@ describe.skip('SSE Connection Establishment and MCP Handshake Testing', () => {
     });
 
     test('should handle tool calls with proper error handling', async () => {
-      const httpClient = new HttpMCPClient(baseUrl);
+      const httpClient = new HttpMCPClient(server);
       
       mockedAxios.post.mockResolvedValue({
         status: 200,
@@ -447,7 +449,7 @@ describe.skip('SSE Connection Establishment and MCP Handshake Testing', () => {
   describe('Client Type Simulation', () => {
     test('should handle Claude Desktop simulation', async () => {
       const sseClient = new MockMCPClient(`${baseUrl}/sse`, 'claude-desktop');
-      const httpClient = new HttpMCPClient(baseUrl);
+      const httpClient = new HttpMCPClient(server);
       await sseClient.connect();
 
       mockedAxios.post.mockResolvedValueOnce({
@@ -486,7 +488,7 @@ describe.skip('SSE Connection Establishment and MCP Handshake Testing', () => {
 
     test('should handle MCP Inspector simulation', async () => {
       const sseClient = new MockMCPClient(`${baseUrl}/sse`, 'mcp-inspector');
-      const httpClient = new HttpMCPClient(baseUrl);
+      const httpClient = new HttpMCPClient(server);
       await sseClient.connect();
 
       mockedAxios.post.mockResolvedValue({
@@ -509,7 +511,7 @@ describe.skip('SSE Connection Establishment and MCP Handshake Testing', () => {
 
     test('should handle custom client simulation', async () => {
       const sseClient = new MockMCPClient(`${baseUrl}/sse`, 'custom-client');
-      const httpClient = new HttpMCPClient(baseUrl);
+      const httpClient = new HttpMCPClient(server);
       await sseClient.connect();
 
       mockedAxios.post.mockResolvedValue({
