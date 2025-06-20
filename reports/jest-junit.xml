@@ -1,57 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="26" failures="0" errors="0" time="0.249">
-  <testsuite name="FormModificationOperations" errors="0" failures="0" skipped="0" timestamp="2025-06-20T00:47:17" time="0.232" tests="26">
-    <testcase classname="FormModificationOperations executeOperation should handle unknown operation types" name="FormModificationOperations executeOperation should handle unknown operation types" time="0.002">
+<testsuites name="jest tests" tests="30" failures="0" errors="0" time="0.392">
+  <testsuite name="BulkFormDuplicationTool - Input Validation" errors="0" failures="0" skipped="0" timestamp="2025-06-20T03:18:00" time="0.366" tests="30">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should validate minimal valid input" name="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should validate minimal valid input" time="0.002">
     </testcase>
-    <testcase classname="FormModificationOperations executeOperation should handle errors gracefully" name="FormModificationOperations executeOperation should handle errors gracefully" time="0.001">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should validate complete input with all fields" name="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should validate complete input with all fields" time="0.001">
     </testcase>
-    <testcase classname="FormModificationOperations ADD_FIELD operation should add a text field successfully" name="FormModificationOperations ADD_FIELD operation should add a text field successfully" time="0.004">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should reject empty source form IDs array" name="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should reject empty source form IDs array" time="0.001">
     </testcase>
-    <testcase classname="FormModificationOperations ADD_FIELD operation should add a choice field with options" name="FormModificationOperations ADD_FIELD operation should add a choice field with options" time="0.001">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should reject too many source form IDs" name="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should reject too many source form IDs" time="0.002">
     </testcase>
-    <testcase classname="FormModificationOperations ADD_FIELD operation should generate default label when not provided" name="FormModificationOperations ADD_FIELD operation should generate default label when not provided" time="0.001">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should reject invalid duplicate count" name="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should reject invalid duplicate count" time="0.001">
     </testcase>
-    <testcase classname="FormModificationOperations ADD_FIELD operation should fail when field type is missing" name="FormModificationOperations ADD_FIELD operation should fail when field type is missing" time="0.001">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should reject duplicate count exceeding maximum" name="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should reject duplicate count exceeding maximum" time="0.003">
     </testcase>
-    <testcase classname="FormModificationOperations REMOVE_FIELD operation should remove field by number" name="FormModificationOperations REMOVE_FIELD operation should remove field by number" time="0.001">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should reject invalid batch size" name="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should reject invalid batch size" time="0.001">
     </testcase>
-    <testcase classname="FormModificationOperations REMOVE_FIELD operation should remove field by label" name="FormModificationOperations REMOVE_FIELD operation should remove field by label" time="0.001">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should reject batch size exceeding maximum" name="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should reject batch size exceeding maximum" time="0.001">
     </testcase>
-    <testcase classname="FormModificationOperations REMOVE_FIELD operation should fail when field is not found" name="FormModificationOperations REMOVE_FIELD operation should fail when field is not found" time="0">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should reject invalid progress tracking update interval" name="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should reject invalid progress tracking update interval" time="0.001">
     </testcase>
-    <testcase classname="FormModificationOperations MAKE_REQUIRED/MAKE_OPTIONAL operations should make field required" name="FormModificationOperations MAKE_REQUIRED/MAKE_OPTIONAL operations should make field required" time="0.001">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should reject invalid rollback threshold" name="BulkFormDuplicationTool - Input Validation BulkFormDuplicationInputSchema should reject invalid rollback threshold" time="0.002">
     </testcase>
-    <testcase classname="FormModificationOperations MAKE_REQUIRED/MAKE_OPTIONAL operations should make field optional" name="FormModificationOperations MAKE_REQUIRED/MAKE_OPTIONAL operations should make field optional" time="0">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateInput should return success for valid input" name="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateInput should return success for valid input" time="0.001">
     </testcase>
-    <testcase classname="FormModificationOperations UPDATE_TITLE operation should update form title" name="FormModificationOperations UPDATE_TITLE operation should update form title" time="0.001">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateInput should return error for invalid input" name="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateInput should return error for invalid input" time="0.001">
     </testcase>
-    <testcase classname="FormModificationOperations UPDATE_TITLE operation should fail when new title is missing" name="FormModificationOperations UPDATE_TITLE operation should fail when new title is missing" time="0.001">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateInput should handle malformed input gracefully" name="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateInput should handle malformed input gracefully" time="0.002">
     </testcase>
-    <testcase classname="FormModificationOperations UPDATE_DESCRIPTION operation should update form description" name="FormModificationOperations UPDATE_DESCRIPTION operation should update form description" time="0">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator isValidFormId should accept valid form IDs" name="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator isValidFormId should accept valid form IDs" time="0">
     </testcase>
-    <testcase classname="FormModificationOperations REORDER_FIELD operation should reorder field successfully" name="FormModificationOperations REORDER_FIELD operation should reorder field successfully" time="0.001">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator isValidFormId should reject invalid form IDs" name="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator isValidFormId should reject invalid form IDs" time="0">
     </testcase>
-    <testcase classname="FormModificationOperations REORDER_FIELD operation should fail with invalid source position" name="FormModificationOperations REORDER_FIELD operation should fail with invalid source position" time="0.003">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator isValidWorkspaceId should accept valid workspace IDs" name="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator isValidWorkspaceId should accept valid workspace IDs" time="0.001">
     </testcase>
-    <testcase classname="FormModificationOperations ADD_OPTION operation should add option to choice field" name="FormModificationOperations ADD_OPTION operation should add option to choice field" time="0.001">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator isValidWorkspaceId should reject invalid workspace IDs" name="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator isValidWorkspaceId should reject invalid workspace IDs" time="0.002">
     </testcase>
-    <testcase classname="FormModificationOperations ADD_OPTION operation should fail when adding option to non-choice field" name="FormModificationOperations ADD_OPTION operation should fail when adding option to non-choice field" time="0">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateNamingPattern should accept valid naming patterns" name="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateNamingPattern should accept valid naming patterns" time="0.001">
     </testcase>
-    <testcase classname="FormModificationOperations ADD_OPTION operation should fail when option text is missing" name="FormModificationOperations ADD_OPTION operation should fail when option text is missing" time="0.001">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateNamingPattern should reject patterns without required placeholders" name="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateNamingPattern should reject patterns without required placeholders" time="0.001">
     </testcase>
-    <testcase classname="FormModificationOperations MODIFY_FIELD operation should modify field label" name="FormModificationOperations MODIFY_FIELD operation should modify field label" time="0">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateNamingPattern should reject patterns with invalid placeholders" name="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateNamingPattern should reject patterns with invalid placeholders" time="0">
     </testcase>
-    <testcase classname="FormModificationOperations MODIFY_FIELD operation should modify multiple field properties" name="FormModificationOperations MODIFY_FIELD operation should modify multiple field properties" time="0.001">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateNamingPattern should reject invalid start index" name="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateNamingPattern should reject invalid start index" time="0">
     </testcase>
-    <testcase classname="FormModificationOperations MODIFY_FIELD operation should fail when no modifications are specified" name="FormModificationOperations MODIFY_FIELD operation should fail when no modifications are specified" time="0">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateBulkModifications should accept valid bulk modifications" name="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateBulkModifications should accept valid bulk modifications" time="0.001">
     </testcase>
-    <testcase classname="FormModificationOperations validateFormConfig should validate valid form configuration" name="FormModificationOperations validateFormConfig should validate valid form configuration" time="0.001">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateBulkModifications should reject add/modify actions without newValue" name="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateBulkModifications should reject add/modify actions without newValue" time="0">
     </testcase>
-    <testcase classname="FormModificationOperations validateFormConfig should detect duplicate field IDs" name="FormModificationOperations validateFormConfig should detect duplicate field IDs" time="0">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateBulkModifications should reject negative target index" name="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator validateBulkModifications should reject negative target index" time="0.001">
     </testcase>
-    <testcase classname="FormModificationOperations validateFormConfig should detect empty field labels" name="FormModificationOperations validateFormConfig should detect empty field labels" time="0.001">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator calculateTotalOperations should calculate total operations correctly" name="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator calculateTotalOperations should calculate total operations correctly" time="0">
     </testcase>
-    <testcase classname="FormModificationOperations validateFormConfig should detect choice fields without options" name="FormModificationOperations validateFormConfig should detect choice fields without options" time="0">
+    <testcase classname="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator estimateOperationDuration should estimate operation duration correctly" name="BulkFormDuplicationTool - Input Validation BulkDuplicationValidator estimateOperationDuration should estimate operation duration correctly" time="0">
+    </testcase>
+    <testcase classname="BulkFormDuplicationTool - Input Validation Edge Cases and Error Handling should handle empty strings in form IDs array" name="BulkFormDuplicationTool - Input Validation Edge Cases and Error Handling should handle empty strings in form IDs array" time="0.001">
+    </testcase>
+    <testcase classname="BulkFormDuplicationTool - Input Validation Edge Cases and Error Handling should handle null values in nested objects" name="BulkFormDuplicationTool - Input Validation Edge Cases and Error Handling should handle null values in nested objects" time="0">
+    </testcase>
+    <testcase classname="BulkFormDuplicationTool - Input Validation Edge Cases and Error Handling should handle missing required fields in field modifications" name="BulkFormDuplicationTool - Input Validation Edge Cases and Error Handling should handle missing required fields in field modifications" time="0.001">
+    </testcase>
+    <testcase classname="BulkFormDuplicationTool - Input Validation Edge Cases and Error Handling should handle invalid enum values" name="BulkFormDuplicationTool - Input Validation Edge Cases and Error Handling should handle invalid enum values" time="0">
     </testcase>
   </testsuite>
 </testsuites>

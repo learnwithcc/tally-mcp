@@ -15,6 +15,7 @@ export * from './team-manager';
 export * from './template-tool';
 export * from './workspace-tool';
 export * from './diagnostic-tool';
+export * from './bulk-form-duplication-tool';
 export * from './tool';
 
 export type { FormCreationArgs, FormCreationResult } from './form-creation-tool';
