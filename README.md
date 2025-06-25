@@ -1,10 +1,63 @@
 # Tally MCP Server
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.0.0-blue) 
+[![50% Off Tally.so](https://img.shields.io/badge/-Get%2050%%20Off%20Tally.so!-orange)](https://tally.cello.so/gRzFb4pxX90)
 
-A Model Context Protocol (MCP) server that provides AI assistants with secure access to Tally form management capabilities.
+
+### A Model Context Protocol (MCP) server that provides AI assistants with secure access to Tally.so form management capabilities.
+
+
+> **New to Tally?** Use the badge above to **save 50% for 3 months**. I'll earn a small commission (at no extra cost to you) which helps fund ongoing maintenance of this open‑source project.
+
+
+## About
+
+**Tally MCP Server** brings the power of Tally.so form management directly into your AI workflow. Instead of context-switching between your AI assistant and Tally's web interface, simply describe what you need in natural language and let the AI handle all the API interactions. 
+
+
+
+### Why This Exists
+
+Form creation and management shouldn't break your flow. Whether you're a developer creating test forms, a content creator building registration pages, or anyone who finds themselves constantly jumping between tools, this MCP server keeps you in the conversation.
+
+### Key Features
+
+**🎯 Natural Language Form Management**
+- Create forms by describing what you need: "Build a client intake form with name, email, and project details"
+- Update existing forms without opening the Tally interface
+- Clone successful forms as templates for future use
+
+**🛡️ Safety-First Bulk Operations**  
+- Delete multiple forms using pattern matching ("all forms starting with 'E2E Test'")
+- Mandatory preview → confirm → execute workflow prevents accidents
+- Granular exclusion controls ("delete all test forms except these 3 templates")
+
+**📊 Complete Form Lifecycle**
+- Real-time response analytics and completion rates
+- Export submissions to CSV/JSON
+- Team management and permission controls
+- Workspace organization tools
+
+**⚡ Developer Experience**
+- Built in TypeScript with full type safety
+- Deployed on Cloudflare Workers for global speed
+- 90% test coverage
+- Works with Claude Desktop, Cursor, Windsurf, and any MCP-compatible client
+
+### Perfect For
+
+- **Developers** who create lots of test forms and need easy cleanup
+- **Content creators** building registration forms for workshops and events  
+- **Teams** managing multiple form projects across workspaces
+- **Anyone** tired of clicking through form builders when they could just describe what they want
+
+Transform form management from a context-breaking chore into a seamless part of your AI-powered workflow.
 
 ## 🚀 Quick Start
+
+### Step 0 – Create a discounted Tally account (optional)
+
+If you don't already have a Tally account, grab the 50% builder's discount before continuing. You'll support this repo while saving money—win‑win!
 
 ### Option 1: Claude.ai Integration (Recommended)
 
@@ -146,4 +199,8 @@ npx wrangler deploy
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) file for details. 
+MIT License - see [LICENSE](LICENSE) file for details.
+
+---
+
+*Built by [Chris Cameron](https://learnwith.cc) • [LearnWith.cc](https://learnwith.cc)*
