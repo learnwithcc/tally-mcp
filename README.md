@@ -58,7 +58,7 @@ Transform form management from a context-breaking chore into a seamless part of 
 
 ### Step 0 – Create a discounted Tally account (optional)
 
-If you don't already have a Tally account, grab the 50% builder's discount before continuing. You'll support this repo while saving money—win‑win!
+If you don't already have a Tally account, grab the [50% builder's discount](https://tally.cello.so/gRzFb4pxX90) before continuing. You'll support this repo while saving money—win‑win!
 
 ### Option 1: Claude.ai Integration (Recommended)
 
