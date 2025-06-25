@@ -1,13 +1,14 @@
 # Tally MCP Server
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue) 
-[![50% Off Tally.so](https://img.shields.io/badge/-Get%2050%%20Off%20Tally.so!-orange)](https://tally.cello.so/gRzFb4pxX90)
-
 
 ### A Model Context Protocol (MCP) server that provides AI assistants with secure access to Tally.so form management capabilities.
 
 
-> **New to Tally?** Use the badge above to **save 50% for 3 months**. I'll earn a small commission (at no extra cost to you) which helps fund ongoing maintenance of this open‑source project.
+> **New to Tally?**  
+> [![Get 50% Off Tally.so](https://img.shields.io/badge/-Get%2050%25_Off%20Tally.so-orange)](https://tally.cello.so/gRzFb4pxX90)  
+> Use the badge above to **save 50% for 3 months**.  
+> I'll earn a small commission (at no extra cost to you) which helps fund ongoing maintenance of this open‑source project.
 
 
 ## About
